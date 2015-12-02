@@ -1,0 +1,624 @@
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// This file is a part of the 'ObjectRelations' project.
+// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+package org.obrel.core;
+
+import de.esoco.lib.event.ElementEvent.EventType;
+import de.esoco.lib.expression.Function;
+import de.esoco.lib.expression.InvertibleFunction;
+import de.esoco.lib.expression.Predicate;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.obrel.type.MetaTypes.IMMUTABLE;
+import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
+
+
+/********************************************************************
+ * The base class for all relation-enabled objects. It can be used as a base
+ * class but it is not abstract so that relations may also be added directly to
+ * instances of this class.
+ *
+ * <p>If a subclass needs to intercept the relation handling of this class
+ * completely it should override all public non-final methods with the exception
+ * of the method {@link #toString()} and the addition of the protected method
+ * {@link #deleteRelation(Relation)}.</p>
+ *
+ * @author eso
+ */
+public class RelatedObject implements Relatable
+{
+	//~ Static fields/initializers ---------------------------------------------
+
+	private static final Map<RelationType<?>, Relation<?>> NO_RELATIONS =
+		Collections.emptyMap();
+
+	//~ Instance fields --------------------------------------------------------
+
+	transient Map<RelationType<?>, Relation<?>> aRelations = NO_RELATIONS;
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Deletes a relation with a certain type from this instance. If no relation
+	 * with the given type exists the call will be ignored.
+	 *
+	 * @param rType The type of the relation to be removed from this instance
+	 */
+	@Override
+	public final void deleteRelation(RelationType<?> rType)
+	{
+		Relation<?> rRelation = getRelation(rType);
+
+		if (rRelation != null)
+		{
+			deleteRelation(rRelation);
+		}
+	}
+
+	/***************************************
+	 * Deletes a certain relation from this instance.
+	 *
+	 * @param rRelation The relation to be removed from this instance
+	 */
+	public void deleteRelation(Relation<?> rRelation)
+	{
+		RelationType<?> rType = rRelation.getType();
+
+		// notify type and listeners before removing so that they may prevent it
+		// by throwing an exception
+		rType.checkUpdateAllowed();
+		rType.deleteRelation(this, rRelation);
+		notifyRelationListeners(EventType.REMOVE, rRelation, null);
+
+		aRelations.remove(rType);
+		rRelation.removed(this);
+	}
+
+	/***************************************
+	 * @see Relatable#deleteRelations(Predicate)
+	 */
+	@Override
+	public final void deleteRelations(Predicate<? super Relation<?>> rFilter)
+	{
+		for (Relation<?> rRelation : getRelations(rFilter))
+		{
+			deleteRelation(rRelation);
+		}
+	}
+
+	/***************************************
+	 * @see Relatable#get(RelationType)
+	 */
+	@Override
+	public <T> T get(RelationType<T> rType)
+	{
+		assert rType.getName() != RelationType.INIT_TYPE : "Uninitialized relation type";
+
+		Relation<T> rRelation = getRelation(rType);
+
+		if (rRelation == null)
+		{
+			T rInitialValue = rType.initialValue(this);
+
+			if (rInitialValue == null || hasFlag(IMMUTABLE))
+			{
+				return rType.defaultValue(this);
+			}
+			else
+			{
+				rRelation = new DirectRelation<T>(rType, rInitialValue);
+				addRelation(rRelation, false);
+			}
+		}
+
+		return rRelation.getTarget();
+	}
+
+	/***************************************
+	 * @see Relatable#getAll(Predicate)
+	 */
+	@Override
+	public final List<Object> getAll(Predicate<? super Relation<?>> rFilter)
+	{
+		List<Relation<?>> rRelations = getRelations(rFilter);
+		List<Object>	  aResult    = new ArrayList<Object>(rRelations.size());
+
+		for (Relation<?> rRelation : rRelations)
+		{
+			aResult.add(rRelation.getTarget());
+		}
+
+		return aResult;
+	}
+
+	/***************************************
+	 * @see Relatable#getRelation(RelationType)
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T> Relation<T> getRelation(RelationType<T> rType)
+	{
+		return (Relation<T>) aRelations.get(rType);
+	}
+
+	/***************************************
+	 * @see Relatable#getRelationCount(Predicate)
+	 */
+	@Override
+	public final int getRelationCount(Predicate<? super Relation<?>> rFilter)
+	{
+		return getRelations(rFilter).size();
+	}
+
+	/***************************************
+	 * @see Relatable#getRelations(Predicate)
+	 */
+	@Override
+	@SuppressWarnings("boxing")
+	public List<Relation<?>> getRelations(
+		Predicate<? super Relation<?>> rFilter)
+	{
+		List<Relation<?>> aResult = new ArrayList<Relation<?>>();
+
+		for (Relation<?> rRelation : aRelations.values())
+		{
+			if (!rRelation.getType().isPrivate() &&
+				(rFilter == null || rFilter.evaluate(rRelation)))
+			{
+				aResult.add(rRelation);
+			}
+		}
+
+		return aResult;
+	}
+
+	/***************************************
+	 * @see Relatable#hasFlag(RelationType)
+	 */
+	@Override
+	public final boolean hasFlag(RelationType<Boolean> rType)
+	{
+		Relation<Boolean> rRelation = getRelation(rType);
+
+		return rRelation != null && rRelation.getTarget() == Boolean.TRUE;
+	}
+
+	/***************************************
+	 * @see Relatable#hasRelation(RelationType)
+	 */
+	@Override
+	public final boolean hasRelation(RelationType<?> rType)
+	{
+		return getRelation(rType) != null;
+	}
+
+	/***************************************
+	 * @see Relatable#hasRelations(Predicate)
+	 */
+	@Override
+	public final boolean hasRelations(Predicate<? super Relation<?>> rFilter)
+	{
+		return getRelations(rFilter).size() > 0;
+	}
+
+	/***************************************
+	 * Returns a string description of this object's relations.
+	 *
+	 * @param  sJoin      The join between relation type and value
+	 * @param  sSeparator The separator between relations
+	 * @param  nIndent    The indentation level (zero for the first, -1 for no
+	 *                    indentation)
+	 *
+	 * @return The relations string
+	 */
+	public String relationsString(String sJoin, String sSeparator, int nIndent)
+	{
+		return relationsString(sJoin,
+							   sSeparator,
+							   nIndent,
+							   new HashSet<Object>());
+	}
+
+	/***************************************
+	 * @see Relatable#set(RelationType)
+	 */
+	@Override
+	public final Relation<Boolean> set(RelationType<Boolean> rType)
+	{
+		return set(rType, Boolean.TRUE);
+	}
+
+	/***************************************
+	 * @see Relatable#set(RelationType, Object)
+	 */
+	@Override
+	public <T> Relation<T> set(RelationType<T> rType, T rTarget)
+	{
+		Relation<T> rRelation = getRelation(rType);
+
+		if (rRelation != null)
+		{
+			// notify type and listeners before updating so that they may
+			// prevent the update by throwing an exception
+			rType.checkUpdateAllowed();
+			rType.prepareRelationUpdate(rRelation, rTarget);
+			notifyRelationListeners(EventType.UPDATE, rRelation, rTarget);
+			rRelation.updateTarget(rTarget);
+		}
+		else
+		{
+			rType.checkReadonly();
+			rRelation = new DirectRelation<T>(rType, rTarget);
+			addRelation(rRelation, true);
+		}
+
+		return rRelation;
+	}
+
+	/***************************************
+	 * @see Relatable#set(RelationType, Function, Object)
+	 */
+	@Override
+	public final <T, I> Relation<T> set(RelationType<T> rType,
+										Function<I, T>  fTargetResolver,
+										I				rIntermediateTarget)
+	{
+		Relation<T> rRelation = getRelation(rType);
+
+		if (rRelation == null)
+		{
+			rRelation =
+				new IntermediateRelation<T, I>(rType,
+											   fTargetResolver,
+											   rIntermediateTarget);
+
+			// addRelation() will replace an existing relation with the given type
+			addRelation(rRelation, true);
+		}
+		else
+		{
+			throw new IllegalStateException("Relation already exists: " +
+											rRelation);
+		}
+
+		return rRelation;
+	}
+
+	/***************************************
+	 * Returns a string representation of this instance. The returned string
+	 * will be composed of the simple class name followed by a comma-separated
+	 * list of all relations in brackets. In this list all non-private relations
+	 * will be formatted as {@literal <TYPE>=<TARGET>}.
+	 *
+	 * @see Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder aStringBuilder =
+			new StringBuilder(getClass().getSimpleName());
+
+		aStringBuilder.append('[');
+		aStringBuilder.append(relationsString("=", ",", -1));
+		aStringBuilder.append(']');
+
+		return aStringBuilder.toString();
+	}
+
+	/***************************************
+	 * @see Relatable#transform(RelationType, InvertibleFunction)
+	 */
+	@Override
+	public <T, D> TransformedRelation<T, D> transform(
+		RelationType<T>			 rType,
+		InvertibleFunction<T, D> fTransformation)
+	{
+		Relation<T> rRelation = getRelation(rType);
+		T		    rTarget;
+
+		TransformedRelation<T, D> rTransformedRelation =
+			new TransformedRelation<T, D>(rType, fTransformation);
+
+		if (rRelation instanceof RelationWrapper<?>)
+		{
+			throw new IllegalStateException("Cannot transform alias relation " +
+											rType);
+		}
+		else if (rRelation != null)
+		{
+			rTarget = rRelation.getTarget();
+			rTransformedRelation.prepareReplace(rRelation);
+		}
+		else
+		{
+			rTarget = rType.initialValue(this);
+		}
+
+		rTransformedRelation.setTarget(rTarget);
+
+		// addRelation() will replace an existing relation with the given type
+		addRelation(rTransformedRelation, rRelation == null);
+
+		return rTransformedRelation;
+	}
+
+	/***************************************
+	 * A package-internal method that notifies all registered relation listeners
+	 * of a certain relation event.
+	 *
+	 * @param rEventType   The event type
+	 * @param rRelation    The relation that is affected by the event
+	 * @param rUpdateValue The update value in case of a relation update
+	 */
+	protected <T> void notifyRelationListeners(EventType   rEventType,
+											   Relation<T> rRelation,
+											   T		   rUpdateValue)
+	{
+		if (!rRelation.getType().isPrivate() && hasRelation(RELATION_LISTENERS))
+		{
+			get(RELATION_LISTENERS).handleEvent(new RelationEvent<T>(rEventType,
+																	 this,
+																	 rRelation,
+																	 rUpdateValue));
+		}
+	}
+
+	/***************************************
+	 * Helper method for serializable subclasses to read the relations of this
+	 * instance from the given input stream in the format that has been written
+	 * by the method {@link #writeRelations(ObjectOutputStream)}.
+	 *
+	 * @param  rIn The object input stream to read from
+	 *
+	 * @throws IOException            If reading a relation fails
+	 * @throws ClassNotFoundException If a relation class is not available
+	 */
+	protected final void readRelations(ObjectInputStream rIn)
+		throws IOException, ClassNotFoundException
+	{
+		int nCount = rIn.readInt();
+
+		while (nCount-- > 0)
+		{
+			addRelation((Relation<?>) rIn.readObject(), false);
+		}
+	}
+
+	/***************************************
+	 * Compares this instance's relations for equality with another related
+	 * object. This method should be invoked by subclasses that implement the
+	 * {@link #equals(Object)} and {@link #hashCode()} methods. From the latter
+	 * subclasses should also invoke {@link #relationsHashCode()} for a
+	 * consistent implementation of these methods.
+	 *
+	 * @param  rOther The other object to compare this instance's relations with
+	 *
+	 * @return TRUE if the relations of this instance equal that of the other
+	 *         object
+	 */
+	protected final boolean relationsEqual(RelatedObject rOther)
+	{
+		return aRelations.equals(rOther.aRelations);
+	}
+
+	/***************************************
+	 * Calculates the hash code of this instance's relations. This method should
+	 * be invoked by subclasses that implement the {@link #hashCode()} and
+	 * {@link #equals(Object)} methods. From the latter subclasses should also
+	 * invoke {@link #relationsEqual(RelatedObject)} for a consistent
+	 * implementation of these methods.
+	 *
+	 * @return The hash code of this instance's relations
+	 */
+	protected final int relationsHashCode()
+	{
+		return aRelations.hashCode();
+	}
+
+	/***************************************
+	 * Helper method for serializable subclasses to write the relations of this
+	 * instance to the given output stream. It will first write the count of the
+	 * relations and then all non-transient relations by directly serializing
+	 * them to the stream.
+	 *
+	 * @param      rOut The output stream to write the relations to
+	 *
+	 * @throws     IOException If writing a relation fails
+	 *
+	 * @serialData First the integer count of non-transient relations is stored
+	 *             followed by the relations
+	 */
+	protected final void writeRelations(ObjectOutputStream rOut)
+		throws IOException
+	{
+		int nCount = 0;
+
+		for (Relation<?> rRelation : aRelations.values())
+		{
+			if (!rRelation.getType().isTransient())
+			{
+				nCount++;
+			}
+		}
+
+		rOut.writeInt(nCount);
+
+		for (Relation<?> rRelation : aRelations.values())
+		{
+			if (!rRelation.getType().isTransient())
+			{
+				rOut.writeObject(rRelation);
+			}
+		}
+	}
+
+	/***************************************
+	 * Adds a relation to this object.
+	 *
+	 * @param rRelation The relation to add
+	 * @param bNotify   TRUE if the relation type and listeners shall be
+	 *                  notified of the added relation; FALSE if the call is for
+	 *                  internal relation management only
+	 */
+	<T> void addRelation(Relation<T> rRelation, boolean bNotify)
+	{
+		RelationType<T> rType = rRelation.getType();
+
+		if (bNotify)
+		{
+			// notify type and listeners before adding so that they may prevent it
+			// by throwing an exception
+			rType.addRelation(this, rRelation);
+			notifyRelationListeners(EventType.ADD, rRelation, null);
+		}
+
+		if (aRelations == NO_RELATIONS)
+		{
+			aRelations = new LinkedHashMap<RelationType<?>, Relation<?>>();
+		}
+
+		aRelations.put(rType, rRelation);
+	}
+
+	/***************************************
+	 * Copies all relations from a source object to this one. This is an
+	 * internal helper method for {@link
+	 * ObjectRelations#copyRelations(RelatedObject, RelatedObject, boolean)}.
+	 *
+	 * @param rSource  The source object to copy the relations from
+	 * @param bReplace TRUE to replace existing relations, FALSE to keep them
+	 */
+	void copyRelations(RelatedObject rSource, boolean bReplace)
+	{
+		for (Relation<?> rSourceRelation : rSource.aRelations.values())
+		{
+			rSourceRelation.copyTo(this, bReplace);
+		}
+	}
+
+	/***************************************
+	 * Returns a string description of this object's relations.
+	 *
+	 * @param  sJoin            The join between relation type and value
+	 * @param  sSeparator       The separator between relations
+	 * @param  nIndent          The indentation level (zero for the first, -1
+	 *                          for no indentation)
+	 * @param  rExcludedObjects Objects that shall not be converted to prevent
+	 *                          recursion
+	 *
+	 * @return The relations string
+	 */
+	String relationsString(String	   sJoin,
+						   String	   sSeparator,
+						   int		   nIndent,
+						   Set<Object> rExcludedObjects)
+	{
+		StringBuilder aStringBuilder = new StringBuilder();
+
+		for (Relation<?> rRelation : aRelations.values())
+		{
+			RelationType<?> rType   = rRelation.getType();
+			Object		    rTarget = rRelation.getTarget();
+
+			rExcludedObjects.add(this);
+
+			if (!rType.isPrivate())
+			{
+				if (rTarget == this)
+				{
+					// prevent recursion
+					rTarget = "<this>";
+				}
+				else if (rExcludedObjects.contains(rTarget))
+				{
+					rTarget = rTarget.getClass().getSimpleName();
+				}
+				else if (rTarget instanceof RelatedObject)
+				{
+					int nLevel = nIndent >= 0 ? nIndent + 1 : -1;
+
+					String sTargetRelations =
+						((RelatedObject) rTarget).relationsString(sJoin,
+																  sSeparator,
+																  nLevel,
+																  rExcludedObjects);
+
+					if (nLevel >= 0)
+					{
+						rTarget =
+							rTarget.getClass().getSimpleName() + "\n" +
+							sTargetRelations;
+					}
+					else
+					{
+						rTarget =
+							rTarget.getClass().getSimpleName() + "[" +
+							sTargetRelations + "]";
+					}
+				}
+
+				for (int i = 0; i < nIndent; i++)
+				{
+					aStringBuilder.append("  ");
+				}
+
+				aStringBuilder.append(rType);
+				aStringBuilder.append(sJoin);
+				aStringBuilder.append(rTarget);
+				aStringBuilder.append(sSeparator);
+			}
+		}
+
+		if (aRelations.size() > 0)
+		{
+			aStringBuilder.setLength(aStringBuilder.length() -
+									 sSeparator.length());
+		}
+
+		return aStringBuilder.toString();
+	}
+
+	/***************************************
+	 * Transfers all relations from another object to this one. This method is
+	 * intended to be used internally by the framework in cases where a certain
+	 * related object is about to replace the argument object. The relations
+	 * will be added to this object unchanged and it is the responsibility of
+	 * the caller that the resulting object will be consistent.
+	 *
+	 * @param rSource The source object to transfer the relations from
+	 * @param bNotify TRUE if the relation type and listeners shall be notified
+	 *                of the added relation; FALSE if the call is for internal
+	 *                relation management only
+	 */
+	void transferRelationsFrom(RelatedObject rSource, boolean bNotify)
+	{
+		for (Relation<?> rRelation : rSource.aRelations.values())
+		{
+			addRelation(rRelation, bNotify);
+		}
+	}
+}

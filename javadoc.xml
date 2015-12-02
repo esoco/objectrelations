@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="protected" additionalparam="-J-Xmx256m  " author="true" classpath="G:\Apps\Eclipse\4.3\plugins\org.hamcrest.core_1.3.0.v201303031735.jar;G:\Apps\Eclipse\4.3\plugins\org.junit_4.11.0.v201303080030\junit.jar;../esoco-common/bin" destdir="S:\esoco-doc\ObjectRelations\javadoc" doctitle="ObjectRelations" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="de.esoco.lib.text,de.esoco.lib.expression,de.esoco.lib.expression.predicate,de.esoco.lib.event,org.obrel.filter,org.obrel.core,de.esoco.lib.datatype,de.esoco.lib.expression.function,de.esoco.lib.reflect,de.esoco.lib.xml,org.obrel.type,de.esoco.lib.collection" source="1.7" sourcepath="src;test" splitindex="true" use="true" version="true">
+            <link href="http://download.oracle.com/javase/7/docs/api/"/>
+        </javadoc>
+    </target>
+</project>

@@ -1,0 +1,52 @@
+apply plugin: 'java'
+
+project.version = "1.0.0"
+
+repositories 
+{
+    jcenter()
+}
+
+dependencies 
+{
+	if (project(':esoco-common').getProjectDir().exists())
+	{
+		compile project(':esoco-common')
+	}
+	else
+	{
+		compile 'de.esoco:esoco-lib:1.+'
+	}
+		
+    testCompile 'junit:junit:4.+'
+}
+
+jar { from sourceSets.main.allJava }
+
+eclipse {
+	jdt { 
+		sourceCompatibility = "1.7"
+		targetCompatibility = "1.7"
+	}
+}
+
+task binaryJar(type: Jar, dependsOn: classes) {
+    classifier = 'bin'
+    from sourceSets.main.output
+}
+
+task sourceJar(type: Jar, dependsOn: classes) {
+    classifier = 'src'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'doc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives binaryJar
+    archives sourceJar
+    archives javadocJar
+}
