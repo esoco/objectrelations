@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -912,32 +912,36 @@ public class CollectionUtil
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T, C extends Collection<T>> C newCollectionLike(
-		Collection<?> rCollection)
+		C rCollection)
 	{
+		C rResult;
+
 		if (rCollection instanceof List)
 		{
-			return (C) new ArrayList<T>();
+			rResult = (C) new ArrayList<T>();
 		}
 		else if (rCollection instanceof LinkedHashSet)
 		{
-			return (C) new LinkedHashSet<T>();
+			rResult = (C) new LinkedHashSet<T>();
 		}
 		else if (rCollection instanceof TreeSet)
 		{
-			return (C) new TreeSet<T>();
+			rResult = (C) new TreeSet<T>();
 		}
 		else if (rCollection instanceof LinkedList)
 		{
-			return (C) new LinkedList<T>();
+			rResult = (C) new LinkedList<T>();
 		}
 		else if (rCollection instanceof Set)
 		{
-			return (C) new HashSet<T>();
+			rResult = (C) new HashSet<T>();
 		}
 		else
 		{
-			return (C) new LinkedHashSet<T>();
+			rResult = (C) new LinkedHashSet<T>();
 		}
+
+		return rResult;
 	}
 
 	/***************************************
