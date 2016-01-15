@@ -550,6 +550,8 @@ public final class ReflectUtil
 	 *                         be returned
 	 *
 	 * @return The class of the caller of the calling method
+	 *
+	 * @see    #getCallerClassName(boolean)
 	 */
 	public static Class<?> getCallerClass(boolean bDifferentClass)
 	{
