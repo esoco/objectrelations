@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,6 +47,9 @@ import java.util.Set;
 public final class ReflectUtil
 {
 	//~ Static fields/initializers ---------------------------------------------
+
+	private static final String THIS_CLASS_NAME   = ReflectUtil.class.getName();
+	private static final String THREAD_CLASS_NAME = Thread.class.getName();
 
 	/** Constant to signal no-argument methods */
 	public static final Class<?>[] NO_ARGS = new Class<?>[0];
@@ -541,6 +544,70 @@ public final class ReflectUtil
 	}
 
 	/***************************************
+	 * Returns the class that called the caller of this method.
+	 *
+	 * @param  bDifferentClass TRUE if the first different caller class should
+	 *                         be returned
+	 *
+	 * @return The class of the caller of the calling method
+	 */
+	public static Class<?> getCallerClass(boolean bDifferentClass)
+	{
+		try
+		{
+			return Class.forName(getCallerClassName(bDifferentClass));
+		}
+		catch (ClassNotFoundException e)
+		{
+			// this should normally not be possible
+			throw new IllegalStateException(e);
+		}
+	}
+
+	/***************************************
+	 * Returns the name of the class that called the caller of this method The
+	 * boolean parameter controls whether the calling class of the calling
+	 * method will be returned or if the first different class will be returned.
+	 * The latter will make a difference if the calling method had been called
+	 * from another method in it's own class. In that case a value of TRUE will
+	 * cause the first different class to be returned, indepent from the call
+	 * chain in the class that called this method.
+	 *
+	 * @param  bDifferentClass TRUE if the name of the first different caller
+	 *                         class should be returned
+	 *
+	 * @return The name of the class of the caller of the calling method
+	 */
+	public static String getCallerClassName(boolean bDifferentClass)
+	{
+		StackTraceElement[] aStack = Thread.currentThread().getStackTrace();
+
+		String sCaller = null;
+
+		for (StackTraceElement rElement : aStack)
+		{
+			String sElementClass = rElement.getClassName();
+
+			if (!sElementClass.equals(THIS_CLASS_NAME) &&
+				sElementClass.indexOf(THREAD_CLASS_NAME) != 0)
+			{
+				if (sCaller == null)
+				{
+					sCaller = sElementClass;
+				}
+				else if (!bDifferentClass || (!sCaller.equals(sElementClass)))
+				{
+					sCaller = sElementClass;
+
+					break;
+				}
+			}
+		}
+
+		return sCaller;
+	}
+
+	/***************************************
 	 * Returns the Class object for a certain class name or NULL if no class
 	 * could be found. This method can be used alternatively instead of the
 	 * {@link Class#forName(String)} method in cases where a NULL check is more
@@ -548,7 +615,7 @@ public final class ReflectUtil
 	 *
 	 * @param  sClassName The name of the class to return
 	 *
-	 * @return The corresponding Class object or NULL for none
+	 * @return The corresponding class object or NULL for none
 	 */
 	public static Class<?> getClass(String sClassName)
 	{
