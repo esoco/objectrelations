@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ import java.util.Set;
 
 import static org.obrel.type.MetaTypes.IMMUTABLE;
 import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
+import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
+import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 
 
 /********************************************************************
@@ -378,12 +380,35 @@ public class RelatedObject implements Relatable
 											   Relation<T> rRelation,
 											   T		   rUpdateValue)
 	{
-		if (!rRelation.getType().isPrivate() && hasRelation(RELATION_LISTENERS))
+		RelationType<T> rType = rRelation.getType();
+
+		if (!rType.isPrivate())
 		{
-			get(RELATION_LISTENERS).handleEvent(new RelationEvent<T>(rEventType,
-																	 this,
-																	 rRelation,
-																	 rUpdateValue));
+			if (hasRelation(RELATION_LISTENERS))
+			{
+				get(RELATION_LISTENERS).dispatch(new RelationEvent<T>(rEventType,
+																	  this,
+																	  rRelation,
+																	  rUpdateValue));
+			}
+
+			if (rRelation.hasRelation(RELATION_UPDATE_LISTENERS))
+			{
+				rRelation.get(RELATION_UPDATE_LISTENERS)
+						 .dispatch(new RelationEvent<T>(rEventType,
+														this,
+														rRelation,
+														rUpdateValue));
+			}
+
+			if (rType.hasRelation(RELATION_TYPE_LISTENERS))
+			{
+				rType.get(RELATION_TYPE_LISTENERS)
+					 .dispatch(new RelationEvent<T>(rEventType,
+													this,
+													rRelation,
+													rUpdateValue));
+			}
 		}
 	}
 

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.obrel.core;
 
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.event.ElementEvent.EventType;
+import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.ElementAccess;
 import de.esoco.lib.expression.ElementAccessFunction;
@@ -41,6 +42,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.obrel.type.StandardTypes;
+
+import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
 
 
 /********************************************************************
@@ -315,6 +318,20 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Adds a listener to relation events in this relation type. This method
+	 * provides a type-safe interface for adding relation event listeners to the
+	 * relation with the type {@link StandardTypes#RELATION_LISTENERS}. To
+	 * remove a listener that relation can be modified directly because type
+	 * safety is not needed then.
+	 *
+	 * @param rListener The relation event listener to add
+	 */
+	public void addTypeListener(EventHandler<RelationEvent<T>> rListener)
+	{
+		get(RELATION_TYPE_LISTENERS).add(rListener);
+	}
 
 	/***************************************
 	 * A convenience method to set boolean annotations to TRUE.
@@ -665,23 +682,6 @@ public class RelationType<T> extends RelatedObject
 		assert rRelation.getType() == this;
 
 		notifyTypeRelationListeners(EventType.REMOVE, rRelation, null);
-	}
-
-	/***************************************
-	 * Overridden to do nothing because relation listeners on types are notified
-	 * for any relations with that type, NOT on relations of the type.
-	 *
-	 * @see #notifyTypeRelationListeners(ElementEvent.EventType, Relation,
-	 *      Object)
-	 * @see RelatedObject#notifyRelationListeners(ElementEvent.EventType,Relation,
-	 *      Object)
-	 */
-	@Override
-	protected final <E> void notifyRelationListeners(EventType   rType,
-													 Relation<E> rRelation,
-													 E			 rUpdateValue)
-	{
-		// CHECK: support adding relation listeners to relation types?
 	}
 
 	/***************************************

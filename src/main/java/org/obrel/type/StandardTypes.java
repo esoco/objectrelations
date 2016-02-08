@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -99,10 +99,26 @@ public class StandardTypes
 
 	/**
 	 * A relation type for the registration of relation listeners on relatable
-	 * objects; it will be initialized automatically, therefore it is not
+	 * objects. It will be initialized automatically, therefore it is not
 	 * necessary to check for existence before accessing the relation.
 	 */
 	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_LISTENERS =
+		newType(ReflectionFuntions.newInstanceOf(EventDispatcher.class));
+
+	/**
+	 * A relation type for the registration of update listeners on relations. It
+	 * will be initialized automatically, therefore it is not necessary to check
+	 * for existence before accessing the relation.
+	 */
+	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_UPDATE_LISTENERS =
+		newType(ReflectionFuntions.newInstanceOf(EventDispatcher.class));
+
+	/**
+	 * A relation type for the registration of event listeners on relation
+	 * types. It will be initialized automatically, therefore it is not
+	 * necessary to check for existence before accessing the relation.
+	 */
+	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_TYPE_LISTENERS =
 		newType(ReflectionFuntions.newInstanceOf(EventDispatcher.class));
 
 	//- Integer values ---------------------------------------------------------

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
+import de.esoco.lib.event.EventHandler;
+
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
@@ -24,9 +26,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
 
 import static org.obrel.core.RelationTypeModifier.PRIVATE;
 import static org.obrel.core.RelationTypes.newListType;
+import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 
 
 /********************************************************************
@@ -112,6 +116,20 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @return The target object
 	 */
 	public abstract T getTarget();
+
+	/***************************************
+	 * Adds a listener to update events of this particular relation. This method
+	 * provides a type-safe interface for adding relation event listeners to the
+	 * relation with the type {@link StandardTypes#RELATION_UPDATE_LISTENERS}.
+	 * To remove a listener that relation can be modified directly because type
+	 * safety is not needed then.
+	 *
+	 * @param rListener The relation event listener to add
+	 */
+	public void addUpdateListener(EventHandler<RelationEvent<T>> rListener)
+	{
+		get(RELATION_UPDATE_LISTENERS).add(rListener);
+	}
 
 	/***************************************
 	 * Creates an alias for this relation with another relation type in a

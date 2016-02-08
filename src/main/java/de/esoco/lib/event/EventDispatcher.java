@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,8 +31,7 @@ import java.util.Set;
  *
  * @author eso
  */
-public class EventDispatcher<E extends Event<?>> implements EventHandler<E>,
-															Immutability,
+public class EventDispatcher<E extends Event<?>> implements Immutability,
 															Serializable
 {
 	//~ Static fields/initializers ---------------------------------------------
@@ -41,8 +40,7 @@ public class EventDispatcher<E extends Event<?>> implements EventHandler<E>,
 
 	//~ Instance fields --------------------------------------------------------
 
-	private Set<EventHandler<E>> aEventHandlers =
-		new LinkedHashSet<EventHandler<E>>();
+	private Set<EventHandler<E>> aEventHandlers = new LinkedHashSet<>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -57,20 +55,24 @@ public class EventDispatcher<E extends Event<?>> implements EventHandler<E>,
 
 	/***************************************
 	 * Adds a new event handler to this instance. If the given handler is
-	 * already part of this instance the call will be ignored.
+	 * already part of this instance the call will be ignored. The generic
+	 * argument is weakened to '? extends E' to allow the usage of handlers that
+	 * use generic events but all event handlers in a dispatcher must always be
+	 * based on the same (generic) event class or else a class cast exception
+	 * will occur.
 	 *
 	 * @param rHandler The event handler to add
 	 */
-	public void add(EventHandler<E> rHandler)
+	@SuppressWarnings("unchecked")
+	public void add(EventHandler<? extends E> rHandler)
 	{
-		aEventHandlers.add(rHandler);
+		aEventHandlers.add((EventHandler<E>) rHandler);
 	}
 
 	/***************************************
 	 * @see EventHandler#handleEvent(Event)
 	 */
-	@Override
-	public void handleEvent(E rEvent)
+	public void dispatch(E rEvent)
 	{
 		for (EventHandler<E> rHandler : aEventHandlers)
 		{
@@ -79,11 +81,22 @@ public class EventDispatcher<E extends Event<?>> implements EventHandler<E>,
 	}
 
 	/***************************************
+	 * Returns the number of event handlers that are registered in this
+	 * instance.
+	 *
+	 * @return The event handler count
+	 */
+	public int getEventHandlerCount()
+	{
+		return aEventHandlers.size();
+	}
+
+	/***************************************
 	 * Removes an event handler from this instance.
 	 *
 	 * @param rHandler The event handler to add
 	 */
-	public void remove(EventHandler<E> rHandler)
+	public void remove(EventHandler<?> rHandler)
 	{
 		aEventHandlers.remove(rHandler);
 	}
