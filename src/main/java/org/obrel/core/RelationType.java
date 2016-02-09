@@ -17,7 +17,6 @@
 package org.obrel.core;
 
 import de.esoco.lib.collection.CollectionUtil;
-import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.ElementAccess;
@@ -660,7 +659,6 @@ public class RelationType<T> extends RelatedObject
 	 */
 	protected void addRelation(Relatable rParent, Relation<T> rRelation)
 	{
-		notifyTypeRelationListeners(EventType.ADD, rRelation, null);
 	}
 
 	/***************************************
@@ -680,27 +678,6 @@ public class RelationType<T> extends RelatedObject
 	protected void deleteRelation(Relatable rParent, Relation<?> rRelation)
 	{
 		assert rRelation.getType() == this;
-
-		notifyTypeRelationListeners(EventType.REMOVE, rRelation, null);
-	}
-
-	/***************************************
-	 * This method notifies the registered relation listeners by invoking the
-	 * {@link #notifyRelationListeners(ElementEvent.EventType, Relation,
-	 * Object)} method of {@link RelatedObject}. to notify the registered
-	 * relation listeners. It is used internally to notify listeners of changes
-	 * to relations with this type (instead of the relations of this type). This
-	 * is necessary because the standard method has been overridden in this
-	 * class as an empty method to disable the default notification mechanism.
-	 *
-	 * @see RelatedObject#notifyRelationListeners(ElementEvent.EventType,Relation,
-	 *      Object)
-	 */
-	protected <E> void notifyTypeRelationListeners(EventType   rType,
-												   Relation<E> rRelation,
-												   E		   rUpdateValue)
-	{
-		super.notifyRelationListeners(rType, rRelation, rUpdateValue);
 	}
 
 	/***************************************
@@ -725,8 +702,6 @@ public class RelationType<T> extends RelatedObject
 	protected void prepareRelationUpdate(Relation<T> rRelation, T rNewTarget)
 	{
 		assert rRelation.getType() == this;
-
-		notifyTypeRelationListeners(EventType.UPDATE, rRelation, rNewTarget);
 	}
 
 	/***************************************
