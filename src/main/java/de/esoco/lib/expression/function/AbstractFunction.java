@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ public abstract class AbstractFunction<I, O> extends RelatedObject
 
 		AbstractFunction<?, ?> rOther = (AbstractFunction<?, ?>) rObject;
 
-		return sToken.equals(rOther.sToken) && paramsEqual(rOther) &&
+		return getToken().equals(rOther.getToken()) && paramsEqual(rOther) &&
 			   relationsEqual(rOther);
 	}
 
@@ -120,7 +120,7 @@ public abstract class AbstractFunction<I, O> extends RelatedObject
 	@Override
 	public int hashCode()
 	{
-		int nHashCode = sToken.hashCode();
+		int nHashCode = getToken().hashCode();
 
 		nHashCode = 31 * nHashCode + paramsHashCode();
 		nHashCode = 31 * nHashCode + relationsHashCode();
