@@ -562,8 +562,34 @@ public class CollectionUtil
 			}
 		}
 
-		// unreachable
-		throw new AssertionError();
+		return null;
+	}
+
+	/***************************************
+	 * Returns the position of a certain element in a collection.
+	 *
+	 * @param  rCollection The collection to search the element in
+	 * @param  rElement    The element to search
+	 *
+	 * @return The position index of the value or -1 if not found
+	 */
+	public static <T, C extends Collection<T>> int indexOf(
+		C rCollection,
+		T rElement)
+	{
+		int nIndex = -1;
+
+		for (T rValue : rCollection)
+		{
+			nIndex++;
+
+			if (rElement == rValue)
+			{
+				break;
+			}
+		}
+
+		return nIndex;
 	}
 
 	/***************************************
