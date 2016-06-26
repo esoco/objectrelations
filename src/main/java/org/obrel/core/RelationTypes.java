@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,11 +43,8 @@ import org.obrel.type.MetaTypes;
 import static de.esoco.lib.expression.Functions.value;
 import static de.esoco.lib.expression.ReflectionFuntions.newInstanceOf;
 
-import static org.obrel.type.MetaTypes.ELEMENT_DATATYPE;
-import static org.obrel.type.MetaTypes.KEY_DATATYPE;
 import static org.obrel.type.MetaTypes.OBJECT_TYPE_ATTRIBUTE;
 import static org.obrel.type.MetaTypes.ORDERED;
-import static org.obrel.type.MetaTypes.VALUE_DATATYPE;
 
 
 /********************************************************************
@@ -60,21 +57,31 @@ public class RelationTypes
 {
 	//~ Static fields/initializers ---------------------------------------------
 
-	/**
-	 * This type must be defined without initialization to prevent an
-	 * initialization cycle.
-	 */
+	// types declared because they are needed during relation type initialization
+
+	/** @see MetaTypes#DECLARING_CLASS */
+	public static final RelationType<Class<?>> DECLARING_CLASS =
+		new RelationType<>("DECLARING_CLASS", Class.class);
+
+	/** @see MetaTypes#RELATION_TYPE_NAMESPACE */
 	public static final RelationType<String> RELATION_TYPE_NAMESPACE =
 		new RelationType<>("RELATION_TYPE_NAMESPACE", String.class);
 
-	/**
-	 * An optional initialization action for relation types that if set on a
-	 * relation type will be invoked after a relation type has been initialized
-	 * by the framework. After the initialization this meta-relation will be
-	 * deleted from it's relation type.
-	 */
+	/** @see MetaTypes#RELATION_TYPE_INIT_ACTION */
 	public static final RelationType<Action<RelationType<?>>> RELATION_TYPE_INIT_ACTION =
 		new RelationType<>("RELATION_TYPE_INIT_ACTION", Action.class);
+
+	/** @see MetaTypes#ELEMENT_DATATYPE */
+	public static final RelationType<Class<?>> ELEMENT_DATATYPE =
+		new RelationType<>("ELEMENT_DATATYPE", Class.class);
+
+	/** @see MetaTypes#KEY_DATATYPE */
+	public static final RelationType<Class<?>> KEY_DATATYPE =
+		new RelationType<>("KEY_DATATYPE", Class.class);
+
+	/** @see MetaTypes#VALUE_DATATYPE */
+	public static final RelationType<Class<?>> VALUE_DATATYPE =
+		new RelationType<>("VALUE_DATATYPE", Class.class);
 
 	//~ Static methods ---------------------------------------------------------
 
@@ -839,6 +846,13 @@ public class RelationTypes
 								 sTypeNamespace + "." + sFieldName,
 								 rTargetType);
 			}
+		}
+
+		// only set declaring class on first declaration to not override it in
+		// relation type references in other classes
+		if (!rRelationType.hasRelation(DECLARING_CLASS))
+		{
+			rRelationType.annotate(DECLARING_CLASS, rField.getDeclaringClass());
 		}
 	}
 }

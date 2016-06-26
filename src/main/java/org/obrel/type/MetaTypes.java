@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,19 +68,30 @@ public class MetaTypes
 	//- meta-information types -------------------------------------------------
 
 	/**
+	 * The class that declares the target type. Used for relations type to
+	 * record the class in which they are declared. Final as this will never
+	 * change after the initial declaration.
+	 */
+	public static final RelationType<Class<?>> DECLARING_CLASS =
+		RelationTypes.DECLARING_CLASS;
+
+	/**
 	 * The datatype class of a certain element; this type is final because it is
 	 * intended to define a datatype that doesn't change.
 	 */
 	public static final RelationType<Class<?>> DATATYPE = newType(FINAL);
 
 	/** The datatype of elements in a collection or container. */
-	public static final RelationType<Class<?>> ELEMENT_DATATYPE = newType();
+	public static final RelationType<Class<?>> ELEMENT_DATATYPE =
+		RelationTypes.ELEMENT_DATATYPE;
 
 	/** The datatype of keys in a map. */
-	public static final RelationType<Class<?>> KEY_DATATYPE = newType();
+	public static final RelationType<Class<?>> KEY_DATATYPE =
+		RelationTypes.KEY_DATATYPE;
 
 	/** The datatype of values in a map. */
-	public static final RelationType<Class<?>> VALUE_DATATYPE = newType();
+	public static final RelationType<Class<?>> VALUE_DATATYPE =
+		RelationTypes.VALUE_DATATYPE;
 
 	// Boolean marker types that indicate certain object properties; some are
 	// final to indicate a condition that never changes
