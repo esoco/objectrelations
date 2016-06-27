@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package de.esoco.lib.expression.predicate;
 import de.esoco.lib.expression.BinaryFunction;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 
@@ -128,8 +129,7 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R>
 		@Override
 		public Boolean evaluate(T rLeftValue, Object rRightValue)
 		{
-			return rLeftValue != null ? rLeftValue.equals(rRightValue)
-									  : rRightValue == null;
+			return Objects.equals(rLeftValue, rRightValue);
 		}
 	}
 

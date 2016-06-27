@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -467,32 +467,6 @@ public class Predicates
 	}
 
 	/***************************************
-	 * Returns a predicate that tests if the {@link MetaTypes#MODIFIED} flag is
-	 * set on a relatable object.
-	 *
-	 * @return A constant predicate that yields TRUE if the target object is
-	 *         marked as modified
-	 */
-	@SuppressWarnings("unchecked")
-	public static <R extends Relatable> Predicate<R> isModified()
-	{
-		return (Predicate<R>) IS_MODIFIED;
-	}
-
-	/***************************************
-	 * Returns a predicate that tests if the {@link MetaTypes#MODIFIED} flag is
-	 * not set on a relatable object.
-	 *
-	 * @return A constant predicate that yields TRUE if the target object is not
-	 *         marked as modified
-	 */
-	@SuppressWarnings("unchecked")
-	public static <R extends Relatable> Predicate<R> isNotModified()
-	{
-		return (Predicate<R>) IS_NOT_MODIFIED;
-	}
-
-	/***************************************
 	 * Returns a predicate that tests if the target object is NULL.
 	 *
 	 * @return A constant predicate that yields TRUE if the target object is
@@ -559,6 +533,19 @@ public class Predicates
 	}
 
 	/***************************************
+	 * Returns a predicate that tests if the {@link MetaTypes#MODIFIED} flag is
+	 * set on a relatable object.
+	 *
+	 * @return A constant predicate that yields TRUE if the target object is
+	 *         marked as modified
+	 */
+	@SuppressWarnings("unchecked")
+	public static <R extends Relatable> Predicate<R> modified()
+	{
+		return (Predicate<R>) IS_MODIFIED;
+	}
+
+	/***************************************
 	 * Returns the logical negation of a particular predicate.
 	 *
 	 * @param  rPredicate The predicate to negate
@@ -568,6 +555,19 @@ public class Predicates
 	public static <T> Predicate<T> not(Predicate<T> rPredicate)
 	{
 		return new Not<T>(rPredicate);
+	}
+
+	/***************************************
+	 * Returns a predicate that tests if the {@link MetaTypes#MODIFIED} flag is
+	 * not set on a relatable object.
+	 *
+	 * @return A constant predicate that yields TRUE if the target object is not
+	 *         marked as modified
+	 */
+	@SuppressWarnings("unchecked")
+	public static <R extends Relatable> Predicate<R> notModified()
+	{
+		return (Predicate<R>) IS_NOT_MODIFIED;
 	}
 
 	/***************************************

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -337,18 +337,6 @@ public class StringFunctions
 	}
 
 	/***************************************
-	 * Returns a predicate constant that checks whether a character sequence is
-	 * not empty. The checked value is considered not empty if it is not NULL
-	 * and has a length greater than zero.
-	 *
-	 * @return A predicate constant that tests for not empty strings
-	 */
-	public static Predicate<CharSequence> isNotEmpty()
-	{
-		return IS_NOT_EMPTY;
-	}
-
-	/***************************************
 	 * Returns a predicate constant that checks whether a string contains a
 	 * valid internationalized domain name in Unicode format. This is achieved
 	 * by invoking {@link IDN#toASCII(String)} on the input string and checking
@@ -359,6 +347,18 @@ public class StringFunctions
 	public static Predicate<String> isValidIdnUnicode()
 	{
 		return IS_VALID_IDN_UNICODE;
+	}
+
+	/***************************************
+	 * Returns a predicate constant that checks whether a character sequence is
+	 * not empty. The checked value is considered not empty if it is not NULL
+	 * and has a length greater than zero.
+	 *
+	 * @return A predicate constant that tests for not empty strings
+	 */
+	public static Predicate<CharSequence> notEmpty()
+	{
+		return IS_NOT_EMPTY;
 	}
 
 	/***************************************
