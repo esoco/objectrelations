@@ -235,6 +235,26 @@ public class StringFunctions
 	}
 
 	/***************************************
+	 * Returns a predicate that checks whether a string contains another string.
+	 *
+	 * @param  sString The string to check
+	 *
+	 * @return A new predicate
+	 */
+	public static Predicate<String> contains(final String sString)
+	{
+		return new AbstractPredicate<String>("Contains")
+		{
+			@Override
+			@SuppressWarnings("boxing")
+			public Boolean evaluate(String sValue)
+			{
+				return sValue.contains(sString);
+			}
+		};
+	}
+
+	/***************************************
 	 * Returns a new binary function that converts a byte array into a string
 	 * with a certain character set.
 	 *
