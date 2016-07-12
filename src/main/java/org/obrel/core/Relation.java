@@ -86,8 +86,13 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	{
 		if (!isValidTargetForType(rType, rTarget))
 		{
-			throw new IllegalArgumentException("Invalid target for type '" +
-											   rType + "': " + rTarget);
+			throw new IllegalArgumentException(String.format("Invalid target for type '%s': %s (is %s - expected %s)",
+															 rType,
+															 rTarget,
+															 rTarget.getClass()
+															 .getName(),
+															 rType
+															 .getTargetType()));
 		}
 	}
 
