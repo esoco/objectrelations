@@ -322,7 +322,9 @@ public class Conversions
 	 * Parses a collection from a string where the collection elements are
 	 * separated by {@link #DEFAULT_COLLECTION_SEPARATOR}.
 	 *
-	 * @param  sElements       A string containing the elements to be parsed
+	 * @param  sElements       A string containing the elements to be parsed;
+	 *                         NULL values are allowed and will result in an
+	 *                         empty collection
 	 * @param  rCollectionType The base type of the collection
 	 * @param  rElementType    The type of the collection elements
 	 * @param  sSeparator      The separator between the collection elements
@@ -355,14 +357,19 @@ public class Conversions
 
 		C aCollection = ReflectUtil.newInstance(rCollectionClass);
 
-		StringTokenizer aElements = new StringTokenizer(sElements, sSeparator);
-
-		while (aElements.hasMoreElements())
+		if (sElements != null)
 		{
-			String sElement =
-				TextConvert.unicodeDecode(aElements.nextToken(), sSeparator);
+			StringTokenizer aElements =
+				new StringTokenizer(sElements, sSeparator);
 
-			aCollection.add(parseValue(sElement, rElementType));
+			while (aElements.hasMoreElements())
+			{
+				String sElement =
+					TextConvert.unicodeDecode(aElements.nextToken(),
+											  sSeparator);
+
+				aCollection.add(parseValue(sElement, rElementType));
+			}
 		}
 
 		return aCollection;
@@ -395,7 +402,8 @@ public class Conversions
 	 * Parses a map from a string.
 	 *
 	 * @param  sMapEntries        A string containing the map entries to be
-	 *                            parsed
+	 *                            parsed; NULL values are allowed and will
+	 *                            result in an empty map
 	 * @param  rMapType           The base type of the map
 	 * @param  rKeyType           The type of the map keys
 	 * @param  rValueType         The type of the map values
@@ -431,21 +439,24 @@ public class Conversions
 
 		M aMap = ReflectUtil.newInstance(rMapClass);
 
-		StringTokenizer aElements =
-			new StringTokenizer(sMapEntries, sEntrySeparator);
-
-		while (aElements.hasMoreElements())
+		if (sMapEntries != null)
 		{
-			String sEntry  = aElements.nextToken();
-			int    nKeyEnd = sEntry.indexOf(sKeyValueSeparator);
-			String sKey    = sEntry.substring(0, nKeyEnd);
-			String sValue  =
-				sEntry.substring(nKeyEnd + sKeyValueSeparator.length());
+			StringTokenizer aElements =
+				new StringTokenizer(sMapEntries, sEntrySeparator);
 
-			sValue = TextConvert.unicodeDecode(sValue, sEntrySeparator);
+			while (aElements.hasMoreElements())
+			{
+				String sEntry  = aElements.nextToken();
+				int    nKeyEnd = sEntry.indexOf(sKeyValueSeparator);
+				String sKey    = sEntry.substring(0, nKeyEnd);
+				String sValue  =
+					sEntry.substring(nKeyEnd + sKeyValueSeparator.length());
 
-			aMap.put(parseValue(sKey, rKeyType),
-					 parseValue(sValue, rValueType));
+				sValue = TextConvert.unicodeDecode(sValue, sEntrySeparator);
+
+				aMap.put(parseValue(sKey, rKeyType),
+						 parseValue(sValue, rValueType));
+			}
 		}
 
 		return aMap;
