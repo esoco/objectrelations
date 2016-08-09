@@ -202,6 +202,18 @@ public class MetaTypes
 	public static final RelationType<Boolean> INITIALIZED = newType(FINAL);
 
 	/**
+	 * A flag that indicates that an authentication has been performed
+	 * successfully.
+	 */
+	public static final RelationType<Boolean> AUTHENTICATED = newType();
+
+	/**
+	 * A flag that indicates that the target is authorized to perform certain
+	 * actions.
+	 */
+	public static final RelationType<Boolean> AUTHORIZED = newType();
+
+	/**
 	 * Marks an object or relation that is hierarchical, i.e. an element in a
 	 * hierarchy of objects.
 	 */
