@@ -96,7 +96,7 @@ public class EventDispatcher<E extends Event<?>> implements Immutability,
 	 *
 	 * @param rHandler The event handler to add
 	 */
-	public void remove(EventHandler<?> rHandler)
+	public void remove(EventHandler<? extends E> rHandler)
 	{
 		aEventHandlers.remove(rHandler);
 	}
