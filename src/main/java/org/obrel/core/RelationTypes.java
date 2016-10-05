@@ -86,14 +86,18 @@ public class RelationTypes
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Initializes the relation type constants of a certain class.
+	 * Returns the relation type namespace for a certain class. This will either
+	 * be the value of the annotation {@link RelationTypeNamespace} or if that
+	 * is not present, the name of the class itself, including it's own
+	 * namespace.
 	 *
-	 * @param rClass The class to initialize
+	 * @param  rClass The class to determine the relation type namespace of
+	 *
+	 * @return The relation type namespace
 	 */
-	public static void init(Class<?> rClass)
+	public static String getRelationTypeNamespace(Class<?> rClass)
 	{
-		List<Field> rFields		    = ReflectUtil.getAllFields(rClass);
-		String	    sClassNamespace;
+		String sClassNamespace;
 
 		if (rClass.isAnnotationPresent(RelationTypeNamespace.class))
 		{
@@ -104,6 +108,19 @@ public class RelationTypes
 		{
 			sClassNamespace = rClass.getName();
 		}
+
+		return sClassNamespace;
+	}
+
+	/***************************************
+	 * Initializes the relation type constants of a certain class.
+	 *
+	 * @param rClass The class to initialize
+	 */
+	public static void init(Class<?> rClass)
+	{
+		List<Field> rFields		    = ReflectUtil.getAllFields(rClass);
+		String	    sClassNamespace = getRelationTypeNamespace(rClass);
 
 		if (sClassNamespace.length() > 0)
 		{

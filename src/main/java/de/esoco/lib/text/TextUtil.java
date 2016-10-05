@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -194,6 +194,21 @@ public final class TextUtil extends TextConvert
 		}
 
 		return new Pair<Character, String>(aMnemonic, sb.toString());
+	}
+
+	/***************************************
+	 * Checks whether the given character is a control character in the full
+	 * Unicode character code range.
+	 *
+	 * @param  c The character value to check
+	 *
+	 * @return TRUE if it is a control character
+	 */
+	public static boolean isControlCharacter(char c)
+	{
+		return (c >= '\u0000' && c <= '\u001F') ||
+			   (c >= '\u007F' && c <= '\u009F') ||
+			   (c >= '\u2000' && c <= '\u20FF');
 	}
 
 	/***************************************

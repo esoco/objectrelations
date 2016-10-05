@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
+import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.expression.predicate.AbstractPredicate;
+import de.esoco.lib.json.JsonUtil;
+
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -229,6 +235,59 @@ public class ObjectRelations
 		RelatedObject rSource)
 	{
 		rTarget.aRelations = rSource.aRelations;
+	}
+
+	/***************************************
+	 * Converts a relatable object into a JSON string from the object's
+	 * relations. References to other related objects are converted recursively.
+	 * If no relation types are provided all relations of the object will be
+	 * converted to JSON. In that case it is important that there are no cycles
+	 * in the relations (i.e. objects referring each other) or else an endless
+	 * loop will occur.
+	 *
+	 * @param  rObject        The object to convert
+	 * @param  rRelationTypes The types of the relation to be converted to JSON
+	 *                        (NULL for all)
+	 *
+	 * @return The resulting JSON string
+	 */
+	public static String toJson(
+		Relatable						  rObject,
+		final Collection<RelationType<?>> rRelationTypes)
+	{
+		StringBuilder				   aJson	  = new StringBuilder("{\n");
+		Predicate<? super Relation<?>> pRelations = null;
+
+		if (rRelationTypes != null)
+		{
+			pRelations =
+				new AbstractPredicate<Relation<?>>("JsonRelationType")
+				{
+					@Override
+					@SuppressWarnings("boxing")
+					public Boolean evaluate(Relation<?> rRelation)
+					{
+						return rRelationTypes.contains(rRelation.getType());
+					}
+				};
+		}
+
+		List<Relation<?>> rRelations = rObject.getRelations(pRelations);
+
+		for (Relation<?> rRelation : rRelations)
+		{
+			JsonUtil.appendRelation(aJson, rRelation, true, false);
+			aJson.append(",\n");
+		}
+
+		if (!rRelations.isEmpty())
+		{
+			aJson.setLength(aJson.length() - 2);
+		}
+
+		aJson.append("\n}");
+
+		return aJson.toString();
 	}
 
 	/***************************************
