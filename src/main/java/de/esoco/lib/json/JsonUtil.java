@@ -16,7 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
-import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 
@@ -222,7 +221,7 @@ public class JsonUtil
 			}
 			else
 			{
-				appendStringValue(rJsonData, Conversions.asString(rValue));
+				appendStringValue(rJsonData, rValue.toString());
 			}
 		}
 	}
