@@ -96,19 +96,23 @@ public class MetaTypes
 	// Boolean marker types that indicate certain object properties; some are
 	// final to indicate a condition that never changes
 
-	/** Marks a relation type that defines an object identifier */
+	/** Marks a relation type that defines an object identifier. */
 	public static final RelationType<Boolean> OBJECT_ID_ATTRIBUTE =
 		newFlagType(FINAL);
 
-	/** Marks a relation type that defines an object type */
+	/** Marks a relation type that defines an object type. */
 	public static final RelationType<Boolean> OBJECT_TYPE_ATTRIBUTE =
 		newFlagType(FINAL);
 
-	/** Marks a relation type that represents the parent in a hierarchy */
+	/** Marks a string relation type that refers to an object's name. */
+	public static final RelationType<Boolean> OBJECT_NAME_ATTRIBUTE =
+		newFlagType(FINAL);
+
+	/** Marks a relation type that represents the parent in a hierarchy. */
 	public static final RelationType<Boolean> PARENT_ATTRIBUTE =
 		newFlagType(FINAL);
 
-	/** Marks a relation type that represents the children in a hierarchy */
+	/** Marks a relation type that represents the children in a hierarchy. */
 	public static final RelationType<Boolean> CHILD_ATTRIBUTE =
 		newFlagType(FINAL);
 
