@@ -1,5 +1,12 @@
 rootProject.name = "objectrelations"
 
-include ':esoco-common'
-project(':esoco-common').projectDir = new File('../esoco-common')
+def baseProjects = [':esoco-common']
 
+baseProjects.each { projectName ->
+	def projectDir = new File("../${projectName.substring(1)}")
+
+	if (projectDir.exists()) {
+		include projectName
+		project(projectName).projectDir = projectDir
+	}
+}
