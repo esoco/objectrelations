@@ -1,9 +1,14 @@
+buildscript {
+    repositories { jcenter() }
+    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7' }
+}
+apply plugin: 'com.jfrog.bintray'
+
 apply plugin: 'java'
 apply plugin: 'osgi'
 apply plugin: 'maven'
-apply plugin: 'com.jfrog.bintray'
 
-project.version = '1.0.0'
+project.version = '1.0.1'
 project.group = 'org.obrel'
 
 sourceCompatibility = 1.7
@@ -28,8 +33,6 @@ dependencies
     testCompile 'junit:junit:4.+'
 }
 
-jar { from sourceSets.main.allJava }
-
 eclipse {
 	jdt { 
 		sourceCompatibility = "1.7"
@@ -52,15 +55,6 @@ artifacts {
     archives javadocJar
 }
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
-    }
-}
-
 bintray {
 	user = project.hasProperty('bintrayUser') ? 
 				project.property('bintrayUser') : 
@@ -73,9 +67,7 @@ bintray {
 
 	pkg {
 		repo = 'sdack'
-		name = 'objectrelations'
-		licenses = ['Apache-2.0']
-		vcsUrl = 'https://github.com/esoco/objectrelations.git'
+		name = project.name
 		version {
 			name = project.version
 	    }
