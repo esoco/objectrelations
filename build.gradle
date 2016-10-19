@@ -3,13 +3,13 @@ buildscript {
     dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7' }
 }
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven'
 
 apply plugin: 'java'
 apply plugin: 'osgi'
-apply plugin: 'maven'
 
+project.group   = 'org.obrel'
 project.version = '1.0.1'
-project.group = 'org.obrel'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
