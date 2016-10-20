@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -90,13 +90,13 @@ import java.util.regex.Pattern;
  *   <li>N: {@link java.text.DecimalFormat}</li>
  * </ul>
  *
- * <p>Example: "Caused by {getCause():&{getStackTrace():F\t| %s\n}}". Assuming
- * that the input value is an object that has a causing exception, this format
- * string will query the causing exception with the property method getCause()
- * and invoke the method getStackTrace() on the result. Each element in the
- * returned array of stacktrace elements will be formatted with the Formatter
- * format string {@code '\t| %s\n'}, resulting in each element being printed on
- * a single line.</p>
+ * <p>Example: "Caused by {getCause():&amp;{getStackTrace():F\t| %s\n}}".
+ * Assuming that the input value is an object that has a causing exception, this
+ * format string will query the causing exception with the property method
+ * getCause() and invoke the method getStackTrace() on the result. Each element
+ * in the returned array of stacktrace elements will be formatted with the
+ * Formatter format string {@code '\t| %s\n'}, resulting in each element being
+ * printed on a single line.</p>
  *
  * <p>As said above this class is intended for subclassing. A subclass can
  * define it's own instances of either one of the inner classes Token or

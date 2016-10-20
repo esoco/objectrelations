@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -199,7 +199,7 @@ public class Period implements Serializable
 	 * @param  nCount The size of this period in counts of the given unit
 	 * @param  eUnit  The period unit
 	 *
-	 * @throws IllegalArgumentException If the count is <= 0 or the unit is
+	 * @throws IllegalArgumentException If the count is &lt;= 0 or the unit is
 	 *                                  {@link Unit#NONE} (which is reserved for
 	 *                                  internal use)
 	 */

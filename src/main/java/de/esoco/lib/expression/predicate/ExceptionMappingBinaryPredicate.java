@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,9 +26,10 @@ import de.esoco.lib.expression.function.AbstractFunction;
  * exceptions from their evaluation. Any such exception will be mapped to a
  * runtime exception and then re-thrown from the {@link #evaluate(Object)}
  * method. This method is overridden to be final, subclasses must implement the
- * abstract method {@link #evaluateWithException(Object)} instead. All exception
- * mapping function implementations in the framework convert exceptions into
- * {@link FunctionException} so that mapped exceptions can be detected.
+ * abstract method {@link #evaluateWithException(Object, Object)} instead. All
+ * exception mapping function implementations in the framework convert
+ * exceptions into {@link FunctionException} so that mapped exceptions can be
+ * detected.
  *
  * @author eso
  */

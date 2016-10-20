@@ -75,8 +75,9 @@ public class Conversions
 	 *
 	 * <p>Collections and maps will also be converted by invoking this method
 	 * recursively on the elements or keys and values. They will be separated
-	 * with the default strings in {@link #DEFAULT_COLLECTION_SEPARATOR} and
-	 * {@link #DEFAULT_KEY_VALUE_SEPARATOR}.</p>
+	 * with the default strings in {@link
+	 * TextConvert#DEFAULT_COLLECTION_SEPARATOR} and {@link
+	 * TextConvert#DEFAULT_KEY_VALUE_SEPARATOR}.</p>
 	 *
 	 * @param  rValue The value to convert into a string
 	 *
@@ -301,7 +302,7 @@ public class Conversions
 
 	/***************************************
 	 * Parses a collection from a string where the collection elements are
-	 * separated by {@link #DEFAULT_COLLECTION_SEPARATOR}.
+	 * separated by {@link TextConvert#DEFAULT_COLLECTION_SEPARATOR}.
 	 *
 	 * @see #parseCollection(String, Class, Class, String, boolean)
 	 */
@@ -320,7 +321,7 @@ public class Conversions
 
 	/***************************************
 	 * Parses a collection from a string where the collection elements are
-	 * separated by {@link #DEFAULT_COLLECTION_SEPARATOR}.
+	 * separated by {@link TextConvert#DEFAULT_COLLECTION_SEPARATOR}.
 	 *
 	 * @param  sElements       A string containing the elements to be parsed;
 	 *                         NULL values are allowed and will result in an
@@ -377,8 +378,8 @@ public class Conversions
 
 	/***************************************
 	 * Parses a map from a string with the default map entry separator {@link
-	 * #DEFAULT_COLLECTION_SEPARATOR} and the default key and value separator
-	 * {@link #DEFAULT_KEY_VALUE_SEPARATOR}.
+	 * TextConvert#DEFAULT_COLLECTION_SEPARATOR} and the default key and value
+	 * separator {@link TextConvert#DEFAULT_KEY_VALUE_SEPARATOR}.
 	 *
 	 * @see #parseMap(String, Class, Class, Class, String, String, boolean)
 	 */

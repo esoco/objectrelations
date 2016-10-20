@@ -321,7 +321,7 @@ public class CollectionUtil
 	 * @param rCollection The collection to combine with the additional values
 	 * @param rValues     The additional values to combine with the collection
 	 *
-	 * @see   #combine(Collection, Collection)
+	 * @see   #combine(Collection, Collection, Collection...)
 	 */
 	@SafeVarargs
 	public static <T, C extends Collection<T>> C combine(

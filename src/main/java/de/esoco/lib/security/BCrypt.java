@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,23 +49,21 @@ import java.security.SecureRandom;
  * hashpw method with a random salt, like this:</p>
  *
  * <p><code>String pw_hash = BCrypt.hashpw(plain_password, BCrypt.gensalt());
- * <br />
  * </code></p>
  *
  * <p>To check whether a plaintext password matches one that has been hashed
  * previously, use the checkpw method:</p>
  *
- * <p><code>if (BCrypt.checkpw(candidate_password, stored_hash))<br />
- * &nbsp;&nbsp;&nbsp;&nbsp;System.out.println("It matches");<br />
- * else<br />
- * &nbsp;&nbsp;&nbsp;&nbsp;System.out.println("It does not match");<br />
- * </code></p>
+ * <p><code>if (BCrypt.checkpw(candidate_password, stored_hash))<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;System.out.println("It matches");<br>
+ * else<b>&nbsp;&nbsp;&nbsp;&nbsp;System.out.println("It does not match");<br>
+ * </b></code></p>
  *
  * <p>The gensalt() method takes an optional parameter (log_rounds) that
  * determines the computational complexity of the hashing:</p>
  *
- * <p><code>String strong_salt = BCrypt.gensalt(10)<br />
- * String stronger_salt = BCrypt.gensalt(12)<br />
+ * <p><code>String strong_salt = BCrypt.gensalt(10)<br>
+ * String stronger_salt = BCrypt.gensalt(12)<br>
  * </code></p>
  *
  * <p>The amount of work increases exponentially (2**log_rounds), so each
@@ -74,7 +72,7 @@ import java.security.SecureRandom;
  *
  * @author  Damien Miller
  * @version 0.4
- * @see     http://www.mindrot.org/projects/jBCrypt/
+ * @see     "http://www.mindrot.org/projects/jBCrypt/"
  */
 public class BCrypt
 {
