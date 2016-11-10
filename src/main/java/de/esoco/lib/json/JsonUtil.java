@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'ObjectRelations' project.
+// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-2.0
+//		 http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,15 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
+import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Collection;
@@ -168,21 +173,6 @@ public class JsonUtil
 	}
 
 	/***************************************
-	 * Appends a string value to a JSON string builder. All reserved JSON
-	 * control characters in the value will be escaped and it will be enclosed
-	 * in double quotes.
-	 *
-	 * @param rJsonData The JSON string builder
-	 * @param sValue    sName The string value
-	 */
-	public static void appendStringValue(StringBuilder rJsonData, String sValue)
-	{
-		rJsonData.append('\"');
-		JsonUtil.escapeJsonValue(rJsonData, sValue);
-		rJsonData.append('\"');
-	}
-
-	/***************************************
 	 * Appends a value to a JSON string builder and converts it according to
 	 * it's datatype.
 	 *
@@ -204,7 +194,8 @@ public class JsonUtil
 			{
 				rJsonData.append(rValue.toString());
 			}
-			else if (Collection.class.isAssignableFrom(rDatatype))
+
+			if (Collection.class.isAssignableFrom(rDatatype))
 			{
 				appendCollection(rJsonData, (Collection<?>) rValue);
 			}
@@ -216,12 +207,27 @@ public class JsonUtil
 			}
 			else if (Date.class.isAssignableFrom(rDatatype))
 			{
-				appendStringValue(rJsonData,
-								  JSON_DATE_FORMAT.format((Date) rValue));
+				rJsonData.append('\"');
+				rJsonData.append(JSON_DATE_FORMAT.format((Date) rValue));
+				rJsonData.append('\"');
 			}
 			else
 			{
-				appendStringValue(rJsonData, rValue.toString());
+				String sValue;
+
+				try
+				{
+					sValue = Conversions.asString(rValue);
+				}
+				catch (Exception e)
+				{
+					// if conversion not possible use toString()
+					sValue = rValue.toString();
+				}
+
+				rJsonData.append('\"');
+				JsonUtil.escapeJsonValue(rJsonData, sValue);
+				rJsonData.append('\"');
 			}
 		}
 	}
@@ -290,5 +296,202 @@ public class JsonUtil
 					}
 			}
 		}
+	}
+
+	/***************************************
+	 * Extracts the content from a JSON structure (object, array, or string). If
+	 * the structure doesn't match the expected format an exception will be
+	 * thrown.
+	 *
+	 * @param  sJsonStructure        The string containing the JSON structure
+	 * @param  cOpen                 The opening character of the structure
+	 * @param  cClose                The closing character of the structure
+	 * @param  sStructureDescription A description of the expected structure for
+	 *                               the exception error message
+	 *
+	 * @return The extracted structure content
+	 *
+	 * @throws IllegalArgumentException If the content doesn't represent the
+	 *                                  expected structure
+	 */
+	public static String getContent(String sJsonStructure,
+									char   cOpen,
+									char   cClose,
+									String sStructureDescription)
+	{
+		if (sJsonStructure.charAt(0) != cOpen ||
+			sJsonStructure.charAt(sJsonStructure.length() - 1) != cClose)
+		{
+			throw new IllegalArgumentException("Not a " +
+											   sStructureDescription);
+		}
+
+		return sJsonStructure.substring(1, sJsonStructure.length() - 1);
+	}
+
+	/***************************************
+	 * Parses a JSON array string into a new collection instance.
+	 *
+	 * @param  sJsonArray The JSON array string
+	 * @param  rDatatype  The datatype of the target collection
+	 *
+	 * @return A new instance of the given collection types, containing the
+	 *         parsed elements from the JSON array
+	 */
+	public static <C extends Collection<?>> C parseCollection(
+		String   sJsonArray,
+		Class<C> rDatatype)
+	{
+		String sArrayContent = getContent(sJsonArray, '[', ']', "JSON array");
+
+		return null;
+	}
+
+	/***************************************
+	 * Parses a JSON object string into a new {@link Map} instance.
+	 *
+	 * @param  sJsonObject The JSON object string
+	 *
+	 * @return A new ordered map instance, containing the parsed key-value pairs
+	 *         from the JSON object string in the same order in which they occur
+	 *         in the input string
+	 */
+	public static Map<?, ?> parseMap(String sJsonObject)
+	{
+		String sObjectContent =
+			getContent(sJsonObject, '{', '}', "JSON object");
+
+		return null;
+	}
+
+	/***************************************
+	 * Parses a JSON number string into a Java {@link Number} subclass instance.
+	 *
+	 * @param  sJsonNumber The JSON number value
+	 * @param  rDatatype   The target datatype
+	 *
+	 * @return The resulting value or NULL if no mapping exists
+	 */
+	public static Number parseNumber(
+		String					sJsonNumber,
+		Class<? extends Number> rDatatype)
+	{
+		Number rValue = null;
+
+		if (rDatatype == Integer.class)
+		{
+			rValue = Integer.valueOf(sJsonNumber);
+		}
+		else if (rDatatype == Long.class)
+		{
+			rValue = Long.valueOf(sJsonNumber);
+		}
+		else if (rDatatype == Short.class)
+		{
+			rValue = Short.valueOf(sJsonNumber);
+		}
+		else if (rDatatype == Byte.class)
+		{
+			rValue = Byte.valueOf(sJsonNumber);
+		}
+		else if (rDatatype == BigInteger.class)
+		{
+			rValue = new BigInteger(sJsonNumber);
+		}
+		else if (rDatatype == BigDecimal.class)
+		{
+			rValue = new BigDecimal(sJsonNumber);
+		}
+		else if (rDatatype == Float.class)
+		{
+			rValue = Float.valueOf(sJsonNumber);
+		}
+		else if (rDatatype == Double.class)
+		{
+			rValue = Double.valueOf(sJsonNumber);
+		}
+
+		return rValue;
+	}
+
+	/***************************************
+	 * Parses a relation from a JSON string into {@link Relatable} object. The
+	 * JSON input string must be in a compatible format as generated by the
+	 * method {@link #appendRelation(StringBuilder, Relation, boolean, boolean)}
+	 * or else the parsing may cause errors. Furthermore all relation types
+	 * referenced in the JSON must have their full namespace and must have been
+	 * created as instances or else their lookup will fail.
+	 *
+	 * @param sJson   The JSON input string
+	 * @param rTarget The related object to set the relation in
+	 */
+	@SuppressWarnings("unchecked")
+	public static void parseRelation(String sJson, Relatable rTarget)
+	{
+		int    nSeparatorIndex = sJson.indexOf(':');
+		String sTypeName	   = sJson.substring(1, nSeparatorIndex - 1).trim();
+		String sJsonValue	   = sJson.substring(nSeparatorIndex + 1).trim();
+
+		RelationType<?> rRelationType = RelationType.valueOf(sTypeName);
+
+		Object rValue = parseValue(sJsonValue, rRelationType.getTargetType());
+
+		rTarget.set((RelationType<Object>) rRelationType, rValue);
+	}
+
+	/***************************************
+	 * Parses a JSON string value into a certain datatype. The value must be in
+	 * a format as generated by {@link #appendValue(StringBuilder, Object)}.
+	 *
+	 * @param  sJsonValue The JSON value string
+	 * @param  rDatatype  The target datatype
+	 *
+	 * @return The parsed value
+	 */
+	@SuppressWarnings("unchecked")
+	public static Object parseValue(String sJsonValue, Class<?> rDatatype)
+	{
+		Object rValue = null;
+
+		if (rDatatype == Boolean.class)
+		{
+			rValue = Boolean.valueOf(sJsonValue);
+		}
+		else if (Number.class.isAssignableFrom(rDatatype))
+		{
+			rValue =
+				parseNumber(sJsonValue, (Class<? extends Number>) rDatatype);
+		}
+
+		if (Collection.class.isAssignableFrom(rDatatype))
+		{
+			rValue =
+				parseCollection(sJsonValue,
+								(Class<? extends Collection<?>>) rDatatype);
+		}
+		else if (Map.class.isAssignableFrom(rDatatype))
+		{
+			rValue = parseMap(sJsonValue);
+		}
+		else if (Date.class.isAssignableFrom(rDatatype))
+		{
+			sJsonValue = getContent(sJsonValue, '"', '"', "JSON string");
+
+			try
+			{
+				rValue = JSON_DATE_FORMAT.parse(sJsonValue);
+			}
+			catch (ParseException e)
+			{
+				throw new IllegalStateException(e);
+			}
+		}
+		else
+		{
+			sJsonValue = getContent(sJsonValue, '"', '"', "JSON string");
+			rValue     = Conversions.parseValue(sJsonValue, rDatatype);
+		}
+
+		return rValue;
 	}
 }
