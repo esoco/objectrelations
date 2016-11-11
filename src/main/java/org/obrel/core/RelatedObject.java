@@ -228,6 +228,23 @@ public class RelatedObject implements Relatable
 	}
 
 	/***************************************
+	 * Compares this instance's relations for equality with another related
+	 * object. This method should be invoked by subclasses that implement the
+	 * {@link #equals(Object)} and {@link #hashCode()} methods. From the latter
+	 * subclasses should also invoke {@link #relationsHashCode()} for a
+	 * consistent implementation of these methods.
+	 *
+	 * @param  rOther The other object to compare this instance's relations with
+	 *
+	 * @return TRUE if the relations of this instance equal that of the other
+	 *         object
+	 */
+	public final boolean relationsEqual(RelatedObject rOther)
+	{
+		return aRelations.equals(rOther.aRelations);
+	}
+
+	/***************************************
 	 * Returns a string description of this object's relations.
 	 *
 	 * @param  sJoin      The join between relation type and value
@@ -431,23 +448,6 @@ public class RelatedObject implements Relatable
 		{
 			addRelation((Relation<?>) rIn.readObject(), false);
 		}
-	}
-
-	/***************************************
-	 * Compares this instance's relations for equality with another related
-	 * object. This method should be invoked by subclasses that implement the
-	 * {@link #equals(Object)} and {@link #hashCode()} methods. From the latter
-	 * subclasses should also invoke {@link #relationsHashCode()} for a
-	 * consistent implementation of these methods.
-	 *
-	 * @param  rOther The other object to compare this instance's relations with
-	 *
-	 * @return TRUE if the relations of this instance equal that of the other
-	 *         object
-	 */
-	protected final boolean relationsEqual(RelatedObject rOther)
-	{
-		return aRelations.equals(rOther.aRelations);
 	}
 
 	/***************************************
