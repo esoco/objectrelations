@@ -586,6 +586,7 @@ public class Conversions
 	 *
 	 * @return The map of string conversion functions
 	 */
+	@SuppressWarnings("rawtypes")
 	private static Map<Class<?>, InvertibleFunction<?, String>> getStringConversionMap()
 	{
 		if (aStringConversions == null)
@@ -647,6 +648,15 @@ public class Conversions
 					public Double invert(String sValue)
 					{
 						return Double.valueOf(sValue);
+					}
+				});
+			aStringConversions.put(RelationType.class,
+				new StringConversion<RelationType>(RelationType.class)
+				{
+					@Override
+					public RelationType<?> invert(String sName)
+					{
+						return RelationType.valueOf(sName);
 					}
 				});
 			aStringConversions.put(BigDecimal.class,
