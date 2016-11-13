@@ -310,6 +310,12 @@ public class JsonBuilder
 				aJson.append(JSON_DATE_FORMAT.format((Date) rValue));
 				endString();
 			}
+			else if (RelationType.class.isAssignableFrom(rDatatype))
+			{
+				beginString();
+				aJson.append(escapeJsonValue(rValue.toString()));
+				endString();
+			}
 			else if (Relatable.class.isAssignableFrom(rDatatype))
 			{
 				appendObject((Relatable) rValue, null);

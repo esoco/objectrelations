@@ -304,7 +304,23 @@ public class RelationType<T> extends RelatedObject
 	 */
 	public static RelationType<?> valueOf(String sName)
 	{
-		return aTypeRegistry.get(sName);
+		RelationType<?> rRelationType = aTypeRegistry.get(sName);
+
+		if (rRelationType == null)
+		{
+			try
+			{
+				// try to load enclosing class
+				Class.forName(sName.substring(0, sName.lastIndexOf('.')));
+				rRelationType = aTypeRegistry.get(sName);
+			}
+			catch (Exception e)
+			{
+				// just return NULL if unsuccessful
+			}
+		}
+
+		return rRelationType;
 	}
 
 	/***************************************

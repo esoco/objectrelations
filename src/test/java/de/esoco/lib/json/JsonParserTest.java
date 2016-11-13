@@ -91,16 +91,16 @@ public class JsonParserTest
 								  aTest);
 		assertTrue(aTest.relationsEqual(aCompare));
 
-//		aCompare.set(StandardTypes.PARENT, aParent);
-//
-//		JsonParser.parseRelatable("{\"PARENT\": {\"NAME\": \"PARENT\"," +
-//								  " \"INFO\": \"JSON_OBJECT\"}," +
-//								  " \"NAME\": \"TEST\"," +
-//								  " \"INFO\": \"JSON\"," +
-//								  " \"PORT\": 12345}",
-//								  aTest);
-//		assertTrue(((RelatedObject) aTest.get(StandardTypes.PARENT))
-//				   .relationsEqual(aParent));
+		aCompare.set(StandardTypes.PARENT, aParent);
+
+		JsonParser.parseRelatable("{\"PARENT\": {\"NAME\": \"PARENT\"," +
+								  " \"INFO\": \"JSON_OBJECT\"}," +
+								  " \"NAME\": \"TEST\"," +
+								  " \"INFO\": \"JSON\"," +
+								  " \"PORT\": 12345}",
+								  aTest);
+		assertTrue(((RelatedObject) aTest.get(StandardTypes.PARENT))
+				   .relationsEqual(aParent));
 	}
 
 	/***************************************

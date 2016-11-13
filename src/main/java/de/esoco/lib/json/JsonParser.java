@@ -254,6 +254,12 @@ public class JsonParser
 
 		RelationType<?> rRelationType = RelationType.valueOf(sTypeName);
 
+		if (rRelationType == null)
+		{
+			throw new IllegalArgumentException("Unknown RelationType: " +
+											   sTypeName);
+		}
+
 		Object rValue = parseValue(sJsonValue, rRelationType.getTargetType());
 
 		rTarget.set((RelationType<Object>) rRelationType, rValue);
@@ -349,18 +355,25 @@ public class JsonParser
 		}
 		else if (Relatable.class.isAssignableFrom(rDatatype))
 		{
-			Relatable aRelatable;
-
-			if (rDatatype == Relatable.class)
+			if (RelationType.class.isAssignableFrom(rDatatype))
 			{
-				aRelatable = new RelatedObject();
+				rValue = RelationType.valueOf(sJsonValue);
 			}
 			else
 			{
-				aRelatable = (Relatable) ReflectUtil.newInstance(rDatatype);
-			}
+				Relatable aRelatable;
 
-			rValue = parseRelatable(sJsonValue, aRelatable);
+				if (rDatatype == Relatable.class)
+				{
+					aRelatable = new RelatedObject();
+				}
+				else
+				{
+					aRelatable = (Relatable) ReflectUtil.newInstance(rDatatype);
+				}
+
+				rValue = parseRelatable(sJsonValue, aRelatable);
+			}
 		}
 		else
 		{
@@ -395,7 +408,8 @@ public class JsonParser
 			eStructure.cClose)
 		{
 			throw new IllegalArgumentException("Not a JSON " +
-											   eStructure.name().toLowerCase());
+											   eStructure.name().toLowerCase() +
+											   ": " + sJsonStructure);
 		}
 
 		return sJsonStructure.substring(1, sJsonStructure.length() - 1).trim();
@@ -417,37 +431,91 @@ public class JsonParser
 		int    nElementStart = 0;
 		int    nElementEnd   = 0;
 
-		while (nElementEnd < nMax)
+		while (nElementEnd <= nMax)
 		{
-			boolean bInString =
-				(sJson.charAt(nElementEnd) == JsonStructure.STRING.cOpen);
-//			boolean bInStructure =
-//				(sJson.charAt(nElementEnd) == JsonStructure.ARRAY.cOpen ||
-//				 sJson.charAt(nElementEnd) == JsonStructure.OBJECT.cOpen);
+			JsonStructure eSkippedStructure = null;
+			int			  nStructureLevel   = 0;
+			boolean		  bInString		    = false;
+			char		  cCurrentChar;
 
 			do
 			{
-				nElementEnd++;
+				cCurrentChar = sJson.charAt(nElementEnd++);
 
-				// toggle in string and out of string by considering escaped
-				// quotation marks in strings
-				if (sJson.charAt(nElementEnd) == '"' &&
-					(!bInString || sJson.charAt(nElementEnd - 1) != '\\'))
+				// toggle string but consider escaped string delimiters
+				if (cCurrentChar == JsonStructure.STRING.cOpen &&
+					(!bInString || sJson.charAt(nElementEnd - 2) != '\\'))
 				{
 					bInString = !bInString;
 				}
-			} // loop until mapping separator (,) or string end is found
-			while ((bInString || sJson.charAt(nElementEnd) != ',') &&
-				   nElementEnd < nMax);
 
-			// include last character (because there is no separator at the end)
-			if (nElementEnd == nMax)
+				if (!bInString)
+				{
+					if (cCurrentChar == JsonStructure.ARRAY.cOpen)
+					{
+						if (eSkippedStructure == null)
+						{
+							eSkippedStructure = JsonStructure.ARRAY;
+						}
+
+						if (eSkippedStructure == JsonStructure.ARRAY)
+						{
+							nStructureLevel++;
+						}
+					}
+					else if (cCurrentChar == JsonStructure.OBJECT.cOpen)
+					{
+						if (eSkippedStructure == null)
+						{
+							eSkippedStructure = JsonStructure.OBJECT;
+						}
+
+						if (eSkippedStructure == JsonStructure.OBJECT)
+						{
+							nStructureLevel++;
+						}
+					}
+					else if (eSkippedStructure != null &&
+							 cCurrentChar == eSkippedStructure.cClose)
+					{
+						nStructureLevel--;
+
+						if (nStructureLevel == 0)
+						{
+							eSkippedStructure = null;
+						}
+					}
+				}
+			} // loop until mapping separator (,) or string end is found
+			while ((bInString || eSkippedStructure != null ||
+					cCurrentChar != ',') &&
+				   nElementEnd <= nMax);
+
+			if (eSkippedStructure != null || bInString)
 			{
-				nElementEnd++;
+				if (bInString)
+				{
+					eSkippedStructure = JsonStructure.STRING;
+				}
+
+				throw new IllegalArgumentException(String.format("Unclosed JSON " +
+																 "%s in %s",
+																 eSkippedStructure
+																 .name()
+																 .toLowerCase(),
+																 sJson));
 			}
 
-			fProcessElement.execute(sJson.substring(nElementStart,
-													nElementEnd).trim());
+			// exclude separator except for last structure element
+			if (nElementEnd <= nMax)
+			{
+				nElementEnd--;
+			}
+
+			String sElement =
+				sJson.substring(nElementStart, nElementEnd).trim();
+
+			fProcessElement.execute(sElement);
 
 			nElementStart = ++nElementEnd;
 		}
