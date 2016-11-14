@@ -235,7 +235,12 @@ public class JsonBuilder
 	 * explicit relation types are provided all relations of the object will be
 	 * converted to JSON. In that case it is necessary that there are no cycles
 	 * in the relations, i.e. objects referring each other directly (like in
-	 * parent-child relationships) or indirectly.
+	 * parent-child relationships) or indirectly. Furthermore all relations in
+	 * the source object must be convertible to strings, i.e. should either have
+	 * a basic (JSON) datatype or a conversion to string registered with {@link
+	 * Conversions#registerStringConversion(Class,InvertibleFunction)}. If not
+	 * the resulting JSON string will probably not be parseable by the method
+	 * {@link #fromJson(Relatable, String)}.
 	 *
 	 * @param  rObject        The object to append the relations of
 	 * @param  rRelationTypes The types of the relation to be converted to JSON
