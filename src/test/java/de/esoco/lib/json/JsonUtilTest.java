@@ -48,6 +48,7 @@ public class JsonUtilTest
 		assertEquals("\\u007F-\\u009F", JsonUtil.escape("\u007f-\u009f"));
 		assertEquals("\\u2000-\\u20FF", JsonUtil.escape("\u2000-\u20ff"));
 		assertEquals("\u2100,\u21FF", JsonUtil.escape("\u2100,\u21ff"));
+		assertEquals("\uFFFF", JsonUtil.escape("\uffff"));
 		assertEquals("\\\"\\\\\\/\\b\\f\\n\\r\\t\\\"",
 					 JsonUtil.escape("\"\\/\b\f\n\r\t\""));
 		assertEquals(" \\\" \\\\ \\/ \\b \\f \\n \\r \\t \\\" ",
@@ -72,6 +73,7 @@ public class JsonUtilTest
 		assertEquals("\u007F-\u009F", JsonUtil.restore("\\u007f-\\u009f"));
 		assertEquals("\u2000-\u20FF", JsonUtil.restore("\\u2000-\\u20ff"));
 		assertEquals("\u2100,\u21FF", JsonUtil.restore("\u2100,\u21ff"));
+		assertEquals("\uFFFF", JsonUtil.restore("\uffff"));
 		assertEquals("\"\\/\b\f\n\r\t\"",
 					 JsonUtil.restore("\\\"\\\\\\/\\b\\f\\n\\r\\t\\\""));
 		assertEquals(" \" \\ / \b \f \n \r \t \" ",
