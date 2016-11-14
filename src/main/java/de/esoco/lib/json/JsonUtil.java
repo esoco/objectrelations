@@ -164,7 +164,7 @@ public class JsonUtil
 		{
 			char c = sEscaped.charAt(i++);
 
-			if (c == '\\' && i < nMax)
+			if (c == '\\' && i <= nMax)
 			{
 				c = sEscaped.charAt(i++);
 
@@ -206,8 +206,17 @@ public class JsonUtil
 						try
 						{
 							String sHex = sEscaped.substring(i, i + 4);
+							char   cHex = (char) Integer.parseInt(sHex, 16);
 
-							aResult.append((char) Integer.parseInt(sHex, 16));
+							if (TextUtil.isControlCharacter(cHex))
+							{
+								aResult.append(cHex);
+								i += 4;
+							}
+							else
+							{
+								aResult.append("\\u");
+							}
 						}
 						catch (Exception e)
 						{
