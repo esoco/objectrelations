@@ -82,18 +82,18 @@ public class JsonUtil
 	/***************************************
 	 * Creates a JSON compatible value by escaping the control characters in it.
 	 *
-	 * @param  sOriginalValue The original value string to escape
+	 * @param  sOriginal The original string to escape
 	 *
 	 * @return The escaped string
 	 */
-	public static String escapeJsonValue(CharSequence sOriginalValue)
+	public static String escape(String sOriginal)
 	{
 		StringBuilder aResult = new StringBuilder();
-		final int     nLength = sOriginalValue.length();
+		final int     nLength = sOriginal.length();
 
 		for (int nChar = 0; nChar < nLength; nChar++)
 		{
-			char c = sOriginalValue.charAt(nChar);
+			char c = sOriginal.charAt(nChar);
 
 			switch (c)
 			{
@@ -141,6 +141,90 @@ public class JsonUtil
 					{
 						aResult.append(c);
 					}
+			}
+		}
+
+		return aResult.toString();
+	}
+
+	/***************************************
+	 * Restores a string from an escaped JSON string.
+	 *
+	 * @param  sEscaped The escaped string to restore
+	 *
+	 * @return The restored string
+	 */
+	public static String restore(String sEscaped)
+	{
+		StringBuilder aResult = new StringBuilder();
+		final int     nMax    = sEscaped.length() - 1;
+		int			  i		  = 0;
+
+		while (i <= nMax)
+		{
+			char c = sEscaped.charAt(i++);
+
+			if (c == '\\' && i < nMax)
+			{
+				c = sEscaped.charAt(i++);
+
+				switch (c)
+				{
+					case '"':
+						aResult.append('"');
+						break;
+
+					case '\\':
+						aResult.append('\\');
+						break;
+
+					case '/':
+						aResult.append('/');
+						break;
+
+					case 'b':
+						aResult.append('\b');
+						break;
+
+					case 'f':
+						aResult.append('\f');
+						break;
+
+					case 'n':
+						aResult.append('\n');
+						break;
+
+					case 'r':
+						aResult.append('\r');
+						break;
+
+					case 't':
+						aResult.append('\t');
+						break;
+
+					case 'u':
+						try
+						{
+							String sHex = sEscaped.substring(i, i + 4);
+
+							aResult.append((char) Integer.parseInt(sHex, 16));
+						}
+						catch (Exception e)
+						{
+							// append original chars
+							aResult.append("\\u");
+						}
+
+						break;
+
+					default:
+						aResult.append('\\');
+						aResult.append(c);
+				}
+			}
+			else
+			{
+				aResult.append(c);
 			}
 		}
 

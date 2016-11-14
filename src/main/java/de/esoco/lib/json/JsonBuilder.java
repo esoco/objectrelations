@@ -32,7 +32,6 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 
 import static de.esoco.lib.json.JsonUtil.JSON_DATE_FORMAT;
-import static de.esoco.lib.json.JsonUtil.escapeJsonValue;
 
 
 /********************************************************************
@@ -313,7 +312,7 @@ public class JsonBuilder
 			else if (RelationType.class.isAssignableFrom(rDatatype))
 			{
 				beginString();
-				aJson.append(escapeJsonValue(rValue.toString()));
+				aJson.append(JsonUtil.escape(rValue.toString()));
 				endString();
 			}
 			else if (Relatable.class.isAssignableFrom(rDatatype))
@@ -335,7 +334,7 @@ public class JsonBuilder
 				}
 
 				beginString();
-				aJson.append(escapeJsonValue(sValue));
+				aJson.append(JsonUtil.escape(sValue));
 				endString();
 			}
 		}

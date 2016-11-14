@@ -279,7 +279,9 @@ public class JsonParser
 
 		if (sJsonValue.charAt(0) == JsonStructure.STRING.cOpen)
 		{
-			aValue = sJsonValue.substring(1, sJsonValue.length() - 1);
+			aValue =
+				JsonUtil.restore(sJsonValue.substring(1,
+													  sJsonValue.length() - 1));
 		}
 		else if (sJsonValue.charAt(0) == JsonStructure.OBJECT.cOpen)
 		{
@@ -378,6 +380,7 @@ public class JsonParser
 		else
 		{
 			sJsonValue = getContent(sJsonValue, JsonStructure.STRING);
+			sJsonValue = JsonUtil.restore(sJsonValue);
 			rValue     = Conversions.parseValue(sJsonValue, rDatatype);
 		}
 
