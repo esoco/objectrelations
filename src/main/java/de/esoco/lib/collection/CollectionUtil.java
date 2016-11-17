@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-2.0
+//		 http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,8 @@ import de.esoco.lib.expression.CollectionFunctions;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.text.TextUtil;
+
+import java.io.PrintStream;
 
 import java.lang.reflect.Array;
 
@@ -37,6 +39,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -1216,6 +1219,18 @@ public class CollectionUtil
 	}
 
 	/***************************************
+	 * Prints a map formatted over multiple lines to a certain print writer with
+	 * a certain indentation.
+	 *
+	 * @param rData The map to print
+	 * @param rOut  The output stream
+	 */
+	public static void print(Map<?, ?> rData, PrintStream rOut)
+	{
+		print(rData, rOut, "");
+	}
+
+	/***************************************
 	 * @see #removeAll(Map, Collection)
 	 */
 	@SuppressWarnings("unchecked")
@@ -1519,5 +1534,44 @@ public class CollectionUtil
 			throw new IllegalArgumentException("Could not create result collection",
 											   e);
 		}
+	}
+
+	/***************************************
+	 * Prints a map formatted over multiple lines to a certain print writer with
+	 * a certain indentation.
+	 *
+	 * @param rData   The map to print
+	 * @param rOut    The output stream
+	 * @param sIndent The indentation for this recursion
+	 */
+	private static void print(Object rData, PrintStream rOut, String sIndent)
+	{
+		if (rData instanceof Map)
+		{
+			for (Entry<?, ?> rEntry : ((Map<?, ?>) rData).entrySet())
+			{
+				Object sKey = rEntry.getKey();
+
+				rOut.print(sIndent);
+				rOut.print(sKey);
+				rOut.print(": ");
+
+				print(rEntry.getValue(), rOut, sIndent + '\t');
+			}
+		}
+		else if (rData instanceof Collection)
+		{
+			for (Object rValue : (Collection<?>) rData)
+			{
+				print(rValue, rOut, sIndent + '\t');
+				rOut.print(", ");
+			}
+		}
+		else
+		{
+			rOut.print(rData);
+		}
+
+		rOut.println();
 	}
 }

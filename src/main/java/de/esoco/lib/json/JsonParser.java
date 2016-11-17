@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'ObjectRelations' project.
+// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-2.0
+//		 http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,8 +17,12 @@
 package de.esoco.lib.json;
 
 import de.esoco.lib.expression.Action;
+import de.esoco.lib.expression.BinaryFunction;
 import de.esoco.lib.expression.Conversions;
+import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.function.AbstractAction;
+import de.esoco.lib.expression.function.AbstractBinaryFunction;
+import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.json.JsonUtil.JsonStructure;
 import de.esoco.lib.reflect.ReflectUtil;
 
@@ -49,6 +53,29 @@ import static de.esoco.lib.json.JsonUtil.JSON_DATE_FORMAT;
  */
 public class JsonParser
 {
+	//~ Static fields/initializers ---------------------------------------------
+
+	private static final Function<String, Object> PARSE_JSON =
+		new AbstractFunction<String, Object>("ParseJson")
+		{
+			@Override
+			public Object evaluate(String sJsonValue)
+			{
+				return parseValue(sJsonValue);
+			}
+		};
+
+	private static final Function<String, Map<String, Object>> PARSE_JSON_OBJECT =
+		new AbstractFunction<String, Map<String, Object>>("ParseJsonObject")
+		{
+			@Override
+			public Map<String, Object> evaluate(String sJsonValue)
+			{
+				return parseObject(sJsonValue,
+								   new LinkedHashMap<String, Object>());
+			}
+		};
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -68,7 +95,7 @@ public class JsonParser
 	 *
 	 * @return The input collection containing the parsed array values
 	 */
-	public static <C extends Collection<Object>> C parseCollection(
+	public static <C extends Collection<Object>> C parseArray(
 		String  sJsonArray,
 		final C rCollection)
 	{
@@ -87,24 +114,70 @@ public class JsonParser
 	}
 
 	/***************************************
+	 * Returns a function that parses a JSON object and returns a map containing
+	 * the parsed values. The returned map preserves the order of the parsed
+	 * values in the input string.
+	 *
+	 * @return A new map containing the parsed object attributes
+	 */
+	public static Function<String, Object> parseJson()
+	{
+		return PARSE_JSON;
+	}
+
+	/***************************************
+	 * Returns a binary function that parses a JSON value for a certain datatype
+	 * by invoking {@link #parseValue(String, Class)}.
+	 *
+	 * @param  rDatatype The preset datatype for unary function invocation
+	 *
+	 * @return A new binary function instance
+	 */
+	public static BinaryFunction<String, Class<?>, Object> parseJson(
+		Class<?> rDatatype)
+	{
+		return new AbstractBinaryFunction<String, Class<?>, Object>(rDatatype,
+																	"ParseJsonValueForDatatype")
+		{
+			@Override
+			public Object evaluate(String sJsonValue, Class<?> rDatatype)
+			{
+				return parseValue(sJsonValue, rDatatype);
+			}
+		};
+	}
+
+	/***************************************
+	 * Returns a function that parses a JSON object and returns a map containing
+	 * the parsed values. The returned map preserves the order of the parsed
+	 * values in the input string.
+	 *
+	 * @return A new map containing the parsed object attributes
+	 */
+	public static Function<String, Map<String, Object>> parseJsonObject()
+	{
+		return PARSE_JSON_OBJECT;
+	}
+
+	/***************************************
 	 * Parses a numeric value from a JSON string.
 	 *
-	 * @param  sJsonValue The JSON value to parse
+	 * @param  sJsonNumber The JSON value to parse
 	 *
 	 * @return The corresponding {@link Number} subclass for the input value
 	 */
 	@SuppressWarnings("boxing")
-	public static Number parseJsonNumber(String sJsonValue)
+	public static Number parseNumber(String sJsonNumber)
 	{
 		Number aNumber;
 
-		if (sJsonValue.indexOf('.') > 0)
+		if (sJsonNumber.indexOf('.') > 0)
 		{
-			aNumber = new BigDecimal(sJsonValue);
+			aNumber = new BigDecimal(sJsonNumber);
 		}
 		else
 		{
-			BigInteger aBigInt    = new BigInteger(sJsonValue);
+			BigInteger aBigInt    = new BigInteger(sJsonNumber);
 			int		   nBitLength = aBigInt.bitLength();
 
 			if (nBitLength <= 32)
@@ -122,36 +195,6 @@ public class JsonParser
 		}
 
 		return aNumber;
-	}
-
-	/***************************************
-	 * Parses a JSON object into a map.
-	 *
-	 * @param  sJsonObject The JSON object string
-	 * @param  rMap        The target map
-	 *
-	 * @return The input map containing the parsed object attributes
-	 */
-	public static Map<String, Object> parseMap(
-		String					  sJsonObject,
-		final Map<String, Object> rMap)
-	{
-		parseStructure(sJsonObject,
-					   JsonStructure.OBJECT,
-			new AbstractAction<String>("ParseJsonObjectElement")
-			{
-				@Override
-				public void execute(String sMapping)
-				{
-					int    nPos		  = sMapping.indexOf(':');
-					String sKey		  = sMapping.substring(1, nPos - 1).trim();
-					String sJsonValue = sMapping.substring(nPos + 1).trim();
-
-					rMap.put(sKey, parseValue(sJsonValue));
-				}
-			});
-
-		return rMap;
 	}
 
 	/***************************************
@@ -202,6 +245,36 @@ public class JsonParser
 		}
 
 		return rValue;
+	}
+
+	/***************************************
+	 * Parses a JSON object into a map.
+	 *
+	 * @param  sJsonObject The JSON object string
+	 * @param  rMap        The target map
+	 *
+	 * @return The input map containing the parsed object attributes
+	 */
+	public static Map<String, Object> parseObject(
+		String					  sJsonObject,
+		final Map<String, Object> rMap)
+	{
+		parseStructure(sJsonObject,
+					   JsonStructure.OBJECT,
+			new AbstractAction<String>("ParseJsonObjectElement")
+			{
+				@Override
+				public void execute(String sMapping)
+				{
+					int    nPos		  = sMapping.indexOf(':');
+					String sKey		  = sMapping.substring(1, nPos - 1).trim();
+					String sJsonValue = sMapping.substring(nPos + 1).trim();
+
+					rMap.put(sKey, parseValue(sJsonValue));
+				}
+			});
+
+		return rMap;
 	}
 
 	/***************************************
@@ -285,11 +358,12 @@ public class JsonParser
 		}
 		else if (sJsonValue.charAt(0) == JsonStructure.OBJECT.cOpen)
 		{
-			aValue = parseMap(sJsonValue, new LinkedHashMap<String, Object>());
+			aValue =
+				parseObject(sJsonValue, new LinkedHashMap<String, Object>());
 		}
 		else if (sJsonValue.charAt(0) == JsonStructure.ARRAY.cOpen)
 		{
-			aValue = parseCollection(sJsonValue, new ArrayList<>());
+			aValue = parseArray(sJsonValue, new ArrayList<>());
 		}
 		else if (sJsonValue.equals("null"))
 		{
@@ -301,7 +375,7 @@ public class JsonParser
 		}
 		else
 		{
-			aValue = parseJsonNumber(sJsonValue);
+			aValue = parseNumber(sJsonValue);
 		}
 
 		return aValue;
@@ -317,7 +391,9 @@ public class JsonParser
 	 * @return The parsed value
 	 */
 	@SuppressWarnings("unchecked")
-	public static Object parseValue(String sJsonValue, Class<?> rDatatype)
+	public static <T> T parseValue(
+		String			   sJsonValue,
+		Class<? extends T> rDatatype)
 	{
 		Object rValue = null;
 
@@ -336,11 +412,12 @@ public class JsonParser
 				Set.class.isAssignableFrom(rDatatype) ? new HashSet<>()
 													  : new ArrayList<>();
 
-			rValue = parseCollection(sJsonValue, aCollection);
+			rValue = parseArray(sJsonValue, aCollection);
 		}
 		else if (Map.class.isAssignableFrom(rDatatype))
 		{
-			rValue = parseMap(sJsonValue, new LinkedHashMap<String, Object>());
+			rValue =
+				parseObject(sJsonValue, new LinkedHashMap<String, Object>());
 		}
 		else if (Date.class.isAssignableFrom(rDatatype))
 		{
@@ -384,7 +461,7 @@ public class JsonParser
 			rValue     = Conversions.parseValue(sJsonValue, rDatatype);
 		}
 
-		return rValue;
+		return (T) rValue;
 	}
 
 	/***************************************
