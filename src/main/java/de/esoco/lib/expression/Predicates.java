@@ -636,11 +636,11 @@ public class Predicates
 	 *
 	 * @return A new predicate
 	 */
-	public static <T, V> Predicate<T> when(
-		Function<T, V>		 rFunction,
-		Predicate<? super V> rPredicate)
+	public static <I, O, T extends I> Predicate<T> when(
+		Function<I, O>		 rFunction,
+		Predicate<? super O> rPredicate)
 	{
-		return new FunctionPredicate<T, V>(rFunction, rPredicate);
+		return new FunctionPredicate<T, O>(rFunction, rPredicate);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------

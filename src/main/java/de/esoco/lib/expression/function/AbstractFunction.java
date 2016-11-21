@@ -18,6 +18,8 @@ package de.esoco.lib.expression.function;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
+import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.expression.Predicates;
 
 import org.obrel.core.RelatedObject;
 
@@ -126,6 +128,20 @@ public abstract class AbstractFunction<I, O> extends RelatedObject
 		nHashCode = 31 * nHashCode + relationsHashCode();
 
 		return nHashCode;
+	}
+
+	/***************************************
+	 * type as the element access function and the given value predicate. This
+	 * serves as a shortcut to creating predicates for relation value based on
+	 *
+	 * @param  pCriteria The value comparison predicate
+	 *
+	 * @return The resulting element predicate
+	 */
+	@Override
+	public <T extends I> Predicate<T> is(Predicate<? super O> pCriteria)
+	{
+		return Predicates.when(this, pCriteria);
 	}
 
 	/***************************************

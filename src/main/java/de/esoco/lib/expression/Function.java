@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -88,6 +88,15 @@ public interface Function<I, O> extends Relatable
 	 * @return The function token
 	 */
 	public String getToken();
+
+	/***************************************
+	 * Returns a predicate that evaluates the result of this function.
+	 *
+	 * @param  pCriteria The criteria predicate to evaluate the function result
+	 *
+	 * @return The function predicate
+	 */
+	public <T extends I> Predicate<T> is(Predicate<? super O> pCriteria);
 
 	/***************************************
 	 * Returns a new function object that evaluates the result of this function

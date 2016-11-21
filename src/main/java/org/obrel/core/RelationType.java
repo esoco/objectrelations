@@ -566,15 +566,12 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	/***************************************
-	 * A method that creates a new {@link ElementPredicate} from this relation
-	 * type as the element access function and the given value predicate. This
-	 * serves as a shortcut to creating predicates for relation value based on
-	 * the method {@link Predicates#ifRelation(RelationType, Predicate)}.
+	 * Overridden to return an {@link ElementPredicate} by invoking the method
+	 * {@link Predicates#ifRelation(RelationType, Predicate)}.
 	 *
-	 * @param  pComparison The value comparison predicate
-	 *
-	 * @return The resulting element predicate
+	 * @see Function#is(Predicate)
 	 */
+	@Override
 	public <O extends Relatable> Predicate<O> is(
 		Predicate<? super T> pComparison)
 	{
