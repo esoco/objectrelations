@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
+import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.predicate.AbstractPredicate;
@@ -23,6 +24,7 @@ import de.esoco.lib.json.JsonUtil.JsonStructure;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -33,9 +35,20 @@ import org.obrel.core.RelationType;
 
 import static de.esoco.lib.json.JsonUtil.JSON_DATE_FORMAT;
 
+import static org.obrel.type.MetaTypes.IMMUTABLE;
+import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
+import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
+import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
+
 
 /********************************************************************
- * A builder for JSON strings that can append arbibtrary data to a JSON string.
+ * A builder for JSON strings that can append arbitrary data objects to a JSON
+ * string. This includes support for {@link Relatable} and {@link Relation}
+ * objects. If such an object is appended by invoking the method {@link
+ * #appendObject(Relatable, Collection)} all given relations of that object will
+ * be appended to the JSON string by invoking {@link #append(Relation, boolean,
+ * boolean)}. This includes the recursive evaluation for other relatable objects
+ * that are referenced from relations.
  *
  * @author eso
  * @see    JsonParser
@@ -43,13 +56,24 @@ import static de.esoco.lib.json.JsonUtil.JSON_DATE_FORMAT;
  */
 public class JsonBuilder
 {
+	//~ Static fields/initializers ---------------------------------------------
+
+	private static final Collection<RelationType<?>> DEFAULT_EXCLUDED_RELATION_TYPES =
+		CollectionUtil.<RelationType<?>>setOf(RELATION_LISTENERS,
+											  RELATION_TYPE_LISTENERS,
+											  RELATION_UPDATE_LISTENERS,
+											  IMMUTABLE);
+
 	//~ Instance fields --------------------------------------------------------
 
 	private final String sIndent;
 
-	private StringBuilder aJson = new StringBuilder();
+	private StringBuilder aJson				   = new StringBuilder();
+	private String		  sCurrentIndent	   = "";
+	private boolean		  bRecursiveRelatables = false;
 
-	private String sCurrentIndent = "";
+	private Collection<RelationType<?>> aExcludedRelationTypes =
+		new HashSet<>(DEFAULT_EXCLUDED_RELATION_TYPES);
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -210,6 +234,12 @@ public class JsonBuilder
 	 * as a JSON object structure. See {@link #appendRelations(Relatable,
 	 * Collection)} for details about how the relations are appended.
 	 *
+	 * <p>Only if a relatable object is appended by invoking this method will
+	 * relatable objects be appended recursively. Otherwise only their string
+	 * representation will be appended. If such a recursion is not wanted the
+	 * relatable object needs to be appended by using the other methods of this
+	 * class.</p>
+	 *
 	 * @param  rObject        The object to append the relations of
 	 * @param  rRelationTypes The types of the relation to be converted to JSON
 	 *                        (NULL for all)
@@ -223,7 +253,9 @@ public class JsonBuilder
 		final Collection<RelationType<?>> rRelationTypes)
 	{
 		beginObject();
+		bRecursiveRelatables = true;
 		appendRelations(rObject, rRelationTypes);
+		bRecursiveRelatables = false;
 		endObject();
 
 		return this;
@@ -235,12 +267,16 @@ public class JsonBuilder
 	 * explicit relation types are provided all relations of the object will be
 	 * converted to JSON. In that case it is necessary that there are no cycles
 	 * in the relations, i.e. objects referring each other directly (like in
-	 * parent-child relationships) or indirectly. Furthermore all relations in
-	 * the source object must be convertible to strings, i.e. should either have
-	 * a basic (JSON) datatype or a conversion to string registered with {@link
+	 * parent-child relationships) or indirectly. It is possible to exclude
+	 * certain relation types from the processing by indicating them through
+	 * {@link #exclude(RelationType)}.
+	 *
+	 * <p>Furthermore all relations in the source object must be convertible to
+	 * strings, i.e. should either have a basic datatype or a conversion to
+	 * string registered with {@link
 	 * Conversions#registerStringConversion(Class,InvertibleFunction)}. If not
 	 * the resulting JSON string will probably not be parseable by the method
-	 * {@link #fromJson(Relatable, String)}.
+	 * {@link #fromJson(Relatable, String)}.</p>
 	 *
 	 * @param  rObject        The object to append the relations of
 	 * @param  rRelationTypes The types of the relation to be converted to JSON
@@ -264,6 +300,20 @@ public class JsonBuilder
 					public Boolean evaluate(Relation<?> rRelation)
 					{
 						return rRelationTypes.contains(rRelation.getType());
+					}
+				};
+		}
+		else
+		{
+			pRelations =
+				new AbstractPredicate<Relation<?>>("JsonRelationType")
+				{
+					@Override
+					@SuppressWarnings("boxing")
+					public Boolean evaluate(Relation<?> rRelation)
+					{
+						return !aExcludedRelationTypes.contains(rRelation
+																.getType());
 					}
 				};
 		}
@@ -320,7 +370,8 @@ public class JsonBuilder
 				aJson.append(JsonUtil.escape(rValue.toString()));
 				endString();
 			}
-			else if (Relatable.class.isAssignableFrom(rDatatype))
+			else if (bRecursiveRelatables &&
+					 Relatable.class.isAssignableFrom(rDatatype))
 			{
 				appendObject((Relatable) rValue, null);
 			}
@@ -440,6 +491,28 @@ public class JsonBuilder
 	public JsonBuilder endString()
 	{
 		aJson.append(JsonStructure.STRING.cClose);
+
+		return this;
+	}
+
+	/***************************************
+	 * Excludes a certain relation type from the relation-based conversions in
+	 * this class. A relation type added through this method will be ignored by
+	 * {@link #appendRelations(Relatable, Collection)} if this method is invoked
+	 * without an explicit list of relation types. This class already contains a
+	 * default list of relation types that either have no meaningful JSON
+	 * representation or would prevent the JSON generation. The single-relation
+	 * method {@link #append(Relation, boolean, boolean)} is not affected by
+	 * this setting.
+	 *
+	 * @param  rExcludedType The relation type to be excluded from the JSON
+	 *                       generation
+	 *
+	 * @return This instance for concatenation
+	 */
+	public JsonBuilder exclude(RelationType<?> rExcludedType)
+	{
+		aExcludedRelationTypes.add(rExcludedType);
 
 		return this;
 	}
