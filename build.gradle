@@ -9,7 +9,7 @@ apply plugin: 'java'
 apply plugin: 'osgi'
 
 project.group   = 'org.obrel'
-project.version = '1.0.1'
+project.version = '1.0.2'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
