@@ -9,10 +9,9 @@ apply plugin: 'java'
 apply plugin: 'osgi'
 
 project.group   = 'org.obrel'
-project.version = '1.0.2'
+project.version = '1.1.0'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
 
 repositories 
 {
