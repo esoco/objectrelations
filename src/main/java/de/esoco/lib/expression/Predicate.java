@@ -68,6 +68,6 @@ public interface Predicate<T> extends Function<T, Boolean>
 	 */
 	default <O extends T> Predicate<O> or(Predicate<? super T> rOther)
 	{
-		return Predicates.and(this, rOther);
+		return Predicates.or(this, rOther);
 	}
 }
