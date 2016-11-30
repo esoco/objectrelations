@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ package de.esoco.lib.expression;
  *
  * @author eso
  */
+@FunctionalInterface
 public interface Predicate<T> extends Function<T, Boolean>
 {
 	//~ Methods ----------------------------------------------------------------
@@ -35,7 +36,10 @@ public interface Predicate<T> extends Function<T, Boolean>
 	 *
 	 * @return A new predicate with a logical AND expression
 	 */
-	public <O extends T> Predicate<O> and(Predicate<? super T> rOther);
+	default <O extends T> Predicate<O> and(Predicate<? super T> rOther)
+	{
+		return Predicates.and(this, rOther);
+	}
 
 	/***************************************
 	 * Re-defined from {@link Function#from(Function)} to return a new predicate
@@ -48,7 +52,10 @@ public interface Predicate<T> extends Function<T, Boolean>
 	 *         values and then evaluates the result with this predicate
 	 */
 	@Override
-	public <V> Predicate<V> from(Function<V, ? extends T> rFunction);
+	default <V> Predicate<V> from(Function<V, ? extends T> rFunction)
+	{
+		return Predicates.chain(this, rFunction);
+	}
 
 	/***************************************
 	 * Returns a new predicate with a logical OR expression for this and another
@@ -59,5 +66,8 @@ public interface Predicate<T> extends Function<T, Boolean>
 	 *
 	 * @return A new predicate with a logical OR expression
 	 */
-	public <O extends T> Predicate<O> or(Predicate<? super T> rOther);
+	default <O extends T> Predicate<O> or(Predicate<? super T> rOther)
+	{
+		return Predicates.and(this, rOther);
+	}
 }

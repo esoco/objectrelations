@@ -467,7 +467,10 @@ public class RelationTypes
 		}
 
 		RelationType<Map<K, V>> aType =
-			newRelationType(sName, Map.class, fInitialValue, rModifiers);
+			newRelationType(sName,
+							(Class<? super Map<K, V>>) Map.class,
+							fInitialValue,
+							rModifiers);
 
 		aType.set(KEY_DATATYPE, rKeyType);
 		aType.set(VALUE_DATATYPE, rValueType);
@@ -659,7 +662,10 @@ public class RelationTypes
 		}
 
 		RelationType<Set<T>> aType =
-			newRelationType(sName, Set.class, fInitialValue, rModifiers);
+			newRelationType(sName,
+							(Class<? super Set<T>>) Set.class,
+							fInitialValue,
+							rModifiers);
 
 		aType.set(ELEMENT_DATATYPE, rElementType);
 		aType.set(ORDERED, bOrdered);

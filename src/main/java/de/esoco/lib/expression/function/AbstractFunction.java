@@ -18,8 +18,6 @@ package de.esoco.lib.expression.function;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
-import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.expression.Predicates;
 
 import org.obrel.core.RelatedObject;
 
@@ -91,15 +89,6 @@ public abstract class AbstractFunction<I, O> extends RelatedObject
 	}
 
 	/***************************************
-	 * @see Function#from(Function)
-	 */
-	@Override
-	public <T> Function<T, O> from(Function<T, ? extends I> rOther)
-	{
-		return rOther.then(this);
-	}
-
-	/***************************************
 	 * Returns the token that describes this function.
 	 *
 	 * @return The function token
@@ -128,38 +117,6 @@ public abstract class AbstractFunction<I, O> extends RelatedObject
 		nHashCode = 31 * nHashCode + relationsHashCode();
 
 		return nHashCode;
-	}
-
-	/***************************************
-	 * type as the element access function and the given value predicate. This
-	 * serves as a shortcut to creating predicates for relation value based on
-	 *
-	 * @param  pCriteria The value comparison predicate
-	 *
-	 * @return The resulting element predicate
-	 */
-	@Override
-	public <T extends I> Predicate<T> is(Predicate<? super O> pCriteria)
-	{
-		return Predicates.when(this, pCriteria);
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public O result()
-	{
-		return evaluate(null);
-	}
-
-	/***************************************
-	 * @see Function#then(Function)
-	 */
-	@Override
-	public <T> Function<I, T> then(Function<? super O, T> rOther)
-	{
-		return Functions.chain(rOther, this);
 	}
 
 	/***************************************

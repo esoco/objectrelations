@@ -19,8 +19,6 @@ package de.esoco.lib.expression;
 import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.expression.function.FunctionChain;
 
-import org.obrel.core.Relatable;
-
 
 /********************************************************************
  * Interface for functions that return a value that will be derived from an
@@ -30,7 +28,8 @@ import org.obrel.core.Relatable;
  *
  * @author eso
  */
-public interface Function<I, O> extends Relatable
+@FunctionalInterface
+public interface Function<I, O>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -41,18 +40,6 @@ public interface Function<I, O> extends Relatable
 	public static final String INPUT_PLACEHOLDER = "#";
 
 	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * A convenience method to get the result of a function that doesn't need a
-	 * specific argument. The argument to the {@link #evaluate(Object)} method
-	 * will be NULL. This allows to call functions that don't expect an input
-	 * value without the necessity to explicitly provide a NULL input value. The
-	 * caller must ensure that the called function can handle the NULL input
-	 * value.
-	 *
-	 * @return The function result for a NULL input value
-	 */
-	public abstract O result();
 
 	/***************************************
 	 * Evaluates the function on the input value and returns the resulting
@@ -76,18 +63,26 @@ public interface Function<I, O> extends Relatable
 	 * subclass {@link AbstractFunction} which already contains an
 	 * implementation of this method.
 	 *
-	 * @param  fOther The function to produce this function's input values with
+	 * @param  fPrevious The function to produce this function's input values
+	 *                   with
 	 *
 	 * @return A new instance of {@link FunctionChain}
 	 */
-	public <T> Function<T, O> from(Function<T, ? extends I> fOther);
+	default <T> Function<T, O> from(Function<T, ? extends I> fPrevious)
+	{
+		return fPrevious.then(this);
+	}
 
 	/***************************************
-	 * Returns the token that describes this function instance.
+	 * Returns the token that describes this function instance. The default
+	 * implementation returns the simple name of the function class.
 	 *
 	 * @return The function token
 	 */
-	public String getToken();
+	default String getToken()
+	{
+		return getClass().getSimpleName();
+	}
 
 	/***************************************
 	 * Returns a predicate that evaluates the result of this function.
@@ -96,7 +91,23 @@ public interface Function<I, O> extends Relatable
 	 *
 	 * @return The function predicate
 	 */
-	public <T extends I> Predicate<T> is(Predicate<? super O> pCriteria);
+	default <T extends I> Predicate<T> is(Predicate<? super O> pCriteria)
+	{
+		return Predicates.when(this, pCriteria);
+	}
+
+	/***************************************
+	 * A convenience method to get the result of a function that doesn't need a
+	 * specific argument. The argument to the {@link #evaluate(Object)} method
+	 * will be NULL. This allows to call functions that don't expect an input
+	 * value without the necessity to explicitly provide a NULL input value.
+	 *
+	 * @return The function result for a NULL input value
+	 */
+	default O result()
+	{
+		return evaluate(null);
+	}
 
 	/***************************************
 	 * Returns a new function object that evaluates the result of this function
@@ -104,10 +115,12 @@ public interface Function<I, O> extends Relatable
 	 * typically subclass {@link AbstractFunction} which already contains an
 	 * implementation of this method.
 	 *
-	 * @param  fFollowUp The function to evaluate this function's output values
-	 *                   with
+	 * @param  fNext The function to evaluate this function's output values with
 	 *
 	 * @return A new instance of {@link FunctionChain}
 	 */
-	public <T> Function<I, T> then(Function<? super O, T> fFollowUp);
+	default <T> Function<I, T> then(Function<? super O, T> fNext)
+	{
+		return Functions.chain(fNext, this);
+	}
 }

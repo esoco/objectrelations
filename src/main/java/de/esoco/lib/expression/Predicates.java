@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-2.0
+//		 http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -434,7 +434,7 @@ public class Predicates
 	 *
 	 * @return A new instance of {@link ElementPredicate} for relation access
 	 */
-	public static <T extends Relatable, V> Predicate<T> ifRelation(
+	public static <T extends Relatable, V> ElementPredicate<T, V> ifRelation(
 		RelationType<V>		 rType,
 		Predicate<? super V> rPredicate)
 	{
