@@ -13,12 +13,22 @@ project.version = '1.1.0'
 
 sourceCompatibility = 1.8
 
-repositories 
+// disable Java 8 doclint for Javadoc
+if (JavaVersion.current().isJava8Compatible()) {
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+tasks.withType(Javadoc) {
+    failOnError = false
+}
+
+repositories
 {
     jcenter()
 }
 
-dependencies 
+dependencies
 {
 	if (project(':esoco-common').getProjectDir().exists())
 	{
@@ -28,7 +38,7 @@ dependencies
 	{
 		compile 'de.esoco:esoco-common:1.0.+'
 	}
-		
+
     testCompile 'junit:junit:4.+'
 }
 
@@ -48,11 +58,11 @@ artifacts {
 }
 
 bintray {
-	user = project.hasProperty('bintrayUser') ? 
-				project.property('bintrayUser') : 
+	user = project.hasProperty('bintrayUser') ?
+				project.property('bintrayUser') :
 				System.getenv('BINTRAY_USER')
-	key = project.hasProperty('bintrayApiKey') ? 
-				project.property('bintrayApiKey') : 
+	key = project.hasProperty('bintrayApiKey') ?
+				project.property('bintrayApiKey') :
 				System.getenv('BINTRAY_API_KEY')
     configurations = ['archives']
     publish = true
