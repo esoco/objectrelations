@@ -23,7 +23,8 @@ package de.esoco.lib.expression;
  * @author eso
  */
 @FunctionalInterface
-public interface Predicate<T> extends Function<T, Boolean>
+public interface Predicate<T> extends Function<T, Boolean>,
+									  java.util.function.Predicate<T>
 {
 	//~ Methods ----------------------------------------------------------------
 
@@ -69,5 +70,17 @@ public interface Predicate<T> extends Function<T, Boolean>
 	default <O extends T> Predicate<O> or(Predicate<? super T> rOther)
 	{
 		return Predicates.or(this, rOther);
+	}
+
+	/***************************************
+	 * Invokes {@link #evaluate(Object)}.
+	 *
+	 * @see java.util.function.Predicate#test(T)
+	 */
+	@Override
+	@SuppressWarnings("boxing")
+	default boolean test(T rValue)
+	{
+		return evaluate(rValue);
 	}
 }

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class FunctionChain<I, V, O> extends AbstractFunction<I, O>
 	public FunctionChain(Function<V, O>			  rOuter,
 						 Function<I, ? extends V> rInner)
 	{
-		super(null);
+		super(".");
 
 		this.rOuter = rOuter;
 		this.rInner = rInner;

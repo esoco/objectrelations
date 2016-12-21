@@ -19,6 +19,8 @@ package de.esoco.lib.expression.function;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
 
+import java.util.Objects;
+
 import org.obrel.core.RelatedObject;
 
 
@@ -84,7 +86,7 @@ public abstract class AbstractFunction<I, O> extends RelatedObject
 
 		AbstractFunction<?, ?> rOther = (AbstractFunction<?, ?>) rObject;
 
-		return getToken().equals(rOther.getToken()) && paramsEqual(rOther) &&
+		return Objects.equals(getToken(), getToken()) && paramsEqual(rOther) &&
 			   relationsEqual(rOther);
 	}
 

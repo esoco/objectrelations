@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,10 +66,10 @@ import org.obrel.core.SerializableRelatedObject;
  * object ID will be replaced by a corresponding type cast. That means that
  * using a certain object ID to access an object of a different type will result
  * in a {@link ClassCastException} being thrown. Therefore, if the type is not
- * exactly known an unspecific ID type (like {@literal ObjectId <Object>or
- * ObjectId<?>} should be used instead. Generally speaking, using an object ID
- * with a specific type is the same as applying a type cast and must therefore
- * be performed with exactly the same precautions.</p>
+ * exactly known an unspecific ID type like {@literal ObjectId<?>} should be
+ * used instead. Generally speaking, using an object ID with a specific type is
+ * the same as applying a type cast and must therefore be performed with exactly
+ * the same precautions.</p>
  *
  * @author eso
  */

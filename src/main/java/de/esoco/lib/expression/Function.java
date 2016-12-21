@@ -29,7 +29,7 @@ import de.esoco.lib.expression.function.FunctionChain;
  * @author eso
  */
 @FunctionalInterface
-public interface Function<I, O>
+public interface Function<I, O> extends java.util.function.Function<I, O>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -56,6 +56,17 @@ public interface Function<I, O>
 	 * @return The resulting (output) value (may be NULL)
 	 */
 	public O evaluate(I rValue);
+
+	/***************************************
+	 * Invokes {@link #evaluate(Object)}.
+	 *
+	 * @see java.util.function.Function#apply(I)
+	 */
+	@Override
+	default O apply(I rInput)
+	{
+		return evaluate(rInput);
+	}
 
 	/***************************************
 	 * Returns a new function object that evaluates the result received from
