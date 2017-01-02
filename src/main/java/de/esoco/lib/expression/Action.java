@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package de.esoco.lib.expression;
 
 import de.esoco.lib.expression.function.AbstractFunction;
 
+import java.util.function.Consumer;
+
 
 /********************************************************************
  * A function sub-interface for the implementation of actions that have no
@@ -26,7 +28,7 @@ import de.esoco.lib.expression.function.AbstractFunction;
  *
  * @author eso
  */
-public interface Action<T> extends Function<T, Void>
+public interface Action<T> extends Function<T, Void>, Consumer<T>
 {
 	//~ Methods ----------------------------------------------------------------
 
@@ -36,6 +38,15 @@ public interface Action<T> extends Function<T, Void>
 	 * @param rValue The value to execute the action upon
 	 */
 	public abstract void execute(T rValue);
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	default void accept(T rValue)
+	{
+		evaluate(rValue);
+	}
 
 	/***************************************
 	 * @see AbstractFunction#evaluate(Object)
