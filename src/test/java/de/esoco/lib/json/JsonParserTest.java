@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import org.junit.Test;
 
 import org.obrel.core.RelatedObject;
 import org.obrel.type.StandardTypes;
+
+import static de.esoco.lib.datatype.Pair.t;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -158,12 +160,10 @@ public class JsonParserTest
 
 		assertEquals(new HashMap<String, Object>(),
 					 JsonParser.parseValue("{}"));
-		assertEquals(CollectionUtil.mapOf("TESTKEY", "TESTVALUE"),
+		assertEquals(CollectionUtil.mapOf(t("TESTKEY", "TESTVALUE")),
 					 JsonParser.parseValue("{\"TESTKEY\": \"TESTVALUE\"}"));
-		assertEquals(CollectionUtil.mapOf("TESTKEY1",
-										  "TESTVALUE1",
-										  "TESTKEY2",
-										  "TESTVALUE2"),
+		assertEquals(CollectionUtil.mapOf(t("TESTKEY1", "TESTVALUE1"),
+										  t("TESTKEY2", "TESTVALUE2")),
 					 JsonParser.parseValue("{\"TESTKEY1\": \"TESTVALUE1\"," +
 										   " \"TESTKEY2\": \"TESTVALUE2\"}"));
 

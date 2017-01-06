@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,6 +30,8 @@ import org.junit.Test;
 
 import org.obrel.type.StandardTypes;
 
+import static de.esoco.lib.datatype.Pair.t;
+
 import static org.junit.Assert.assertEquals;
 
 
@@ -49,18 +51,15 @@ public class ConversionsTest
 		Arrays.asList(1, 2, 3, 4, 5);
 
 	private static final Map<Integer, String> TEST_MAP =
-		CollectionUtil.mapOf(1, "A", 2, "B", 3, "C");
+		CollectionUtil.mapOf(t(1, "A"), t(2, "B"), t(3, "C"));
 
 	private static final Collection<String> ENCODE_COLLECTION =
 		Arrays.asList("1,2", "2,3", "4,5");
 
 	private static final Map<Integer, String> ENCODE_MAP =
-		CollectionUtil.mapOf(1,
-							 "A={x,y}",
-							 2,
-							 "B:(s,t,u)",
-							 3,
-							 "C;[e-f, k+m, ::p]");
+		CollectionUtil.mapOf(t(1, "A={x,y}"),
+							 t(2, "B:(s,t,u)"),
+							 t(3, "C;[e-f, k+m, ::p]"));
 
 	private static final String DEFAULT_COLLECTION_STRING  = "1,2,3,4,5";
 	private static final String MODIFIED_COLLECTION_STRING = "1;2;3;4;5";

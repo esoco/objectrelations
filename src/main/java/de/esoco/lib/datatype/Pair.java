@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,17 +17,16 @@
 package de.esoco.lib.datatype;
 
 /********************************************************************
- * Simple class that holds a pair of two values. Pairs are immutable, the
- * assigned values cannot be changed after creation.
+ * A {@link Tuple} subclass that holds a pair of two values and has generic
+ * types for it's values.
  *
  * @author eso
  */
-public class Pair<F, S>
+public class Pair<F, S> extends Tuple
 {
-	//~ Instance fields --------------------------------------------------------
+	//~ Static fields/initializers ---------------------------------------------
 
-	private final F rFirst;
-	private final S rSecond;
+	private static final long serialVersionUID = 1L;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -39,51 +38,37 @@ public class Pair<F, S>
 	 */
 	public Pair(F rFirst, S rSecond)
 	{
-		this.rFirst  = rFirst;
-		this.rSecond = rSecond;
+		super(rFirst, rSecond);
+	}
+
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Creates a new {@link Pair}. This factory method is intended to be used
+	 * with static imports to provide a short syntax for defining dual-value
+	 * tuples.
+	 *
+	 * @param  rFirst  The first value
+	 * @param  rSecond The second value
+	 *
+	 * @return A new pair instance
+	 */
+	public static <F, S> Pair<F, S> t(F rFirst, S rSecond)
+	{
+		return new Pair<>(rFirst, rSecond);
 	}
 
 	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * @see Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object rObj)
-	{
-		if (rObj == this)
-		{
-			return true;
-		}
-
-		if (rObj instanceof Pair<?, ?>)
-		{
-			Pair<?, ?> rOther = (Pair<?, ?>) rObj;
-
-			return (rFirst.equals(rOther.rFirst) &&
-					rSecond.equals(rOther.rSecond));
-		}
-
-		return false;
-	}
 
 	/***************************************
 	 * Returns the first value.
 	 *
 	 * @return The first value
 	 */
+	@SuppressWarnings("unchecked")
 	public final F first()
 	{
-		return rFirst;
-	}
-
-	/***************************************
-	 * @see Object#hashCode()
-	 */
-	@Override
-	public int hashCode()
-	{
-		return (37 * rFirst.hashCode()) + rSecond.hashCode() + 17;
+		return (F) get(0);
 	}
 
 	/***************************************
@@ -91,8 +76,9 @@ public class Pair<F, S>
 	 *
 	 * @return The second value
 	 */
+	@SuppressWarnings("unchecked")
 	public final S second()
 	{
-		return rSecond;
+		return (S) get(1);
 	}
 }

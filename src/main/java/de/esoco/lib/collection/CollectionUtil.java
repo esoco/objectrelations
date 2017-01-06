@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//		 http://www.apache.org/licenses/LICENSE-2.0
+//	  http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.collection;
 
+import de.esoco.lib.datatype.Pair;
 import de.esoco.lib.expression.BinaryFunction;
 import de.esoco.lib.expression.CollectionFunctions;
 import de.esoco.lib.expression.Function;
@@ -366,6 +367,39 @@ public class CollectionUtil
 	}
 
 	/***************************************
+	 * Combines two or more maps into a new one. If the first input map is an
+	 * instance of {@link LinkedHashMap} the resulting map will be of the same
+	 * type, otherwise it will be a regular map.
+	 *
+	 * @param  rFirst      The first map to combine
+	 * @param  rSecond     The second map to combine
+	 * @param  rAdditional Additional maps to combine
+	 *
+	 * @return A new collection instance
+	 */
+	@SafeVarargs
+	public static <K, V> Map<K, V> combine(
+		Map<K, V>						 rFirst,
+		Map<? extends K, ? extends V>    rSecond,
+		Map<? extends K, ? extends V>... rAdditional)
+	{
+		int		  nCount  = rFirst.size() + rSecond.size();
+		Map<K, V> aNewMap =
+			rFirst instanceof LinkedHashMap ? new LinkedHashMap<K, V>(nCount)
+											: new HashMap<K, V>(nCount);
+
+		aNewMap.putAll(rFirst);
+		aNewMap.putAll(rSecond);
+
+		for (Map<? extends K, ? extends V> rMap : rAdditional)
+		{
+			aNewMap.putAll(rMap);
+		}
+
+		return aNewMap;
+	}
+
+	/***************************************
 	 * An implementation of the method {@link Collection#contains(Object)} for
 	 * arrays. Returns TRUE if the given array contains the searched object
 	 * which is verified by an identity comparison (NOT by invoking equals()).
@@ -512,7 +546,8 @@ public class CollectionUtil
 
 	/***************************************
 	 * Collects all argument objects into a list that cannot be modified.
-	 * Convenience method for invoking Collections.unmodifiableList(listOf()).
+	 * Convenience method for invoking Collections.unmodifiableList({@link
+	 * Arrays#asList(Object...)}).
 	 *
 	 * @param  rValues The values to be collected
 	 *
@@ -521,12 +556,28 @@ public class CollectionUtil
 	@SafeVarargs
 	public static <T> List<T> fixedListOf(T... rValues)
 	{
-		return Collections.unmodifiableList(listOf(rValues));
+		return Collections.unmodifiableList(Arrays.asList(rValues));
+	}
+
+	/***************************************
+	 * Collects all argument pairs into a map that cannot be modified.
+	 * Convenience method for invoking Collections.unmodifiableMap({@link
+	 * #mapOf(Pair...)}).
+	 *
+	 * @param  rEntries Pair containing the map entries
+	 *
+	 * @return A new unmodifiable map containing the argument entries
+	 */
+	@SafeVarargs
+	public static <K, V> Map<K, V> fixedMapOf(Pair<K, V>... rEntries)
+	{
+		return Collections.unmodifiableMap(mapOf(rEntries));
 	}
 
 	/***************************************
 	 * Collects all argument objects into a set that cannot be modified.
-	 * Convenience method for invoking Collections.unmodifiableSet(setOf()).
+	 * Convenience method for invoking Collections.unmodifiableSet({@link
+	 * #setOf(Object...)}).
 	 *
 	 * @param  rValues The values to be collected
 	 *
@@ -795,137 +846,21 @@ public class CollectionUtil
 	}
 
 	/***************************************
-	 * Factory method that returns a {@link HashMap} that contains mappings
-	 * defined by the argument arrays. The returned map can be modified freely
-	 * by the caller. The argument arrays must be of the same length or else an
-	 * exception will be thrown
+	 * Creates an unordered map that is filled from the argument pairs.
 	 *
-	 * @param  rKeys   The map keys
-	 * @param  rValues The map values
+	 * @param  rEntries The map entry pairs
 	 *
-	 * @return A new hash map containing the given entries
-	 *
-	 * @throws IllegalArgumentException If the argument arrays are not of the
-	 *                                  same size
+	 * @return A new unordered map instance
 	 */
 	@SafeVarargs
-	public static <K, V> Map<K, V> mapOf(K[] rKeys, V... rValues)
+	public static <K, V> Map<K, V> mapOf(Pair<K, V>... rEntries)
 	{
-		int nSize = rKeys.length;
+		Map<K, V> aMap = new HashMap<K, V>(rEntries.length);
 
-		if (nSize != rValues.length)
+		for (Pair<K, V> rEntry : rEntries)
 		{
-			throw new IllegalArgumentException("Key and value arrays must be of same length");
+			aMap.put(rEntry.first(), rEntry.second());
 		}
-
-		Map<K, V> aMap = new HashMap<K, V>(nSize);
-
-		for (int i = 0; i < nSize; i++)
-		{
-			aMap.put(rKeys[i], rValues[i]);
-		}
-
-		return aMap;
-	}
-
-	/***************************************
-	 * Factory method that returns a {@link HashMap} that contains a single
-	 * mapping. The returned map can be modified freely by the caller.
-	 *
-	 * @param  rKey   The key
-	 * @param  rValue The value
-	 *
-	 * @return A new hash map containing one entry
-	 */
-	public static <K, V> Map<K, V> mapOf(K rKey, V rValue)
-	{
-		Map<K, V> aMap = new HashMap<K, V>(1);
-
-		aMap.put(rKey, rValue);
-
-		return aMap;
-	}
-
-	/***************************************
-	 * Factory method that returns a {@link HashMap} that contains 2 mappings.
-	 * The returned map can be modified freely by the caller.
-	 *
-	 * @param  rKey1   The first key
-	 * @param  rValue1 rKey1 The first value
-	 * @param  rKey2   The second key
-	 * @param  rValue2 rKey1 The second value
-	 *
-	 * @return A new hash map containing two entries
-	 */
-	public static <K, V> Map<K, V> mapOf(K rKey1, V rValue1, K rKey2, V rValue2)
-	{
-		Map<K, V> aMap = new HashMap<K, V>(2);
-
-		aMap.put(rKey1, rValue1);
-		aMap.put(rKey2, rValue2);
-
-		return aMap;
-	}
-
-	/***************************************
-	 * Factory method that returns a {@link HashMap} that contains 3 mappings.
-	 * The returned map can be modified freely by the caller.
-	 *
-	 * @param  rKey1   The first key
-	 * @param  rValue1 rKey1 The first value
-	 * @param  rKey2   The second key
-	 * @param  rValue2 rKey1 The second value
-	 * @param  rKey3   The third key
-	 * @param  rValue3 rKey1 The third value
-	 *
-	 * @return A new hash map containing two entries
-	 */
-	public static <K, V> Map<K, V> mapOf(K rKey1,
-										 V rValue1,
-										 K rKey2,
-										 V rValue2,
-										 K rKey3,
-										 V rValue3)
-	{
-		Map<K, V> aMap = new HashMap<K, V>(3);
-
-		aMap.put(rKey1, rValue1);
-		aMap.put(rKey2, rValue2);
-		aMap.put(rKey3, rValue3);
-
-		return aMap;
-	}
-
-	/***************************************
-	 * Factory method that returns a {@link HashMap} that contains 4 mappings.
-	 * The returned map can be modified freely by the caller.
-	 *
-	 * @param  rKey1   The first key
-	 * @param  rValue1 rKey1 The first value
-	 * @param  rKey2   The second key
-	 * @param  rValue2 rKey1 The second value
-	 * @param  rKey3   The third key
-	 * @param  rValue3 rKey1 The third value
-	 * @param  rKey4   The fourth key
-	 * @param  rValue4 rKey1 The fourth value
-	 *
-	 * @return A new hash map containing two entries
-	 */
-	public static <K, V> Map<K, V> mapOf(K rKey1,
-										 V rValue1,
-										 K rKey2,
-										 V rValue2,
-										 K rKey3,
-										 V rValue3,
-										 K rKey4,
-										 V rValue4)
-	{
-		Map<K, V> aMap = new HashMap<K, V>(4);
-
-		aMap.put(rKey1, rValue1);
-		aMap.put(rKey2, rValue2);
-		aMap.put(rKey3, rValue3);
-		aMap.put(rKey4, rValue4);
 
 		return aMap;
 	}
@@ -1020,6 +955,26 @@ public class CollectionUtil
 		}
 
 		return null;
+	}
+
+	/***************************************
+	 * Creates an ordered map that is filled from the argument pairs.
+	 *
+	 * @param  rEntries The map entry pairs
+	 *
+	 * @return A new ordered map instance
+	 */
+	@SafeVarargs
+	public static <K, V> Map<K, V> orderedMapOf(Pair<K, V>... rEntries)
+	{
+		Map<K, V> aMap = new LinkedHashMap<K, V>(rEntries.length);
+
+		for (Pair<K, V> rEntry : rEntries)
+		{
+			aMap.put(rEntry.first(), rEntry.second());
+		}
+
+		return aMap;
 	}
 
 	/***************************************
