@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
+import de.esoco.lib.datatype.Pair;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.json.JsonBuilder;
 import de.esoco.lib.json.JsonParser;
@@ -24,6 +25,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 
@@ -300,6 +303,66 @@ public class ObjectRelations
 	}
 
 	/***************************************
+	 * Returns a relation value by splitting a URL into relation type names and
+	 * performing a recursive lookup through the corresponding hierarchy of
+	 * related object. If no such hierarchy exists an exception will be thrown.
+	 *
+	 * @param  rRelatable The root relatable to start the URL lookup at
+	 * @param  sUrl       The URL of the relation to get the value from
+	 *
+	 * @return The value at the given URL
+	 *
+	 * @throws NoSuchElementException   If the URL could not be resolved
+	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
+	 *                                  relation type
+	 */
+	public static Object urlGet(Relatable rRelatable, String sUrl)
+	{
+		Pair<Relatable, RelationType<?>> rLookupResult =
+			urlLookup(rRelatable, sUrl);
+
+		return rLookupResult.first().get(rLookupResult.second());
+	}
+
+	/***************************************
+	 * Sets or updates a relation value by splitting a URL into relation type
+	 * names and performing a recursive lookup through the corresponding
+	 * hierarchy of related object. If no such hierarchy exists an exception
+	 * will be thrown.
+	 *
+	 * @param  rRelatable The root relatable to start the URL lookup at
+	 * @param  sUrl       The URL of the relation to update
+	 * @param  rValue     The new or updated value
+	 *
+	 * @return The value at the given URL
+	 *
+	 * @throws NoSuchElementException   If the URL could not be resolved
+	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
+	 *                                  relation type or if the given value
+	 *                                  cannot be assigned to the relation type
+	 */
+	@SuppressWarnings("unchecked")
+	public static Object urlPut(Relatable rRelatable,
+								String    sUrl,
+								Object    rValue)
+	{
+		Pair<Relatable, RelationType<?>> rLookupResult =
+			urlLookup(rRelatable, sUrl);
+
+		RelationType<?> rType = rLookupResult.second();
+
+		if (!rType.getTargetType().isAssignableFrom(rValue.getClass()))
+		{
+			String sMessage =
+				String.format("Invalid value for type '%s': %s", rType, rValue);
+
+			throw new IllegalArgumentException(sMessage);
+		}
+
+		return rLookupResult.first().set((RelationType<Object>) rType, rValue);
+	}
+
+	/***************************************
 	 * Internal method to determine the container that stores the relations of a
 	 * particular object. If the given object is a related object it will simply
 	 * be returned. Else, if bCreate is TRUE a new relation container instance
@@ -340,5 +403,122 @@ public class ObjectRelations
 				return rContainer;
 			}
 		}
+	}
+
+	/***************************************
+	 * Performs a lookup of a relation through a URL by splitting it into
+	 * relation type names and performing a recursive lookup through a hierarchy
+	 * of relatable objects referenced by the different URL path elements. The
+	 * result is a {@link Pair} containing the {@link Relatable} object
+	 * representing the second-to-last URL element and the relation type for the
+	 * last element. These can then either be used to read or to update the
+	 * corresponding relation.
+	 *
+	 * @param  rRelatable The root relatable for the lookup
+	 * @param  sUrl       The URL to resolve
+	 *
+	 * @return A pair of the relatable and the relation type for the last URL
+	 *         element
+	 *
+	 * @throws NoSuchElementException   If some element of the URL could not be
+	 *                                  resolved
+	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
+	 *                                  relation type
+	 */
+	private static Pair<Relatable, RelationType<?>> urlLookup(
+		Relatable rRelatable,
+		String    sUrl)
+	{
+		Objects.requireNonNull(sUrl, "URL argument is required");
+
+		String[]	    rElements	    = sUrl.replaceAll("-", "_").split("/");
+		Object		    rNextElement    = rRelatable;
+		Relatable	    rCurrentElement = rRelatable;
+		RelationType<?> rType		    = null;
+
+		for (String sElement : rElements)
+		{
+			// ignore empty URL elements (// or / at start or end)
+			if (sElement.isEmpty())
+			{
+				continue;
+			}
+
+			if (rNextElement instanceof Relatable)
+			{
+				rCurrentElement = (Relatable) rNextElement;
+			}
+			else
+			{
+				urlLookupError(sUrl, sElement);
+			}
+
+			int nPackageEnd = sElement.lastIndexOf('.') + 1;
+
+			if (nPackageEnd > 0)
+			{
+				sElement =
+					sElement.substring(0, nPackageEnd) +
+					sElement.substring(nPackageEnd).toUpperCase();
+			}
+			else
+			{
+				sElement = sElement.toUpperCase();
+			}
+
+			rType = RelationType.valueOf(sElement);
+
+			if (rType != null)
+			{
+				rNextElement = rCurrentElement.get(rType);
+			}
+			else
+			{
+				String sType = sElement;
+
+				Relation<?> rElementRelation =
+					rCurrentElement.getRelations(null).stream()
+								   .filter(r ->
+										   r.getType()
+										   .getName()
+										   .endsWith(sType))
+								   .findFirst()
+								   .orElse(null);
+
+				if (rElementRelation != null)
+				{
+					rNextElement = rElementRelation.getTarget();
+					rType		 = rElementRelation.getType();
+				}
+				else
+				{
+					urlLookupError(sUrl, sElement);
+				}
+			}
+		}
+
+		if (rType == null)
+		{
+			throw new IllegalArgumentException("Could not resolve URL " + sUrl);
+		}
+
+		return new Pair<>(rCurrentElement, rType);
+	}
+
+	/***************************************
+	 * Internal helper method to throw a {@link NoSuchElementException} upon a
+	 * URL resolving error.
+	 *
+	 * @param sUrl     The URL to resolve
+	 * @param sElement The URL element that could not be resolved
+	 */
+	private static void urlLookupError(String sUrl, String sElement)
+	{
+		String sMessage =
+			String.format("Could not resolve element '%s' in URL '%s'",
+						  sElement,
+						  sUrl);
+
+		throw new NoSuchElementException(sMessage);
 	}
 }

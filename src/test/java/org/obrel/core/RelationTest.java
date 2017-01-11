@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.junit.Test;
@@ -43,7 +44,10 @@ import static de.esoco.lib.expression.StringFunctions.toByteArray;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import static org.obrel.core.ObjectRelations.urlGet;
+import static org.obrel.core.ObjectRelations.urlPut;
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypeModifier.PRIVATE;
 import static org.obrel.core.RelationTypes.newFlagType;
@@ -71,7 +75,8 @@ public class RelationTest
 
 	private static final String TEST_VALUE = "TestValue";
 
-	static final RelationType<Object> TEST_ID = newType();
+	static final RelationType<Object>    TEST_ID  = newType();
+	static final RelationType<Relatable> TEST_REF = newType();
 
 	static final RelationType<Boolean> TEST_FLAG		 = newType(FINAL);
 	static final RelationType<Boolean> FINAL_TEST_FLAG   = newFlagType(FINAL);
@@ -176,7 +181,7 @@ public class RelationTest
 		try
 		{
 			o.set(TEST_ID, "XXX");
-			assertFalse(true);
+			fail();
 		}
 		catch (UnsupportedOperationException e)
 		{
@@ -254,8 +259,8 @@ public class RelationTest
 		RelatedObject t = new RelatedObject();
 
 		s.set(TEST_ID, 1);
-		s.set(StandardTypes.NAME, "TEST1");
-		s.set(StandardTypes.DESCRIPTION, "DESC1");
+		s.set(NAME, "TEST1");
+		s.set(DESCRIPTION, "DESC1");
 		t.set(TEST_ID, 2);
 		t.set(StandardTypes.NAME, "TEST2");
 
@@ -312,7 +317,7 @@ public class RelationTest
 		try
 		{
 			o.set(FINAL_TEST_FLAG, false);
-			assertFalse(true);
+			fail();
 		}
 		catch (Exception e)
 		{
@@ -322,7 +327,7 @@ public class RelationTest
 		try
 		{
 			o.deleteRelation(FINAL_TEST_FLAG);
-			assertFalse(true);
+			fail();
 		}
 		catch (Exception e)
 		{
@@ -345,7 +350,7 @@ public class RelationTest
 		try
 		{
 			o.set(NAME, "changed");
-			assertFalse(true);
+			fail();
 		}
 		catch (Exception e)
 		{
@@ -355,7 +360,7 @@ public class RelationTest
 		try
 		{
 			o.set(DESCRIPTION, "test");
-			assertFalse(true);
+			fail();
 		}
 		catch (Exception e)
 		{
@@ -365,7 +370,7 @@ public class RelationTest
 		try
 		{
 			o.getRelation(NAME).annotate(TEST_FLAG);
-			assertFalse(true);
+			fail();
 		}
 		catch (Exception e)
 		{
@@ -375,7 +380,7 @@ public class RelationTest
 		try
 		{
 			o.deleteRelation(NAME);
-			assertFalse(true);
+			fail();
 		}
 		catch (Exception e)
 		{
@@ -385,7 +390,7 @@ public class RelationTest
 		try
 		{
 			o.get(ELEMENTS).add("E2");
-			assertFalse(true);
+			fail();
 		}
 		catch (Exception e)
 		{
@@ -402,10 +407,10 @@ public class RelationTest
 					public void handleEvent(RelationEvent<?> rEvent)
 					{
 						// should never be invoked
-						assertFalse(true);
+						fail();
 					}
 				});
-			assertFalse(true);
+			fail();
 		}
 		catch (Exception e)
 		{
@@ -426,7 +431,7 @@ public class RelationTest
 		try
 		{
 			o.set(NAME, "changed");
-			assertFalse(true);
+			fail();
 		}
 		catch (Exception e)
 		{
@@ -621,5 +626,104 @@ public class RelationTest
 
 		assertEquals(toByteArray(), tr.getTransformation());
 		assertEquals("TEST", o.get(NAME));
+	}
+
+	/***************************************
+	 * Test of {@link ObjectRelations#urlGet(Relatable, String)} and {@link
+	 * ObjectRelations#resolve(Relatable, String)}.
+	 */
+	@Test
+	public void testUrlGet()
+	{
+		RelatedObject o1 = new RelatedObject();
+		RelatedObject o2 = new RelatedObject();
+		RelatedObject o3 = new RelatedObject();
+
+		o1.set(TEST_REF, o2);
+		o2.set(TEST_REF, o3);
+		o1.set(NAME, "TEST1");
+		o2.set(NAME, "TEST2");
+		o3.set(NAME, "TEST3");
+		o3.set(TEST_FLAG);
+
+		assertEquals("TEST1", urlGet(o1, "name"));
+		assertEquals("TEST1", urlGet(o1, "/name"));
+		assertEquals("TEST1", urlGet(o1, "name/"));
+		assertEquals("TEST1", urlGet(o1, "/name/"));
+		assertEquals("TEST1", urlGet(o1, "//name//"));
+		assertEquals("TEST2", urlGet(o1, "test-ref/name"));
+		assertEquals("TEST2", urlGet(o1, "//test-ref//name//"));
+		assertEquals("TEST3", urlGet(o1, "test-ref/test-ref/name"));
+		assertEquals("TEST3", urlGet(o1, "test-ref//test-ref///name"));
+		assertEquals(true, urlGet(o1, "test-ref/test-ref/test-flag"));
+		assertEquals(true,
+					 urlGet(o1, "test-ref/test-ref/org.obrel.test.test-flag"));
+
+		try
+		{
+			urlGet(o1, "test-flag");
+			fail();
+		}
+		catch (NoSuchElementException e)
+		{
+			// expected
+		}
+
+		try
+		{
+			urlGet(o1, "test-ref/test-flag");
+			fail();
+		}
+		catch (NoSuchElementException e)
+		{
+			// expected
+		}
+
+		try
+		{
+			urlGet(o1, "test-ref/test-ref/test-ref");
+			fail();
+		}
+		catch (NoSuchElementException e)
+		{
+			// expected
+		}
+	}
+
+	/***************************************
+	 * Test of {@link ObjectRelations#urlPut(Relatable, String, Object)}.
+	 */
+	@Test
+	public void testUrlPut()
+	{
+		RelatedObject o1 = new RelatedObject();
+		RelatedObject o2 = new RelatedObject();
+		RelatedObject o3 = new RelatedObject();
+
+		o1.set(TEST_REF, o2);
+		o2.set(TEST_REF, o3);
+		o1.set(NAME, "TEST1");
+
+		urlPut(o1, "name", "TEST1-PUT");
+		assertEquals("TEST1-PUT", o1.get(NAME));
+
+		urlPut(o1, "test-ref/name", "TEST2-PUT");
+		assertEquals("TEST2-PUT", o2.get(NAME));
+
+		urlPut(o1, "test-ref/test-ref/name", "TEST3-PUT");
+		assertEquals("TEST3-PUT", o3.get(NAME));
+
+		urlPut(o1, "test-ref/test-ref/org.obrel.test.test-flag", Boolean.TRUE);
+		assertEquals(Boolean.TRUE, o3.get(TEST_FLAG));
+
+		try
+		{
+			urlPut(o1, "name", new Integer(1));
+			fail();
+		}
+		catch (IllegalArgumentException e)
+		{
+			// expected
+		}
 	}
 }
