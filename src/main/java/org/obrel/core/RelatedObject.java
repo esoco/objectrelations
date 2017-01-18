@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -126,13 +126,19 @@ public class RelatedObject implements Relatable
 		{
 			T rInitialValue = rType.initialValue(this);
 
-			if (rInitialValue == null || hasFlag(IMMUTABLE))
+			if (rInitialValue == null)
 			{
 				return rType.defaultValue(this);
 			}
 			else
 			{
 				rRelation = new DirectRelation<T>(rType, rInitialValue);
+
+				if (hasFlag(IMMUTABLE))
+				{
+					rRelation.immutable();
+				}
+
 				addRelation(rRelation, false);
 			}
 		}

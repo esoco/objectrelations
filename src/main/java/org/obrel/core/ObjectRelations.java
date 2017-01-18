@@ -29,6 +29,9 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.WeakHashMap;
 
+import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
+
 
 /********************************************************************
  * A class containing static methods for the handling of object relations. This
@@ -124,8 +127,8 @@ public class ObjectRelations
 	public static void init()
 	{
 		registerRelationTypes(RelationTypes.class,
-							  org.obrel.type.MetaTypes.class,
-							  org.obrel.type.StandardTypes.class);
+							  MetaTypes.class,
+							  StandardTypes.class);
 	}
 
 	/***************************************
@@ -303,12 +306,35 @@ public class ObjectRelations
 	}
 
 	/***************************************
-	 * Returns a relation value by splitting a URL into relation type names and
-	 * performing a recursive lookup through the corresponding hierarchy of
-	 * related object. If no such hierarchy exists an exception will be thrown.
+	 * Deletes a relation referenced by a URL. The URL will be split into
+	 * relation type names that are looked up recursively from the relation
+	 * hierarchy starting at the given root object. That means all intermediate
+	 * elements of the URL must refer to {@link Relatable} instances. If the
+	 * hierarchy doesn't match the URL an exception will be thrown.
 	 *
-	 * @param  rRelatable The root relatable to start the URL lookup at
-	 * @param  sUrl       The URL of the relation to get the value from
+	 * @param  rRoot The root relatable to start the URL lookup at
+	 * @param  sUrl  The URL of the relation to get the value from
+	 *
+	 * @throws NoSuchElementException   If the URL could not be resolved
+	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
+	 *                                  relation type
+	 */
+	public static void urlDelete(Relatable rRoot, String sUrl)
+	{
+		Pair<Relatable, RelationType<?>> rLookupResult = urlLookup(rRoot, sUrl);
+
+		rLookupResult.first().deleteRelation(rLookupResult.second());
+	}
+
+	/***************************************
+	 * Returns a relation value referenced by a URL. The URL will be split into
+	 * relation type names that are looked up recursively from the relation
+	 * hierarchy starting at the given root object. That means all intermediate
+	 * elements of the URL must refer to {@link Relatable} instances. If the
+	 * hierarchy doesn't match the URL an exception will be thrown.
+	 *
+	 * @param  rRoot The root relatable to start the URL lookup at
+	 * @param  sUrl  The URL of the relation to get the value from
 	 *
 	 * @return The value at the given URL
 	 *
@@ -316,23 +342,24 @@ public class ObjectRelations
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	public static Object urlGet(Relatable rRelatable, String sUrl)
+	public static Object urlGet(Relatable rRoot, String sUrl)
 	{
-		Pair<Relatable, RelationType<?>> rLookupResult =
-			urlLookup(rRelatable, sUrl);
+		Pair<Relatable, RelationType<?>> rLookupResult = urlLookup(rRoot, sUrl);
 
 		return rLookupResult.first().get(rLookupResult.second());
 	}
 
 	/***************************************
-	 * Sets or updates a relation value by splitting a URL into relation type
-	 * names and performing a recursive lookup through the corresponding
-	 * hierarchy of related object. If no such hierarchy exists an exception
-	 * will be thrown.
+	 * Sets or updates a relation value referenced by a URL. The URL will be
+	 * split into relation type names that are looked up recursively from the
+	 * relation hierarchy starting at the given root object. That means all
+	 * intermediate elements of the URL must refer to {@link Relatable}
+	 * instances. If the hierarchy doesn't match the URL an exception will be
+	 * thrown.
 	 *
-	 * @param  rRelatable The root relatable to start the URL lookup at
-	 * @param  sUrl       The URL of the relation to update
-	 * @param  rValue     The new or updated value
+	 * @param  rRoot  The root relatable to start the URL lookup at
+	 * @param  sUrl   The URL of the relation to update
+	 * @param  rValue The new or updated value
 	 *
 	 * @return The value at the given URL
 	 *
@@ -342,12 +369,9 @@ public class ObjectRelations
 	 *                                  cannot be assigned to the relation type
 	 */
 	@SuppressWarnings("unchecked")
-	public static Object urlPut(Relatable rRelatable,
-								String    sUrl,
-								Object    rValue)
+	public static Object urlPut(Relatable rRoot, String sUrl, Object rValue)
 	{
-		Pair<Relatable, RelationType<?>> rLookupResult =
-			urlLookup(rRelatable, sUrl);
+		Pair<Relatable, RelationType<?>> rLookupResult = urlLookup(rRoot, sUrl);
 
 		RelationType<?> rType = rLookupResult.second();
 
@@ -414,8 +438,8 @@ public class ObjectRelations
 	 * last element. These can then either be used to read or to update the
 	 * corresponding relation.
 	 *
-	 * @param  rRelatable The root relatable for the lookup
-	 * @param  sUrl       The URL to resolve
+	 * @param  rRoot The root relatable for the lookup
+	 * @param  sUrl  The URL to resolve
 	 *
 	 * @return A pair of the relatable and the relation type for the last URL
 	 *         element
@@ -426,14 +450,14 @@ public class ObjectRelations
 	 *                                  relation type
 	 */
 	private static Pair<Relatable, RelationType<?>> urlLookup(
-		Relatable rRelatable,
+		Relatable rRoot,
 		String    sUrl)
 	{
 		Objects.requireNonNull(sUrl, "URL argument is required");
 
 		String[]	    rElements	    = sUrl.replaceAll("-", "_").split("/");
-		Object		    rNextElement    = rRelatable;
-		Relatable	    rCurrentElement = rRelatable;
+		Object		    rNextElement    = rRoot;
+		Relatable	    rCurrentElement = rRoot;
 		RelationType<?> rType		    = null;
 
 		for (String sElement : rElements)

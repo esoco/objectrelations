@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,19 +17,25 @@
 package org.obrel.core;
 
 import de.esoco.lib.event.EventHandler;
+import de.esoco.lib.property.Immutability;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
 import static org.obrel.core.RelationTypeModifier.PRIVATE;
 import static org.obrel.core.RelationTypes.newListType;
+import static org.obrel.type.MetaTypes.IMMUTABLE;
 import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 
 
@@ -322,6 +328,57 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Sets this relation to be immutable and tries to apply the immutable state
+	 * recursively to the relation's target object. For this it checks whether
+	 * the target either implements the {@link Immutability} interface or, if it
+	 * is a {@link Relatable} object, sets the {@link MetaTypes#IMMUTABLE} flag.
+	 * Else if the target is a collection or a map it will be wrapped in a
+	 * corresponding unmodifiable instance.
+	 */
+	@SuppressWarnings("unchecked")
+	public void immutable()
+	{
+		Class<?> rTargetType = rType.getTargetType();
+		Object   rTarget     = getTarget();
+
+		if (rTarget instanceof Immutability)
+		{
+			((Immutability) rTarget).setImmutable();
+		}
+		else if (rTarget instanceof Relatable)
+		{
+			Relatable rRelatableTarget = (Relatable) rTarget;
+
+			if (!rRelatableTarget.hasRelation(IMMUTABLE))
+			{
+				rRelatableTarget.set(IMMUTABLE);
+			}
+		}
+		else if (rTargetType == List.class)
+		{
+			setTarget((T) Collections.unmodifiableList((List<?>) rTarget));
+		}
+		else if (rTargetType == Set.class)
+		{
+			setTarget((T) Collections.unmodifiableSet((Set<?>) rTarget));
+		}
+		else if (rTargetType == Collection.class)
+		{
+			setTarget((T) Collections.unmodifiableCollection((Collection<?>)
+															 rTarget));
+		}
+		else if (rTargetType == Map.class)
+		{
+			setTarget((T) Collections.unmodifiableMap((Map<?, ?>) rTarget));
+		}
+
+		if (!hasFlag(IMMUTABLE))
+		{
+			set(IMMUTABLE);
+		}
+	}
+
+	/***************************************
 	 * Returns a string representation of this relation.
 	 *
 	 * @return A string describing this relation
@@ -501,7 +558,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 */
 	final void updateTarget(T rNewTarget)
 	{
-		if (hasFlag(MetaTypes.IMMUTABLE))
+		if (hasFlag(IMMUTABLE))
 		{
 			throw new UnsupportedOperationException("Relation is immutable: " +
 													rType);

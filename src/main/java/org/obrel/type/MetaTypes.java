@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import de.esoco.lib.property.Immutability;
 
 import java.io.Closeable;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -313,47 +312,27 @@ public class MetaTypes
 
 		/***************************************
 		 * Overridden to add this type as a listener for relation events on the
-		 * parent object when a relation with this type is set. Also sets an
-		 * immutable relation on all other relations of the parent to set the
-		 * state recursively.
+		 * parent object when a relation with this type is set.
 		 *
 		 * @see RelationType#addRelation(Relatable, Relation)
 		 */
 		@Override
-		public void addRelation(Relatable rParent, Relation<Boolean> rRelation)
+		public void addRelation(
+			Relatable		  rParent,
+			Relation<Boolean> rNewRelation)
 		{
-			if (rRelation.getTarget() != Boolean.TRUE)
+			if (rNewRelation.getTarget() != Boolean.TRUE)
 			{
 				throw new IllegalArgumentException(getName() +
 												   " must always be set to TRUE");
 			}
 
-			super.addRelation(rParent, rRelation);
+			super.addRelation(rParent, rNewRelation);
 
 			// first make all relations of the parent immutable
-			for (Relation<?> rOtherRelation : rParent.getRelations(null))
+			for (Relation<?> rRelation : rParent.getRelations(null))
 			{
-				RelationType<?> rRelationType = rOtherRelation.getType();
-				Object		    rTarget		  = rOtherRelation.getTarget();
-
-				if (rTarget instanceof Collection)
-				{
-					setCollectionImmutable(rParent,
-										   rRelationType,
-										   (Collection<?>) rTarget);
-				}
-				else if (rTarget instanceof Map &&
-						 rRelationType.getTargetType() == Map.class)
-				{
-					setMapImmutable(rParent,
-									rRelationType,
-									(Map<?, ?>) rTarget);
-				}
-
-				if (!rOtherRelation.hasFlag(IMMUTABLE))
-				{
-					rOtherRelation.set(IMMUTABLE);
-				}
+				rRelation.immutable();
 			}
 
 			if (rParent instanceof Immutability)
@@ -378,6 +357,9 @@ public class MetaTypes
 		@Override
 		public void handleEvent(RelationEvent<?> rEvent)
 		{
+			// check if relation with this type has been finally set (listener
+			// will be invoked before the relation is added) or otherwise an
+			// exception would already occur on setting the immutability type
 			if (rEvent.getSource().hasRelation(this))
 			{
 				String sMessage =
@@ -389,60 +371,6 @@ public class MetaTypes
 
 				throw new UnsupportedOperationException(sMessage);
 			}
-		}
-
-		/***************************************
-		 * Makes the target collection of a relation immutable if the target
-		 * datatype of the relation (not of the actual relation target!) is
-		 * exactly one of the interface types {@link List} or {@link Set}.
-		 * Derived types will not be affected.
-		 *
-		 * @param rParent       The parent object of the relation
-		 * @param rRelationType The collection relation type
-		 * @param rCollection   The original target collection
-		 */
-		private void setCollectionImmutable(Relatable		rParent,
-											RelationType<?> rRelationType,
-											Collection<?>   rCollection)
-		{
-			Class<?> rTargetType = rRelationType.getTargetType();
-
-			if (rTargetType == List.class)
-			{
-				rCollection =
-					Collections.unmodifiableList((List<?>) rCollection);
-			}
-			else if (rTargetType == Set.class)
-			{
-				rCollection = Collections.unmodifiableSet((Set<?>) rCollection);
-			}
-
-			@SuppressWarnings("unchecked")
-			RelationType<Collection<?>> rCollectionType =
-				(RelationType<Collection<?>>) rRelationType;
-
-			rParent.set(rCollectionType, rCollection);
-		}
-
-		/***************************************
-		 * Makes the target map of a relation immutable if the target datatype
-		 * of the relation (not of the actual relation target!) is exactly of
-		 * the interface datatype {@link Map}. Derived types will not be
-		 * affected.
-		 *
-		 * @param rParent       The parent object of the relation
-		 * @param rRelationType The collection relation type
-		 * @param rMap          rCollection The original target collection
-		 */
-		private void setMapImmutable(Relatable		 rParent,
-									 RelationType<?> rRelationType,
-									 Map<?, ?>		 rMap)
-		{
-			@SuppressWarnings("unchecked")
-			RelationType<Map<?, ?>> rMapType =
-				(RelationType<Map<?, ?>>) rRelationType;
-
-			rParent.set(rMapType, Collections.unmodifiableMap(rMap));
 		}
 	}
 }
