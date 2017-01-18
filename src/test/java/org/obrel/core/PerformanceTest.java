@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.TestName;
 
 import org.obrel.type.StandardTypes;
@@ -61,7 +60,7 @@ public class PerformanceTest
 	/***************************************
 	 * Test the performance of simple attributes.
 	 */
-	@Test
+//	@Test
 	public void childAttr()
 	{
 		TestObject to = new TestObject();
@@ -87,7 +86,7 @@ public class PerformanceTest
 	 * Test the performance of simple attributes.
 	 */
 	@SuppressWarnings("boxing")
-	@Test
+//	@Test
 	public void intAttr()
 	{
 		TestObject to = new TestObject();
@@ -123,7 +122,7 @@ public class PerformanceTest
 	/***************************************
 	 * Test the performance of simple attributes.
 	 */
-	@Test
+//	@Test
 	public void stringAttr()
 	{
 		TestObject to = new TestObject();
