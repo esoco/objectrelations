@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -148,7 +148,9 @@ public class RelationType<T> extends RelatedObject
 	 * responsibility of the application code to declare relation types with the
 	 * most specific type possible.</p>
 	 *
-	 * @param  sName         The name of the type instance
+	 * @param  sName         The name of the type instance or NULL for automatic
+	 *                       name initialization by {@link
+	 *                       RelationTypes#init(Class)}
 	 * @param  rTargetType   The class of the target value datatype
 	 * @param  rDefaultValue The default value
 	 * @param  fInitialValue A function that returns the initial value for
@@ -164,7 +166,7 @@ public class RelationType<T> extends RelatedObject
 						Function<? super Relatable, ? super T> fInitialValue,
 						RelationTypeModifier... 			   rModifiers)
 	{
-		init(sName, rTargetType, null);
+		init(sName != null ? sName : INIT_TYPE, rTargetType, null);
 
 		this.rDefaultValue = rDefaultValue;
 		this.fInitialValue = fInitialValue;

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,7 +73,7 @@ public interface Relatable
 	 * filter. See the method {@link #deleteRelation(RelationType)} for more
 	 * details.
 	 *
-	 * @param rFilter The relation filter
+	 * @param rFilter The relation filter or NULL for all relations
 	 */
 	public void deleteRelations(Predicate<? super Relation<?>> rFilter);
 

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -782,22 +782,22 @@ public class RelationTypes
 
 			if (Collection.class.isAssignableFrom(rDatatype))
 			{
-				rRelationType.set(MetaTypes.ELEMENT_DATATYPE,
+				rRelationType.set(ELEMENT_DATATYPE,
 								  ReflectUtil.getRawType(rElemTypes[0]));
 			}
 			else if (Map.class.isAssignableFrom(rDatatype))
 			{
-				rRelationType.set(MetaTypes.KEY_DATATYPE,
+				rRelationType.set(KEY_DATATYPE,
 								  ReflectUtil.getRawType(rElemTypes[0]));
-				rRelationType.set(MetaTypes.VALUE_DATATYPE,
+				rRelationType.set(VALUE_DATATYPE,
 								  ReflectUtil.getRawType(rElemTypes[1]));
 			}
 		}
 
 		Action<RelationType<?>> fInitAction =
-			rRelationType.get(MetaTypes.RELATION_TYPE_INIT_ACTION);
+			rRelationType.get(RELATION_TYPE_INIT_ACTION);
 
-		rRelationType.deleteRelation(MetaTypes.RELATION_TYPE_INIT_ACTION);
+		rRelationType.deleteRelation(RELATION_TYPE_INIT_ACTION);
 
 		rRelationType.init(sName, rDatatype, fInitAction);
 	}
