@@ -85,7 +85,6 @@ public class PerformanceTest
 	/***************************************
 	 * Test the performance of simple attributes.
 	 */
-	@SuppressWarnings("boxing")
 //	@Test
 	public void intAttr()
 	{

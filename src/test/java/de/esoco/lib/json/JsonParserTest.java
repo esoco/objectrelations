@@ -72,7 +72,6 @@ public class JsonParserTest
 	/***************************************
 	 * Test method
 	 */
-	@SuppressWarnings("boxing")
 	@Test
 	public void testParseRelatable()
 	{
