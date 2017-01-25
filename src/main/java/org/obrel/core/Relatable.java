@@ -20,6 +20,7 @@ import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -66,7 +67,22 @@ public interface Relatable
 	 *                                       {@link RelationTypeModifier#FINAL}
 	 *                                       set
 	 */
-	public void deleteRelation(RelationType<?> rType);
+	default public void deleteRelation(RelationType<?> rType)
+	{
+		Relation<?> rRelation = getRelation(rType);
+
+		if (rRelation != null)
+		{
+			deleteRelation(rRelation);
+		}
+	}
+
+	/***************************************
+	 * Deletes a certain relation from this instance.
+	 *
+	 * @param rRelation The relation to be removed from this instance
+	 */
+	public void deleteRelation(Relation<?> rRelation);
 
 	/***************************************
 	 * Deletes all public relations from this instance that match a certain
@@ -75,7 +91,13 @@ public interface Relatable
 	 *
 	 * @param rFilter The relation filter or NULL for all relations
 	 */
-	public void deleteRelations(Predicate<? super Relation<?>> rFilter);
+	default public void deleteRelations(Predicate<? super Relation<?>> rFilter)
+	{
+		for (Relation<?> rRelation : getRelations(rFilter))
+		{
+			deleteRelation(rRelation);
+		}
+	}
 
 	/***************************************
 	 * Returns the resolved value of the relation that matches a certain
@@ -115,7 +137,18 @@ public interface Relatable
 	 * @return A list containing the resolved targets of all matching relations
 	 *         (may be empty but will never be NULL)
 	 */
-	public List<Object> getAll(Predicate<? super Relation<?>> rFilter);
+	default public List<Object> getAll(Predicate<? super Relation<?>> rFilter)
+	{
+		List<Relation<?>> rRelations = getRelations(rFilter);
+		List<Object>	  aResult    = new ArrayList<Object>(rRelations.size());
+
+		for (Relation<?> rRelation : rRelations)
+		{
+			aResult.add(rRelation.getTarget());
+		}
+
+		return aResult;
+	}
 
 	/***************************************
 	 * Returns a certain relation of this instance.
@@ -133,7 +166,10 @@ public interface Relatable
 	 *
 	 * @return The number of relations that match the filter
 	 */
-	public int getRelationCount(Predicate<? super Relation<?>> rFilter);
+	default public int getRelationCount(Predicate<? super Relation<?>> rFilter)
+	{
+		return getRelations(rFilter).size();
+	}
 
 	/***************************************
 	 * Returns a list of all public relations that match a certain filter. The
@@ -161,7 +197,12 @@ public interface Relatable
 	 *         set to TRUE; FALSE if no relation exists of if it's value is
 	 *         FALSE
 	 */
-	public boolean hasFlag(RelationType<Boolean> rType);
+	default public boolean hasFlag(RelationType<Boolean> rType)
+	{
+		Relation<Boolean> rRelation = getRelation(rType);
+
+		return rRelation != null && rRelation.getTarget() == Boolean.TRUE;
+	}
 
 	/***************************************
 	 * A shortcut method that checks whether this instance contains a relation
@@ -172,7 +213,10 @@ public interface Relatable
 	 *
 	 * @return TRUE if this instance has a relation for the given type
 	 */
-	public boolean hasRelation(RelationType<?> rType);
+	default public boolean hasRelation(RelationType<?> rType)
+	{
+		return getRelation(rType) != null;
+	}
 
 	/***************************************
 	 * A shortcut method that checks whether this instance contains at least one
@@ -184,7 +228,26 @@ public interface Relatable
 	 * @return TRUE if this instance has at least one public relation that
 	 *         matches the given filter
 	 */
-	public boolean hasRelations(Predicate<? super Relation<?>> rFilter);
+	default public boolean hasRelations(Predicate<? super Relation<?>> rFilter)
+	{
+		return getRelations(rFilter).size() > 0;
+	}
+
+	/***************************************
+	 * Initializes a relation with a certain type. This is just a semantic
+	 * variant of invoking the method {@link #get(RelationType)} with the given
+	 * relation type to set it's initial value. Therefore this method only makes
+	 * sense for relation types that have an initial value function and which
+	 * haven't been set yet. Otherwise this call won't have an effect (but it
+	 * won't do harm either). It is typically used to initialize (set) automatic
+	 * relation types that generate their target values automatically.
+	 *
+	 * @param rType The type of the relation to initialize
+	 */
+	default public void init(RelationType<?> rType)
+	{
+		get(rType);
+	}
 
 	/***************************************
 	 * A convenience method that sets a relation with a type that has a boolean
@@ -192,11 +255,14 @@ public interface Relatable
 	 * shortcut for invoking {@link #set(RelationType, Object)} with a target
 	 * value of TRUE.
 	 *
-	 * @param  rType A relation type that resolves to a boolean value
+	 * @param  rFlagType A relation type with a boolean target
 	 *
 	 * @return Returns the relation that has been modified or created
 	 */
-	public Relation<Boolean> set(RelationType<Boolean> rType);
+	default public Relation<Boolean> set(RelationType<Boolean> rFlagType)
+	{
+		return set(rFlagType, Boolean.TRUE);
+	}
 
 	/***************************************
 	 * Sets a relation to the given target object with a certain relation type
@@ -212,6 +278,22 @@ public interface Relatable
 	 *                                  the object
 	 */
 	public <T> Relation<T> set(RelationType<T> rType, T rTarget);
+
+	/***************************************
+	 * A convenience method to set integer relations from an int value without
+	 * an auto-boxing warning.
+	 *
+	 * @param  rIntType The integer relation type
+	 * @param  nValue   The int value to set
+	 *
+	 * @return The relation that has been created or updated
+	 */
+	default public Relation<Integer> set(
+		RelationType<Integer> rIntType,
+		int					  nValue)
+	{
+		return set(rIntType, Integer.valueOf(nValue));
+	}
 
 	/***************************************
 	 * Creates a relation that stores the target value in an intermediate

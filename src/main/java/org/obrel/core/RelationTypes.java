@@ -674,6 +674,18 @@ public class RelationTypes
 	}
 
 	/***************************************
+	 * Creates a new partially initialized relation type with an string
+	 * datatype.
+	 *
+	 * @see #newType(RelationTypeModifier...)
+	 */
+	public static RelationType<String> newStringType(
+		RelationTypeModifier... rModifiers)
+	{
+		return newStringType(null, rModifiers);
+	}
+
+	/***************************************
 	 * Creates a new relation type with a string datatype. The initial value of
 	 * relations with the returned type will be NULL.
 	 *

@@ -65,27 +65,9 @@ public class RelatedObject implements Relatable
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Deletes a relation with a certain type from this instance. If no relation
-	 * with the given type exists the call will be ignored.
-	 *
-	 * @param rType The type of the relation to be removed from this instance
+	 * {@inheritDoc}
 	 */
 	@Override
-	public final void deleteRelation(RelationType<?> rType)
-	{
-		Relation<?> rRelation = getRelation(rType);
-
-		if (rRelation != null)
-		{
-			deleteRelation(rRelation);
-		}
-	}
-
-	/***************************************
-	 * Deletes a certain relation from this instance.
-	 *
-	 * @param rRelation The relation to be removed from this instance
-	 */
 	public void deleteRelation(Relation<?> rRelation)
 	{
 		RelationType<?> rType = rRelation.getType();
@@ -98,18 +80,6 @@ public class RelatedObject implements Relatable
 
 		aRelations.remove(rType);
 		rRelation.removed(this);
-	}
-
-	/***************************************
-	 * @see Relatable#deleteRelations(Predicate)
-	 */
-	@Override
-	public final void deleteRelations(Predicate<? super Relation<?>> rFilter)
-	{
-		for (Relation<?> rRelation : getRelations(rFilter))
-		{
-			deleteRelation(rRelation);
-		}
 	}
 
 	/***************************************
@@ -147,23 +117,6 @@ public class RelatedObject implements Relatable
 	}
 
 	/***************************************
-	 * @see Relatable#getAll(Predicate)
-	 */
-	@Override
-	public final List<Object> getAll(Predicate<? super Relation<?>> rFilter)
-	{
-		List<Relation<?>> rRelations = getRelations(rFilter);
-		List<Object>	  aResult    = new ArrayList<Object>(rRelations.size());
-
-		for (Relation<?> rRelation : rRelations)
-		{
-			aResult.add(rRelation.getTarget());
-		}
-
-		return aResult;
-	}
-
-	/***************************************
 	 * @see Relatable#getRelation(RelationType)
 	 */
 	@Override
@@ -171,15 +124,6 @@ public class RelatedObject implements Relatable
 	public <T> Relation<T> getRelation(RelationType<T> rType)
 	{
 		return (Relation<T>) aRelations.get(rType);
-	}
-
-	/***************************************
-	 * @see Relatable#getRelationCount(Predicate)
-	 */
-	@Override
-	public final int getRelationCount(Predicate<? super Relation<?>> rFilter)
-	{
-		return getRelations(rFilter).size();
 	}
 
 	/***************************************
@@ -202,35 +146,6 @@ public class RelatedObject implements Relatable
 		}
 
 		return aResult;
-	}
-
-	/***************************************
-	 * @see Relatable#hasFlag(RelationType)
-	 */
-	@Override
-	public final boolean hasFlag(RelationType<Boolean> rType)
-	{
-		Relation<Boolean> rRelation = getRelation(rType);
-
-		return rRelation != null && rRelation.getTarget() == Boolean.TRUE;
-	}
-
-	/***************************************
-	 * @see Relatable#hasRelation(RelationType)
-	 */
-	@Override
-	public final boolean hasRelation(RelationType<?> rType)
-	{
-		return getRelation(rType) != null;
-	}
-
-	/***************************************
-	 * @see Relatable#hasRelations(Predicate)
-	 */
-	@Override
-	public final boolean hasRelations(Predicate<? super Relation<?>> rFilter)
-	{
-		return getRelations(rFilter).size() > 0;
 	}
 
 	/***************************************
@@ -266,15 +181,6 @@ public class RelatedObject implements Relatable
 							   sSeparator,
 							   nIndent,
 							   new HashSet<Object>());
-	}
-
-	/***************************************
-	 * @see Relatable#set(RelationType)
-	 */
-	@Override
-	public final Relation<Boolean> set(RelationType<Boolean> rType)
-	{
-		return set(rType, Boolean.TRUE);
 	}
 
 	/***************************************
