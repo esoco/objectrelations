@@ -79,7 +79,7 @@ public class ListType<T> extends RelationType<List<T>>
 	 * @return The initial value function
 	 */
 	@SuppressWarnings("unchecked")
-	static <T> Function<Object, List<T>> initialValueFunction()
+	public static <T> Function<Object, List<T>> initialValueFunction()
 	{
 		Class<List<T>> rListClass = (Class<List<T>>) (Class<?>) ArrayList.class;
 

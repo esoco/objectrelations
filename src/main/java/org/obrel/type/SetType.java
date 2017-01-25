@@ -90,7 +90,8 @@ public class SetType<T> extends RelationType<Set<T>>
 	 * @return The initial value function
 	 */
 	@SuppressWarnings("unchecked")
-	static <T> Function<Object, Set<T>> initialValueFunction(boolean bOrdered)
+	public static <T> Function<Object, Set<T>> initialValueFunction(
+		boolean bOrdered)
 	{
 		Class<?> rSetClass = bOrdered ? LinkedHashSet.class : HashSet.class;
 

@@ -92,7 +92,7 @@ public class MapType<K, V> extends RelationType<Map<K, V>>
 	 * @return The initial value function
 	 */
 	@SuppressWarnings("unchecked")
-	static <K, V> Function<Object, Map<K, V>> initialValueFunction(
+	public static <K, V> Function<Object, Map<K, V>> initialValueFunction(
 		boolean bOrdered)
 	{
 		Class<?> rMapClass = bOrdered ? LinkedHashMap.class : HashMap.class;
