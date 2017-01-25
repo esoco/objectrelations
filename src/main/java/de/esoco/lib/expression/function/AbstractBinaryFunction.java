@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,16 +17,13 @@
 package de.esoco.lib.expression.function;
 
 import de.esoco.lib.expression.BinaryFunction;
-import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
 
 
 /********************************************************************
  * An abstract base implementation of the {@link BinaryFunction} interface. It
  * accepts the initial right value for unary function evaluations as a
- * constructor argument. The right value can be modified later by invoking the
- * method {@link #setRightValue(Object)} unless an instance has been set to be
- * immutable through a constructor parameter.
+ * constructor argument.
  *
  * @author eso
  */
@@ -35,42 +32,21 @@ public abstract class AbstractBinaryFunction<L, R, O>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private R			  rRightValue;
-	private final boolean bImmutable;
+	private R rRightValue;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new immutable instance with a particular right value and
-	 * function description.
+	 * Creates a new instance with a particular right value and function token.
 	 *
-	 * @see #AbstractBinaryFunction(Object, String, boolean)
+	 * @param rRightValue The right value for unary evaluation
+	 * @param sToken      The function token
 	 */
 	public AbstractBinaryFunction(R rRightValue, String sToken)
-	{
-		this(rRightValue, sToken, true);
-	}
-
-	/***************************************
-	 * Creates a new instance with a particular right value and function
-	 * description.
-	 *
-	 * <p>The boolean parameter allows to control whether the function will
-	 * initially be immutable, i.e. if it's right value can be modified by means
-	 * of the method {@link #setRightValue(Object)}.</p>
-	 *
-	 * @param rRightValue The right value of function input
-	 * @param sToken      A text describing the function
-	 * @param bImmutable  TRUE to prevent changes of the right value
-	 */
-	public AbstractBinaryFunction(R		  rRightValue,
-								  String  sToken,
-								  boolean bImmutable)
 	{
 		super(sToken);
 
 		this.rRightValue = rRightValue;
-		this.bImmutable  = bImmutable;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -90,56 +66,12 @@ public abstract class AbstractBinaryFunction<L, R, O>
 	}
 
 	/***************************************
-	 * @see BinaryFunction#from(Function)
-	 */
-	@Override
-	public <A, B> BinaryFunction<A, B, O> from(
-		Function<A, ? extends L> rLeft,
-		Function<B, ? extends R> rRight)
-	{
-		return Functions.chain(this, rLeft, rRight);
-	}
-
-	/***************************************
 	 * @see BinaryFunction#getRightValue()
 	 */
 	@Override
 	public final R getRightValue()
 	{
 		return rRightValue;
-	}
-
-	/***************************************
-	 * Returns the immutable state of this instance. See the documentation of
-	 * the constructor {@link #AbstractBinaryFunction(Object, String, boolean)}
-	 * for details.
-	 *
-	 * @return The immutable stable
-	 */
-	public final boolean isImmutable()
-	{
-		return bImmutable;
-	}
-
-	/***************************************
-	 * Sets the right value for the evaluation of this function. If it has been
-	 * set to be immutable with the corresponding constructor parameter an
-	 * exception will be thrown instead.
-	 *
-	 * @param  rValue The new right value
-	 *
-	 * @throws IllegalStateException If this function has been made immutable
-	 */
-	@Override
-	public final void setRightValue(R rValue)
-	{
-		if (bImmutable)
-		{
-			throw new IllegalStateException("Binary function is immutable: " +
-											this);
-		}
-
-		rRightValue = rValue;
 	}
 
 	/***************************************
@@ -177,50 +109,22 @@ public abstract class AbstractBinaryFunction<L, R, O>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> BinaryFunction<L, T, O> withRight(
-		Function<T, ? extends R> fRight)
-	{
-		return from(Functions.<L>identity(), fRight);
-	}
-
-	/***************************************
-	 * Compares the right value and immutable flag with that of the other
-	 * function.
-	 *
-	 * @see AbstractFunction#paramsEqual(AbstractFunction)
-	 */
-	@Override
 	protected boolean paramsEqual(AbstractFunction<?, ?> rOther)
 	{
 		AbstractBinaryFunction<?, ?, ?> rOtherFunction =
 			(AbstractBinaryFunction<?, ?, ?>) rOther;
 
-		boolean bEqual = (bImmutable == rOtherFunction.bImmutable);
-
-		if (bEqual)
-		{
-			if (rRightValue != null)
-			{
-				bEqual = rRightValue.equals(rOtherFunction.rRightValue);
-			}
-			else
-			{
-				bEqual = rOtherFunction.rRightValue == null;
-			}
-		}
-
-		return bEqual;
+		return rRightValue != null
+			   ? rRightValue.equals(rOtherFunction.rRightValue)
+			   : rOtherFunction.rRightValue == null;
 	}
 
 	/***************************************
-	 * Generates a hash code from the right value and the immutable flag.
-	 *
-	 * @see AbstractFunction#paramsHashCode()
+	 * {@inheritDoc}
 	 */
 	@Override
 	protected int paramsHashCode()
 	{
-		return (rRightValue != null ? rRightValue.hashCode() : 0) +
-			   (bImmutable ? 1 : 0);
+		return rRightValue != null ? rRightValue.hashCode() : 0;
 	}
 }

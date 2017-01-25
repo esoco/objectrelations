@@ -68,7 +68,7 @@ public class RelatedObject implements Relatable
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteRelation(Relation<?> rRelation)
+	public <T> void deleteRelation(Relation<T> rRelation)
 	{
 		RelationType<?> rType = rRelation.getType();
 
@@ -76,14 +76,16 @@ public class RelatedObject implements Relatable
 		// by throwing an exception
 		rType.checkUpdateAllowed();
 		rType.deleteRelation(this, rRelation);
-		notifyRelationListeners(EventType.REMOVE, rRelation, null);
+		notifyRelationListeners(EventType.REMOVE,
+								rRelation,
+								rRelation.getTarget());
 
 		aRelations.remove(rType);
 		rRelation.removed(this);
 	}
 
 	/***************************************
-	 * @see Relatable#get(RelationType)
+	 * {@inheritDoc}
 	 */
 	@Override
 	public <T> T get(RelationType<T> rType)
@@ -425,12 +427,15 @@ public class RelatedObject implements Relatable
 	{
 		RelationType<T> rType = rRelation.getType();
 
+		rType.addRelation(this, rRelation);
+
 		if (bNotify)
 		{
-			// notify type and listeners before adding so that they may prevent it
+			// notify listeners before adding so that they may prevent it
 			// by throwing an exception
-			rType.addRelation(this, rRelation);
-			notifyRelationListeners(EventType.ADD, rRelation, null);
+			notifyRelationListeners(EventType.ADD,
+									rRelation,
+									rRelation.getTarget());
 		}
 
 		if (aRelations == NO_RELATIONS)

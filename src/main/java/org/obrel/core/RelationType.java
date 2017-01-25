@@ -742,6 +742,27 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	/***************************************
+	 * Updates the target of a relation with this type to a new value. This
+	 * method provides the possibility for relation types to update the targets
+	 * of their relations under certain circumstances (e.g. replacing mutable
+	 * targets with immutable ones). The code checks that the type of the
+	 * relations is this instance or else throws an exception.
+	 *
+	 * @param rRelation The relation to set the target of
+	 * @param rValue    The new relation target
+	 */
+	protected void setRelationTarget(Relation<T> rRelation, T rValue)
+	{
+		if (rRelation.getType() != this)
+		{
+			throw new IllegalArgumentException("Relation must be for type " +
+											   this);
+		}
+
+		rRelation.setTarget(rValue);
+	}
+
+	/***************************************
 	 * Internal method to throw an {@link UnsupportedOperationException} if this
 	 * type is readonly.
 	 */

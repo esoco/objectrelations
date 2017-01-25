@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,28 +36,11 @@ public abstract class AbstractBinaryPredicate<L, R>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new immutable instance with a particular right value and
-	 * description.
-	 *
-	 * @see AbstractBinaryFunction#AbstractBinaryFunction(Object, String)
+	 * {@inheritDoc}
 	 */
-	public AbstractBinaryPredicate(R rRightValue, String sDescription)
+	public AbstractBinaryPredicate(R rRightValue, String sToken)
 	{
-		super(rRightValue, sDescription);
-	}
-
-	/***************************************
-	 * Creates a new instance with a particular right value, description, and
-	 * immutable state.
-	 *
-	 * @see AbstractBinaryFunction#AbstractBinaryFunction(Object, String,
-	 *      boolean)
-	 */
-	public AbstractBinaryPredicate(R	   rRightValue,
-								   String  sToken,
-								   boolean bImmutable)
-	{
-		super(rRightValue, sToken, bImmutable);
+		super(rRightValue, sToken);
 	}
 
 	//~ Methods ----------------------------------------------------------------

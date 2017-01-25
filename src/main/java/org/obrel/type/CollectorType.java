@@ -16,12 +16,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.type;
 
+import de.esoco.lib.collection.ImmutableCollection;
 import de.esoco.lib.event.ElementEvent.EventType;
-import de.esoco.lib.expression.Function;
+import de.esoco.lib.event.EventHandler;
+import de.esoco.lib.expression.BinaryFunction;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,8 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 
+import static org.obrel.core.RelationTypeModifier.FINAL;
+import static org.obrel.core.RelationTypeModifier.READONLY;
 import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
 import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
 import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
@@ -71,6 +74,7 @@ import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
  * @author eso
  */
 public class CollectorType<T> extends RelationType<Collection<T>>
+	implements EventHandler<RelationEvent<?>>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -78,10 +82,8 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private final Function<Relation<?>, T> fCollector;
-	private final boolean				   bDistinctValues;
-
-	private Collection<T> aValueCollection;
+	private final BinaryFunction<RelationType<?>, Object, T> fCollector;
+	private final boolean									 bDistinctValues;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -91,18 +93,19 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 	 * @param sName           The name of this type
 	 * @param rCollectedType  The datatype of the collected values
 	 * @param fCollector      The function that determines the values to be
-	 *                        collected from relations; if it returns NULL no
-	 *                        value will be collected
+	 *                        collected from relation types and target values;
+	 *                        if it returns NULL no value will be collected
 	 * @param bDistinctValues TRUE to collect only distinct values; FALSE to
 	 *                        collect all values that are added to the object
 	 * @param rModifiers      The relation type modifiers
 	 */
 	@SuppressWarnings("unchecked")
-	public CollectorType(String					  sName,
-						 Class<? super T>		  rCollectedType,
-						 Function<Relation<?>, T> fCollector,
-						 boolean				  bDistinctValues,
-						 RelationTypeModifier...  rModifiers)
+	public CollectorType(
+		String									   sName,
+		Class<? super T>						   rCollectedType,
+		BinaryFunction<RelationType<?>, Object, T> fCollector,
+		boolean									   bDistinctValues,
+		RelationTypeModifier... 				   rModifiers)
 	{
 		super(sName,
 			  (Class<Collection<T>>) (bDistinctValues ? Set.class : List.class),
@@ -122,15 +125,15 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 	 *
 	 * @param  rCollectedType The datatype of the collected values
 	 * @param  fCollector     The function that determines the values to be
-	 *                        collected from relations
+	 *                        collected from relation types and target values
 	 * @param  rModifiers     The relation type modifiers
 	 *
 	 * @return The new instance
 	 */
 	public static <T> CollectorType<T> newCollector(
-		Class<? super T>		 rCollectedType,
-		Function<Relation<?>, T> fCollector,
-		RelationTypeModifier...  rModifiers)
+		Class<? super T>						   rCollectedType,
+		BinaryFunction<RelationType<?>, Object, T> fCollector,
+		RelationTypeModifier... 				   rModifiers)
 	{
 		return new CollectorType<>(null,
 								   rCollectedType,
@@ -145,15 +148,15 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 	 *
 	 * @param  rCollectedType The datatype of the collected values
 	 * @param  fCollector     The function that determines the values to be
-	 *                        collected from relations
+	 *                        collected from relation types and target values
 	 * @param  rModifiers     The relation type modifiers
 	 *
 	 * @return The new instance
 	 */
 	public static <T> CollectorType<T> newDistinctCollector(
-		Class<? super T>		 rCollectedType,
-		Function<Relation<?>, T> fCollector,
-		RelationTypeModifier...  rModifiers)
+		Class<? super T>						   rCollectedType,
+		BinaryFunction<RelationType<?>, Object, T> fCollector,
+		RelationTypeModifier... 				   rModifiers)
 	{
 		return new CollectorType<>(null,
 								   rCollectedType,
@@ -165,6 +168,48 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Evaluates the event relation and collects the value if the collector
+	 * function returns a non-NULL value.
+	 *
+	 * @param rEvent The relation event to process
+	 */
+	@Override
+	public void handleEvent(RelationEvent<?> rEvent)
+	{
+		Relation<?> rRelation = rEvent.getElement();
+
+		if (rRelation.getType() != this)
+		{
+			T rValue =
+				fCollector.evaluate(rRelation.getType(),
+									rEvent.getUpdateValue());
+
+			if (rValue != null)
+			{
+				Collection<T> rValueCollection = rEvent.getSource().get(this);
+
+				if (rValueCollection instanceof CollectionWrapper)
+				{
+					rValueCollection =
+						((CollectionWrapper<T>) rValueCollection).rCollection;
+				}
+
+				EventType eEventType = rEvent.getType();
+
+				if (eEventType == EventType.ADD ||
+					eEventType == EventType.UPDATE)
+				{
+					rValueCollection.add(rValue);
+				}
+				else if (bDistinctValues && eEventType == EventType.REMOVE)
+				{
+					rValueCollection.remove(rValue);
+				}
+			}
+		}
+	}
+
+	/***************************************
 	 * Overridden to return the corresponding collection instance for this type,
 	 * wrapped in an unmodifiable collection to prevent external modifications.
 	 *
@@ -173,20 +218,10 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 	@Override
 	public Collection<T> initialValue(Relatable rParent)
 	{
-		aValueCollection =
+		Collection<T> aValueCollection =
 			bDistinctValues ? new LinkedHashSet<>() : new ArrayList<>();
 
-		registerCollectListener(rParent);
-
-		if (hasModifier(RelationTypeModifier.FINAL) ||
-			hasModifier(RelationTypeModifier.READONLY))
-		{
-			return Collections.unmodifiableCollection(aValueCollection);
-		}
-		else
-		{
-			return aValueCollection;
-		}
+		return aValueCollection;
 	}
 
 	/***************************************
@@ -201,37 +236,27 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 	{
 		super.addRelation(rParent, rRelation);
 
+		if (hasModifier(FINAL) || hasModifier(READONLY))
+		{
+			setRelationTarget(rRelation,
+							  new CollectionWrapper<>(rRelation.getTarget()));
+		}
+
 		registerCollectListener(rParent);
 	}
 
 	/***************************************
-	 * Evaluates the event relation and collects the value if the collector
-	 * function returns a non-NULL value.
+	 * Overridden to remove this instance as an relation listener from the
+	 * target object of the deleted relation.
 	 *
-	 * @param rEvent The relation event to process
+	 * @see RelationType#deleteRelation(Relatable, Relation)
 	 */
-	protected void processEvent(RelationEvent<?> rEvent)
+	@Override
+	protected void deleteRelation(Relatable rParent, Relation<?> rRelation)
 	{
-		Relation<?> rRelation = rEvent.getElement();
+		removeCollectListener(rParent);
 
-		if (rRelation.getType() != this)
-		{
-			T rValue = fCollector.evaluate(rRelation);
-
-			if (rValue != null)
-			{
-				EventType eEventType = rEvent.getType();
-
-				if (eEventType == EventType.ADD)
-				{
-					aValueCollection.add(rValue);
-				}
-				else if (bDistinctValues && eEventType == EventType.REMOVE)
-				{
-					aValueCollection.remove(rValue);
-				}
-			}
-		}
+		super.deleteRelation(rParent, rRelation);
 	}
 
 	/***************************************
@@ -243,16 +268,68 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 	{
 		if (rParent instanceof RelationType)
 		{
-			rParent.get(RELATION_TYPE_LISTENERS).add(this::processEvent);
+			rParent.get(RELATION_TYPE_LISTENERS).add(this);
 		}
 
 		if (rParent instanceof Relation)
 		{
-			rParent.get(RELATION_UPDATE_LISTENERS).add(this::processEvent);
+			rParent.get(RELATION_UPDATE_LISTENERS).add(this);
 		}
 		else
 		{
-			rParent.get(RELATION_LISTENERS).add(this::processEvent);
+			rParent.get(RELATION_LISTENERS).add(this);
+		}
+	}
+
+	/***************************************
+	 * Removes the relation listener that performs the value collection.
+	 *
+	 * @param rParent The parent relatable to remove the listener from
+	 */
+	protected void removeCollectListener(Relatable rParent)
+	{
+		if (rParent instanceof RelationType)
+		{
+			rParent.get(RELATION_TYPE_LISTENERS).remove(this);
+		}
+
+		if (rParent instanceof Relation)
+		{
+			rParent.get(RELATION_UPDATE_LISTENERS).remove(this);
+		}
+		else
+		{
+			rParent.get(RELATION_LISTENERS).remove(this);
+		}
+	}
+
+	//~ Inner Classes ----------------------------------------------------------
+
+	/********************************************************************
+	 * An internal wrapper for the collection of final or readonly connections
+	 * that provides access to the wrapped collection to allow it's internal
+	 * modification by {@link CollectorType}.
+	 *
+	 * @author eso
+	 */
+	private static class CollectionWrapper<E> extends ImmutableCollection<E>
+	{
+		//~ Instance fields ----------------------------------------------------
+
+		private final Collection<E> rCollection;
+
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param rWrappedCollection The wrapped collection
+		 */
+		public CollectionWrapper(Collection<E> rWrappedCollection)
+		{
+			super(rWrappedCollection);
+
+			rCollection = rWrappedCollection;
 		}
 	}
 }

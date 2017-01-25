@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,8 +51,8 @@ public class MathFunctions
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Returns a mutable binary function that will add an integer value to the
-	 * input value.
+	 * Returns a binary function that will add an integer value to the input
+	 * value.
 	 *
 	 * @param  nRightValue The integer value to add
 	 *
@@ -63,8 +63,7 @@ public class MathFunctions
 		final int nRightValue)
 	{
 		return new AbstractBinaryFunction<Integer, Integer, Integer>(nRightValue,
-																	 "Add",
-																	 false)
+																	 "Add")
 		{
 			@Override
 			public Integer evaluate(Integer rLeftValue, Integer rRightValue)
@@ -75,8 +74,8 @@ public class MathFunctions
 	}
 
 	/***************************************
-	 * Returns a mutable binary function that will divide the input value by an
-	 * integer value.
+	 * Returns a binary function that will divide the input value by an integer
+	 * value.
 	 *
 	 * @param  nRightValue The integer value to divide by
 	 *
@@ -87,8 +86,7 @@ public class MathFunctions
 		final int nRightValue)
 	{
 		return new AbstractBinaryFunction<Integer, Integer, Integer>(nRightValue,
-																	 "Divide",
-																	 false)
+																	 "Divide")
 		{
 			@Override
 			public Integer evaluate(Integer rLeftValue, Integer rRightValue)
@@ -99,8 +97,8 @@ public class MathFunctions
 	}
 
 	/***************************************
-	 * Returns a mutable binary function that returns the remainder of dividing
-	 * the input value by an integer value.
+	 * Returns a binary function that returns the remainder of dividing the
+	 * input value by an integer value.
 	 *
 	 * @param  nRightValue The integer value to divide by
 	 *
@@ -111,8 +109,7 @@ public class MathFunctions
 		final int nRightValue)
 	{
 		return new AbstractBinaryFunction<Integer, Integer, Integer>(nRightValue,
-																	 "Modulo",
-																	 false)
+																	 "Modulo")
 		{
 			@Override
 			public Integer evaluate(Integer rLeftValue, Integer rRightValue)
@@ -123,8 +120,8 @@ public class MathFunctions
 	}
 
 	/***************************************
-	 * Returns a mutable binary function that will multiply the input value with
-	 * an integer value.
+	 * Returns a binary function that will multiply the input value with an
+	 * integer value.
 	 *
 	 * @param  nRightValue The integer value to multiply with
 	 *
@@ -135,8 +132,7 @@ public class MathFunctions
 		final int nRightValue)
 	{
 		return new AbstractBinaryFunction<Integer, Integer, Integer>(nRightValue,
-																	 "Multiply",
-																	 false)
+																	 "Multiply")
 		{
 			@Override
 			public Integer evaluate(Integer rLeftValue, Integer rRightValue)
@@ -157,8 +153,8 @@ public class MathFunctions
 	}
 
 	/***************************************
-	 * Returns a mutable binary function that will subtract an integer value
-	 * from the input value.
+	 * Returns a binary function that will subtract an integer value from the
+	 * input value.
 	 *
 	 * @param  nRightValue The integer value to subtract
 	 *
@@ -169,8 +165,7 @@ public class MathFunctions
 		final int nRightValue)
 	{
 		return new AbstractBinaryFunction<Integer, Integer, Integer>(nRightValue,
-																	 "Subtract",
-																	 false)
+																	 "Subtract")
 		{
 			@Override
 			public Integer evaluate(Integer rLeftValue, Integer rRightValue)

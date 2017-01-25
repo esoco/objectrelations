@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,22 +34,11 @@ public abstract class ExceptionMappingBinaryFunction<L, R, O>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * @see AbstractBinaryFunction#AbstractBinaryFunction(Object, String)
+	 * {@inheritDoc}
 	 */
 	public ExceptionMappingBinaryFunction(R rRightValue, String sToken)
 	{
 		super(rRightValue, sToken);
-	}
-
-	/***************************************
-	 * @see AbstractBinaryFunction#AbstractBinaryFunction(Object, String,
-	 *      boolean)
-	 */
-	public ExceptionMappingBinaryFunction(R		  rRightValue,
-										  String  sToken,
-										  boolean bImmutable)
-	{
-		super(rRightValue, sToken, bImmutable);
 	}
 
 	//~ Methods ----------------------------------------------------------------

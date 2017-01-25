@@ -1,12 +1,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//		 http://www.apache.org/licenses/LICENSE-2.0
+//	  http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -329,8 +329,7 @@ public class Predicates
 		final RelationType<Boolean> rType)
 	{
 		return new AbstractBinaryPredicate<R, RelationType<Boolean>>(rType,
-																	 "hasRelation",
-																	 true)
+																	 "hasRelation")
 		{
 			@Override
 			public Boolean evaluate(
@@ -354,8 +353,7 @@ public class Predicates
 		final RelationType<?> rType)
 	{
 		return new AbstractBinaryPredicate<R, RelationType<?>>(rType,
-															   "hasRelation",
-															   true)
+															   "hasRelation")
 		{
 			@Override
 			public Boolean evaluate(R rRelatable, RelationType<?> rType)

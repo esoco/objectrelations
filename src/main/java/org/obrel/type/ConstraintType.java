@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.obrel.type;
 
 import de.esoco.lib.event.EventHandler;
-import de.esoco.lib.expression.BinaryPredicate;
 import de.esoco.lib.expression.Predicate;
 
 import org.obrel.core.Relatable;
@@ -68,7 +67,7 @@ public class ConstraintType<T> extends RelationType<T>
 
 	/***************************************
 	 * Evaluates the given event with the predicate that is stored under this
-	 * types and throws an IllegalArgumentException if the evaluation yields
+	 * type and throws an IllegalArgumentException if the evaluation yields
 	 * FALSE.
 	 *
 	 * @param  rEvent The relation event
@@ -76,16 +75,9 @@ public class ConstraintType<T> extends RelationType<T>
 	 * @throws IllegalArgumentException If the predicate evaluation yields FALSE
 	 */
 	@Override
-	@SuppressWarnings({ "boxing", "unchecked" })
+	@SuppressWarnings({ "boxing" })
 	public void handleEvent(RelationEvent<?> rEvent)
 	{
-		if (rTargetPredicate instanceof BinaryPredicate<?, ?>)
-		{
-			T rConstraintValue = rEvent.getSource().get(this);
-
-			((BinaryPredicate<?, Object>) rTargetPredicate).setRightValue(rConstraintValue);
-		}
-
 		if (!rTargetPredicate.evaluate(rEvent.getElement().getTarget()))
 		{
 			throw new IllegalArgumentException();

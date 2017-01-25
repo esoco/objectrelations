@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,12 +28,11 @@ public class Cast<I, O> extends AbstractBinaryFunction<I, Class<O>, O>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rCastType  The class of the datatype to cast to
-	 * @param bImmutable TRUE to prevent changes of the cast type
+	 * @param rCastType The class of the datatype to cast to
 	 */
-	public Cast(Class<O> rCastType, boolean bImmutable)
+	public Cast(Class<O> rCastType)
 	{
-		super(rCastType, Cast.class.getSimpleName(), bImmutable);
+		super(rCastType, Cast.class.getSimpleName());
 	}
 
 	//~ Methods ----------------------------------------------------------------

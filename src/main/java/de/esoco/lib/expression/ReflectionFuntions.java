@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public class ReflectionFuntions
 	 */
 	public static <I, O> BinaryFunction<I, Class<O>, O> cast(Class<O> rCastType)
 	{
-		return new Cast<I, O>(rCastType, true);
+		return new Cast<I, O>(rCastType);
 	}
 
 	/***************************************
@@ -119,17 +119,14 @@ public class ReflectionFuntions
 	 * enum class for a certain name.
 	 *
 	 * @param  rEnumClass The enum class (right value of the function)
-	 * @param  bImmutable The immutable state of the function
 	 *
 	 * @return The new function instance
 	 */
 	public static <E extends Enum<E>> BinaryFunction<String, Class<E>, E> getEnumValue(
-		Class<E> rEnumClass,
-		boolean  bImmutable)
+		Class<E> rEnumClass)
 	{
 		return new AbstractBinaryFunction<String, Class<E>, E>(rEnumClass,
-															   "getEnumValue",
-															   bImmutable)
+															   "getEnumValue")
 		{
 			@Override
 			public E evaluate(String sName, Class<E> rEnumClass)

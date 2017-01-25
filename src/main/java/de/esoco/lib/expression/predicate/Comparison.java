@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,26 +38,12 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R>
 	 * Creates a new immutable instance that compares target objects with a
 	 * certain value.
 	 *
-	 * @param rValue       The value to compare the target objects of
-	 *                     evaluations with
-	 * @param sDescription A string description of this comparison
+	 * @param rValue The value to compare the target objects of evaluations with
+	 * @param sToken A string description of this comparison
 	 */
-	public Comparison(R rValue, String sDescription)
+	public Comparison(R rValue, String sToken)
 	{
-		super(rValue, sDescription);
-	}
-
-	/***************************************
-	 * Creates a new instance that compares target objects with a certain value.
-	 *
-	 * @param rValue       The value to compare the target objects of
-	 *                     evaluations with
-	 * @param sDescription A string description of this comparison
-	 * @param bImmutable   TRUE to prevent changes of the right value
-	 */
-	public Comparison(R rValue, String sDescription, boolean bImmutable)
-	{
-		super(rValue, sDescription, bImmutable);
+		super(rValue, sToken);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -72,12 +58,11 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R>
 		/***************************************
 		 * Creates a new instance.
 		 *
-		 * @param rValue     The collection to check input values against
-		 * @param bImmutable TRUE to prevent changes of the right value
+		 * @param rValue The collection to check input values against
 		 */
-		public ElementOf(Collection<?> rValue, boolean bImmutable)
+		public ElementOf(Collection<?> rValue)
 		{
-			super(rValue, "ElementOf", bImmutable);
+			super(rValue, "ElementOf");
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -109,14 +94,6 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R>
 		public EqualTo(Object rValue)
 		{
 			super(rValue, "=");
-		}
-
-		/***************************************
-		 * @see Comparison#Comparison(Object, String, boolean)
-		 */
-		public EqualTo(Object rValue, boolean bImmutable)
-		{
-			super(rValue, "=", bImmutable);
 		}
 
 		//~ Methods ------------------------------------------------------------

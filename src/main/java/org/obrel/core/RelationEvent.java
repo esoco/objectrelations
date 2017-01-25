@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,8 +43,12 @@ import org.obrel.type.StandardTypes;
  * will be invoked if a relation event occurs. The {@link RelationEvent}
  * parameter contains the informations that are relevant for the particular
  * event and can be queried with the respective methods of the event class. The
- * only element event type that will not occur for relation events is REMOVE_ALL
- * because relations always refer to exactly one object.</p>
+ * update value of the event always contains the relation target, either the
+ * current one or in the case of update events, the future target. In the latter
+ * case the relation itself (accessible as the event element) will still contain
+ * the previous (current) value. The only element event type that will not occur
+ * for relation events is REMOVE_ALL because relations always refer to exactly
+ * one object.</p>
  *
  * @author eso
  */

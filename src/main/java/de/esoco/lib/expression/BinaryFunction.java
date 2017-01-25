@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,9 +37,22 @@ import de.esoco.lib.expression.function.DualFunctionChain;
  *
  * @author eso
  */
+@FunctionalInterface
 public interface BinaryFunction<L, R, O> extends Function<L, O>
 {
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Default implementation that invokes {@link #evaluate(Object, Object)}
+	 * with the return value of {@link #getRightValue()} as the right argument.
+	 *
+	 * @see Function#evaluate(Object)
+	 */
+	@Override
+	default public O evaluate(L rLeftValue)
+	{
+		return evaluate(rLeftValue, getRightValue());
+	}
 
 	/***************************************
 	 * Evaluates the binary function on the left and right input values and
@@ -63,23 +76,23 @@ public interface BinaryFunction<L, R, O> extends Function<L, O>
 	 *
 	 * @return A new instance of {@link DualFunctionChain}
 	 */
-	public <A, B> BinaryFunction<A, B, O> from(
+	default public <A, B> BinaryFunction<A, B, O> from(
 		Function<A, ? extends L> fLeft,
-		Function<B, ? extends R> fRight);
+		Function<B, ? extends R> fRight)
+	{
+		return Functions.chain(this, fLeft, fRight);
+	}
 
 	/***************************************
-	 * Returns the right value of this binary function.
+	 * Returns the right value of this binary function. The default
+	 * implementation always returns NULL.
 	 *
 	 * @return The right value
 	 */
-	public R getRightValue();
-
-	/***************************************
-	 * Sets the right value of this binary function.
-	 *
-	 * @param rRightValue The new right value
-	 */
-	public void setRightValue(R rRightValue);
+	default public R getRightValue()
+	{
+		return null;
+	}
 
 	/***************************************
 	 * Returns a new function object that evaluates this function with the
@@ -92,6 +105,9 @@ public interface BinaryFunction<L, R, O> extends Function<L, O>
 	 *
 	 * @return A new instance of {@link DualFunctionChain}
 	 */
-	public <T> BinaryFunction<L, T, O> withRight(
-		Function<T, ? extends R> fRight);
+	default public <T> BinaryFunction<L, T, O> withRight(
+		Function<T, ? extends R> fRight)
+	{
+		return from(Functions.<L>identity(), fRight);
+	}
 }
