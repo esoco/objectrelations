@@ -76,9 +76,7 @@ public class RelatedObject implements Relatable
 		// by throwing an exception
 		rType.checkUpdateAllowed();
 		rType.deleteRelation(this, rRelation);
-		notifyRelationListeners(EventType.REMOVE,
-								rRelation,
-								rRelation.getTarget());
+		notifyRelationListeners(EventType.REMOVE, rRelation, null);
 
 		aRelations.remove(rType);
 		rRelation.removed(this);
@@ -433,9 +431,7 @@ public class RelatedObject implements Relatable
 		{
 			// notify listeners before adding so that they may prevent it
 			// by throwing an exception
-			notifyRelationListeners(EventType.ADD,
-									rRelation,
-									rRelation.getTarget());
+			notifyRelationListeners(EventType.ADD, rRelation, null);
 		}
 
 		if (aRelations == NO_RELATIONS)

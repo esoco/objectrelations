@@ -180,11 +180,15 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 
 		if (rRelation.getType() != this)
 		{
-			T rValue =
-				fCollector.evaluate(rRelation.getType(),
-									rEvent.getUpdateValue());
+			EventType eEventType = rEvent.getType();
 
-			if (rValue != null)
+			Object rValue =
+				eEventType == EventType.UPDATE
+				? rEvent.getUpdateValue() : rEvent.getElement().getTarget();
+
+			T rCollectValue = fCollector.evaluate(rRelation.getType(), rValue);
+
+			if (rCollectValue != null)
 			{
 				Collection<T> rValueCollection = rEvent.getSource().get(this);
 
@@ -194,16 +198,14 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 						((CollectionWrapper<T>) rValueCollection).rCollection;
 				}
 
-				EventType eEventType = rEvent.getType();
-
 				if (eEventType == EventType.ADD ||
 					eEventType == EventType.UPDATE)
 				{
-					rValueCollection.add(rValue);
+					rValueCollection.add(rCollectValue);
 				}
 				else if (bDistinctValues && eEventType == EventType.REMOVE)
 				{
-					rValueCollection.remove(rValue);
+					rValueCollection.remove(rCollectValue);
 				}
 			}
 		}

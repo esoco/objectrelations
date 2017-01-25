@@ -42,13 +42,7 @@ import org.obrel.type.StandardTypes;
  * <p>A listener's {@link EventHandler#handleEvent(Event) handleEvent()} method
  * will be invoked if a relation event occurs. The {@link RelationEvent}
  * parameter contains the informations that are relevant for the particular
- * event and can be queried with the respective methods of the event class. The
- * update value of the event always contains the relation target, either the
- * current one or in the case of update events, the future target. In the latter
- * case the relation itself (accessible as the event element) will still contain
- * the previous (current) value. The only element event type that will not occur
- * for relation events is REMOVE_ALL because relations always refer to exactly
- * one object.</p>
+ * event and can be queried with the respective methods of the event class.</p>
  *
  * @author eso
  */
