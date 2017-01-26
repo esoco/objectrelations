@@ -30,14 +30,19 @@ import org.obrel.type.StandardTypes;
  * runtime exception but it is recommended that such listeners are only used in
  * special cases which should be well documented.
  *
- * <p>To register a relation event handler for element events it must be added
- * as a relation with the relation type {@link StandardTypes#RELATION_LISTENERS}
- * to an arbitrary related object or a relation type. The event handler may be
- * an arbitrary implementation of the {@link EventHandler} interface for
- * relation events or a supertype of {@link RelationEvent}. All registered
- * listeners will either be notified of relation modifications in the particular
- * object or (if registered on a relation type) of all changes to relations of
- * that type in any object.</p>
+ * <p>To register a relation event listener for events it must be added as a
+ * relation with the relation type {@link StandardTypes#RELATION_LISTENERS} to
+ * an arbitrary related object or a relation type. It may also be registered on
+ * a relation with {@link StandardTypes#RELATION_UPDATE_LISTENERS} or a relation
+ * type with {@link StandardTypes#RELATION_TYPE_LISTENERS} in which cases the
+ * listener will be informed of changes to the particular relation or relation
+ * type.</p>
+ *
+ * <p>The event handler may be an arbitrary implementation of the {@link
+ * EventHandler} interface for relation events or a super-type of {@link
+ * RelationEvent}. All registered listeners will either be notified of relation
+ * modifications in the particular object or (if registered on a relation type)
+ * of all changes to relations of that type in any object.</p>
  *
  * <p>A listener's {@link EventHandler#handleEvent(Event) handleEvent()} method
  * will be invoked if a relation event occurs. The {@link RelationEvent}
@@ -48,21 +53,46 @@ import org.obrel.type.StandardTypes;
  */
 public class RelationEvent<T> extends ElementEvent<Relatable, Relation<T>, T>
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private final Relatable rEventScope;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
 	 * @param rType        The event type
-	 * @param rSource      The event source
+	 * @param rSource      The relatable event source on which the relation has
+	 *                     been modified
 	 * @param rRelation    The relation that is affected by this event
 	 * @param rUpdateValue The update value in the case of update events
+	 * @param rEventScope  The relatable object that defines the event scope
 	 */
 	public RelationEvent(EventType   rType,
 						 Relatable   rSource,
 						 Relation<T> rRelation,
-						 T			 rUpdateValue)
+						 T			 rUpdateValue,
+						 Relatable   rEventScope)
 	{
 		super(rType, rSource, rRelation, rUpdateValue);
+
+		this.rEventScope = rEventScope;
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Returns the relatable that defines the event scope. Depending on the
+	 * affected event listener this is either the same as the source or in the
+	 * case of {@link StandardTypes#RELATION_UPDATE_LISTENERS} the corresponding
+	 * relation or for {@link StandardTypes#RELATION_TYPE_LISTENERS} the
+	 * relation type.
+	 *
+	 * @return The eventScope value
+	 */
+	public final Relatable getEventScope()
+	{
+		return rEventScope;
 	}
 }

@@ -339,7 +339,7 @@ public class RelationType<T> extends RelatedObject
 	/***************************************
 	 * Adds a listener to relation events in this relation type. This method
 	 * provides a type-safe interface for adding relation event listeners to the
-	 * relation with the type {@link StandardTypes#RELATION_LISTENERS}. To
+	 * relation with the type {@link StandardTypes#RELATION_TYPE_LISTENERS}. To
 	 * remove a listener that relation can be modified directly because type
 	 * safety is not needed then.
 	 *

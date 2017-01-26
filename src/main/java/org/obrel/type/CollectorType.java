@@ -18,7 +18,6 @@ package org.obrel.type;
 
 import de.esoco.lib.collection.ImmutableCollection;
 import de.esoco.lib.event.ElementEvent.EventType;
-import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.BinaryFunction;
 
 import java.util.ArrayList;
@@ -34,19 +33,13 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 
-import static org.obrel.core.RelationTypeModifier.FINAL;
-import static org.obrel.core.RelationTypeModifier.READONLY;
-import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
-import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
-import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
-
 
 /********************************************************************
- * A relation type that collects values from other relations of the object it is
- * set on. This type registers itself as a relation listener on it's parent
- * object. The values to be collected are determined by evaluating the relation
- * of each event with a collector function that must return either the value to
- * collect or NULL if nothing should be collected.
+ * An automatic relation type that collects values from other relations of the
+ * object it is set on. This type registers itself as a relation listener on
+ * it's parent object. The values to be collected are determined by evaluating
+ * the relation of each event with a collector function that must return either
+ * the value to collect or NULL if nothing should be collected.
  *
  * <p>A collector type can be used to either collect only distinct values which
  * are then stored in an ordered {@link Set} collection so that each distinct
@@ -73,8 +66,7 @@ import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
  *
  * @author eso
  */
-public class CollectorType<T> extends RelationType<Collection<T>>
-	implements EventHandler<RelationEvent<?>>
+public class CollectorType<T> extends AutomaticType<Collection<T>>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -109,6 +101,7 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 	{
 		super(sName,
 			  (Class<Collection<T>>) (bDistinctValues ? Set.class : List.class),
+			  o -> bDistinctValues ? new LinkedHashSet<>() : new ArrayList<>(),
 			  rModifiers);
 
 		this.fCollector		 = fCollector;
@@ -171,138 +164,53 @@ public class CollectorType<T> extends RelationType<Collection<T>>
 	 * Evaluates the event relation and collects the value if the collector
 	 * function returns a non-NULL value.
 	 *
-	 * @param rEvent The relation event to process
+	 * @see AutomaticType#processEvent(RelationEvent)
 	 */
 	@Override
-	public void handleEvent(RelationEvent<?> rEvent)
+	protected void processEvent(RelationEvent<?> rEvent)
 	{
-		Relation<?> rRelation = rEvent.getElement();
+		RelationType<?> rRelationType = rEvent.getElement().getType();
+		EventType	    eEventType    = rEvent.getType();
 
-		if (rRelation.getType() != this)
+		Object rValue =
+			eEventType == EventType.UPDATE ? rEvent.getUpdateValue()
+										   : rEvent.getElement().getTarget();
+
+		T rCollectValue = fCollector.evaluate(rRelationType, rValue);
+
+		if (rCollectValue != null)
 		{
-			EventType eEventType = rEvent.getType();
+			Collection<T> rValueCollection = rEvent.getEventScope().get(this);
 
-			Object rValue =
-				eEventType == EventType.UPDATE
-				? rEvent.getUpdateValue() : rEvent.getElement().getTarget();
-
-			T rCollectValue = fCollector.evaluate(rRelation.getType(), rValue);
-
-			if (rCollectValue != null)
+			if (rValueCollection instanceof CollectionWrapper)
 			{
-				Collection<T> rValueCollection = rEvent.getSource().get(this);
+				rValueCollection =
+					((CollectionWrapper<T>) rValueCollection).rCollection;
+			}
 
-				if (rValueCollection instanceof CollectionWrapper)
-				{
-					rValueCollection =
-						((CollectionWrapper<T>) rValueCollection).rCollection;
-				}
-
-				if (eEventType == EventType.ADD ||
-					eEventType == EventType.UPDATE)
-				{
-					rValueCollection.add(rCollectValue);
-				}
-				else if (bDistinctValues && eEventType == EventType.REMOVE)
-				{
-					rValueCollection.remove(rCollectValue);
-				}
+			if (eEventType == EventType.ADD || eEventType == EventType.UPDATE)
+			{
+				rValueCollection.add(rCollectValue);
+			}
+			else if (bDistinctValues && eEventType == EventType.REMOVE)
+			{
+				rValueCollection.remove(rCollectValue);
 			}
 		}
 	}
 
 	/***************************************
-	 * Overridden to return the corresponding collection instance for this type,
-	 * wrapped in an unmodifiable collection to prevent external modifications.
-	 *
-	 * @see RelationType#initialValue(Relatable)
-	 */
-	@Override
-	public Collection<T> initialValue(Relatable rParent)
-	{
-		Collection<T> aValueCollection =
-			bDistinctValues ? new LinkedHashSet<>() : new ArrayList<>();
-
-		return aValueCollection;
-	}
-
-	/***************************************
-	 * Overridden to add the relation listener.
+	 * Overridden to protect the target collection.
 	 *
 	 * @see RelationType#addRelation(Relatable, Relation)
 	 */
 	@Override
-	protected void addRelation(
+	protected void protectTarget(
 		Relatable				rParent,
 		Relation<Collection<T>> rRelation)
 	{
-		super.addRelation(rParent, rRelation);
-
-		if (hasModifier(FINAL) || hasModifier(READONLY))
-		{
-			setRelationTarget(rRelation,
-							  new CollectionWrapper<>(rRelation.getTarget()));
-		}
-
-		registerCollectListener(rParent);
-	}
-
-	/***************************************
-	 * Overridden to remove this instance as an relation listener from the
-	 * target object of the deleted relation.
-	 *
-	 * @see RelationType#deleteRelation(Relatable, Relation)
-	 */
-	@Override
-	protected void deleteRelation(Relatable rParent, Relation<?> rRelation)
-	{
-		removeCollectListener(rParent);
-
-		super.deleteRelation(rParent, rRelation);
-	}
-
-	/***************************************
-	 * Registers the relation listener that performs the value collection.
-	 *
-	 * @param rParent The parent relatable to register the listener on
-	 */
-	protected void registerCollectListener(Relatable rParent)
-	{
-		if (rParent instanceof RelationType)
-		{
-			rParent.get(RELATION_TYPE_LISTENERS).add(this);
-		}
-
-		if (rParent instanceof Relation)
-		{
-			rParent.get(RELATION_UPDATE_LISTENERS).add(this);
-		}
-		else
-		{
-			rParent.get(RELATION_LISTENERS).add(this);
-		}
-	}
-
-	/***************************************
-	 * Removes the relation listener that performs the value collection.
-	 *
-	 * @param rParent The parent relatable to remove the listener from
-	 */
-	protected void removeCollectListener(Relatable rParent)
-	{
-		if (rParent instanceof RelationType)
-		{
-			rParent.get(RELATION_TYPE_LISTENERS).remove(this);
-		}
-
-		if (rParent instanceof Relation)
-		{
-			rParent.get(RELATION_UPDATE_LISTENERS).remove(this);
-		}
-		else
-		{
-			rParent.get(RELATION_LISTENERS).remove(this);
-		}
+		setRelationTarget(rRelation,
+						  new CollectionWrapper<>(rRelation.getTarget()));
 	}
 
 	//~ Inner Classes ----------------------------------------------------------

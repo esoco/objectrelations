@@ -318,7 +318,8 @@ public class RelatedObject implements Relatable
 				get(RELATION_LISTENERS).dispatch(new RelationEvent<T>(rEventType,
 																	  this,
 																	  rRelation,
-																	  rUpdateValue));
+																	  rUpdateValue,
+																	  this));
 			}
 
 			if (rRelation.hasRelation(RELATION_UPDATE_LISTENERS))
@@ -327,7 +328,8 @@ public class RelatedObject implements Relatable
 						 .dispatch(new RelationEvent<T>(rEventType,
 														this,
 														rRelation,
-														rUpdateValue));
+														rUpdateValue,
+														rRelation));
 			}
 
 			if (rType.hasRelation(RELATION_TYPE_LISTENERS))
@@ -336,7 +338,8 @@ public class RelatedObject implements Relatable
 					 .dispatch(new RelationEvent<T>(rEventType,
 													this,
 													rRelation,
-													rUpdateValue));
+													rUpdateValue,
+													rType));
 			}
 		}
 	}
