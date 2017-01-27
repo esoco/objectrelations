@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.type;
 
+import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.collection.ImmutableCollection;
 import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.expression.BinaryFunction;
@@ -33,6 +34,8 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 
+import static org.obrel.type.StandardTypes.MAXIMUM;
+
 
 /********************************************************************
  * An automatic relation type that collects values from other relations of the
@@ -49,6 +52,12 @@ import org.obrel.core.RelationTypes;
  * just collect all returned values in the order in which they appear into a
  * sequential collection (a {@link List}). In that mode removals of relations
  * don't affect the contents of the collected values.</p>
+ *
+ * <p>The maximum number of values to collect can be limited by setting an
+ * annotation with the type {@link StandardTypes#MAXIMUM} on the collector
+ * relation. The collection will then be limited to the given (positive) number
+ * of elements by dropping the oldest (first) element from the collection if the
+ * limit is exceeded.</p>
  *
  * <p>If a collector type is set on a relation or a relation type it will
  * collect all values that are set in the relation or of with the relation type
@@ -167,6 +176,7 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 	 * @see AutomaticType#processEvent(RelationEvent)
 	 */
 	@Override
+	@SuppressWarnings("boxing")
 	protected void processEvent(RelationEvent<?> rEvent)
 	{
 		RelationType<?> rRelationType = rEvent.getElement().getType();
@@ -180,21 +190,40 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 
 		if (rCollectValue != null)
 		{
-			Collection<T> rValueCollection = rEvent.getEventScope().get(this);
+			Relation<Collection<T>> rCollectRelation =
+				rEvent.getEventScope().getRelation(this);
 
-			if (rValueCollection instanceof CollectionWrapper)
+			Collection<T> rValues = rCollectRelation.getTarget();
+
+			if (rValues instanceof CollectionWrapper)
 			{
-				rValueCollection =
-					((CollectionWrapper<T>) rValueCollection).rCollection;
+				rValues = ((CollectionWrapper<T>) rValues).rCollection;
 			}
 
 			if (eEventType == EventType.ADD || eEventType == EventType.UPDATE)
 			{
-				rValueCollection.add(rCollectValue);
+				rValues.add(rCollectValue);
+
+				if (rCollectRelation.hasRelation(MAXIMUM))
+				{
+					int nMaxSize = rCollectRelation.getAnnotation(MAXIMUM);
+
+					while (rValues.size() > nMaxSize)
+					{
+						if (rValues instanceof List)
+						{
+							((List<T>) rValues).remove(0);
+						}
+						else
+						{
+							rValues.remove(CollectionUtil.firstElementOf(rValues));
+						}
+					}
+				}
 			}
 			else if (bDistinctValues && eEventType == EventType.REMOVE)
 			{
-				rValueCollection.remove(rCollectValue);
+				rValues.remove(rCollectValue);
 			}
 		}
 	}

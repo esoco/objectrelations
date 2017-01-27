@@ -32,6 +32,8 @@ import static de.esoco.lib.datatype.Pair.t;
 
 import static org.junit.Assert.assertEquals;
 
+import static org.obrel.type.StandardTypes.MAXIMUM;
+
 
 /********************************************************************
  * Test of {@link CollectorType}.
@@ -56,6 +58,7 @@ public class CollectorTypeTest
 
 		assertEquals(Arrays.asList("1", "2", "3", "1"),
 					 doCollect(aCollectorType,
+							   -1,
 							   t(StandardTypes.NAME, "1"),
 							   t(StandardTypes.NAME, "2"),
 							   t(StandardTypes.NAME, "3"),
@@ -63,6 +66,15 @@ public class CollectorTypeTest
 
 		assertEquals(Arrays.asList("1", "2", "3", "1"),
 					 doCollect(aCollectorType,
+							   -1,
+							   t(StandardTypes.NAME, "1"),
+							   t(StandardTypes.DESCRIPTION, "2"),
+							   t(StandardTypes.INFO, "3"),
+							   t(StandardTypes.NAME, "1")));
+
+		assertEquals(Arrays.asList("2", "3", "1"),
+					 doCollect(aCollectorType,
+							   3,
 							   t(StandardTypes.NAME, "1"),
 							   t(StandardTypes.DESCRIPTION, "2"),
 							   t(StandardTypes.INFO, "3"),
@@ -83,6 +95,7 @@ public class CollectorTypeTest
 
 		assertEquals(CollectionUtil.orderedSetOf("1", "2", "3"),
 					 doCollect(aCollectorType,
+							   -1,
 							   t(StandardTypes.NAME, "1"),
 							   t(StandardTypes.NAME, "2"),
 							   t(StandardTypes.NAME, "3"),
@@ -90,6 +103,7 @@ public class CollectorTypeTest
 
 		assertEquals(CollectionUtil.orderedSetOf("3", "2", "1"),
 					 doCollect(aCollectorType,
+							   -1,
 							   t(StandardTypes.NAME, "3"),
 							   t(StandardTypes.NAME, "2"),
 							   t(StandardTypes.NAME, "1"),
@@ -97,6 +111,16 @@ public class CollectorTypeTest
 
 		assertEquals(CollectionUtil.orderedSetOf("1", "2", "3"),
 					 doCollect(aCollectorType,
+							   -1,
+							   t(StandardTypes.NAME, "1"),
+							   t(StandardTypes.DESCRIPTION, "2"),
+							   t(StandardTypes.INFO, "3"),
+							   t(StandardTypes.INFO, "3"),
+							   t(StandardTypes.NAME, "1")));
+
+		assertEquals(CollectionUtil.orderedSetOf("3", "1"),
+					 doCollect(aCollectorType,
+							   2,
 							   t(StandardTypes.NAME, "1"),
 							   t(StandardTypes.DESCRIPTION, "2"),
 							   t(StandardTypes.INFO, "3"),
@@ -109,6 +133,7 @@ public class CollectorTypeTest
 	 * object.
 	 *
 	 * @param  rCollectorType The collector relation type
+	 * @param  nMaxSize       The size limit for the collection
 	 * @param  rRelations     The values to collect
 	 *
 	 * @return The collected values
@@ -116,17 +141,23 @@ public class CollectorTypeTest
 	@SafeVarargs
 	final Collection<String> doCollect(
 		CollectorType<String>				  rCollectorType,
+		int									  nMaxSize,
 		Pair<RelationType<String>, String>... rRelations)
 	{
-		Relatable aTestObject = new RelatedObject();
+		Relatable o = new RelatedObject();
 
-		aTestObject.init(rCollectorType);
+		o.init(rCollectorType);
+
+		if (nMaxSize >= 0)
+		{
+			o.getRelation(rCollectorType).set(MAXIMUM, nMaxSize);
+		}
 
 		for (Pair<RelationType<String>, String> rData : rRelations)
 		{
-			aTestObject.set(rData.first(), rData.second());
+			o.set(rData.first(), rData.second());
 		}
 
-		return aTestObject.get(rCollectorType);
+		return o.get(rCollectorType);
 	}
 }
