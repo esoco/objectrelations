@@ -160,6 +160,12 @@ public class StandardTypes
 	/** A generic time value (of type {@link java.util.Date}). */
 	public static final RelationType<Date> TIME = newType();
 
+	/**
+	 * A timer relation that always returns the number of milliseconds since
+	 * it's creation.
+	 */
+	public static final RelationType<Long> TIMER = new TimerType(null);
+
 	/** The start date from which an element will be valid. */
 	public static final RelationType<Date> START_DATE = newType();
 
