@@ -43,6 +43,7 @@ public class TimerType extends RelationType<Long>
 	 * @param sName      The relation type name
 	 * @param rModifiers The optional modifiers
 	 */
+	@SuppressWarnings("boxing")
 	public TimerType(String sName, RelationTypeModifier... rModifiers)
 	{
 		super(sName, Long.class, o -> System.currentTimeMillis(), rModifiers);
