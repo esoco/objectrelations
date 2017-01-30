@@ -17,35 +17,40 @@
 package org.obrel.space;
 
 import de.esoco.lib.expression.Function;
-import de.esoco.lib.expression.InvertibleFunction;
 
-import org.obrel.core.ObjectRelations;
-import org.obrel.core.RelatedObject;
+import java.io.File;
 
 
 /********************************************************************
- * A simple {@link ObjectSpace} implementation that is derived from {@link
- * RelatedObject} and maps the access URLs the hierarchy of it's relations.
+ * An object space implementation that maps URLs to the local file system.
  *
  * @author eso
  */
-public class RelatableObjectSpace<T, D> extends RelatedObject
-	implements ObjectSpace<T>
+public class FileSystemSpace<T> extends RelatableObjectSpace<T, File>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private Function<D, T> fValueMapper;
+	private final String sRootPath;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance with a certain value mapping function.
+	 * Creates a new instance.
 	 *
-	 * @param fValueMapper The value mapping function
+	 * @param sRootPath The root path to which URLs are relative
+	 * @param fReadFile A function that reads a file and returns it's content
+	 *                  with the datatype of this space
 	 */
-	public RelatableObjectSpace(Function<D, T> fValueMapper)
+	public FileSystemSpace(String sRootPath, Function<File, T> fReadFile)
 	{
-		this.fValueMapper = fValueMapper;
+		super(fReadFile);
+
+		if (!sRootPath.endsWith("/"))
+		{
+			sRootPath += "/";
+		}
+
+		this.sRootPath = sRootPath;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -56,16 +61,7 @@ public class RelatableObjectSpace<T, D> extends RelatedObject
 	@Override
 	public void delete(String sUrl)
 	{
-		ObjectRelations.urlDelete(this, sUrl);
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public T get(String sUrl)
-	{
-		return fValueMapper.evaluate(getValue(sUrl));
+		throw new UnsupportedOperationException("DELETE not supported");
 	}
 
 	/***************************************
@@ -74,28 +70,27 @@ public class RelatableObjectSpace<T, D> extends RelatedObject
 	@Override
 	public void put(String sUrl, T rValue)
 	{
-		if (fValueMapper instanceof InvertibleFunction)
-		{
-			((InvertibleFunction<D, T>) fValueMapper).invert(rValue);
-		}
-
-		ObjectRelations.urlPut(this, sUrl, rValue);
+		throw new UnsupportedOperationException("PUT not supported");
 	}
 
 	/***************************************
-	 * Returns the value at a certain URL. This default implementation tries to
-	 * cast the value to the data type of this space which may result in a
-	 * {@link ClassCastException} if the value does not match the type.
-	 * Subclasses should override this method to perform more extensive type
-	 * checking.
-	 *
-	 * @param  sUrl The URL to get the value of
-	 *
-	 * @return The value at given URL
+	 * {@inheritDoc}
 	 */
-	@SuppressWarnings("unchecked")
-	protected D getValue(String sUrl)
+	@Override
+	protected File getValue(String sUrl)
 	{
-		return (D) ObjectRelations.urlGet(this, sUrl);
+		if (sUrl.startsWith("/"))
+		{
+			sUrl = sUrl.substring(1);
+		}
+
+		File aFile = new File(sRootPath + sUrl);
+
+		if (!aFile.exists() || !aFile.isFile() || aFile.isHidden())
+		{
+			throw new IllegalArgumentException("Invalid URL: " + sUrl);
+		}
+
+		return aFile;
 	}
 }

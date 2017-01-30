@@ -23,12 +23,12 @@ import org.obrel.core.Relatable;
 
 
 /********************************************************************
- * An interface that defines spaces of {@link Relatable} objects of which the
- * relations can be accessed with hierarchical URLs.
+ * An interface that defines hierarchical spaces of objects which can be
+ * accessed with hierarchical URLs.
  *
  * @author eso
  */
-public interface ObjectSpace extends Relatable
+public interface ObjectSpace<T> extends Relatable
 {
 	//~ Methods ----------------------------------------------------------------
 
@@ -43,10 +43,7 @@ public interface ObjectSpace extends Relatable
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	default void delete(String sUrl)
-	{
-		ObjectRelations.urlDelete(this, sUrl);
-	}
+	public void delete(String sUrl);
 
 	/***************************************
 	 * Gets a value object that is referenced by a certain URL. See the method
@@ -61,10 +58,7 @@ public interface ObjectSpace extends Relatable
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	default Object get(String sUrl)
-	{
-		return ObjectRelations.urlGet(this, sUrl);
-	}
+	public T get(String sUrl);
 
 	/***************************************
 	 * Stores or updates a value object at a certain URL. See the method {@link
@@ -78,8 +72,5 @@ public interface ObjectSpace extends Relatable
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	default void put(String sUrl, Object rValue)
-	{
-		ObjectRelations.urlPut(this, sUrl, rValue);
-	}
+	public void put(String sUrl, T rValue);
 }
