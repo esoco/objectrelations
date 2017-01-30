@@ -19,6 +19,7 @@ package org.obrel.type;
 import de.esoco.lib.datatype.ObjectId;
 import de.esoco.lib.datatype.Period;
 import de.esoco.lib.datatype.Priority;
+import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.event.EventDispatcher;
 import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.ReflectionFuntions;
@@ -144,6 +145,17 @@ public class StandardTypes
 	/** A count value (default: 0). */
 	public static final RelationType<Integer> COUNT = newIntType();
 
+	/**
+	 * An automatic types that counts the relation updates of a target object
+	 * after it has been set on it. Depending on the target it counts the
+	 * updates of a the relations in a relatable object, of a relation type, or
+	 * of a single relation. More specific counters can be created by using
+	 * other instances of {@link CounterType}.
+	 */
+	@SuppressWarnings("boxing")
+	public static final RelationType<Integer> UPDATE_COUNTER =
+		CounterType.newIntCounter(e -> e.getType() == EventType.UPDATE);
+
 	/** The ordinal number of an object. */
 	public static final RelationType<Integer> ORDINAL = newType();
 
@@ -168,8 +180,8 @@ public class StandardTypes
 	public static final RelationType<Date> TIME = newType();
 
 	/**
-	 * A timer relation that always returns the number of milliseconds since
-	 * it's creation.
+	 * An active type that always returns the number of milliseconds since it's
+	 * creation.
 	 */
 	public static final RelationType<Long> TIMER = new TimerType(null);
 
