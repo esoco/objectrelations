@@ -91,11 +91,13 @@ public class ConstraintType<T> extends RelationType<T>
 	 * @see RelationType#addRelation(Relatable, Relation)
 	 */
 	@Override
-	protected void addRelation(Relatable rParent, Relation<T> rRelation)
+	protected Relation<T> addRelation(Relatable rParent, Relation<T> rRelation)
 	{
 		super.addRelation(rParent, rRelation);
 
 		rParent.get(RELATION_LISTENERS).add(this);
+
+		return rRelation;
 	}
 
 	/***************************************

@@ -212,7 +212,7 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 					{
 						if (rValues instanceof List)
 						{
-							((List<T>) rValues).remove(0);
+							((List<?>) rValues).remove(0);
 						}
 						else
 						{

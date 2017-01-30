@@ -274,7 +274,7 @@ public class RelatedObject implements Relatable
 		TransformedRelation<T, D> rTransformedRelation =
 			new TransformedRelation<T, D>(rType, fTransformation);
 
-		if (rRelation instanceof RelationWrapper<?>)
+		if (rRelation instanceof RelationWrapper<?, ?, ?>)
 		{
 			throw new IllegalStateException("Cannot transform alias relation " +
 											rType);
@@ -428,7 +428,7 @@ public class RelatedObject implements Relatable
 	{
 		RelationType<T> rType = rRelation.getType();
 
-		rType.addRelation(this, rRelation);
+		rRelation = rType.addRelation(this, rRelation);
 
 		if (bNotify)
 		{

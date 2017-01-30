@@ -16,12 +16,16 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
+import de.esoco.lib.expression.InvertibleFunction;
+
+
 /********************************************************************
  * A relation wrapper implementation that wraps another relation with a
  * different relation type with the same generic types. That allows to write to
  * the wrapper like to the original relation.
  */
-public class RelationAlias<T> extends RelationWrapper<T>
+public class RelationAlias<T, A>
+	extends RelationWrapper<T, A, InvertibleFunction<A, T>>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -34,10 +38,15 @@ public class RelationAlias<T> extends RelationWrapper<T>
 	 *
 	 * @param rAliasType       The relation type of this alias relation
 	 * @param rAliasedRelation The relation to be aliased
+	 * @param fAliasConversion A conversion function that produces the target
+	 *                         value of the alias and can be inverted for the
+	 *                         setting of new targets
 	 */
-	RelationAlias(RelationType<T> rAliasType, Relation<T> rAliasedRelation)
+	RelationAlias(RelationType<T>		   rAliasType,
+				  Relation<A>			   rAliasedRelation,
+				  InvertibleFunction<A, T> fAliasConversion)
 	{
-		super(rAliasType, rAliasedRelation);
+		super(rAliasType, rAliasedRelation, fAliasConversion);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -51,12 +60,12 @@ public class RelationAlias<T> extends RelationWrapper<T>
 	@Override
 	void setTarget(T rNewTarget)
 	{
-		@SuppressWarnings("unchecked")
-		Relation<T> rWrapped = (Relation<T>) getWrappedRelation();
+		Relation<A> rWrapped = getWrappedRelation();
+		A		    rTarget  = getConversion().invert(rNewTarget);
 
 		// check state of target type too to prevent illegal modifications
 		rWrapped.getType().checkUpdateAllowed();
-		rWrapped.getType().prepareRelationUpdate(rWrapped, rNewTarget);
-		rWrapped.updateTarget(rNewTarget);
+		rWrapped.getType().prepareRelationUpdate(rWrapped, rTarget);
+		rWrapped.updateTarget(rTarget);
 	}
 }

@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
+import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 
 import java.util.List;
@@ -23,9 +24,11 @@ import java.util.List;
 
 /********************************************************************
  * Base class for relations that wraps another relation with a different
- * relation type and delegates all method calls to the wrapped relation.
+ * relation type and possibly datatype and delegates all method calls to the
+ * wrapped relation.
  */
-public abstract class RelationWrapper<T> extends Relation<T>
+public abstract class RelationWrapper<T, R, F extends Function<R, T>>
+	extends Relation<T>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -33,28 +36,24 @@ public abstract class RelationWrapper<T> extends Relation<T>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private Relation<? extends T> rWrappedRelation;
+	private Relation<R> rWrappedRelation;
+	private F		    fConversion;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance for a certain relation.
 	 *
-	 * @param rType    The relation type of this wrapper
-	 * @param rWrapped The relation to be wrapped
+	 * @param rType       The relation type of this wrapper
+	 * @param rWrapped    The relation to be wrapped
+	 * @param fConversion The conversion function
 	 */
-	@SuppressWarnings("unchecked")
-	RelationWrapper(RelationType<T> rType, Relation<? extends T> rWrapped)
+	RelationWrapper(RelationType<T> rType, Relation<R> rWrapped, F fConversion)
 	{
 		super(rType);
 
-		// always wrap the original relation of another wrapper
-		if (rWrapped instanceof RelationWrapper<?>)
-		{
-			rWrapped = ((RelationWrapper<T>) rWrapped).rWrappedRelation;
-		}
-
 		rWrappedRelation = rWrapped;
+		this.fConversion = fConversion;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -65,7 +64,7 @@ public abstract class RelationWrapper<T> extends Relation<T>
 	 * @see RelatedObject#deleteRelation(Relation)
 	 */
 	@Override
-	public <R> void deleteRelation(Relation<R> rRelation)
+	public <D> void deleteRelation(Relation<D> rRelation)
 	{
 		rWrappedRelation.deleteRelation(rRelation);
 	}
@@ -80,6 +79,16 @@ public abstract class RelationWrapper<T> extends Relation<T>
 	public <T> T get(RelationType<T> rType)
 	{
 		return rWrappedRelation.get(rType);
+	}
+
+	/***************************************
+	 * Returns the conversion function of this instance.
+	 *
+	 * @return The conversion function
+	 */
+	public final F getConversion()
+	{
+		return fConversion;
 	}
 
 	/***************************************
@@ -107,14 +116,15 @@ public abstract class RelationWrapper<T> extends Relation<T>
 	}
 
 	/***************************************
-	 * Redirected to the wrapped relation.
+	 * Returns the target of the wrapped relation as converted by the conversion
+	 * function.
 	 *
 	 * @see Relation#getTarget()
 	 */
 	@Override
 	public T getTarget()
 	{
-		return rWrappedRelation.getTarget();
+		return fConversion.evaluate(rWrappedRelation.getTarget());
 	}
 
 	/***************************************
@@ -122,7 +132,7 @@ public abstract class RelationWrapper<T> extends Relation<T>
 	 *
 	 * @return The wrapped relation
 	 */
-	public final Relation<? extends T> getWrappedRelation()
+	public final Relation<R> getWrappedRelation()
 	{
 		return rWrappedRelation;
 	}
@@ -187,7 +197,7 @@ public abstract class RelationWrapper<T> extends Relation<T>
 	boolean dataEqual(Relation<?> rOther)
 	{
 		return rWrappedRelation ==
-			   ((RelationWrapper<?>) rOther).rWrappedRelation;
+			   ((RelationWrapper<?, ?, ?>) rOther).rWrappedRelation;
 	}
 
 	/***************************************
@@ -223,6 +233,6 @@ public abstract class RelationWrapper<T> extends Relation<T>
 	@SuppressWarnings("unchecked")
 	void updateWrappedRelation(Relation<?> rRelation)
 	{
-		rWrappedRelation = (Relation<T>) rRelation;
+		rWrappedRelation = (Relation<R>) rRelation;
 	}
 }

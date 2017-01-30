@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
+import de.esoco.lib.expression.Function;
+
+
 /********************************************************************
  * A wrapper implementation that provides a readonly view of another relation
  * with a different relation type.
  */
-public class RelationView<T> extends RelationWrapper<T>
+public class RelationView<T, V> extends RelationWrapper<T, V, Function<V, T>>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -31,14 +34,16 @@ public class RelationView<T> extends RelationWrapper<T>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rViewedRelation The relation to be viewed
 	 * @param rViewType       The relation type of this view relation
+	 * @param rViewedRelation The relation to be viewed
+	 * @param fViewConversion A conversion function that produces the target
+	 *                        value of the view
 	 */
-	RelationView(
-		Relation<? extends T> rViewedRelation,
-		RelationType<T>		  rViewType)
+	RelationView(RelationType<T> rViewType,
+				 Relation<V>	 rViewedRelation,
+				 Function<V, T>  fViewConversion)
 	{
-		super(rViewType, rViewedRelation);
+		super(rViewType, rViewedRelation, fViewConversion);
 	}
 
 	//~ Methods ----------------------------------------------------------------

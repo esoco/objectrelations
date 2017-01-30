@@ -317,7 +317,7 @@ public class MetaTypes
 		 * @see RelationType#addRelation(Relatable, Relation)
 		 */
 		@Override
-		public void addRelation(
+		public Relation<Boolean> addRelation(
 			Relatable		  rParent,
 			Relation<Boolean> rNewRelation)
 		{
@@ -346,6 +346,8 @@ public class MetaTypes
 
 			rListeners.add(this);
 			rListeners.setImmutable();
+
+			return rNewRelation;
 		}
 
 		/***************************************

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,9 +78,9 @@ public class IntermediateRelation<T, I> extends DirectRelation<T>
 	 * @param rIntermediateTarget The intermediate target value (must not be
 	 *                            NULL)
 	 */
-	IntermediateRelation(RelationType<T> rType,
-						 Function<I, T>  fTargetConversion,
-						 I				 rIntermediateTarget)
+	public IntermediateRelation(RelationType<T> rType,
+								Function<I, T>  fTargetConversion,
+								I				rIntermediateTarget)
 	{
 		super(rType, null);
 

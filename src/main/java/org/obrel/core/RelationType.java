@@ -663,17 +663,22 @@ public class RelationType<T> extends RelatedObject
 
 	/***************************************
 	 * This method will be invoked just before a new relation of this type is
-	 * added to an object. It may be overridden by subclasses to intercept the
-	 * adding of a new relation to an object. To prevent the addition of the new
-	 * relation a subclass may throw an exception.
+	 * added to an object. It may be overridden by subclasses to intercept this.
+	 * To prevent the addition of the new relation a subclass may throw an
+	 * exception. Subclasses may also replace the given relation with a
+	 * different instave if necessary and return that instead.
 	 *
-	 * <p>Subclasses should always invoke the superclass method.</p>
+	 * <p>Subclasses should always invoke the superclass method. The default
+	 * implementation currently just returns the input relation.</p>
 	 *
-	 * @param rParent   The parent object of the new relation
-	 * @param rRelation The relation to be added to the parent
+	 * @param  rParent   The parent object of the new relation
+	 * @param  rRelation The relation to be added to the parent
+	 *
+	 * @return The relation to add
 	 */
-	protected void addRelation(Relatable rParent, Relation<T> rRelation)
+	protected Relation<T> addRelation(Relatable rParent, Relation<T> rRelation)
 	{
+		return rRelation;
 	}
 
 	/***************************************

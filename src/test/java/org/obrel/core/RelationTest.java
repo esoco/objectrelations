@@ -17,6 +17,8 @@
 package org.obrel.core;
 
 import de.esoco.lib.event.EventHandler;
+import de.esoco.lib.expression.Conversions;
+import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.function.Invert;
 
 import java.util.ArrayList;
@@ -59,6 +61,7 @@ import static org.obrel.filter.RelationFilters.ALL_RELATIONS;
 import static org.obrel.type.StandardTypes.DESCRIPTION;
 import static org.obrel.type.StandardTypes.INFO;
 import static org.obrel.type.StandardTypes.NAME;
+import static org.obrel.type.StandardTypes.ORDINAL;
 import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
 
 
@@ -166,6 +169,29 @@ public class RelationTest
 	 * RelationView}.
 	 */
 	@Test
+	public void testAliasedConvertedRelations()
+	{
+		RelatedObject     o = new RelatedObject();
+		Relation<Integer> r = o.set(ORDINAL, 1234);
+
+		InvertibleFunction<Integer, String> fConvertInt =
+			Conversions.getStringConversion(Integer.class);
+
+		r.aliasAs(NAME, o, fConvertInt);
+		r.viewAs(INFO, o, fConvertInt);
+
+		assertEquals("1234", o.get(NAME));
+		assertEquals("1234", o.get(INFO));
+
+		o.set(NAME, "42");
+		assertEquals(Integer.valueOf(42), o.get(ORDINAL));
+	}
+
+	/***************************************
+	 * Tests aliased relations. See {@link RelationAlias} and {@link
+	 * RelationView}.
+	 */
+	@Test
 	public void testAliasedRelations()
 	{
 		RelatedObject    o = new RelatedObject();
@@ -201,12 +227,6 @@ public class RelationTest
 		assertTrue(o.getRelation(TEST_ID).hasAnnotation(INFO));
 		assertEquals("Meta", o.getRelation(DESCRIPTION).getAnnotation(INFO));
 		assertEquals("Meta", o.getRelation(TEST_ID).getAnnotation(INFO));
-
-		// aliasing of alias
-		o.getRelation(DESCRIPTION).aliasAs(INFO, o);
-		assertEquals(r,
-					 ((RelationWrapper<?>) o.getRelation(INFO))
-					 .getWrappedRelation());
 
 		// deletion of aliases
 		o.deleteRelation(NAME);

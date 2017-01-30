@@ -17,6 +17,9 @@
 package org.obrel.core;
 
 import de.esoco.lib.event.EventHandler;
+import de.esoco.lib.expression.Function;
+import de.esoco.lib.expression.Functions;
+import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.property.Immutability;
 
 import java.io.IOException;
@@ -54,7 +57,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 
 	private static final long serialVersionUID = 1L;
 
-	static final RelationType<List<RelationWrapper<?>>> ALIASES =
+	static final RelationType<List<RelationWrapper<?, ?, ?>>> ALIASES =
 		newListType(PRIVATE);
 
 	static
@@ -74,7 +77,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *
 	 * @param rType The relation type
 	 */
-	Relation(RelationType<T> rType)
+	public Relation(RelationType<T> rType)
 	{
 		this.rType = rType;
 	}
@@ -143,6 +146,18 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Creates an alias with the same datatype as the relation type of this
+	 * relation. This is achieved by using an identity function as the
+	 * conversion.
+	 *
+	 * @see #viewAs(RelationType, Relatable, Function)
+	 */
+	public final void aliasAs(RelationType<T> rAliasType, Relatable rInParent)
+	{
+		aliasAs(rAliasType, rInParent, Functions.identity());
+	}
+
+	/***************************************
 	 * Creates an alias for this relation with another relation type in a
 	 * certain related object. Relation aliases refer directly to the original
 	 * relation's target. Therefore changes to the original relation will be
@@ -150,23 +165,29 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * aliases will be deleted too. On the other hand deleting an alias won't
 	 * effect neither the original relation nor any other alias.
 	 *
-	 * <p>The type parameters of the relation alias type must be exactly the
-	 * same as that of the original relation's type. This allows to modify the
-	 * original relation through either it's own {@link #setTarget(Object)}
-	 * method or through that of an alias relation (unless any of the involved
-	 * types is declared as final). To create a read-only alias with more
-	 * generic relation types the {@link #viewAs(RelationType, Relatable)}
-	 * method can be used instead.</p>
-	 *
 	 * <p>The parent of the alias can be any related object, it doesn't need to
-	 * be the same parent object of the original relation.</p>
+	 * be the same parent object of the original relation. The alias relation
+	 * type can be different from the type of this relation. The given
+	 * conversion function must be invertible and convert from original target
+	 * value to the datatype of the alias relation type and vice versa. This
+	 * conversion will be performed on each read or write access to the
+	 * relation.</p>
 	 *
-	 * @param rAliasType The relation type of the relation alias
-	 * @param rInParent  The parent object to add the relation alias to
+	 * <p>To create a read-only alias the method {@link #viewAs(RelationType,
+	 * Relatable, Function)} can be used instead.</p>
+	 *
+	 * @param rAliasType       The relation type of the relation alias
+	 * @param rInParent        The parent object to add the relation alias to
+	 * @param fAliasConversion A conversion function that produces the target
+	 *                         value of the alias and can be inverted for the
+	 *                         setting of new targets
 	 */
-	public final void aliasAs(RelationType<T> rAliasType, Relatable rInParent)
+	public final <A> void aliasAs(RelationType<A>		   rAliasType,
+								  Relatable				   rInParent,
+								  InvertibleFunction<T, A> fAliasConversion)
 	{
-		addAlias(new RelationAlias<T>(rAliasType, this), rInParent);
+		addAlias(new RelationAlias<A, T>(rAliasType, this, fAliasConversion),
+				 rInParent);
 	}
 
 	/***************************************
@@ -390,26 +411,44 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Creates a view for this relation with another relation type. Like aliases
-	 * created with {@link #aliasAs(RelationType, Relatable)} views refer
-	 * directly to the original relation's target but are always readonly so
-	 * that modifications of the relation can only be performed through the
-	 * original relation. This allows the type parameters of the view type to be
-	 * of any supertype of that of the original relation's type because they
-	 * cannot be overwritten with illegal values through the view.
+	 * Creates a view with the same datatype as the relation type of this
+	 * relation. This is achieved by using an identity function as the
+	 * conversion.
 	 *
-	 * <p>The parent of the view can be any related object, it doesn't need to
-	 * be the same parent object of the original relation.</p>
-	 *
-	 * @param rViewType The relation type of the relation view
-	 * @param rInParent The parent object to add the relation view to
+	 * @see #viewAs(RelationType, Relatable, Function)
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public final void viewAs(
 		RelationType<? super T> rViewType,
 		Relatable				rInParent)
 	{
-		addAlias(new RelationView(this, rViewType), rInParent);
+		viewAs((RelationType<T>) rViewType, rInParent, Functions.identity());
+	}
+
+	/***************************************
+	 * Creates a view for this relation with another relation type. Like aliases
+	 * created with {@link #aliasAs(RelationType, Relatable)} views refer
+	 * directly to the original relation's target but are always readonly so
+	 * that modifications of the relation can only be performed through the
+	 * original relation. The parent of the view can be any related object, it
+	 * doesn't need to be the same parent object of the original relation.
+	 *
+	 * <p>The view relation type can be different from the type of this
+	 * relation. The given conversion function must convert the original target
+	 * value to the datatype of the view relation type. This conversion will be
+	 * performed on each read access to the relation.</p>
+	 *
+	 * @param rViewType       The relation type of the relation view
+	 * @param rInParent       The parent object to add the relation view to
+	 * @param fViewConversion A conversion function that produces the target
+	 *                        value of the view
+	 */
+	public final <V> void viewAs(RelationType<V> rViewType,
+								 Relatable		 rInParent,
+								 Function<T, V>  fViewConversion)
+	{
+		addAlias(new RelationView<V, T>(rViewType, this, fViewConversion),
+				 rInParent);
 	}
 
 	/***************************************
@@ -459,7 +498,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @param rAlias    The relation wrapper to add
 	 * @param rInParent The parent to add the wrapper to
 	 */
-	final void addAlias(RelationWrapper<?> rAlias, Relatable rInParent)
+	final void addAlias(RelationWrapper<?, ?, ?> rAlias, Relatable rInParent)
 	{
 		ObjectRelations.getRelationContainer(rInParent, true)
 					   .addRelation(rAlias, true);
@@ -488,11 +527,11 @@ public abstract class Relation<T> extends SerializableRelatedObject
 				aCopy.copyRelations(this, bReplace);
 				rTarget.addRelation(aCopy, true);
 
-				for (RelationWrapper<?> rAlias : get(ALIASES))
+				for (RelationWrapper<?, ?, ?> rAlias : get(ALIASES))
 				{
 					RelationType<?> rAliasType = rAlias.getType();
 
-					if (rAlias instanceof RelationAlias<?>)
+					if (rAlias instanceof RelationAlias<?, ?>)
 					{
 						aCopy.aliasAs((RelationType<T>) rAliasType, rTarget);
 					}
@@ -518,7 +557,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	{
 		transferRelationsFrom(rOther, false);
 
-		for (RelationWrapper<?> rAlias : get(ALIASES))
+		for (RelationWrapper<?, ?, ?> rAlias : get(ALIASES))
 		{
 			rAlias.updateWrappedRelation(this);
 		}
@@ -533,11 +572,11 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 */
 	void removed(RelatedObject rParent)
 	{
-		Iterator<RelationWrapper<?>> i = get(ALIASES).iterator();
+		Iterator<RelationWrapper<?, ?, ?>> i = get(ALIASES).iterator();
 
 		while (i.hasNext())
 		{
-			RelationWrapper<?> rAlias = i.next();
+			RelationWrapper<?, ?, ?> rAlias = i.next();
 
 			// deleteRelation() will invoke removed() on the alias which will
 			// cause it to remove itself from this relation's alias list; to
