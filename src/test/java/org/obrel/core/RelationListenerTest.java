@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,10 +25,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import static org.obrel.type.StandardTypes.COUNT;
 import static org.obrel.type.StandardTypes.NAME;
+import static org.obrel.type.StandardTypes.ORDINAL;
 import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
 import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
 import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
+import static org.obrel.type.StandardTypes.SIZE;
 
 
 /********************************************************************
@@ -70,6 +73,33 @@ public class RelationListenerTest
 
 		aTest1.get(RELATION_LISTENERS).remove(aListener);
 		assertTrue(aTest1.get(RELATION_LISTENERS).getEventHandlerCount() == 0);
+	}
+
+	/***************************************
+	 * Test relation listener on a particular relation.
+	 */
+	@SuppressWarnings("boxing")
+	@Test
+	public void testRelationOnUpdateAndChangeListener()
+	{
+		RelatedObject     o = new RelatedObject();
+		Relation<Integer> r = o.set(ORDINAL, 0);
+
+		r.onUpdate(i -> o.set(COUNT, o.get(COUNT) + 1));
+		r.onChange(i -> o.set(SIZE, o.get(SIZE) + 1));
+
+		o.set(ORDINAL, 1);
+		assertEquals(Integer.valueOf(1), o.get(COUNT));
+		assertEquals(Integer.valueOf(1), o.get(SIZE));
+		o.set(ORDINAL, 2);
+		assertEquals(Integer.valueOf(2), o.get(COUNT));
+		assertEquals(Integer.valueOf(2), o.get(SIZE));
+		o.set(ORDINAL, 2);
+		assertEquals(Integer.valueOf(3), o.get(COUNT));
+		assertEquals(Integer.valueOf(2), o.get(SIZE));
+		o.deleteRelation(ORDINAL);
+		assertEquals(Integer.valueOf(3), o.get(COUNT));
+		assertEquals(Integer.valueOf(2), o.get(SIZE));
 	}
 
 	/***************************************

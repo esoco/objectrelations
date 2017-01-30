@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
+import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
@@ -30,7 +31,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
@@ -388,6 +391,67 @@ public abstract class Relation<T> extends SerializableRelatedObject
 		{
 			set(IMMUTABLE);
 		}
+	}
+
+	/***************************************
+	 * Adds an event listener for changes of this relation's target. Other than
+	 * with {@link #onUpdate(Consumer)} change listeners are only notified if
+	 * the target value has changed according to it's equals() method. This
+	 * method is a simplified form of {@link #addUpdateListener(EventHandler)}
+	 * for listeners that are only interested in {@link EventType#UPDATE UPDATE}
+	 * events and don't need the full event data.
+	 *
+	 * @param  fChangeHandler The handler for update events
+	 *
+	 * @return The registered event handler (needed for de-registration of the
+	 *         event listener)
+	 */
+	public EventHandler<RelationEvent<T>> onChange(Consumer<T> fChangeHandler)
+	{
+		EventHandler<RelationEvent<T>> aHandler =
+			e ->
+			{
+				if (e.getType() == EventType.UPDATE &&
+					!Objects.equals(e.getUpdateValue(),
+									e.getElement().getTarget()))
+				{
+					fChangeHandler.accept(e.getUpdateValue());
+				}
+			};
+
+		addUpdateListener(aHandler);
+
+		return aHandler;
+	}
+
+	/***************************************
+	 * Adds an event listener for updates of this relation's target. This
+	 * listener will be notified of any update event for the relation target,
+	 * whether it has really changed or not. To be notified of changes only the
+	 * method {@link #onChange(Consumer)} can be used instead. This method is a
+	 * simplified form of {@link #addUpdateListener(EventHandler)} for listeners
+	 * that are only interested in {@link EventType#UPDATE UPDATE} events and
+	 * don't need the full event data.
+	 *
+	 * @param  fUpdateHandler The handler for update events
+	 *
+	 * @return The registered event handler (needed for de-registration of the
+	 *         event listener)
+	 */
+	public EventHandler<RelationEvent<T>> onUpdate(Consumer<T> fUpdateHandler)
+	{
+		EventHandler<RelationEvent<T>> aHandler =
+			e ->
+			{
+				if (e.getType() == EventType.UPDATE)
+				{
+					fUpdateHandler.accept(e.getUpdateValue());
+				}
+			};
+
+		addUpdateListener(aHandler);
+
+		return aHandler;
 	}
 
 	/***************************************

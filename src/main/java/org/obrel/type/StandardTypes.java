@@ -37,6 +37,7 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
 import static org.obrel.core.RelationTypeModifier.FINAL;
+import static org.obrel.core.RelationTypes.newIntType;
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newType;
 
@@ -136,6 +137,12 @@ public class StandardTypes
 		newType(ReflectionFuntions.newInstanceOf(EventDispatcher.class));
 
 	//- Integer values ---------------------------------------------------------
+
+	/** A size value (default: 0). */
+	public static final RelationType<Integer> SIZE = newIntType();
+
+	/** A count value (default: 0). */
+	public static final RelationType<Integer> COUNT = newIntType();
 
 	/** The ordinal number of an object. */
 	public static final RelationType<Integer> ORDINAL = newType();
