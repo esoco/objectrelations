@@ -79,7 +79,6 @@ public class RelatedObject implements Relatable
 		notifyRelationListeners(EventType.REMOVE, rRelation, null);
 
 		aRelations.remove(rType);
-		rRelation.removed(this);
 	}
 
 	/***************************************
@@ -282,7 +281,7 @@ public class RelatedObject implements Relatable
 		else if (rRelation != null)
 		{
 			rTarget = rRelation.getTarget();
-			rTransformedRelation.prepareReplace(rRelation);
+			rTransformedRelation.transferRelationsFrom(rRelation, false);
 		}
 		else
 		{

@@ -223,17 +223,14 @@ public class RelationTest
 
 		// alias annotation inheritance
 		r.annotate(INFO, "Meta");
-		assertTrue(o.getRelation(DESCRIPTION).hasAnnotation(INFO));
-		assertTrue(o.getRelation(TEST_ID).hasAnnotation(INFO));
-		assertEquals("Meta", o.getRelation(DESCRIPTION).getAnnotation(INFO));
-		assertEquals("Meta", o.getRelation(TEST_ID).getAnnotation(INFO));
+		assertFalse(o.getRelation(DESCRIPTION).hasAnnotation(INFO));
+		assertFalse(o.getRelation(TEST_ID).hasAnnotation(INFO));
 
 		// deletion of aliases
 		o.deleteRelation(NAME);
 		assertFalse(o.hasRelation(NAME));
-		assertFalse(o.hasRelation(DESCRIPTION));
-		assertFalse(o.hasRelation(TEST_ID));
-		assertFalse(o.hasRelation(INFO));
+		assertTrue(o.hasRelation(DESCRIPTION));
+		assertTrue(o.hasRelation(TEST_ID));
 	}
 
 	/***************************************

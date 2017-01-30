@@ -17,15 +17,11 @@
 package org.obrel.core;
 
 import de.esoco.lib.expression.Function;
-import de.esoco.lib.expression.Predicate;
-
-import java.util.List;
 
 
 /********************************************************************
- * Base class for relations that wraps another relation with a different
- * relation type and possibly datatype and delegates all method calls to the
- * wrapped relation.
+ * A wrapper for other relations that provides a view of the relation with a
+ * different relation type and optionally a different datatype.
  */
 public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	extends Relation<T>
@@ -42,11 +38,13 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance for a certain relation.
+	 * Creates a new instance for a view of a certain relation.
 	 *
 	 * @param rType       The relation type of this wrapper
 	 * @param rWrapped    The relation to be wrapped
-	 * @param fConversion The conversion function
+	 * @param fConversion A conversion function that converts the target of the
+	 *                    wrapped relation into the datatype of this view's
+	 *                    relation type
 	 */
 	RelationWrapper(RelationType<T> rType, Relation<R> rWrapped, F fConversion)
 	{
@@ -59,29 +57,6 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Redirected to the wrapped relation.
-	 *
-	 * @see RelatedObject#deleteRelation(Relation)
-	 */
-	@Override
-	public <D> void deleteRelation(Relation<D> rRelation)
-	{
-		rWrappedRelation.deleteRelation(rRelation);
-	}
-
-	/***************************************
-	 * Redirected to the wrapped relation.
-	 *
-	 * @see Relatable#get(RelationType)
-	 */
-	@Override
-	@SuppressWarnings("hiding")
-	public <T> T get(RelationType<T> rType)
-	{
-		return rWrappedRelation.get(rType);
-	}
-
-	/***************************************
 	 * Returns the conversion function of this instance.
 	 *
 	 * @return The conversion function
@@ -89,30 +64,6 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	public final F getConversion()
 	{
 		return fConversion;
-	}
-
-	/***************************************
-	 * Redirected to the wrapped relation.
-	 *
-	 * @see RelatedObject#getRelation(RelationType)
-	 */
-	@Override
-	@SuppressWarnings("hiding")
-	public <T> Relation<T> getRelation(RelationType<T> rType)
-	{
-		return rWrappedRelation.getRelation(rType);
-	}
-
-	/***************************************
-	 * Redirected to the wrapped relation.
-	 *
-	 * @see RelatedObject#getRelations(Predicate)
-	 */
-	@Override
-	public List<Relation<?>> getRelations(
-		Predicate<? super Relation<?>> rFilter)
-	{
-		return rWrappedRelation.getRelations(rFilter);
 	}
 
 	/***************************************
@@ -138,60 +89,7 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	}
 
 	/***************************************
-	 * Redirected to the wrapped relation.
-	 *
-	 * @see RelatedObject#set(RelationType, Object)
-	 */
-	@Override
-	@SuppressWarnings("hiding")
-	public <T> Relation<T> set(RelationType<T> rType, T rTarget)
-	{
-		return rWrappedRelation.set(rType, rTarget);
-	}
-
-	/***************************************
-	 * Overridden to do nothing because instances delegate all relation handling
-	 * to the wrapped relation and this method should never be invoked. This
-	 * will be ensured with an assertion during development time.
-	 *
-	 * @see RelatedObject#addRelation(Relation, boolean)
-	 */
-	@Override
-	@SuppressWarnings("hiding")
-	<T> void addRelation(Relation<T> rRelation, boolean bNotify)
-	{
-		assert false;
-	}
-
-	/***************************************
-	 * Asserts false and always returns NULL because it should never be invoked
-	 * outside of the method {@link #copyTo(RelatedObject, boolean)} which is
-	 * disabled in this class.
-	 *
-	 * @see Relation#copy()
-	 */
-	@Override
-	Relation<T> copy()
-	{
-		assert false;
-
-		return null;
-	}
-
-	/***************************************
-	 * Overridden to always assert false because the copying of relation
-	 * wrappers will be handled by the wrapped relation.
-	 *
-	 * @see Relation#copyTo(RelatedObject, boolean)
-	 */
-	@Override
-	void copyTo(RelatedObject rTarget, boolean bReplace)
-	{
-		assert false;
-	}
-
-	/***************************************
-	 * @see Relation#dataEqual(Relation)
+	 * {@inheritDoc}
 	 */
 	@Override
 	boolean dataEqual(Relation<?> rOther)
@@ -201,7 +99,7 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	}
 
 	/***************************************
-	 * @see Relation#dataHashCode()
+	 * {@inheritDoc}
 	 */
 	@Override
 	int dataHashCode()
@@ -210,29 +108,14 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	}
 
 	/***************************************
-	 * Overridden to remove this relation wrapper from the wrapped relation
-	 * before invoking super.
+	 * Always throws an exception because views are readonly.
 	 *
-	 * @see Relation#removed(RelatedObject)
+	 * @see Relation#setTarget(Object)
 	 */
 	@Override
-	void removed(RelatedObject rParent)
+	void setTarget(T rNewTarget)
 	{
-		super.removed(rParent);
-
-		rWrappedRelation.get(Relation.ALIASES).remove(this);
-	}
-
-	/***************************************
-	 * Internal method to update the wrapped relation. This is used by the
-	 * method {@link Relation#prepareReplace(Relation)} to update wrappers to a
-	 * new relation.
-	 *
-	 * @param rRelation The new wrapped relation
-	 */
-	@SuppressWarnings("unchecked")
-	void updateWrappedRelation(Relation<?> rRelation)
-	{
-		rWrappedRelation = (Relation<R>) rRelation;
+		throw new UnsupportedOperationException("View relation is readonly: " +
+												this);
 	}
 }

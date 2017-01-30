@@ -28,7 +28,6 @@ import java.io.ObjectInputStream;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,8 +35,6 @@ import java.util.Set;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
-import static org.obrel.core.RelationTypeModifier.PRIVATE;
-import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.type.MetaTypes.IMMUTABLE;
 import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 
@@ -56,14 +53,6 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
-
-	static final RelationType<List<RelationWrapper<?, ?, ?>>> ALIASES =
-		newListType(PRIVATE);
-
-	static
-	{
-		RelationTypes.init(Relation.class);
-	}
 
 	//~ Instance fields --------------------------------------------------------
 
@@ -152,7 +141,9 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *
 	 * @see #viewAs(RelationType, Relatable, Function)
 	 */
-	public final void aliasAs(RelationType<T> rAliasType, Relatable rInParent)
+	public final void aliasAs(
+		RelationType<T> rAliasType,
+		RelatedObject   rInParent)
 	{
 		aliasAs(rAliasType, rInParent, Functions.identity());
 	}
@@ -183,7 +174,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *                         setting of new targets
 	 */
 	public final <A> void aliasAs(RelationType<A>		   rAliasType,
-								  Relatable				   rInParent,
+								  RelatedObject			   rInParent,
 								  InvertibleFunction<T, A> fAliasConversion)
 	{
 		addAlias(new RelationAlias<A, T>(rAliasType, this, fAliasConversion),
@@ -420,7 +411,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	@SuppressWarnings({ "unchecked" })
 	public final void viewAs(
 		RelationType<? super T> rViewType,
-		Relatable				rInParent)
+		RelatedObject			rInParent)
 	{
 		viewAs((RelationType<T>) rViewType, rInParent, Functions.identity());
 	}
@@ -444,7 +435,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *                        value of the view
 	 */
 	public final <V> void viewAs(RelationType<V> rViewType,
-								 Relatable		 rInParent,
+								 RelatedObject   rInParent,
 								 Function<T, V>  fViewConversion)
 	{
 		addAlias(new RelationView<V, T>(rViewType, this, fViewConversion),
@@ -498,11 +489,11 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @param rAlias    The relation wrapper to add
 	 * @param rInParent The parent to add the wrapper to
 	 */
-	final void addAlias(RelationWrapper<?, ?, ?> rAlias, Relatable rInParent)
+	final void addAlias(
+		RelationWrapper<?, ?, ?> rAlias,
+		RelatedObject			 rInParent)
 	{
-		ObjectRelations.getRelationContainer(rInParent, true)
-					   .addRelation(rAlias, true);
-		get(ALIASES).add(rAlias);
+		rInParent.addRelation(rAlias, true);
 	}
 
 	/***************************************
@@ -512,13 +503,12 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @param rTarget  The target object to copy this relation to
 	 * @param bReplace TRUE to replace an existing relation, FALSE to keep it
 	 */
-	@SuppressWarnings("unchecked")
 	void copyTo(RelatedObject rTarget, boolean bReplace)
 	{
 		boolean bExists = rTarget.hasRelation(rType);
 
 		// The alias list will be rebuilt separately, therefore ignore here
-		if (rType != ALIASES && (!bExists || (bReplace && !rType.isFinal())))
+		if (!bExists || (bReplace && !rType.isFinal()))
 		{
 			Relation<T> aCopy = copy();
 
@@ -526,67 +516,8 @@ public abstract class Relation<T> extends SerializableRelatedObject
 			{
 				aCopy.copyRelations(this, bReplace);
 				rTarget.addRelation(aCopy, true);
-
-				for (RelationWrapper<?, ?, ?> rAlias : get(ALIASES))
-				{
-					RelationType<?> rAliasType = rAlias.getType();
-
-					if (rAlias instanceof RelationAlias<?, ?>)
-					{
-						aCopy.aliasAs((RelationType<T>) rAliasType, rTarget);
-					}
-					else
-					{
-						aCopy.viewAs((RelationType<? super T>) rAliasType,
-									 rTarget);
-					}
-				}
 			}
 		}
-	}
-
-	/***************************************
-	 * Internal method to prepare this relation to be used as the replacement
-	 * for another relation. This is done by copying all relations from the
-	 * other relation and by redirecting all aliases of the other relation to
-	 * this instance.
-	 *
-	 * @param rOther The relation to be replaced by this instance
-	 */
-	void prepareReplace(Relation<T> rOther)
-	{
-		transferRelationsFrom(rOther, false);
-
-		for (RelationWrapper<?, ?, ?> rAlias : get(ALIASES))
-		{
-			rAlias.updateWrappedRelation(this);
-		}
-	}
-
-	/***************************************
-	 * Package-internal management method that will be invoked by the framework
-	 * after this relation has been removed from it's parent. It will remove all
-	 * alias relations for this instance and set all fields to NULL.
-	 *
-	 * @param rParent The parent of this relation
-	 */
-	void removed(RelatedObject rParent)
-	{
-		Iterator<RelationWrapper<?, ?, ?>> i = get(ALIASES).iterator();
-
-		while (i.hasNext())
-		{
-			RelationWrapper<?, ?, ?> rAlias = i.next();
-
-			// deleteRelation() will invoke removed() on the alias which will
-			// cause it to remove itself from this relation's alias list; to
-			// prevent concurrency conflicts we remove it first
-			i.remove();
-			rParent.deleteRelation(rAlias);
-		}
-
-		// do not remove type and target to allow access from containers that
-		// still contain the relation
 	}
 
 	/***************************************

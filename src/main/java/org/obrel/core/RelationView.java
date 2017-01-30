@@ -20,8 +20,8 @@ import de.esoco.lib.expression.Function;
 
 
 /********************************************************************
- * A wrapper implementation that provides a readonly view of another relation
- * with a different relation type.
+ * A relation wrapper implementation that provides a readonly view of another
+ * relation with a different relation type and datatype.
  */
 public class RelationView<T, V> extends RelationWrapper<T, V, Function<V, T>>
 {
@@ -49,14 +49,16 @@ public class RelationView<T, V> extends RelationWrapper<T, V, Function<V, T>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Always throws an exception because views are defined to be readonly.
+	 * Returns a copy of this view. The copy will still refer to the original
+	 * wrapped relation.
 	 *
-	 * @see Relation#updateTarget(Object)
+	 * @see RelationWrapper#copy()
 	 */
 	@Override
-	void setTarget(T rNewTarget)
+	Relation<T> copy()
 	{
-		throw new UnsupportedOperationException("View relation is readonly: " +
-												this);
+		return new RelationView<>(getType(),
+								  getWrappedRelation(),
+								  getConversion());
 	}
 }

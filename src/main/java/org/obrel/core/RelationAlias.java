@@ -52,8 +52,21 @@ public class RelationAlias<T, A>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Updates the target object on the aliased relation if the type of this
-	 * alias is not final.
+	 * Returns a copy of this view. The copy will still refer to the original
+	 * wrapped relation.
+	 *
+	 * @see RelationWrapper#copy()
+	 */
+	@Override
+	Relation<T> copy()
+	{
+		return new RelationAlias<>(getType(),
+								   getWrappedRelation(),
+								   getConversion());
+	}
+
+	/***************************************
+	 * Updates the target object on the aliased relation .
 	 *
 	 * @see Relation#updateTarget(Object)
 	 */
