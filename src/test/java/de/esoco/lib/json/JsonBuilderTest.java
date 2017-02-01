@@ -69,7 +69,7 @@ public class JsonBuilderTest
 	public void testAppendName()
 	{
 		assertEquals("\"Testname\"",
-					 new JsonBuilder().appendValue("Testname").toString());
+					 new JsonBuilder().append("Testname").toString());
 	}
 
 	/***************************************
@@ -152,112 +152,42 @@ public class JsonBuilderTest
 	@Test
 	public void testAppendValue()
 	{
-		assertEquals("null", new JsonBuilder().appendValue(null).toString());
-		assertEquals("true",
-					 new JsonBuilder().appendValue(Boolean.TRUE).toString());
+		assertEquals("null", new JsonBuilder().append(null).toString());
+		assertEquals("true", new JsonBuilder().append(Boolean.TRUE).toString());
 		assertEquals("false",
-					 new JsonBuilder().appendValue(Boolean.FALSE).toString());
+					 new JsonBuilder().append(Boolean.FALSE).toString());
 
-		assertEquals("42", new JsonBuilder().appendValue(42).toString());
+		assertEquals("42", new JsonBuilder().append(42).toString());
 		assertEquals(Integer.toString(Integer.MIN_VALUE),
-					 new JsonBuilder().appendValue(Integer.MIN_VALUE)
-					 .toString());
+					 new JsonBuilder().append(Integer.MIN_VALUE).toString());
 		assertEquals(Integer.toString(Integer.MAX_VALUE),
-					 new JsonBuilder().appendValue(Integer.MAX_VALUE)
-					 .toString());
+					 new JsonBuilder().append(Integer.MAX_VALUE).toString());
 		assertEquals(Long.toString(Long.MIN_VALUE),
-					 new JsonBuilder().appendValue(Long.MIN_VALUE).toString());
+					 new JsonBuilder().append(Long.MIN_VALUE).toString());
 		assertEquals(Long.toString(Long.MAX_VALUE),
-					 new JsonBuilder().appendValue(Long.MAX_VALUE).toString());
+					 new JsonBuilder().append(Long.MAX_VALUE).toString());
 		assertEquals("123456789012345678901234567890",
-					 new JsonBuilder().appendValue(new BigInteger("123456789012345678901234567890"))
+					 new JsonBuilder().append(new BigInteger("123456789012345678901234567890"))
 					 .toString());
-		assertEquals("0.123", new JsonBuilder().appendValue(0.123).toString());
-		assertEquals("1.23", new JsonBuilder().appendValue(1.23).toString());
-		assertEquals("12300.0",
-					 new JsonBuilder().appendValue(1.23e4).toString());
-		assertEquals("1.23", new JsonBuilder().appendValue(1.23d).toString());
-		assertEquals("12300.0",
-					 new JsonBuilder().appendValue(1.23e4d).toString());
+		assertEquals("0.123", new JsonBuilder().append(0.123).toString());
+		assertEquals("1.23", new JsonBuilder().append(1.23).toString());
+		assertEquals("12300.0", new JsonBuilder().append(1.23e4).toString());
+		assertEquals("1.23", new JsonBuilder().append(1.23d).toString());
+		assertEquals("12300.0", new JsonBuilder().append(1.23e4d).toString());
 		assertEquals("1.23E+4",
-					 new JsonBuilder().appendValue(new BigDecimal("1.23e4"))
+					 new JsonBuilder().append(new BigDecimal("1.23e4"))
 					 .toString());
 
 		testAppendDate();
 
 		assertEquals("\"NAME\"",
-					 new JsonBuilder().appendValue(StandardTypes.NAME)
-					 .toString());
+					 new JsonBuilder().append(StandardTypes.NAME).toString());
 
 		assertEquals("\"test string\"",
-					 new JsonBuilder().appendValue("test string").toString());
+					 new JsonBuilder().append("test string").toString());
 		assertEquals("\"\\ttest string\\n\\r\\tmultiline \u011F\"",
-					 new JsonBuilder().appendValue("\ttest string\n\r\tmultiline \u011f")
+					 new JsonBuilder().append("\ttest string\n\r\tmultiline \u011f")
 					 .toString());
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testBeginArray()
-	{
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testBeginObject()
-	{
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testBeginString()
-	{
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testEndArray()
-	{
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testEndObject()
-	{
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testEndString()
-	{
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testJsonBuilder()
-	{
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testLength()
-	{
 	}
 
 	/***************************************
@@ -277,6 +207,6 @@ public class JsonBuilderTest
 
 		assertEquals(String.format("\"%s\"",
 								   JsonUtil.JSON_DATE_FORMAT.format(cal.getTime())),
-					 new JsonBuilder().appendValue(cal.getTime()).toString());
+					 new JsonBuilder().append(cal.getTime()).toString());
 	}
 }

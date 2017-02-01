@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,10 @@ package de.esoco.lib.json;
 
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.expression.Conversions;
+import de.esoco.lib.expression.Function;
+import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
+import de.esoco.lib.expression.function.AbstractInvertibleFunction;
 import de.esoco.lib.expression.predicate.AbstractPredicate;
 import de.esoco.lib.json.JsonUtil.JsonStructure;
 
@@ -95,20 +98,115 @@ public class JsonBuilder
 		this.sIndent = sIndent;
 	}
 
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Returns a function that builds a JSON string from arbitrary input
+	 * objects.
+	 *
+	 * @return A function that converts objects into JSON
+	 */
+	public static <T> Function<T, String> buildJson()
+	{
+		return rValue -> new JsonBuilder().append(rValue).toString();
+	}
+
+	/***************************************
+	 * Returns an invertible function that converts objects into JSON strings
+	 * and in inverted form parses JSON strings into objects.
+	 *
+	 * @return An invertible function that converts objects into JSON and vice
+	 *         versa
+	 */
+	public static InvertibleFunction<Object, String> convertJson()
+	{
+		return new AbstractInvertibleFunction<Object, String>("")
+		{
+			@Override
+			public Object invert(String sJson)
+			{
+				return JsonParser.parseValue(sJson);
+			}
+
+			@Override
+			public String evaluate(Object rValue)
+			{
+				return new JsonBuilder().append(rValue).toString();
+			}
+		};
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Appends an arbitrary string to the current JSON value. The caller is
-	 * responsible that the resulting string is valid according to the JSON
-	 * specification.
+	 * Appends a value to a JSON string builder and converts it according to
+	 * it's datatype.
 	 *
-	 * @param  sString The string to append
+	 * @param  rValue The value to append (can be NULL)
 	 *
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder append(String sString)
+	public JsonBuilder append(Object rValue)
 	{
-		aJson.append(sString);
+		if (rValue == null)
+		{
+			aJson.append("null");
+		}
+		else
+		{
+			Class<?> rDatatype = rValue.getClass();
+
+			if (rDatatype == Boolean.class ||
+				Number.class.isAssignableFrom(rDatatype))
+			{
+				aJson.append(rValue.toString());
+			}
+			else if (Collection.class.isAssignableFrom(rDatatype))
+			{
+				appendArray((Collection<?>) rValue);
+			}
+			else if (Map.class.isAssignableFrom(rDatatype))
+			{
+				Map<?, ?> rMap = (Map<?, ?>) rValue;
+
+				appendObject(rMap);
+			}
+			else if (Date.class.isAssignableFrom(rDatatype))
+			{
+				beginString();
+				aJson.append(JSON_DATE_FORMAT.format((Date) rValue));
+				endString();
+			}
+			else if (RelationType.class.isAssignableFrom(rDatatype))
+			{
+				beginString();
+				aJson.append(JsonUtil.escape(rValue.toString()));
+				endString();
+			}
+			else if (bRecursiveRelatables &&
+					 Relatable.class.isAssignableFrom(rDatatype))
+			{
+				appendObject((Relatable) rValue, null);
+			}
+			else
+			{
+				String sValue;
+
+				try
+				{
+					sValue = Conversions.asString(rValue);
+				}
+				catch (Exception e)
+				{
+					// if conversion not possible use toString()
+					sValue = rValue.toString();
+				}
+
+				beginString();
+				aJson.append(JsonUtil.escape(sValue));
+				endString();
+			}
+		}
 
 		return this;
 	}
@@ -142,7 +240,7 @@ public class JsonBuilder
 							   : rRelationType.getSimpleName();
 
 			appendName(sName);
-			appendValue(rValue);
+			append(rValue);
 		}
 
 		return bHasValue;
@@ -165,7 +263,7 @@ public class JsonBuilder
 
 			for (Object rElement : rCollection)
 			{
-				appendValue(rElement);
+				append(rElement);
 
 				if (--nCount > 0)
 				{
@@ -191,7 +289,7 @@ public class JsonBuilder
 	 */
 	public JsonBuilder appendName(String sName)
 	{
-		beginString().append(sName).endString().append(": ");
+		beginString().appendText(sName).endString().appendText(": ");
 
 		return this;
 	}
@@ -214,7 +312,7 @@ public class JsonBuilder
 			for (Entry<?, ?> rEntry : rMap.entrySet())
 			{
 				appendName(rEntry.getKey().toString());
-				appendValue(rEntry.getValue());
+				append(rEntry.getValue());
 
 				if (--nCount > 0)
 				{
@@ -326,74 +424,17 @@ public class JsonBuilder
 	}
 
 	/***************************************
-	 * Appends a value to a JSON string builder and converts it according to
-	 * it's datatype.
+	 * Appends an arbitrary text to the current JSON value. The caller is
+	 * responsible that the resulting string is valid according to the JSON
+	 * specification.
 	 *
-	 * @param  rValue The value to append (can be NULL)
+	 * @param  sText The text string to append
 	 *
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder appendValue(Object rValue)
+	public JsonBuilder appendText(String sText)
 	{
-		if (rValue == null)
-		{
-			aJson.append("null");
-		}
-		else
-		{
-			Class<?> rDatatype = rValue.getClass();
-
-			if (rDatatype == Boolean.class ||
-				Number.class.isAssignableFrom(rDatatype))
-			{
-				aJson.append(rValue.toString());
-			}
-			else if (Collection.class.isAssignableFrom(rDatatype))
-			{
-				appendArray((Collection<?>) rValue);
-			}
-			else if (Map.class.isAssignableFrom(rDatatype))
-			{
-				Map<?, ?> rMap = (Map<?, ?>) rValue;
-
-				appendObject(rMap);
-			}
-			else if (Date.class.isAssignableFrom(rDatatype))
-			{
-				beginString();
-				aJson.append(JSON_DATE_FORMAT.format((Date) rValue));
-				endString();
-			}
-			else if (RelationType.class.isAssignableFrom(rDatatype))
-			{
-				beginString();
-				aJson.append(JsonUtil.escape(rValue.toString()));
-				endString();
-			}
-			else if (bRecursiveRelatables &&
-					 Relatable.class.isAssignableFrom(rDatatype))
-			{
-				appendObject((Relatable) rValue, null);
-			}
-			else
-			{
-				String sValue;
-
-				try
-				{
-					sValue = Conversions.asString(rValue);
-				}
-				catch (Exception e)
-				{
-					// if conversion not possible use toString()
-					sValue = rValue.toString();
-				}
-
-				beginString();
-				aJson.append(JsonUtil.escape(sValue));
-				endString();
-			}
-		}
+		aJson.append(sText);
 
 		return this;
 	}

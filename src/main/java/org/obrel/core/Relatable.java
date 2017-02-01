@@ -22,6 +22,7 @@ import de.esoco.lib.expression.Predicate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 /********************************************************************
@@ -331,6 +332,16 @@ public interface Relatable
 	public <T, I> Relation<T> set(RelationType<T> rType,
 								  Function<I, T>  fTargetResolver,
 								  I				  rIntermediateTarget);
+
+	/***************************************
+	 * Returns a stream of the relations in this object.
+	 *
+	 * @return A new stream
+	 */
+	default public Stream<Relation<?>> stream()
+	{
+		return getRelations(null).stream();
+	}
 
 	/***************************************
 	 * Creates a relation that stores the target value in a transformed format.

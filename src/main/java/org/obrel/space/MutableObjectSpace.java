@@ -16,26 +16,20 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.space;
 
-import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.InvertibleFunction;
 
 import org.obrel.core.ObjectRelations;
-import org.obrel.core.RelatedObject;
 
 
 /********************************************************************
- * A simple {@link ObjectSpace} implementation that is derived from {@link
- * RelatedObject} and maps the access URLs the hierarchy of it's relations.
+ * An extension of {@link SimpleObjectSpace} that adds implementations of the
+ * methods {@link #put(String, Object)} and {@link #delete(String)}.
  *
  * @author eso
  */
-public class RelatableObjectSpace<T, D> extends RelatedObject
+public class MutableObjectSpace<T> extends SimpleObjectSpace<T>
 	implements ObjectSpace<T>
 {
-	//~ Instance fields --------------------------------------------------------
-
-	private Function<D, T> fValueMapper;
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -43,9 +37,9 @@ public class RelatableObjectSpace<T, D> extends RelatedObject
 	 *
 	 * @param fValueMapper The value mapping function
 	 */
-	public RelatableObjectSpace(Function<D, T> fValueMapper)
+	public MutableObjectSpace(InvertibleFunction<Object, T> fValueMapper)
 	{
-		this.fValueMapper = fValueMapper;
+		super(fValueMapper);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -63,39 +57,11 @@ public class RelatableObjectSpace<T, D> extends RelatedObject
 	 * {@inheritDoc}
 	 */
 	@Override
-	public T get(String sUrl)
-	{
-		return fValueMapper.evaluate(getValue(sUrl));
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
 	public void put(String sUrl, T rValue)
 	{
-		if (fValueMapper instanceof InvertibleFunction)
-		{
-			((InvertibleFunction<D, T>) fValueMapper).invert(rValue);
-		}
+		Object rInvertedValue =
+			((InvertibleFunction<Object, T>) getValueMapper()).invert(rValue);
 
-		ObjectRelations.urlPut(this, sUrl, rValue);
-	}
-
-	/***************************************
-	 * Returns the value at a certain URL. This default implementation tries to
-	 * cast the value to the data type of this space which may result in a
-	 * {@link ClassCastException} if the value does not match the type.
-	 * Subclasses should override this method to perform more extensive type
-	 * checking.
-	 *
-	 * @param  sUrl The URL to get the value of
-	 *
-	 * @return The value at given URL
-	 */
-	@SuppressWarnings("unchecked")
-	protected D getValue(String sUrl)
-	{
-		return (D) ObjectRelations.urlGet(this, sUrl);
+		ObjectRelations.urlPut(this, sUrl, rInvertedValue);
 	}
 }

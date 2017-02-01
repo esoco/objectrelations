@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
-import de.esoco.lib.datatype.Pair;
+import de.esoco.lib.expression.BinaryFunction;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.json.JsonBuilder;
 import de.esoco.lib.json.JsonParser;
@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.WeakHashMap;
 
 import org.obrel.type.MetaTypes;
@@ -321,140 +320,39 @@ public class ObjectRelations
 	 */
 	public static void urlDelete(Relatable rRoot, String sUrl)
 	{
-		Pair<Relatable, RelationType<?>> rLookupResult = urlLookup(rRoot, sUrl);
+		urlDo(rRoot, sUrl, ((r, t) ->
+							{
+								r.deleteRelation(t);
 
-		rLookupResult.first().deleteRelation(rLookupResult.second());
-	}
-
-	/***************************************
-	 * Returns a relation value referenced by a URL. The URL will be split into
-	 * relation type names that are looked up recursively from the relation
-	 * hierarchy starting at the given root object. That means all intermediate
-	 * elements of the URL must refer to {@link Relatable} instances. If the
-	 * hierarchy doesn't match the URL an exception will be thrown.
-	 *
-	 * @param  rRoot The root relatable to start the URL lookup at
-	 * @param  sUrl  The URL of the relation to get the value from
-	 *
-	 * @return The value at the given URL
-	 *
-	 * @throws NoSuchElementException   If the URL could not be resolved
-	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
-	 *                                  relation type
-	 */
-	public static Object urlGet(Relatable rRoot, String sUrl)
-	{
-		Pair<Relatable, RelationType<?>> rLookupResult = urlLookup(rRoot, sUrl);
-
-		return rLookupResult.first().get(rLookupResult.second());
-	}
-
-	/***************************************
-	 * Sets or updates a relation value referenced by a URL. The URL will be
-	 * split into relation type names that are looked up recursively from the
-	 * relation hierarchy starting at the given root object. That means all
-	 * intermediate elements of the URL must refer to {@link Relatable}
-	 * instances. If the hierarchy doesn't match the URL an exception will be
-	 * thrown.
-	 *
-	 * @param  rRoot  The root relatable to start the URL lookup at
-	 * @param  sUrl   The URL of the relation to update
-	 * @param  rValue The new or updated value
-	 *
-	 * @return The value at the given URL
-	 *
-	 * @throws NoSuchElementException   If the URL could not be resolved
-	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
-	 *                                  relation type or if the given value
-	 *                                  cannot be assigned to the relation type
-	 */
-	@SuppressWarnings("unchecked")
-	public static Object urlPut(Relatable rRoot, String sUrl, Object rValue)
-	{
-		Pair<Relatable, RelationType<?>> rLookupResult = urlLookup(rRoot, sUrl);
-
-		RelationType<?> rType = rLookupResult.second();
-
-		if (!rType.getTargetType().isAssignableFrom(rValue.getClass()))
-		{
-			String sMessage =
-				String.format("Invalid value for type '%s': %s", rType, rValue);
-
-			throw new IllegalArgumentException(sMessage);
-		}
-
-		return rLookupResult.first().set((RelationType<Object>) rType, rValue);
-	}
-
-	/***************************************
-	 * Internal method to determine the container that stores the relations of a
-	 * particular object. If the given object is a related object it will simply
-	 * be returned. Else, if bCreate is TRUE a new relation container instance
-	 * will be created and returned. And if bCreate is FALSE an empty default
-	 * container will be returned.
-	 *
-	 * @param  rObject The object to return the data for
-	 * @param  bCreate TRUE to create a new relation container, FALSE to return
-	 *                 an empty default
-	 *
-	 * @return The corresponding related object data instance
-	 */
-	static RelatedObject getRelationContainer(Object rObject, boolean bCreate)
-	{
-		if (rObject instanceof RelatedObject)
-		{
-			return (RelatedObject) rObject;
-		}
-		else
-		{
-			synchronized (aRelationContainerMap)
-			{
-				RelatedObject rContainer = aRelationContainerMap.get(rObject);
-
-				if (rContainer == null)
-				{
-					if (bCreate)
-					{
-						rContainer = new RelatedObject();
-						aRelationContainerMap.put(rObject, rContainer);
-					}
-					else
-					{
-						rContainer = EMPTY_RELATION_CONTAINER;
-					}
-				}
-
-				return rContainer;
-			}
-		}
+								return null;
+							}));
 	}
 
 	/***************************************
 	 * Performs a lookup of a relation through a URL by splitting it into
-	 * relation type names and performing a recursive lookup through a hierarchy
-	 * of relatable objects referenced by the different URL path elements. The
-	 * result is a {@link Pair} containing the {@link Relatable} object
-	 * representing the second-to-last URL element and the relation type for the
-	 * last element. These can then either be used to read or to update the
-	 * corresponding relation.
+	 * relation type names and if possible recursively applying them to the
+	 * hierarchy of relatable objects referenced by the relations types. If the
+	 * URL could be successfully resolved the target handler will be invoked.
+	 * This must be a binary function that receives the target relatable and
+	 * relation type (representing the second-to-last and last URL elements) and
+	 * return either a result value or NULL if the arguments are just consumed.
 	 *
-	 * @param  rRoot The root relatable for the lookup
-	 * @param  sUrl  The URL to resolve
+	 * @param  rRoot          The root relatable for the lookup
+	 * @param  sUrl           The URL to resolve
+	 * @param  fTargetHandler The target handler function
 	 *
-	 * @return A pair of the relatable and the relation type for the last URL
-	 *         element
+	 * @return The result of the function evaluation
 	 *
 	 * @throws NoSuchElementException   If some element of the URL could not be
 	 *                                  resolved
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	private static Pair<Relatable, RelationType<?>> urlLookup(
-		Relatable rRoot,
-		String    sUrl)
+	public static <T> T urlDo(
+		Relatable									  rRoot,
+		String										  sUrl,
+		BinaryFunction<Relatable, RelationType<?>, T> fTargetHandler)
 	{
-		Objects.requireNonNull(sUrl, "URL argument is required");
-
 		String[]	    rElements	    = sUrl.replaceAll("-", "_").split("/");
 		Object		    rNextElement    = rRoot;
 		Relatable	    rCurrentElement = rRoot;
@@ -501,7 +399,7 @@ public class ObjectRelations
 				String sType = sElement;
 
 				Relation<?> rElementRelation =
-					rCurrentElement.getRelations(null).stream()
+					rCurrentElement.stream()
 								   .filter(r ->
 										   r.getType()
 										   .getName()
@@ -526,7 +424,109 @@ public class ObjectRelations
 			throw new IllegalArgumentException("Could not resolve URL " + sUrl);
 		}
 
-		return new Pair<>(rCurrentElement, rType);
+		return fTargetHandler.evaluate(rCurrentElement, rType);
+	}
+
+	/***************************************
+	 * Returns a relation value referenced by a URL. The URL will be split into
+	 * relation type names that are looked up recursively from the relation
+	 * hierarchy starting at the given root object. That means all intermediate
+	 * elements of the URL must refer to {@link Relatable} instances. If the
+	 * hierarchy doesn't match the URL an exception will be thrown.
+	 *
+	 * @param  rRoot The root relatable to start the URL lookup at
+	 * @param  sUrl  The URL of the relation to get the value from
+	 *
+	 * @return The value at the given URL
+	 *
+	 * @throws NoSuchElementException   If the URL could not be resolved
+	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
+	 *                                  relation type
+	 */
+	public static Object urlGet(Relatable rRoot, String sUrl)
+	{
+		return urlDo(rRoot, sUrl, (r, t) -> r.get(t));
+	}
+
+	/***************************************
+	 * Sets or updates a relation value referenced by a URL. The URL will be
+	 * split into relation type names that are looked up recursively from the
+	 * relation hierarchy starting at the given root object. That means all
+	 * intermediate elements of the URL must refer to {@link Relatable}
+	 * instances. If the hierarchy doesn't match the URL an exception will be
+	 * thrown.
+	 *
+	 * @param  rRoot  The root relatable to start the URL lookup at
+	 * @param  sUrl   The URL of the relation to update
+	 * @param  rValue The new or updated value
+	 *
+	 * @throws NoSuchElementException   If the URL could not be resolved
+	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
+	 *                                  relation type or if the given value
+	 *                                  cannot be assigned to the relation type
+	 */
+	@SuppressWarnings("unchecked")
+	public static void urlPut(Relatable rRoot, String sUrl, Object rValue)
+	{
+		urlDo(rRoot,
+			  sUrl,
+			  (rRelatable, rType) ->
+  			{
+  				if (!rType.getTargetType().isAssignableFrom(rValue.getClass()))
+  				{
+  					String sMessage =
+  						String.format("Invalid value for type '%s': %s",
+  									  rType,
+  									  rValue);
+
+  					throw new IllegalArgumentException(sMessage);
+  				}
+
+  				return rRelatable.set((RelationType<Object>) rType, rValue);
+			  });
+	}
+
+	/***************************************
+	 * Internal method to determine the container that stores the relations of a
+	 * particular object. If the given object is a related object it will simply
+	 * be returned. Else, if bCreate is TRUE a new relation container instance
+	 * will be created and returned. And if bCreate is FALSE an empty default
+	 * container will be returned.
+	 *
+	 * @param  rObject The object to return the data for
+	 * @param  bCreate TRUE to create a new relation container, FALSE to return
+	 *                 an empty default
+	 *
+	 * @return The corresponding related object data instance
+	 */
+	static RelatedObject getRelationContainer(Object rObject, boolean bCreate)
+	{
+		if (rObject instanceof RelatedObject)
+		{
+			return (RelatedObject) rObject;
+		}
+		else
+		{
+			synchronized (aRelationContainerMap)
+			{
+				RelatedObject rContainer = aRelationContainerMap.get(rObject);
+
+				if (rContainer == null)
+				{
+					if (bCreate)
+					{
+						rContainer = new RelatedObject();
+						aRelationContainerMap.put(rObject, rContainer);
+					}
+					else
+					{
+						rContainer = EMPTY_RELATION_CONTAINER;
+					}
+				}
+
+				return rContainer;
+			}
+		}
 	}
 
 	/***************************************

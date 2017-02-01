@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.obrel.type.MetaTypes.IMMUTABLE;
 import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
@@ -236,6 +237,18 @@ public class RelatedObject implements Relatable
 		}
 
 		return rRelation;
+	}
+
+	/***************************************
+	 * Overridden to directly return the relations stream (without an
+	 * intermediate collection).
+	 *
+	 * @see Relatable#stream()
+	 */
+	@Override
+	public Stream<Relation<?>> stream()
+	{
+		return aRelations.values().stream();
 	}
 
 	/***************************************

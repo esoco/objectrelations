@@ -23,8 +23,11 @@ import org.obrel.core.Relatable;
 
 
 /********************************************************************
- * An interface that defines hierarchical spaces of objects which can be
- * accessed with hierarchical URLs.
+ * An interface that defines hierarchical spaces of relatable objects which can
+ * be accessed with URLs. For readonly variants only the {@link #get(String)}
+ * method must be implemented. The modifying methods {@link #put(String,
+ * Object)} and {@link #delete(String)} have default implementations that throw
+ * an {@link UnsupportedOperationException}.
  *
  * @author eso
  */
@@ -43,7 +46,10 @@ public interface ObjectSpace<T> extends Relatable
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	public void delete(String sUrl);
+	default public void delete(String sUrl)
+	{
+		throw new UnsupportedOperationException("DELETE not supported");
+	}
 
 	/***************************************
 	 * Gets a value object that is referenced by a certain URL. See the method
@@ -72,5 +78,8 @@ public interface ObjectSpace<T> extends Relatable
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	public void put(String sUrl, T rValue);
+	default public void put(String sUrl, T rValue)
+	{
+		throw new UnsupportedOperationException("PUT not supported");
+	}
 }
