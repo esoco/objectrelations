@@ -353,7 +353,7 @@ public class ObjectRelations
 		String										  sUrl,
 		BinaryFunction<Relatable, RelationType<?>, T> fTargetHandler)
 	{
-		String[]	    rElements	    = sUrl.replaceAll("-", "_").split("/");
+		String[]	    rElements	    = sUrl.split("/");
 		Object		    rNextElement    = rRoot;
 		Relatable	    rCurrentElement = rRoot;
 		RelationType<?> rType		    = null;
@@ -361,60 +361,60 @@ public class ObjectRelations
 		for (String sElement : rElements)
 		{
 			// ignore empty URL elements (// or / at start or end)
-			if (sElement.isEmpty())
+			if (!sElement.isEmpty())
 			{
-				continue;
-			}
+				sElement = sElement.replaceAll("-", "_");
 
-			if (rNextElement instanceof Relatable)
-			{
-				rCurrentElement = (Relatable) rNextElement;
-			}
-			else
-			{
-				urlLookupError(sUrl, sElement);
-			}
-
-			int nPackageEnd = sElement.lastIndexOf('.') + 1;
-
-			if (nPackageEnd > 0)
-			{
-				sElement =
-					sElement.substring(0, nPackageEnd) +
-					sElement.substring(nPackageEnd).toUpperCase();
-			}
-			else
-			{
-				sElement = sElement.toUpperCase();
-			}
-
-			rType = RelationType.valueOf(sElement);
-
-			if (rType != null)
-			{
-				rNextElement = rCurrentElement.get(rType);
-			}
-			else
-			{
-				String sType = sElement;
-
-				Relation<?> rElementRelation =
-					rCurrentElement.stream()
-								   .filter(r ->
-										   r.getType()
-										   .getName()
-										   .endsWith(sType))
-								   .findFirst()
-								   .orElse(null);
-
-				if (rElementRelation != null)
+				if (rNextElement instanceof Relatable)
 				{
-					rNextElement = rElementRelation.getTarget();
-					rType		 = rElementRelation.getType();
+					rCurrentElement = (Relatable) rNextElement;
 				}
 				else
 				{
 					urlLookupError(sUrl, sElement);
+				}
+
+				int nPackageEnd = sElement.lastIndexOf('.') + 1;
+
+				if (nPackageEnd > 0)
+				{
+					sElement =
+						sElement.substring(0, nPackageEnd) +
+						sElement.substring(nPackageEnd).toUpperCase();
+				}
+				else
+				{
+					sElement = sElement.toUpperCase();
+				}
+
+				rType = RelationType.valueOf(sElement);
+
+				if (rType != null)
+				{
+					rNextElement = rCurrentElement.get(rType);
+				}
+				else
+				{
+					String sType = sElement;
+
+					Relation<?> rElementRelation =
+						rCurrentElement.stream()
+									   .filter(r ->
+											   r.getType()
+											   .getName()
+											   .endsWith(sType))
+									   .findFirst()
+									   .orElse(null);
+
+					if (rElementRelation != null)
+					{
+						rNextElement = rElementRelation.getTarget();
+						rType		 = rElementRelation.getType();
+					}
+					else
+					{
+						urlLookupError(sUrl, sElement);
+					}
 				}
 			}
 		}
