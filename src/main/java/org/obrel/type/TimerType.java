@@ -21,6 +21,7 @@ import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
+import org.obrel.core.RelationTypes;
 
 
 /********************************************************************
@@ -47,6 +48,21 @@ public class TimerType extends RelationType<Long>
 	public TimerType(String sName, RelationTypeModifier... rModifiers)
 	{
 		super(sName, Long.class, o -> System.currentTimeMillis(), rModifiers);
+	}
+
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Creates a new partially initialized timer type for use in conjunction
+	 * with {@link RelationTypes#init(Class)}.
+	 *
+	 * @param  rModifiers The optional modifiers
+	 *
+	 * @return The new timer type
+	 */
+	public static TimerType newTimer(RelationTypeModifier... rModifiers)
+	{
+		return new TimerType(null, rModifiers);
 	}
 
 	//~ Methods ----------------------------------------------------------------

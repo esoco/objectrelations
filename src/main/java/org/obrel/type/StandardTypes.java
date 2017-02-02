@@ -35,6 +35,7 @@ import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 
 import static org.obrel.core.RelationTypeModifier.FINAL;
@@ -183,7 +184,13 @@ public class StandardTypes
 	 * An active type that always returns the number of milliseconds since it's
 	 * creation.
 	 */
-	public static final RelationType<Long> TIMER = new TimerType(null);
+	public static final RelationType<Long> TIMER = TimerType.newTimer();
+
+	/**
+	 * Similar to {@link #TIMER} but with {@link RelationTypeModifier#FINAL} so
+	 * that it cannot be modified after creation.
+	 */
+	public static final RelationType<Long> UPTIME = TimerType.newTimer(FINAL);
 
 	/** The start date from which an element will be valid. */
 	public static final RelationType<Date> START_DATE = newType();
