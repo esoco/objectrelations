@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -194,6 +194,62 @@ public final class TextUtil extends TextConvert
 		}
 
 		return new Pair<Character, String>(aMnemonic, sb.toString());
+	}
+
+	/***************************************
+	 * Formats a certain milliseconds duration into a string. The string format
+	 * is [[[_+d ]__h ]__m ]__.000s where elements in brackets are displayed
+	 * only if the corresponding value is greater than zero. Underscores stand
+	 * for optional character that are only display for non-zero values while 0
+	 * stands for leading zeros.
+	 *
+	 * @param  nDuration         The duration in milliseconds
+	 * @param  bWithMilliseconds TRUE to include fractional milliseconds
+	 *
+	 * @return The formatted string
+	 */
+	@SuppressWarnings("boxing")
+	public static String formatDuration(
+		long    nDuration,
+		boolean bWithMilliseconds)
+	{
+		StringBuilder aDuration = new StringBuilder();
+
+		if (bWithMilliseconds)
+		{
+			aDuration.append(String.format("%d.%03ds",
+										   nDuration / 1000 % 60,
+										   nDuration % 1000));
+		}
+		else
+		{
+			aDuration.append(nDuration / 1000 % 60);
+			aDuration.append("s");
+		}
+
+		nDuration /= (60 * 1000);
+
+		if (nDuration > 0)
+		{
+			aDuration.insert(0, "m ");
+			aDuration.insert(0, nDuration % 60);
+			nDuration /= 60;
+
+			if (nDuration > 0)
+			{
+				aDuration.insert(0, "h ");
+				aDuration.insert(0, nDuration % 24);
+				nDuration /= 24;
+
+				if (nDuration > 0)
+				{
+					aDuration.insert(0, "d ");
+					aDuration.insert(0, nDuration);
+				}
+			}
+		}
+
+		return aDuration.toString();
 	}
 
 	/***************************************
