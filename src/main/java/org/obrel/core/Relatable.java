@@ -235,19 +235,21 @@ public interface Relatable
 	}
 
 	/***************************************
-	 * Initializes a relation with a certain type. This is just a semantic
-	 * variant of invoking the method {@link #get(RelationType)} with the given
-	 * relation type to set it's initial value. Therefore this method only makes
-	 * sense for relation types that have an initial value function and which
-	 * haven't been set yet. Otherwise this call won't have an effect (but it
-	 * won't do harm either). It is typically used to initialize (set) automatic
-	 * relation types that generate their target values automatically.
+	 * Initializes a relation with a certain so that the relation exists
+	 * afterwards. First tries to create the initial value of the relation type
+	 * with {@link #get(RelationType)}. If that yields NULL indicating that no
+	 * initial value exists and therefore no relation has been created it
+	 * invokes {@link #set(RelationType, Object)} with a NULL value to create a
+	 * new creation. the given relation type to set it's initial value.
 	 *
 	 * @param rType The type of the relation to initialize
 	 */
 	default public void init(RelationType<?> rType)
 	{
-		get(rType);
+		if (get(rType) == null)
+		{
+			set(rType, null);
+		}
 	}
 
 	/***************************************

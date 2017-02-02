@@ -52,7 +52,7 @@ public class DirectRelation<T> extends Relation<T>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * @see Relation#getTarget()
+	 * {@inheritDoc}
 	 */
 	@Override
 	public T getTarget()
@@ -61,16 +61,16 @@ public class DirectRelation<T> extends Relation<T>
 	}
 
 	/***************************************
-	 * @see Relation#copy()
+	 * {@inheritDoc}
 	 */
 	@Override
-	Relation<T> copy()
+	Relation<T> copy(Relatable rCopyParent)
 	{
 		return new DirectRelation<T>(getType(), getTarget());
 	}
 
 	/***************************************
-	 * @see Relation#dataEqual(Relation)
+	 * {@inheritDoc}
 	 */
 	@Override
 	boolean dataEqual(Relation<?> rOther)
@@ -88,7 +88,7 @@ public class DirectRelation<T> extends Relation<T>
 	}
 
 	/***************************************
-	 * @see Relation#dataHashCode()
+	 * {@inheritDoc}
 	 */
 	@Override
 	int dataHashCode()
@@ -97,7 +97,7 @@ public class DirectRelation<T> extends Relation<T>
 	}
 
 	/***************************************
-	 * @see Relation#setTarget()
+	 * {@inheritDoc}
 	 */
 	@Override
 	void setTarget(T rNewTarget)

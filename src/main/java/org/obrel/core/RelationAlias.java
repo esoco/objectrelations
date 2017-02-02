@@ -36,17 +36,19 @@ public class RelationAlias<T, A>
 	/***************************************
 	 * Creates a new instance.
 	 *
+	 * @param rParent          The parent of this alias
 	 * @param rAliasType       The relation type of this alias relation
 	 * @param rAliasedRelation The relation to be aliased
 	 * @param fAliasConversion A conversion function that produces the target
 	 *                         value of the alias and can be inverted for the
 	 *                         setting of new targets
 	 */
-	RelationAlias(RelationType<T>		   rAliasType,
+	RelationAlias(Relatable				   rParent,
+				  RelationType<T>		   rAliasType,
 				  Relation<A>			   rAliasedRelation,
 				  InvertibleFunction<A, T> fAliasConversion)
 	{
-		super(rAliasType, rAliasedRelation, fAliasConversion);
+		super(rParent, rAliasType, rAliasedRelation, fAliasConversion);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -55,12 +57,13 @@ public class RelationAlias<T, A>
 	 * Returns a copy of this view. The copy will still refer to the original
 	 * wrapped relation.
 	 *
-	 * @see RelationWrapper#copy()
+	 * @see RelationWrapper#copy(Relatable)
 	 */
 	@Override
-	Relation<T> copy()
+	Relation<T> copy(Relatable rCopyParent)
 	{
-		return new RelationAlias<>(getType(),
+		return new RelationAlias<>(rCopyParent,
+								   getType(),
 								   getWrappedRelation(),
 								   getConversion());
 	}

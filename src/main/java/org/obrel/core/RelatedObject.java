@@ -80,6 +80,7 @@ public class RelatedObject implements Relatable
 		notifyRelationListeners(EventType.REMOVE, rRelation, null);
 
 		aRelations.remove(rType);
+		rRelation.removed();
 	}
 
 	/***************************************

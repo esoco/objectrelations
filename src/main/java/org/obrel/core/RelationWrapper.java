@@ -16,15 +16,20 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
+import de.esoco.lib.event.ElementEvent.EventType;
+import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Function;
+
+import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 
 
 /********************************************************************
  * A wrapper for other relations that provides a view of the relation with a
- * different relation type and optionally a different datatype.
+ * different relation type and optionally a different datatype. Wrapper can also
+ * be set on a different parent than the wrapped relation.
  */
 public abstract class RelationWrapper<T, R, F extends Function<R, T>>
-	extends Relation<T>
+	extends Relation<T> implements EventHandler<RelationEvent<R>>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
@@ -32,26 +37,34 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private Relation<R> rWrappedRelation;
-	private F		    fConversion;
+	private final Relatable   rParent;
+	private final Relation<R> rWrappedRelation;
+	private final F			  fTargetConversion;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance for a view of a certain relation.
 	 *
+	 * @param rParent     The parent relatable this wrapper is set on
 	 * @param rType       The relation type of this wrapper
 	 * @param rWrapped    The relation to be wrapped
 	 * @param fConversion A conversion function that converts the target of the
 	 *                    wrapped relation into the datatype of this view's
 	 *                    relation type
 	 */
-	RelationWrapper(RelationType<T> rType, Relation<R> rWrapped, F fConversion)
+	RelationWrapper(Relatable		rParent,
+					RelationType<T> rType,
+					Relation<R>		rWrapped,
+					F				fConversion)
 	{
 		super(rType);
 
-		rWrappedRelation = rWrapped;
-		this.fConversion = fConversion;
+		this.rParent	  = rParent;
+		rWrappedRelation  = rWrapped;
+		fTargetConversion = fConversion;
+
+		rWrappedRelation.addUpdateListener(this);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -63,7 +76,7 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	 */
 	public final F getConversion()
 	{
-		return fConversion;
+		return fTargetConversion;
 	}
 
 	/***************************************
@@ -75,7 +88,7 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	@Override
 	public T getTarget()
 	{
-		return fConversion.evaluate(rWrappedRelation.getTarget());
+		return fTargetConversion.evaluate(rWrappedRelation.getTarget());
 	}
 
 	/***************************************
@@ -86,6 +99,51 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	public final Relation<R> getWrappedRelation()
 	{
 		return rWrappedRelation;
+	}
+
+	/***************************************
+	 * Forwards events on the wrapped relation to listeners on this relation.
+	 *
+	 * @param rEvent The event that occurred on the wrapped relation
+	 */
+	@Override
+	public void handleEvent(RelationEvent<R> rEvent)
+	{
+		if (rEvent.getType() == EventType.UPDATE)
+		{
+			T rUpdateValue =
+				fTargetConversion.evaluate(rEvent.getUpdateValue());
+
+			RelationEvent<T> rConvertedEvent =
+				new RelationEvent<>(EventType.UPDATE,
+									rParent,
+									this,
+									rUpdateValue,
+									this);
+
+			get(RELATION_UPDATE_LISTENERS).dispatch(rConvertedEvent);
+		}
+	}
+
+	/***************************************
+	 * Returns the parent this wrapper is set on.
+	 *
+	 * @return The parent value
+	 */
+	protected final Relatable getParent()
+	{
+		return rParent;
+	}
+
+	/***************************************
+	 * Implemented to unregister the event listener on the wrapped relation.
+	 *
+	 * @see Relation#removed()
+	 */
+	@Override
+	protected void removed()
+	{
+		rWrappedRelation.get(RELATION_UPDATE_LISTENERS).remove(this);
 	}
 
 	/***************************************

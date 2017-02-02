@@ -66,7 +66,7 @@ public class TransformedRelation<T, D> extends Relation<T>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * @see Relation#getTarget()
+	 * {@inheritDoc}
 	 */
 	@Override
 	public T getTarget()
@@ -95,10 +95,10 @@ public class TransformedRelation<T, D> extends Relation<T>
 	}
 
 	/***************************************
-	 * @see Relation#copy()
+	 * {@inheritDoc}
 	 */
 	@Override
-	Relation<T> copy()
+	Relation<T> copy(Relatable rCopyParent)
 	{
 		TransformedRelation<T, D> aCopy =
 			new TransformedRelation<T, D>(getType(), fTransformation);
@@ -109,7 +109,7 @@ public class TransformedRelation<T, D> extends Relation<T>
 	}
 
 	/***************************************
-	 * @see Relation#dataEqual(Relation)
+	 * {@inheritDoc}
 	 */
 	@Override
 	boolean dataEqual(Relation<?> rOther)
@@ -135,7 +135,7 @@ public class TransformedRelation<T, D> extends Relation<T>
 	}
 
 	/***************************************
-	 * @see Relation#dataHashCode()
+	 * {@inheritDoc}
 	 */
 	@Override
 	int dataHashCode()

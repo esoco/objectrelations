@@ -180,7 +180,10 @@ public abstract class Relation<T> extends SerializableRelatedObject
 								  RelatedObject			   rInParent,
 								  InvertibleFunction<T, A> fAliasConversion)
 	{
-		addAlias(new RelationAlias<A, T>(rAliasType, this, fAliasConversion),
+		addAlias(new RelationAlias<A, T>(rInParent,
+										 rAliasType,
+										 this,
+										 fAliasConversion),
 				 rInParent);
 	}
 
@@ -502,8 +505,19 @@ public abstract class Relation<T> extends SerializableRelatedObject
 								 RelatedObject   rInParent,
 								 Function<T, V>  fViewConversion)
 	{
-		addAlias(new RelationView<V, T>(rViewType, this, fViewConversion),
+		addAlias(new RelationView<V, T>(rInParent,
+										rViewType,
+										this,
+										fViewConversion),
 				 rInParent);
+	}
+
+	/***************************************
+	 * Will be invoked after a relation has been removed from it's parent
+	 * Relatable. The default implementation does nothing.
+	 */
+	protected void removed()
+	{
 	}
 
 	/***************************************
@@ -513,9 +527,11 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * will be handled by the method {@link #copyTo(RelatedObject, boolean)}
 	 * which invokes this method.
 	 *
+	 * @param  rTarget The target object the copy will belong to
+	 *
 	 * @return A new relation instance or NULL if copying is not possible
 	 */
-	abstract Relation<T> copy();
+	abstract Relation<T> copy(Relatable rTarget);
 
 	/***************************************
 	 * Must be implemented by a subclass to compare the subclass-specific data
@@ -574,7 +590,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 		// The alias list will be rebuilt separately, therefore ignore here
 		if (!bExists || (bReplace && !rType.isFinal()))
 		{
-			Relation<T> aCopy = copy();
+			Relation<T> aCopy = copy(rTarget);
 
 			if (aCopy != null)
 			{
