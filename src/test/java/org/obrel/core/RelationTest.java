@@ -48,6 +48,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import static org.obrel.core.ObjectRelations.urlDelete;
 import static org.obrel.core.ObjectRelations.urlGet;
 import static org.obrel.core.ObjectRelations.urlPut;
 import static org.obrel.core.RelationTypeModifier.FINAL;
@@ -664,6 +665,8 @@ public class RelationTest
 		o3.set(TEST_FLAG);
 
 		assertEquals("TEST1", urlGet(o1, "name"));
+		assertEquals("TEST1", urlGet(o1, "Name"));
+		assertEquals("TEST1", urlGet(o1, "NAME"));
 		assertEquals("TEST1", urlGet(o1, "/name"));
 		assertEquals("TEST1", urlGet(o1, "name/"));
 		assertEquals("TEST1", urlGet(o1, "/name/"));
@@ -742,5 +745,11 @@ public class RelationTest
 		{
 			// expected
 		}
+
+		urlDelete(o1, "test-ref/name");
+		assertTrue(o1.hasRelation(NAME));
+		assertFalse(o2.hasRelation(NAME));
+		urlDelete(o1, "/name");
+		assertFalse(o1.hasRelation(NAME));
 	}
 }

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
 
+import org.obrel.space.ObjectSpace;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
@@ -50,6 +51,42 @@ public class ObjectRelations
 
 	private static Map<Object, RelatedObject> aRelationContainerMap =
 		new WeakHashMap<Object, RelatedObject>();
+
+	private static final UrlTargetHandler URL_DELETE_TARGET =
+		new UrlTargetHandler()
+		{
+			@Override
+			public Object evaluate(Relatable rRelatable, RelationType<?> rType)
+			{
+				rRelatable.deleteRelation(rType);
+
+				return null;
+			}
+
+			@Override
+			public Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl)
+			{
+				rSpace.delete(sRelativeUrl);
+
+				return null;
+			}
+		};
+
+	private static final UrlTargetHandler URL_GET_TARGET =
+		new UrlTargetHandler()
+		{
+			@Override
+			public Object evaluate(Relatable rRelatable, RelationType<?> rType)
+			{
+				return rRelatable.get(rType);
+			}
+
+			@Override
+			public Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl)
+			{
+				return rSpace.get(sRelativeUrl);
+			}
+		};
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -320,12 +357,7 @@ public class ObjectRelations
 	 */
 	public static void urlDelete(Relatable rRoot, String sUrl)
 	{
-		urlDo(rRoot, sUrl, ((r, t) ->
-							{
-								r.deleteRelation(t);
-
-								return null;
-							}));
+		urlDo(rRoot, sUrl, URL_DELETE_TARGET);
 	}
 
 	/***************************************
@@ -348,15 +380,15 @@ public class ObjectRelations
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	public static <T> T urlDo(
-		Relatable									  rRoot,
-		String										  sUrl,
-		BinaryFunction<Relatable, RelationType<?>, T> fTargetHandler)
+	public static Object urlDo(Relatable		rRoot,
+							   String			sUrl,
+							   UrlTargetHandler fTargetHandler)
 	{
 		String[]	    rElements	    = sUrl.split("/");
 		Object		    rNextElement    = rRoot;
 		Relatable	    rCurrentElement = rRoot;
 		RelationType<?> rType		    = null;
+		int			    nUrlIndex	    = 0;
 
 		for (String sElement : rElements)
 		{
@@ -365,7 +397,15 @@ public class ObjectRelations
 			{
 				sElement = sElement.replaceAll("-", "_");
 
-				if (rNextElement instanceof Relatable)
+				if (rNextElement != rRoot &&
+					rNextElement instanceof ObjectSpace)
+				{
+					// let child-spaces perform the lookup by themselves
+					return fTargetHandler.resolve((ObjectSpace<?>)
+												  rNextElement,
+												  sUrl.substring(nUrlIndex));
+				}
+				else if (rNextElement instanceof Relatable)
 				{
 					rCurrentElement = (Relatable) rNextElement;
 				}
@@ -417,6 +457,9 @@ public class ObjectRelations
 					}
 				}
 			}
+
+			// position after element and trailing '/'
+			nUrlIndex += sElement.length() + 1;
 		}
 
 		if (rType == null)
@@ -445,7 +488,7 @@ public class ObjectRelations
 	 */
 	public static Object urlGet(Relatable rRoot, String sUrl)
 	{
-		return urlDo(rRoot, sUrl, (r, t) -> r.get(t));
+		return urlDo(rRoot, sUrl, URL_GET_TARGET);
 	}
 
 	/***************************************
@@ -470,20 +513,39 @@ public class ObjectRelations
 	{
 		urlDo(rRoot,
 			  sUrl,
-			  (rRelatable, rType) ->
-  			{
-  				if (!rType.getTargetType().isAssignableFrom(rValue.getClass()))
-  				{
-  					String sMessage =
-  						String.format("Invalid value for type '%s': %s",
-  									  rType,
-  									  rValue);
+			new UrlTargetHandler()
+			{
+				@Override
+				public Object evaluate(
+					Relatable		rRelatable,
+					RelationType<?> rType)
+				{
+					if (!rType.getTargetType()
+						.isAssignableFrom(rValue.getClass()))
+					{
+						String sMessage =
+							String.format("Invalid value for type '%s': %s",
+										  rType,
+										  rValue);
 
-  					throw new IllegalArgumentException(sMessage);
-  				}
+						throw new IllegalArgumentException(sMessage);
+					}
 
-  				return rRelatable.set((RelationType<Object>) rType, rValue);
-			  });
+					rRelatable.set((RelationType<Object>) rType, rValue);
+
+					return null;
+				}
+
+				@Override
+				public Object resolve(
+					ObjectSpace<?> rSpace,
+					String		   sRelativeUrl)
+				{
+					((ObjectSpace<Object>) rSpace).put(sRelativeUrl, rValue);
+
+					return null;
+				}
+			});
 	}
 
 	/***************************************
@@ -544,5 +606,32 @@ public class ObjectRelations
 						  sUrl);
 
 		throw new NoSuchElementException(sMessage);
+	}
+
+	//~ Inner Interfaces -------------------------------------------------------
+
+	/********************************************************************
+	 * A URL resolver function needed by {@link ObjectRelations#urlDo(Relatable,
+	 * String, BinaryFunction)}.
+	 *
+	 * @author eso
+	 */
+	public static interface UrlTargetHandler
+		extends BinaryFunction<Relatable, RelationType<?>, Object>
+	{
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Resolves a URL in a certain {@link ObjectSpace}. Will be invoked by
+		 * {@link ObjectRelations#urlDo(Relatable, String, BinaryFunction)} for
+		 * the remaining URL if the URL traversal encounters an object space
+		 * element.
+		 *
+		 * @param  rSpace       The object space to resolve the URL in
+		 * @param  sRelativeUrl The space-relative URL to resolve
+		 *
+		 * @return The resolved object (NULL for none)
+		 */
+		public Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl);
 	}
 }
