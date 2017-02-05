@@ -560,11 +560,11 @@ public class CollectionUtil
 	}
 
 	/***************************************
-	 * Collects all argument pairs into a map that cannot be modified.
-	 * Convenience method for invoking Collections.unmodifiableMap({@link
-	 * #mapOf(Pair...)}).
+	 * Collects all argument key-value pairs into an ordered map that cannot be
+	 * modified. Invokes {@link Collections#unmodifiableMap(Map)} on the result
+	 * of {@link #mapOf(Pair...)}).
 	 *
-	 * @param  rEntries Pair containing the map entries
+	 * @param  rEntries Pairs containing the map entries
 	 *
 	 * @return A new unmodifiable map containing the argument entries
 	 */
@@ -575,9 +575,39 @@ public class CollectionUtil
 	}
 
 	/***************************************
-	 * Collects all argument objects into a set that cannot be modified.
-	 * Convenience method for invoking Collections.unmodifiableSet({@link
-	 * #setOf(Object...)}).
+	 * Collects all argument key-value pairs into an ordered map that cannot be
+	 * modified. Invokes {@link Collections#unmodifiableMap(Map)} on the result
+	 * of {@link #fixedMapOf(Pair...)}).
+	 *
+	 * @param  rEntries Pairs containing the map entries
+	 *
+	 * @return A new unmodifiable map containing the argument entries
+	 */
+	@SafeVarargs
+	public static <K, V> Map<K, V> fixedOrderedMapOf(Pair<K, V>... rEntries)
+	{
+		return Collections.unmodifiableMap(fixedMapOf(rEntries));
+	}
+
+	/***************************************
+	 * Collects all argument objects into an ordered set that cannot be
+	 * modified. Invokes {@link Collections#unmodifiableSet(Set)} on the result
+	 * of {@link #fixedSetOf(Object...)}).
+	 *
+	 * @param  rValues The values to be collected
+	 *
+	 * @return A new unmodifiable set containing the argument values
+	 */
+	@SafeVarargs
+	public static <T> Set<T> fixedOrderedSetOf(T... rValues)
+	{
+		return Collections.unmodifiableSet(orderedSetOf(rValues));
+	}
+
+	/***************************************
+	 * Collects all argument objects into an ordered set that cannot be
+	 * modified. Invokes {@link Collections#unmodifiableSet(Set)} on the result
+	 * of {@link #setOf(Object...)}).
 	 *
 	 * @param  rValues The values to be collected
 	 *
