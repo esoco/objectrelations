@@ -19,6 +19,7 @@ package org.obrel.space;
 import de.esoco.lib.expression.InvertibleFunction;
 
 import org.obrel.core.ObjectRelations;
+import org.obrel.space.ObjectSpaceResolver.PutResolver;
 
 
 /********************************************************************
@@ -50,7 +51,10 @@ public class MutableObjectSpace<T> extends SimpleObjectSpace<T>
 	@Override
 	public void delete(String sUrl)
 	{
-		ObjectRelations.urlDelete(this, sUrl);
+		ObjectRelations.urlDo(this,
+							  sUrl,
+							  false,
+							  ObjectSpaceResolver.URL_DELETE);
 	}
 
 	/***************************************
@@ -59,9 +63,18 @@ public class MutableObjectSpace<T> extends SimpleObjectSpace<T>
 	@Override
 	public void put(String sUrl, T rValue)
 	{
-		Object rInvertedValue =
-			((InvertibleFunction<Object, T>) getValueMapper()).invert(rValue);
-
-		ObjectRelations.urlPut(this, sUrl, rInvertedValue);
+		ObjectRelations.urlDo(this,
+							  sUrl,
+							  false,
+			new PutResolver(rValue)
+			{
+				@Override
+				@SuppressWarnings("unchecked")
+				public Object getValue()
+				{
+					return ((InvertibleFunction<Object, T>) getValueMapper())
+						.invert((T) super.getValue());
+				}
+			});
 	}
 }

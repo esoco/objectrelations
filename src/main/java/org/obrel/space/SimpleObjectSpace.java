@@ -20,6 +20,7 @@ import de.esoco.lib.expression.Function;
 
 import org.obrel.core.ObjectRelations;
 import org.obrel.core.RelatedObject;
+import org.obrel.space.ObjectSpaceResolver.GetResolver;
 
 
 /********************************************************************
@@ -64,9 +65,12 @@ public class SimpleObjectSpace<T> extends RelatedObject
 	 * {@inheritDoc}
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public T get(String sUrl)
 	{
-		return fValueMapper.evaluate(ObjectRelations.urlGet(this, sUrl));
+		GetResolver fGet = (r, t) -> getValueMapper().evaluate(r.get(t));
+
+		return (T) ObjectRelations.urlDo(this, sUrl, false, fGet);
 	}
 
 	/***************************************
