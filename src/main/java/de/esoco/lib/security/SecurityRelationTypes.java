@@ -16,9 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.security;
 
+import java.security.Key;
+
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
+import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newType;
 
 
@@ -55,6 +58,54 @@ public class SecurityRelationTypes
 	/** A reference to an {@link AuthenticationService}. */
 	public static final RelationType<AuthenticationService> AUTHENTICATION_SERVICE =
 		RelationTypes.newType();
+
+	/** A cryptographic key (an implementation of {@link Key}). */
+	public static final RelationType<Key> KEY = newType();
+
+	/** The size of a cryptographic key. */
+	public static final RelationType<Integer> KEY_SIZE = newType();
+
+	/** The password for a cryptographic key. */
+	public static final RelationType<String> KEY_PASSWORD = newType();
+
+	/** The validity of a cryptographic certificate in days. */
+	public static final RelationType<Integer> CERTIFICATE_VALIDITY = newType();
+
+	/** The common name of a cryptographic certificate. */
+	public static final RelationType<String> COMMON_NAME = newType();
+
+	/**
+	 * The organization name of a cryptographic certificate. Defaults to an
+	 * empty string.
+	 */
+	public static final RelationType<String> ORGANIZATION =
+		newInitialValueType("");
+
+	/**
+	 * The organization unit of a cryptographic certificate. Defaults to an
+	 * empty string.
+	 */
+	public static final RelationType<String> ORGANIZATION_UNIT =
+		newInitialValueType("");
+
+	/**
+	 * The locality name (typically a city name) of a cryptographic certificate.
+	 * Defaults to an empty string.
+	 */
+	public static final RelationType<String> LOCALITY = newInitialValueType("");
+
+	/**
+	 * The state, province, or region name of a cryptographic certificate.
+	 * Defaults to an empty string.
+	 */
+	public static final RelationType<String> STATE_PROVINCE_REGION =
+		newInitialValueType("");
+
+	/**
+	 * The country name of a cryptographic certificate. Defaults to an empty
+	 * string.
+	 */
+	public static final RelationType<String> COUNTRY = newInitialValueType("");
 
 	static
 	{
