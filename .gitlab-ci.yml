@@ -16,7 +16,7 @@ build:
   stage: build
   dependencies:
   - project: framework/esoco-common
-  job: build
+  - job: build
   
   script:
     - ./gradlew assemble
