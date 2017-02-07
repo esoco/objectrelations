@@ -14,10 +14,7 @@ cache:
 
 build:
   stage: build
-  dependencies:
-  - project: framework/esoco-common
-  - job: build
-  
+
   script:
     - ./gradlew assemble
   artifacts:
