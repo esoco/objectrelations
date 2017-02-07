@@ -6,6 +6,14 @@ project.version = '1.1.0'
 
 sourceCompatibility = 1.8
 
+tasks.withType(JavaCompile) {
+	// enable compilation of internal sun classes
+	// see http://stackoverflow.com/questions/12554829/
+    options.compilerArgs << '-XDignore.symbol.file'
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+}
+
 // disable Java 8 doclint for Javadoc
 if (JavaVersion.current().isJava8Compatible()) {
     tasks.withType(Javadoc) {
@@ -14,6 +22,7 @@ if (JavaVersion.current().isJava8Compatible()) {
 }
 tasks.withType(Javadoc) {
     failOnError = false
+    options.addStringOption('XDignore.symbol.file', '-quiet')
 }
 
 repositories
