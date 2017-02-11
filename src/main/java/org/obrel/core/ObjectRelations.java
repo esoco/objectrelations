@@ -195,13 +195,7 @@ public class ObjectRelations
 	 * Validates that certain relations exist on a target object or else throws
 	 * an {@link IllegalArgumentException}.
 	 *
-	 * @param  rRelatable The relatable to validate
-	 * @param  rTypes     The relation types that must be set on the object with
-	 *                    any kind of value, including NULL
-	 *
-	 * @throws IllegalArgumentException If one or more relations don't exist
-	 *
-	 * @see    #require(Relatable, Predicate, RelationType...)
+	 * @see #require(Relatable, Predicate, RelationType...)
 	 */
 	public static void require(Relatable rRelatable, RelationType<?>... rTypes)
 	{
@@ -245,6 +239,20 @@ public class ObjectRelations
 			throw new IllegalArgumentException("Relations missing: " +
 											   aMissingTypes);
 		}
+	}
+
+	/***************************************
+	 * Validates that certain relations exist on a target object with a non-null
+	 * value or else throws an {@link IllegalArgumentException}.
+	 *
+	 * @see #require(Relatable, Predicate, RelationType...)
+	 */
+	@SuppressWarnings("boxing")
+	public static void requireNonNull(
+		Relatable		   rRelatable,
+		RelationType<?>... rTypes)
+	{
+		require(rRelatable, r -> r.getTarget() != null, rTypes);
 	}
 
 	/***************************************
