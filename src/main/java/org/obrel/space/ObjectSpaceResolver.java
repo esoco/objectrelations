@@ -24,7 +24,7 @@ import org.obrel.core.RelationType;
 
 
 /********************************************************************
- * A binary function extension that resolves URLs in object spaces in the method
+ * A binary function extension that resolves URLs in object spaces. Invoked by
  * {@link ObjectRelations#urlDo(Relatable, String, boolean, BinaryFunction)}.
  *
  * @author eso
@@ -119,11 +119,11 @@ public interface ObjectSpaceResolver
 	 *
 	 * @author eso
 	 */
-	public static class PutResolver implements ObjectSpaceResolver
+	public static class PutResolver<T> implements ObjectSpaceResolver
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private final Object rValue;
+		private final T rValue;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -132,7 +132,7 @@ public interface ObjectSpaceResolver
 		 *
 		 * @param rValue The value to put
 		 */
-		public PutResolver(Object rValue)
+		public PutResolver(T rValue)
 		{
 			this.rValue = rValue;
 		}
@@ -168,7 +168,7 @@ public interface ObjectSpaceResolver
 		 *
 		 * @return The put value
 		 */
-		public Object getValue()
+		public T getValue()
 		{
 			return rValue;
 		}

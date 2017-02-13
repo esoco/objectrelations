@@ -16,8 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.space;
 
-import de.esoco.lib.expression.Functions;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -67,9 +65,9 @@ public class ObjectSpaceTest
 	@SuppressWarnings("boxing")
 	public void setup()
 	{
-		aTestSpace = new MutableObjectSpace<>(Functions.identity());
-		aSubSpace1 = new MutableObjectSpace<>(Functions.identity());
-		aSubSpace2 = new MutableObjectSpace<>(Functions.identity());
+		aTestSpace = new MutableObjectSpace<>();
+		aSubSpace1 = new MutableObjectSpace<>();
+		aSubSpace2 = new MutableObjectSpace<>();
 
 		aTestSpace.set(SUBSPACE1, aSubSpace1);
 		aTestSpace.set(SUBSPACE2, aSubSpace2);

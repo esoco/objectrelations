@@ -16,49 +16,21 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.space;
 
-import de.esoco.lib.expression.Function;
-
 import org.obrel.core.ObjectRelations;
 import org.obrel.core.RelatedObject;
-import org.obrel.space.ObjectSpaceResolver.GetResolver;
+
+import static org.obrel.space.ObjectSpaceResolver.URL_GET;
 
 
 /********************************************************************
  * A simple {@link ObjectSpace} implementation based on {@link RelatedObject}
- * that maps access URLs to the hierarchy of it's relations. The conversion
- * between relation target objects and the datatype of an object space is
- * performed by a value mapping function that must be handed to the constructor.
+ * that maps access URLs to the hierarchy of it's relations.
  *
  * @author eso
  */
 public class SimpleObjectSpace<T> extends RelatedObject
 	implements ObjectSpace<T>
 {
-	//~ Instance fields --------------------------------------------------------
-
-	private Function<Object, T> fValueMapper;
-
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance with a certain value mapping function.
-	 *
-	 * @param fValueMapper The value mapping function
-	 */
-	public SimpleObjectSpace(Function<Object, T> fValueMapper)
-	{
-		this.fValueMapper = fValueMapper;
-	}
-
-	/***************************************
-	 * Subclass constructor without a mapping function. The subclass must
-	 * override the {@link #get(String)} method because it uses the value
-	 * function which will be NULL.
-	 */
-	protected SimpleObjectSpace()
-	{
-	}
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -68,18 +40,6 @@ public class SimpleObjectSpace<T> extends RelatedObject
 	@SuppressWarnings("unchecked")
 	public T get(String sUrl)
 	{
-		GetResolver fGet = (r, t) -> getValueMapper().evaluate(r.get(t));
-
-		return (T) ObjectRelations.urlDo(this, sUrl, false, fGet);
-	}
-
-	/***************************************
-	 * Returns the value mapping function of this space.
-	 *
-	 * @return The value mapping function
-	 */
-	public final Function<Object, T> getValueMapper()
-	{
-		return fValueMapper;
+		return (T) ObjectRelations.urlDo(this, sUrl, false, URL_GET);
 	}
 }

@@ -550,7 +550,7 @@ public class ObjectRelations
 	 */
 	public static void urlPut(Relatable rRoot, String sUrl, Object rValue)
 	{
-		urlDo(rRoot, sUrl, true, new PutResolver(rValue));
+		urlDo(rRoot, sUrl, true, new PutResolver<Object>(rValue));
 	}
 
 	/***************************************

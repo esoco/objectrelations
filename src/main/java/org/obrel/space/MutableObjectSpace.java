@@ -16,10 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.space;
 
-import de.esoco.lib.expression.InvertibleFunction;
-
 import org.obrel.core.ObjectRelations;
 import org.obrel.space.ObjectSpaceResolver.PutResolver;
+
+import static org.obrel.space.ObjectSpaceResolver.URL_DELETE;
 
 
 /********************************************************************
@@ -31,18 +31,6 @@ import org.obrel.space.ObjectSpaceResolver.PutResolver;
 public class MutableObjectSpace<T> extends SimpleObjectSpace<T>
 	implements ObjectSpace<T>
 {
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance with a certain value mapping function.
-	 *
-	 * @param fValueMapper The value mapping function
-	 */
-	public MutableObjectSpace(InvertibleFunction<Object, T> fValueMapper)
-	{
-		super(fValueMapper);
-	}
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -51,10 +39,7 @@ public class MutableObjectSpace<T> extends SimpleObjectSpace<T>
 	@Override
 	public void delete(String sUrl)
 	{
-		ObjectRelations.urlDo(this,
-							  sUrl,
-							  false,
-							  ObjectSpaceResolver.URL_DELETE);
+		ObjectRelations.urlDo(this, sUrl, false, URL_DELETE);
 	}
 
 	/***************************************
@@ -63,18 +48,6 @@ public class MutableObjectSpace<T> extends SimpleObjectSpace<T>
 	@Override
 	public void put(String sUrl, T rValue)
 	{
-		ObjectRelations.urlDo(this,
-							  sUrl,
-							  false,
-			new PutResolver(rValue)
-			{
-				@Override
-				@SuppressWarnings("unchecked")
-				public Object getValue()
-				{
-					return ((InvertibleFunction<Object, T>) getValueMapper())
-						.invert((T) super.getValue());
-				}
-			});
+		ObjectRelations.urlDo(this, sUrl, false, new PutResolver<T>(rValue));
 	}
 }
