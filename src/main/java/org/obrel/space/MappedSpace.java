@@ -35,14 +35,13 @@ import org.obrel.core.RelatedObject;
  *
  * @author eso
  */
-public class MappedObjectSpace<T, O> extends RelatedObject
-	implements ObjectSpace<T>
+public class MappedSpace<T, O> extends RelatedObject implements ObjectSpace<T>
 {
 	//~ Instance fields --------------------------------------------------------
 
 	private ObjectSpace<O>			 rWrappedSpace;
 	private Function<O, T>			 fValueMapper;
-	private InvertibleFunction<O, T> fInvertibleMapper = null;
+	private InvertibleFunction<O, T> fPutMapper = null;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -52,7 +51,7 @@ public class MappedObjectSpace<T, O> extends RelatedObject
 	 * @param rWrappedSpace The target object space to map values from and to
 	 * @param fValueMapper  The value mapping function
 	 */
-	public MappedObjectSpace(
+	public MappedSpace(
 		ObjectSpace<O> rWrappedSpace,
 		Function<O, T> fValueMapper)
 	{
@@ -61,7 +60,7 @@ public class MappedObjectSpace<T, O> extends RelatedObject
 
 		if (fValueMapper instanceof InvertibleFunction)
 		{
-			fInvertibleMapper = (InvertibleFunction<O, T>) fValueMapper;
+			fPutMapper = (InvertibleFunction<O, T>) fValueMapper;
 		}
 	}
 
@@ -101,9 +100,9 @@ public class MappedObjectSpace<T, O> extends RelatedObject
 	@Override
 	public void put(String sUrl, T rValue)
 	{
-		if (fInvertibleMapper != null)
+		if (fPutMapper != null)
 		{
-			rWrappedSpace.put(sUrl, fInvertibleMapper.invert(rValue));
+			rWrappedSpace.put(sUrl, fPutMapper.invert(rValue));
 		}
 		else
 		{

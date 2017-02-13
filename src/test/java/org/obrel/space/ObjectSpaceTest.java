@@ -65,9 +65,9 @@ public class ObjectSpaceTest
 	@SuppressWarnings("boxing")
 	public void setup()
 	{
-		aTestSpace = new MutableObjectSpace<>();
-		aSubSpace1 = new MutableObjectSpace<>();
-		aSubSpace2 = new MutableObjectSpace<>();
+		aTestSpace = new RelationSpace<>();
+		aSubSpace1 = new RelationSpace<>();
+		aSubSpace2 = new RelationSpace<>();
 
 		aTestSpace.set(SUBSPACE1, aSubSpace1);
 		aTestSpace.set(SUBSPACE2, aSubSpace2);

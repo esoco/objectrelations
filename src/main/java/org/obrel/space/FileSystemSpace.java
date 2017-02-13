@@ -26,7 +26,7 @@ import java.io.File;
  *
  * @author eso
  */
-public class FileSystemSpace<T> extends SimpleObjectSpace<T>
+public class FileSystemSpace<T> extends RelationSpace<T>
 {
 	//~ Instance fields --------------------------------------------------------
 
