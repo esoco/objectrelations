@@ -18,6 +18,7 @@ package org.obrel.space;
 
 import org.obrel.core.Relatable;
 import org.obrel.core.RelatedObject;
+import org.obrel.core.Relation;
 
 
 /********************************************************************
@@ -31,17 +32,25 @@ public class HtmlSpace extends RelatedObject implements ObjectSpace<String>
 	//~ Instance fields --------------------------------------------------------
 
 	private ObjectSpace<Object> rDataSpace;
+	private String			    sBaseUrl;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
+	 * @param sBaseUrl   The base URL of this space
 	 * @param rDataSpace The object space that provides the data to be rendered
 	 *                   as HTML
 	 */
-	public HtmlSpace(ObjectSpace<Object> rDataSpace)
+	public HtmlSpace(String sBaseUrl, ObjectSpace<Object> rDataSpace)
 	{
+		if (!sBaseUrl.endsWith("/"))
+		{
+			sBaseUrl += "/";
+		}
+
+		this.sBaseUrl   = sBaseUrl;
 		this.rDataSpace = rDataSpace;
 	}
 
@@ -57,7 +66,7 @@ public class HtmlSpace extends RelatedObject implements ObjectSpace<String>
 
 		if (rValue != null)
 		{
-			return renderValue(rValue);
+			return renderAsHtml(sUrl, rValue);
 		}
 		else
 		{
@@ -74,30 +83,25 @@ public class HtmlSpace extends RelatedObject implements ObjectSpace<String>
 	}
 
 	/***************************************
-	 * Renders the relations of an object as HTML.
+	 * Overridden to return the HTML representation of this complete space.
 	 *
-	 * @param  rRelatable The object to render the relations of
-	 *
-	 * @return An HTML string
+	 * @return The HTML for this space
 	 */
-	protected String renderRelations(Relatable rRelatable)
+	@Override
+	public String toString()
 	{
-		StringBuilder aHtml = new StringBuilder();
-
-		rRelatable.stream()
-				  .forEach(r -> aHtml.append(renderSimpleValue(r.getTarget())));
-
-		return aHtml.toString();
+		return renderAsHtml("", rDataSpace);
 	}
 
 	/***************************************
 	 * Renders a value with an HTML representation.
 	 *
+	 * @param  sUrl   The URL the value has been read from
 	 * @param  rValue The value to map
 	 *
 	 * @return The HTML to display for the value
 	 */
-	protected String renderValue(Object rValue)
+	protected String renderAsHtml(String sUrl, Object rValue)
 	{
 		String sHtml =
 			"<html>\n" +
@@ -112,25 +116,78 @@ public class HtmlSpace extends RelatedObject implements ObjectSpace<String>
 
 		if (rValue instanceof Relatable)
 		{
-			sBody = renderRelations((RelatedObject) rValue);
+			if (!sUrl.endsWith("/"))
+			{
+				sUrl += "/";
+			}
+
+			sBody = renderRelations(sBaseUrl + sUrl, (RelatedObject) rValue);
 		}
 		else
 		{
-			sBody = renderSimpleValue(rValue);
+			sBody = renderValue(rValue);
 		}
 
 		return String.format(sHtml, sBody);
 	}
 
 	/***************************************
-	 * Renders a simple value into HTML.
+	 * Renders a single relation as HTML.
+	 *
+	 * @param  sUrl      The parent URL of the relation
+	 * @param  rRelation The relation to render
+	 *
+	 * @return The HTML representing the relation
+	 */
+	protected String renderRelation(String sUrl, Relation<?> rRelation)
+	{
+		Object rValue = rRelation.getTarget();
+		String sHtml  = "";
+
+		if (rValue instanceof Relatable)
+		{
+			String sType = rRelation.getType().getSimpleName().toLowerCase();
+
+			sHtml =
+				String.format("<a href=\"%s%s\">%s</a>", sUrl, sType, sType);
+		}
+		else
+		{
+			sHtml = renderValue(rValue);
+		}
+
+		return sHtml;
+	}
+
+	/***************************************
+	 * Renders the relations of an object as HTML.
+	 *
+	 * @param  sUrl       The parent URL of the relations
+	 * @param  rRelatable The object to render the relations of
+	 *
+	 * @return An HTML string
+	 */
+	protected String renderRelations(String sUrl, Relatable rRelatable)
+	{
+		StringBuilder aHtml = new StringBuilder();
+
+		rRelatable.stream()
+				  .forEach(r ->
+						   aHtml.append(renderRelation(sUrl, r))
+						   .append('\n'));
+
+		return aHtml.toString();
+	}
+
+	/***************************************
+	 * Renders a value into a HTML representation.
 	 *
 	 * @param  rValue The value to render
 	 *
 	 * @return The resulting HTML string
 	 */
-	private String renderSimpleValue(Object rValue)
+	private String renderValue(Object rValue)
 	{
-		return "";
+		return rValue.toString();
 	}
 }
