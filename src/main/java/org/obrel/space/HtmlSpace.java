@@ -16,9 +16,20 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.space;
 
+import de.esoco.lib.text.TextConvert;
+
+import java.text.DateFormat;
+
+import java.util.Date;
+
 import org.obrel.core.Relatable;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
+
+import static org.obrel.core.RelationTypes.newInitialValueType;
+import static org.obrel.type.StandardTypes.NAME;
 
 
 /********************************************************************
@@ -27,30 +38,55 @@ import org.obrel.core.Relation;
  *
  * @author eso
  */
-public class HtmlSpace extends RelatedObject implements ObjectSpace<String>
+public class HtmlSpace extends RelationSpace<String>
 {
+	//~ Static fields/initializers ---------------------------------------------
+
+	/**
+	 * Template for a rendered HTML page. The template will be formatted with
+	 * two string values: the first provides the page title, the second the body
+	 * content.
+	 */
+	public static final RelationType<String> PAGE_TEMPLATE =
+		newInitialValueType("<html>\n" +
+							"<head>\n" +
+							"<title>%s</title>\n" +
+							"</head>\n" +
+							"<body>\n" +
+							"%s</body>\n" +
+							"</html>");
+
+	/**
+	 * Template for a space-internal link on a rendered HTML page. The template
+	 * will be formatted with two string values: the first provides the link
+	 * URL, the second the link text.
+	 */
+	public static final RelationType<String> INTERNAL_LINK_TEMPLATE =
+		newInitialValueType("<a href=\"%s\">%s</a>");
+
+	/** Template for the (readonly) display of text values. */
+	public static final RelationType<String> TEXT_DISPLAY_TEMPLATE =
+		newInitialValueType("<b>%s</b>: %s");
+
+	static
+	{
+		RelationTypes.init(HtmlSpace.class);
+	}
+
 	//~ Instance fields --------------------------------------------------------
 
 	private ObjectSpace<Object> rDataSpace;
-	private String			    sBaseUrl;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param sBaseUrl   The base URL of this space
 	 * @param rDataSpace The object space that provides the data to be rendered
 	 *                   as HTML
 	 */
-	public HtmlSpace(String sBaseUrl, ObjectSpace<Object> rDataSpace)
+	public HtmlSpace(ObjectSpace<Object> rDataSpace)
 	{
-		if (!sBaseUrl.endsWith("/"))
-		{
-			sBaseUrl += "/";
-		}
-
-		this.sBaseUrl   = sBaseUrl;
 		this.rDataSpace = rDataSpace;
 	}
 
@@ -83,7 +119,7 @@ public class HtmlSpace extends RelatedObject implements ObjectSpace<String>
 	}
 
 	/***************************************
-	 * Overridden to return the HTML representation of this complete space.
+	 * Overridden to return the HTML representation of this space.
 	 *
 	 * @return The HTML for this space
 	 */
@@ -94,41 +130,84 @@ public class HtmlSpace extends RelatedObject implements ObjectSpace<String>
 	}
 
 	/***************************************
+	 * A builder-style method to set a certain relation and then return this
+	 * instance for concatenation.
+	 *
+	 * @param  rType  The type of the relation to set
+	 * @param  rValue The relation value
+	 *
+	 * @return This instance for method concatenation
+	 */
+	public <T> HtmlSpace with(RelationType<T> rType, T rValue)
+	{
+		set(rType, rValue);
+
+		return this;
+	}
+
+	/***************************************
+	 * Returns the title for a certain page.
+	 *
+	 * @param  rPageObject The relatable object from which the page is rendered
+	 *
+	 * @return The page title
+	 */
+	protected String getPageTitle(Relatable rPageObject)
+	{
+		String sTitle = rPageObject.get(NAME);
+
+		if (sTitle == null)
+		{
+			sTitle = rPageObject.getClass().getSimpleName();
+		}
+
+		return sTitle;
+	}
+
+	/***************************************
 	 * Renders a value with an HTML representation.
 	 *
-	 * @param  sUrl   The URL the value has been read from
-	 * @param  rValue The value to map
+	 * @param  sUrl    The URL the value has been read from
+	 * @param  rObject The value to map
 	 *
 	 * @return The HTML to display for the value
 	 */
-	protected String renderAsHtml(String sUrl, Object rValue)
+	protected String renderAsHtml(String sUrl, Object rObject)
 	{
-		String sHtml =
-			"<html>\n" +
-			"  <head>\n" +
-			"    <title>Title</title>\n" +
-			"  </head>\n" +
-			"  <body>\n%s" +
-			"  </body>\n" +
-			"</html>";
+		String sHtml;
 
-		String sBody;
-
-		if (rValue instanceof Relatable)
+		if (rObject instanceof HtmlSpace)
 		{
-			if (!sUrl.endsWith("/"))
-			{
-				sUrl += "/";
-			}
-
-			sBody = renderRelations(sBaseUrl + sUrl, (RelatedObject) rValue);
+			sHtml = rObject.toString();
 		}
 		else
 		{
-			sBody = renderValue(rValue);
+			Object sTitle;
+			String sBody;
+
+			if (rObject instanceof Relatable)
+			{
+				Relatable rPageObject = (RelatedObject) rObject;
+
+				if (sUrl.length() > 0 && !sUrl.endsWith("/"))
+				{
+					sUrl += "/";
+				}
+
+				sTitle =
+					getPageTitle(rObject == rDataSpace ? this : rPageObject);
+				sBody  = renderRelations(sUrl, rPageObject);
+			}
+			else
+			{
+				sTitle = sUrl.substring(sUrl.lastIndexOf('/') + 1);
+				sBody  = renderDisplayValue(rObject);
+			}
+
+			sHtml = String.format(get(PAGE_TEMPLATE), sTitle, sBody);
 		}
 
-		return String.format(sHtml, sBody);
+		return sHtml;
 	}
 
 	/***************************************
@@ -149,11 +228,15 @@ public class HtmlSpace extends RelatedObject implements ObjectSpace<String>
 			String sType = rRelation.getType().getSimpleName().toLowerCase();
 
 			sHtml =
-				String.format("<a href=\"%s%s\">%s</a>", sUrl, sType, sType);
+				String.format(get(INTERNAL_LINK_TEMPLATE), sUrl + sType, sType);
 		}
 		else
 		{
-			sHtml = renderValue(rValue);
+			String sLabel = rRelation.getType().getSimpleName();
+
+			sLabel = TextConvert.capitalize(sLabel, " ");
+			sHtml  = get(TEXT_DISPLAY_TEMPLATE);
+			sHtml  = String.format(sHtml, sLabel, renderDisplayValue(rValue));
 		}
 
 		return sHtml;
@@ -174,7 +257,7 @@ public class HtmlSpace extends RelatedObject implements ObjectSpace<String>
 		rRelatable.stream()
 				  .forEach(r ->
 						   aHtml.append(renderRelation(sUrl, r))
-						   .append('\n'));
+						   .append("<br>"));
 
 		return aHtml.toString();
 	}
@@ -186,8 +269,19 @@ public class HtmlSpace extends RelatedObject implements ObjectSpace<String>
 	 *
 	 * @return The resulting HTML string
 	 */
-	private String renderValue(Object rValue)
+	private String renderDisplayValue(Object rValue)
 	{
-		return rValue.toString();
+		String sHtml;
+
+		if (rValue instanceof Date)
+		{
+			sHtml = DateFormat.getDateTimeInstance().format(rValue);
+		}
+		else
+		{
+			sHtml = rValue.toString();
+		}
+
+		return sHtml;
 	}
 }

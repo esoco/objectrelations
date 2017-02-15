@@ -71,9 +71,9 @@ public class JsonBuilder
 
 	private final String sIndent;
 
-	private StringBuilder aJson				   = new StringBuilder();
-	private String		  sCurrentIndent	   = "";
-	private boolean		  bRecursiveRelatables = false;
+	private StringBuilder aJson			 = new StringBuilder();
+	private String		  sCurrentIndent = "";
+	private boolean		  bRecursive     = false;
 
 	private Collection<RelationType<?>> aExcludedRelationTypes =
 		new HashSet<>(DEFAULT_EXCLUDED_RELATION_TYPES);
@@ -173,18 +173,13 @@ public class JsonBuilder
 			}
 			else if (Date.class.isAssignableFrom(rDatatype))
 			{
-				beginString();
-				aJson.append(JSON_DATE_FORMAT.format((Date) rValue));
-				endString();
+				appendString(JSON_DATE_FORMAT.format((Date) rValue));
 			}
 			else if (RelationType.class.isAssignableFrom(rDatatype))
 			{
-				beginString();
-				aJson.append(JsonUtil.escape(rValue.toString()));
-				endString();
+				appendString(JsonUtil.escape(rValue.toString()));
 			}
-			else if (bRecursiveRelatables &&
-					 Relatable.class.isAssignableFrom(rDatatype))
+			else if (bRecursive && Relatable.class.isAssignableFrom(rDatatype))
 			{
 				appendObject((Relatable) rValue, null);
 			}
@@ -202,9 +197,7 @@ public class JsonBuilder
 					sValue = rValue.toString();
 				}
 
-				beginString();
-				aJson.append(JsonUtil.escape(sValue));
-				endString();
+				appendString(JsonUtil.escape(sValue));
 			}
 		}
 
@@ -255,7 +248,7 @@ public class JsonBuilder
 	 */
 	public JsonBuilder appendArray(Collection<?> rCollection)
 	{
-		beginArray();
+		aJson.append(JsonStructure.ARRAY.cOpen);
 
 		if (rCollection != null && !rCollection.isEmpty())
 		{
@@ -273,7 +266,7 @@ public class JsonBuilder
 			}
 		}
 
-		endArray();
+		aJson.append(JsonStructure.ARRAY.cClose);
 
 		return this;
 	}
@@ -289,7 +282,7 @@ public class JsonBuilder
 	 */
 	public JsonBuilder appendName(String sName)
 	{
-		beginString().appendText(sName).endString().appendText(": ");
+		appendString(sName).appendText(": ");
 
 		return this;
 	}
@@ -347,13 +340,13 @@ public class JsonBuilder
 	 * @see    #appendRelations(Relatable, Collection)
 	 */
 	public JsonBuilder appendObject(
-		Relatable						  rObject,
-		final Collection<RelationType<?>> rRelationTypes)
+		Relatable					rObject,
+		Collection<RelationType<?>> rRelationTypes)
 	{
 		beginObject();
-		bRecursiveRelatables = true;
+		bRecursive = true;
 		appendRelations(rObject, rRelationTypes);
-		bRecursiveRelatables = false;
+		bRecursive = false;
 		endObject();
 
 		return this;
@@ -383,8 +376,8 @@ public class JsonBuilder
 	 * @return This instance for concatenation
 	 */
 	public JsonBuilder appendRelations(
-		Relatable						  rObject,
-		final Collection<RelationType<?>> rRelationTypes)
+		Relatable					rObject,
+		Collection<RelationType<?>> rRelationTypes)
 	{
 		Predicate<? super Relation<?>> pRelations = null;
 
@@ -424,9 +417,24 @@ public class JsonBuilder
 	}
 
 	/***************************************
-	 * Appends an arbitrary text to the current JSON value. The caller is
-	 * responsible that the resulting string is valid according to the JSON
-	 * specification.
+	 * Appends a string value by wrapping it in the JSON string delimiters.
+	 *
+	 * @param  sStringValue sText The text string to append
+	 *
+	 * @return This instance for concatenation
+	 */
+	public JsonBuilder appendString(String sStringValue)
+	{
+		aJson.append(JsonStructure.STRING.cOpen);
+		aJson.append(sStringValue);
+		aJson.append(JsonStructure.STRING.cClose);
+
+		return this;
+	}
+
+	/***************************************
+	 * Appends an arbitrary text. The caller is responsible that the resulting
+	 * string is valid according to the JSON specification.
 	 *
 	 * @param  sText The text string to append
 	 *
@@ -435,21 +443,6 @@ public class JsonBuilder
 	public JsonBuilder appendText(String sText)
 	{
 		aJson.append(sText);
-
-		return this;
-	}
-
-	/***************************************
-	 * Starts the output of a new JSON array by inserting the corresponding
-	 * delimiter.
-	 *
-	 * @return This instance for concatenation
-	 *
-	 * @see    #endArray()
-	 */
-	public JsonBuilder beginArray()
-	{
-		aJson.append(JsonStructure.ARRAY.cOpen);
 
 		return this;
 	}
@@ -472,36 +465,6 @@ public class JsonBuilder
 	}
 
 	/***************************************
-	 * Starts the output of a new JSON string by inserting the corresponding
-	 * delimiter.
-	 *
-	 * @return This instance for concatenation
-	 *
-	 * @see    #endArray()
-	 */
-	public JsonBuilder beginString()
-	{
-		aJson.append(JsonStructure.STRING.cOpen);
-
-		return this;
-	}
-
-	/***************************************
-	 * Ends the output of the current JSON array by inserting the corresponding
-	 * delimiter.
-	 *
-	 * @return This instance for concatenation
-	 *
-	 * @see    #beginArray()
-	 */
-	public JsonBuilder endArray()
-	{
-		aJson.append(JsonStructure.ARRAY.cClose);
-
-		return this;
-	}
-
-	/***************************************
 	 * Ends the output of the current JSON object by inserting the corresponding
 	 * delimiter.
 	 *
@@ -517,21 +480,6 @@ public class JsonBuilder
 									 sIndent.length());
 		newLine();
 		aJson.append(JsonStructure.OBJECT.cClose);
-
-		return this;
-	}
-
-	/***************************************
-	 * Ends the output of the current JSON string by inserting the corresponding
-	 * delimiter.
-	 *
-	 * @return This instance for concatenation
-	 *
-	 * @see    #beginArray()
-	 */
-	public JsonBuilder endString()
-	{
-		aJson.append(JsonStructure.STRING.cClose);
 
 		return this;
 	}

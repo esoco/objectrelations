@@ -94,6 +94,9 @@ public class StandardTypes
 	 */
 	public static final RelationType<String> ERROR_MESSAGE = newType();
 
+	/** Holds an exception that occurred in the hierarchy of an object. */
+	public static final RelationType<Exception> EXCEPTION = newType();
+
 	/** A generic object reference to the previous value of an element. */
 	public static final RelationType<Object> PREVIOUS_VALUE = newType();
 
