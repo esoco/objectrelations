@@ -31,6 +31,7 @@ public class FileSystemSpace<T> extends RelationSpace<T>
 	//~ Instance fields --------------------------------------------------------
 
 	private final String	  sRootPath;
+	private String			  sDefaultFile;
 	private Function<File, T> fReadFile;
 
 	//~ Constructors -----------------------------------------------------------
@@ -38,19 +39,24 @@ public class FileSystemSpace<T> extends RelationSpace<T>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param sRootPath The root path to which URLs are relative
-	 * @param fReadFile A function that reads a file and returns it's content
-	 *                  with the datatype of this space
+	 * @param sRootPath    The root path to which URLs are relative
+	 * @param sDefaultFile The default file to look return on empty URLs (empty
+	 *                     string for none)
+	 * @param fReadFile    A function that reads a file and returns it's content
+	 *                     with the datatype of this space
 	 */
-	public FileSystemSpace(String sRootPath, Function<File, T> fReadFile)
+	public FileSystemSpace(String			 sRootPath,
+						   String			 sDefaultFile,
+						   Function<File, T> fReadFile)
 	{
 		if (!sRootPath.endsWith("/"))
 		{
 			sRootPath += "/";
 		}
 
-		this.sRootPath = sRootPath;
-		this.fReadFile = fReadFile;
+		this.sRootPath    = sRootPath;
+		this.sDefaultFile = sDefaultFile;
+		this.fReadFile    = fReadFile;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -64,6 +70,11 @@ public class FileSystemSpace<T> extends RelationSpace<T>
 		if (sUrl.startsWith("/"))
 		{
 			sUrl = sUrl.substring(1);
+		}
+
+		if (sUrl.isEmpty())
+		{
+			sUrl = sDefaultFile;
 		}
 
 		File aFile = new File(sRootPath + sUrl);

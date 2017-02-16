@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.function;
 
-import de.esoco.lib.expression.FunctionException;
+import de.esoco.lib.expression.Function.ThrowingFunction;
 
 
 /********************************************************************
@@ -29,7 +29,7 @@ import de.esoco.lib.expression.FunctionException;
  * @author eso
  */
 public abstract class ExceptionMappingFunction<I, O>
-	extends AbstractFunction<I, O>
+	extends AbstractFunction<I, O> implements ThrowingFunction<I, O, Exception>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -40,40 +40,4 @@ public abstract class ExceptionMappingFunction<I, O>
 	{
 		super(sToken);
 	}
-
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Overridden to invoke {@link #evaluateWithException(Object)} and to
-	 * convert any occurring exception into a runtime exception.
-	 *
-	 * @see AbstractFunction#evaluate(Object)
-	 */
-	@Override
-	public final O evaluate(I rValue)
-	{
-		try
-		{
-			return evaluateWithException(rValue);
-		}
-		catch (Exception e)
-		{
-			throw (e instanceof RuntimeException)
-				  ? (RuntimeException) e : new FunctionException(this, e);
-		}
-	}
-
-	/***************************************
-	 * This method must be implemented by subclasses to perform the function
-	 * evaluation. The method may throw any type of exception to signal an
-	 * error. The invoking {@link #evaluate(Object)} method will convert such
-	 * exceptions into runtime exceptions.
-	 *
-	 * @param  rValue The input value for the evaluation
-	 *
-	 * @return The result of the evaluation
-	 *
-	 * @throws Exception If an error occurs
-	 */
-	protected abstract O evaluateWithException(I rValue) throws Exception;
 }

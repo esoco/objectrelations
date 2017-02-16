@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -82,5 +82,54 @@ public interface Predicate<T> extends Function<T, Boolean>,
 	default boolean test(T rValue)
 	{
 		return evaluate(rValue);
+	}
+
+	//~ Inner Interfaces -------------------------------------------------------
+
+	/********************************************************************
+	 * A sub-interface that allows implementations to throw checked exceptions.
+	 * If an exception occurs it will be converted into a runtime exception of
+	 * the type {@link FunctionException}.
+	 *
+	 * @author eso
+	 */
+	@FunctionalInterface
+	public static interface ThrowingPredicate<T, E extends Exception>
+		extends Predicate<T>
+	{
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Overridden to forward the invocation to the actual function
+		 * implementation in {@link #evaluateWithException(Object)} and to
+		 * convert occurring exceptions into {@link FunctionException}.
+		 *
+		 * @see Predicate#evaluate(Object)
+		 */
+		@Override
+		default public Boolean evaluate(T rValue)
+		{
+			try
+			{
+				return evaluateWithException(rValue);
+			}
+			catch (Exception e)
+			{
+				throw (e instanceof RuntimeException)
+					  ? (RuntimeException) e : new FunctionException(this, e);
+			}
+		}
+
+		/***************************************
+		 * Replaces {@link #evaluate(Object)} and allows implementations to
+		 * throw an exception.
+		 *
+		 * @param  rValue rInput The value to check
+		 *
+		 * @return The function result
+		 *
+		 * @throws E An exception in the case of errors
+		 */
+		public Boolean evaluateWithException(T rValue) throws E;
 	}
 }

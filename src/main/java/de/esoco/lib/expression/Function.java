@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -133,5 +133,54 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 	default <T> Function<I, T> then(Function<? super O, T> fNext)
 	{
 		return Functions.chain(fNext, this);
+	}
+
+	//~ Inner Interfaces -------------------------------------------------------
+
+	/********************************************************************
+	 * A sub-interface that allows implementations to throw checked exceptions.
+	 * If an exception occurs it will be converted into a runtime exception of
+	 * the type {@link FunctionException}.
+	 *
+	 * @author eso
+	 */
+	@FunctionalInterface
+	public static interface ThrowingFunction<I, O, E extends Exception>
+		extends Function<I, O>
+	{
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Overridden to forward the invocation to the actual function
+		 * implementation in {@link #evaluateWithException(Object)} and to
+		 * convert occurring exceptions into {@link FunctionException}.
+		 *
+		 * @see Function#evaluate(Object)
+		 */
+		@Override
+		default public O evaluate(I rInput)
+		{
+			try
+			{
+				return evaluateWithException(rInput);
+			}
+			catch (Exception e)
+			{
+				throw (e instanceof RuntimeException)
+					  ? (RuntimeException) e : new FunctionException(this, e);
+			}
+		}
+
+		/***************************************
+		 * Replaces {@link #evaluate(Object)} and allows implementations to
+		 * throw an exception.
+		 *
+		 * @param  rInput The input value
+		 *
+		 * @return The function result
+		 *
+		 * @throws E An exception in the case of errors
+		 */
+		public O evaluateWithException(I rInput) throws E;
 	}
 }

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
+import de.esoco.lib.expression.BinaryFunction.ThrowingBinaryFunction;
+import de.esoco.lib.expression.Function.ThrowingFunction;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.expression.function.AbstractInvertibleFunction;
@@ -746,6 +748,61 @@ public class Functions
 					   INPUT_PLACEHOLDER + ")";
 			}
 		};
+	}
+
+	/***************************************
+	 * Returns an unchecked function that evaluates a function in a
+	 * try-with-resource code block with an {@link AutoCloseable} resource that
+	 * is created by another functions.
+	 *
+	 * @param  fOpenResource  An unchecked function that opens a resource
+	 *                        derived from the function input
+	 * @param  fProduceResult An unchecked function that creates the function
+	 *                        result from the resource
+	 *
+	 * @return A new unchecked function instance
+	 */
+	public static <I, R extends AutoCloseable, O> Function<I, O> tryWith(
+		ThrowingFunction<I, R, Exception> fOpenResource,
+		ThrowingFunction<R, O, Exception> fProduceResult)
+	{
+		return unchecked(i ->
+			 			{
+			 				try (R rResource = fOpenResource.evaluate(i))
+			 				{
+			 					return fProduceResult.evaluate(rResource);
+			 				}
+						 });
+	}
+
+	/***************************************
+	 * Takes a function that throws an exception and returns it as a function
+	 * that can be executed without checked exception. This method is mainly
+	 * intended to be used with lambdas that throw exceptions.
+	 *
+	 * @param  fChecked The checked function to wrap as unchecked
+	 *
+	 * @return The unchecked function
+	 */
+	public static <I, O, E extends Exception> Function<I, O> unchecked(
+		ThrowingFunction<I, O, E> fChecked)
+	{
+		return fChecked;
+	}
+
+	/***************************************
+	 * Takes a binary function that throws an exception and returns it as a
+	 * function that can be executed without checked exception. This method is
+	 * mainly intended to be used with lambdas that throw exceptions.
+	 *
+	 * @param  fChecked The checked binary function to wrap as unchecked
+	 *
+	 * @return The unchecked binary function
+	 */
+	public static <L, R, O, E extends Exception> BinaryFunction<L, R, O> unchecked(
+		ThrowingBinaryFunction<L, R, O, E> fChecked)
+	{
+		return fChecked;
 	}
 
 	/***************************************
