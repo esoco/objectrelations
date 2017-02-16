@@ -91,13 +91,8 @@ public class HtmlSpace extends RelationSpace<String>
 	 */
 	public HtmlSpace(ObjectSpace<Object> rDataSpace, String sBaseUrl)
 	{
-		if (!sBaseUrl.endsWith("/"))
-		{
-			sBaseUrl += "/";
-		}
-
 		this.rDataSpace = rDataSpace;
-		this.sBaseUrl   = sBaseUrl;
+		this.sBaseUrl   = checkUrl(sBaseUrl);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -156,6 +151,23 @@ public class HtmlSpace extends RelationSpace<String>
 	}
 
 	/***************************************
+	 * Checks a URL for correct termination with a forward slash '/'.
+	 *
+	 * @param  sUrl The URL to check
+	 *
+	 * @return The URL, modified if necessary
+	 */
+	protected String checkUrl(String sUrl)
+	{
+		if (sUrl.length() > 0 && !sUrl.endsWith("/"))
+		{
+			sUrl += "/";
+		}
+
+		return sUrl;
+	}
+
+	/***************************************
 	 * Returns the title for a certain page.
 	 *
 	 * @param  rPageObject The relatable object from which the page is rendered
@@ -199,14 +211,10 @@ public class HtmlSpace extends RelationSpace<String>
 			{
 				Relatable rPageObject = (RelatedObject) rObject;
 
-				if (sUrl.length() > 0 && !sUrl.endsWith("/"))
-				{
-					sUrl += "/";
-				}
-
 				sTitle =
 					getPageTitle(rObject == rDataSpace ? this : rPageObject);
-				sBody  = renderRelations(sBaseUrl + sUrl, rPageObject);
+				sBody  =
+					renderRelations(sBaseUrl + checkUrl(sUrl), rPageObject);
 			}
 			else
 			{
