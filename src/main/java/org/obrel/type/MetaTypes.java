@@ -317,6 +317,7 @@ public class MetaTypes
 		 * @see RelationType#addRelation(Relatable, Relation)
 		 */
 		@Override
+		@SuppressWarnings("boxing")
 		public Relation<Boolean> addRelation(
 			Relatable		  rParent,
 			Relation<Boolean> rNewRelation)
@@ -330,7 +331,8 @@ public class MetaTypes
 			super.addRelation(rParent, rNewRelation);
 
 			// first make all relations of the parent immutable
-			for (Relation<?> rRelation : rParent.getRelations(null))
+			for (Relation<?> rRelation :
+				 rParent.getRelations(r -> r.getType() != RELATION_LISTENERS))
 			{
 				rRelation.immutable();
 			}

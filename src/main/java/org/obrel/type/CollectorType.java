@@ -63,10 +63,10 @@ import static org.obrel.type.StandardTypes.MAXIMUM;
  * of elements by dropping the oldest (first) element from the collection if the
  * limit is exceeded.</p>
  *
- * <p>If a collector type is set on a relation or a relation type it will
- * collect all values that are set in the relation or of with the relation type
- * as they are returned by the collector function, not of the other relations of
- * the relation (type) if seen as a relatable object.</p>
+ * <p>If a collector type is set on a particular relation it will collect all
+ * values that are set into the relation and are matched by the collector
+ * function. If set on a relation type it will collection all matched values of
+ * that type.</p>
  *
  * <p>By default the collection of collector type instances is mutable, i.e. it
  * can be modified externally by adding or removing values. If it is desired

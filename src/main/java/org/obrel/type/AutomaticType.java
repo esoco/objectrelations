@@ -40,6 +40,9 @@ import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
  * This is achieved by registering the type instance as an event lister for
  * relation events on the parent of the relation with this type.
  *
+ * <p>If an automatic type is used as a view or and alias it will not have an
+ * automatic functionality but will work like a normal relation type.</p>
+ *
  * @author eso
  */
 public abstract class AutomaticType<T> extends RelationType<T>
