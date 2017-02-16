@@ -192,19 +192,19 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	protected RelationType<EventDispatcher<RelationEvent<?>>> getListenerType(
 		Relatable rParent)
 	{
-		RelationType<EventDispatcher<RelationEvent<?>>> rEventScope =
+		RelationType<EventDispatcher<RelationEvent<?>>> rListenerType =
 			RELATION_LISTENERS;
 
 		if (rParent instanceof RelationType)
 		{
-			rEventScope = RELATION_TYPE_LISTENERS;
+			rListenerType = RELATION_TYPE_LISTENERS;
 		}
 		else if (rParent instanceof Relation)
 		{
-			rEventScope = RELATION_UPDATE_LISTENERS;
+			rListenerType = RELATION_UPDATE_LISTENERS;
 		}
 
-		return rEventScope;
+		return rListenerType;
 	}
 
 	/***************************************
