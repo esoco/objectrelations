@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//	  http://www.apache.org/licenses/LICENSE-2.0
+//		 http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,7 +75,7 @@ public class HtmlSpace extends RelationSpace<String>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private ObjectSpace<Object> rDataSpace;
+	private ObjectSpace<?> rDataSpace;
 
 	private String sBaseUrl;
 
@@ -89,7 +89,7 @@ public class HtmlSpace extends RelationSpace<String>
 	 * @param sBaseUrl   The base URL to pre prepended to all space-relative
 	 *                   URLs
 	 */
-	public HtmlSpace(ObjectSpace<Object> rDataSpace, String sBaseUrl)
+	public HtmlSpace(ObjectSpace<?> rDataSpace, String sBaseUrl)
 	{
 		if (!sBaseUrl.endsWith("/"))
 		{
