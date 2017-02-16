@@ -6,7 +6,7 @@
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//		 http://www.apache.org/licenses/LICENSE-2.0
+//	  http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -64,7 +64,7 @@ public class HtmlSpace extends RelationSpace<String>
 	public static final RelationType<String> INTERNAL_LINK_TEMPLATE =
 		newInitialValueType("<a href=\"%s\">%s</a>");
 
-	/** Template for the (readonly) display of text values. */
+	/** Template for the (read-only) display of text values. */
 	public static final RelationType<String> TEXT_DISPLAY_TEMPLATE =
 		newInitialValueType("<b>%s</b>: %s");
 
@@ -86,8 +86,7 @@ public class HtmlSpace extends RelationSpace<String>
 	 *
 	 * @param rDataSpace The object space that provides the data to be rendered
 	 *                   as HTML
-	 * @param sBaseUrl   The base URL to pre prepended to all space-relative
-	 *                   URLs
+	 * @param sBaseUrl   The base URL to be prepended to all space-relative URLs
 	 */
 	public HtmlSpace(ObjectSpace<?> rDataSpace, String sBaseUrl)
 	{
