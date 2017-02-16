@@ -41,8 +41,12 @@ import static org.obrel.type.StandardTypes.MAXIMUM;
  * An automatic relation type that collects values from other relations of the
  * object it is set on. This type registers itself as a relation listener on
  * it's parent object. The values to be collected are determined by evaluating
- * the relation of each event with a collector function that must return either
- * the value to collect or NULL if nothing should be collected.
+ * the relation of each event with a binary collector function that must return
+ * either the value to collect or NULL if nothing should be collected. The first
+ * argument to the binary function is the affected relation and the second is
+ * the (new) value of the relation. In the case of an update update this value
+ * will differ from the value that is stored in the relation itself because
+ * update events occur before the actual update is performed.
  *
  * <p>A collector type can be used to either collect only distinct values which
  * are then stored in an ordered {@link Set} collection so that each distinct
@@ -70,7 +74,7 @@ import static org.obrel.type.StandardTypes.MAXIMUM;
  * modifiers {@link RelationTypeModifier#READONLY READONLY} or {@link
  * RelationTypeModifier#FINAL FINAL} can be set. Besides their standard property
  * of making the relation itself unmodifiable this will also make the underlying
- * collection immutable from the outside while the collection functionality will
+ * collection immutable from the outside while the collecting functionality will
  * continue to work.</p>
  *
  * @author eso
@@ -83,8 +87,8 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private final BinaryFunction<RelationType<?>, Object, T> fCollector;
-	private final boolean									 bDistinctValues;
+	private final BinaryFunction<Relation<?>, Object, T> fCollector;
+	private final boolean								 bDistinctValues;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -94,19 +98,18 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 	 * @param sName           The name of this type
 	 * @param rCollectedType  The datatype of the collected values
 	 * @param fCollector      The function that determines the values to be
-	 *                        collected from relation types and target values;
+	 *                        collected from relations and (new) target values;
 	 *                        if it returns NULL no value will be collected
 	 * @param bDistinctValues TRUE to collect only distinct values; FALSE to
 	 *                        collect all values that are added to the object
 	 * @param rModifiers      The relation type modifiers
 	 */
 	@SuppressWarnings("unchecked")
-	public CollectorType(
-		String									   sName,
-		Class<? super T>						   rCollectedType,
-		BinaryFunction<RelationType<?>, Object, T> fCollector,
-		boolean									   bDistinctValues,
-		RelationTypeModifier... 				   rModifiers)
+	public CollectorType(String									sName,
+						 Class<? super T>						rCollectedType,
+						 BinaryFunction<Relation<?>, Object, T> fCollector,
+						 boolean								bDistinctValues,
+						 RelationTypeModifier... 				rModifiers)
 	{
 		super(sName,
 			  (Class<Collection<T>>) (bDistinctValues ? Set.class : List.class),
@@ -133,9 +136,9 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 	 * @return The new instance
 	 */
 	public static <T> CollectorType<T> newCollector(
-		Class<? super T>						   rCollectedType,
-		BinaryFunction<RelationType<?>, Object, T> fCollector,
-		RelationTypeModifier... 				   rModifiers)
+		Class<? super T>					   rCollectedType,
+		BinaryFunction<Relation<?>, Object, T> fCollector,
+		RelationTypeModifier... 			   rModifiers)
 	{
 		return new CollectorType<>(null,
 								   rCollectedType,
@@ -156,9 +159,9 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 	 * @return The new instance
 	 */
 	public static <T> CollectorType<T> newDistinctCollector(
-		Class<? super T>						   rCollectedType,
-		BinaryFunction<RelationType<?>, Object, T> fCollector,
-		RelationTypeModifier... 				   rModifiers)
+		Class<? super T>					   rCollectedType,
+		BinaryFunction<Relation<?>, Object, T> fCollector,
+		RelationTypeModifier... 			   rModifiers)
 	{
 		return new CollectorType<>(null,
 								   rCollectedType,
@@ -179,14 +182,14 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 	@SuppressWarnings("boxing")
 	protected void processEvent(RelationEvent<?> rEvent)
 	{
-		RelationType<?> rRelationType = rEvent.getElement().getType();
-		EventType	    eEventType    = rEvent.getType();
+		Relation<?> rRelation  = rEvent.getElement();
+		EventType   eEventType = rEvent.getType();
 
 		Object rValue =
 			eEventType == EventType.UPDATE ? rEvent.getUpdateValue()
-										   : rEvent.getElement().getTarget();
+										   : rRelation.getTarget();
 
-		T rCollectValue = fCollector.evaluate(rRelationType, rValue);
+		T rCollectValue = fCollector.evaluate(rRelation, rValue);
 
 		if (rCollectValue != null)
 		{

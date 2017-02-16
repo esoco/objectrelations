@@ -25,6 +25,7 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
+import org.obrel.core.RelationWrapper;
 
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypeModifier.READONLY;
@@ -35,23 +36,9 @@ import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 
 /********************************************************************
  * A base class for relation types that update their target or other state
- * automatically based on other relations of the parent object it is set on. The
- * typical way to create such a type is to let it implement the interface {@link
- * EventHandler} for {@link RelationEvent RelationEvent&lt;?&gt;} and then
- * register this relation type as the event handler for all other relations with
- * {@link #registerRelationListener(Relatable, EventHandler)}. If a subclass
- * implements the interface the registration is done automatically in the
- * overridden method {@link #addRelation(Relatable, Relation)} and undone with
- * {@link #removeRelationListener(Relatable, EventHandler)} in {@link
- * #deleteRelation(Relatable, Relation)}.
- *
- * <p>Because the event listener management methods take the event listener as
- * the argument it is not necessary to let the relation type implement the
- * listener interface directly but to use a separate listener object instead.
- * But in that case the listener instance must be stored somewhere so that it
- * can be removed later if necessary. This could for example be done with a
- * (private) meta-relation on the relation of this type (which is an argument to
- * both the add and delete relation methods).</p>
+ * automatically based on other relations of the parent object it is set on.
+ * This is achieved by registering the type instance as an event lister for
+ * relation events on the parent of the relation with this type.
  *
  * @author eso
  */
@@ -158,12 +145,15 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	{
 		super.addRelation(rParent, rRelation);
 
-		if (hasModifier(FINAL) || hasModifier(READONLY))
+		if (!(rRelation instanceof RelationWrapper))
 		{
-			protectTarget(rParent, rRelation);
-		}
+			if (hasModifier(FINAL) || hasModifier(READONLY))
+			{
+				protectTarget(rParent, rRelation);
+			}
 
-		registerRelationListener(rParent, this);
+			registerRelationListener(rParent, this);
+		}
 
 		return rRelation;
 	}
