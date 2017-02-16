@@ -77,6 +77,8 @@ public class HtmlSpace extends RelationSpace<String>
 
 	private ObjectSpace<Object> rDataSpace;
 
+	private String sBaseUrl;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -84,10 +86,18 @@ public class HtmlSpace extends RelationSpace<String>
 	 *
 	 * @param rDataSpace The object space that provides the data to be rendered
 	 *                   as HTML
+	 * @param sBaseUrl   The base URL to pre prepended to all space-relative
+	 *                   URLs
 	 */
-	public HtmlSpace(ObjectSpace<Object> rDataSpace)
+	public HtmlSpace(ObjectSpace<Object> rDataSpace, String sBaseUrl)
 	{
+		if (!sBaseUrl.endsWith("/"))
+		{
+			sBaseUrl += "/";
+		}
+
 		this.rDataSpace = rDataSpace;
+		this.sBaseUrl   = sBaseUrl;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -196,7 +206,7 @@ public class HtmlSpace extends RelationSpace<String>
 
 				sTitle =
 					getPageTitle(rObject == rDataSpace ? this : rPageObject);
-				sBody  = renderRelations(sUrl, rPageObject);
+				sBody  = renderRelations(sBaseUrl + sUrl, rPageObject);
 			}
 			else
 			{
