@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
+import de.esoco.lib.expression.BinaryPredicate.ThrowingBinaryPredicate;
+import de.esoco.lib.expression.Predicate.ThrowingPredicate;
 import de.esoco.lib.expression.function.GetElement.GetField;
 import de.esoco.lib.expression.function.GetElement.ReadField;
 import de.esoco.lib.expression.predicate.AbstractBinaryPredicate;
@@ -623,6 +625,36 @@ public class Predicates
 	public static <T> Comparison<T, Object> sameAs(Object rValue)
 	{
 		return new SameAs<T>(rValue);
+	}
+
+	/***************************************
+	 * Takes a predicate that throws an exception and returns it as a predicate
+	 * that can be executed without a checked exception. This method is mainly
+	 * intended to be used with lambdas that throw exceptions.
+	 *
+	 * @param  pChecked The checked predicate to wrap as unchecked
+	 *
+	 * @return The unchecked predicate
+	 */
+	public static <T, E extends Exception> Predicate<T> unchecked(
+		ThrowingPredicate<T, E> pChecked)
+	{
+		return pChecked;
+	}
+
+	/***************************************
+	 * Takes a binary predicate that throws an exception and returns it as a
+	 * binary predicate that can be executed without a checked exception. This
+	 * method is mainly intended to be used with lambdas that throw exceptions.
+	 *
+	 * @param  pChecked The checked predicate to wrap as unchecked
+	 *
+	 * @return The unchecked predicate
+	 */
+	public static <L, R, E extends Exception> BinaryPredicate<L, R> unchecked(
+		ThrowingBinaryPredicate<L, R, E> pChecked)
+	{
+		return pChecked;
 	}
 
 	/***************************************

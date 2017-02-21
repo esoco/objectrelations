@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
+import de.esoco.lib.expression.Action.ThrowingAction;
 import de.esoco.lib.expression.BinaryFunction.ThrowingBinaryFunction;
 import de.esoco.lib.expression.Function.ThrowingFunction;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
@@ -776,8 +777,23 @@ public class Functions
 	}
 
 	/***************************************
+	 * Takes an action that throws an exception and returns it as an action that
+	 * can be executed without a checked exception. This method is mainly
+	 * intended to be used with lambdas that throw exceptions.
+	 *
+	 * @param  fChecked The checked action to wrap as unchecked
+	 *
+	 * @return The unchecked action
+	 */
+	public static <T, E extends Exception> Action<T> unchecked(
+		ThrowingAction<T, E> fChecked)
+	{
+		return fChecked;
+	}
+
+	/***************************************
 	 * Takes a function that throws an exception and returns it as a function
-	 * that can be executed without checked exception. This method is mainly
+	 * that can be executed without a checked exception. This method is mainly
 	 * intended to be used with lambdas that throw exceptions.
 	 *
 	 * @param  fChecked The checked function to wrap as unchecked

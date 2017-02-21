@@ -64,17 +64,6 @@ public abstract class AbstractBinaryPredicate<L, R>
 	}
 
 	/***************************************
-	 * @see BinaryPredicate#from(Function, Function)
-	 */
-	@Override
-	public <A, B> BinaryPredicate<A, B> from(
-		Function<A, ? extends L> rLeft,
-		Function<B, ? extends R> rRight)
-	{
-		return Predicates.chain(this, rLeft, rRight);
-	}
-
-	/***************************************
 	 * @see Predicate#or(Predicate)
 	 */
 	@Override

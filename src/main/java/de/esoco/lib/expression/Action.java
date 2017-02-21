@@ -58,4 +58,51 @@ public interface Action<T> extends Function<T, Void>, Consumer<T>
 
 		return null;
 	}
+
+	//~ Inner Interfaces -------------------------------------------------------
+
+	/********************************************************************
+	 * A sub-interface that allows implementations to throw checked exceptions.
+	 * If an exception occurs it will be converted into a runtime exception of
+	 * the type {@link FunctionException}.
+	 *
+	 * @author eso
+	 */
+	@FunctionalInterface
+	public static interface ThrowingAction<T, E extends Exception>
+		extends Action<T>
+	{
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * Replaces {@link #evaluate(Object)} and allows implementations to
+		 * throw an exception.
+		 *
+		 * @param  rValue The input value
+		 *
+		 * @throws E An exception in the case of errors
+		 */
+		public void evaluateWithException(T rValue) throws E;
+
+		/***************************************
+		 * Overridden to forward the invocation to the actual function
+		 * implementation in {@link #evaluateWithException(Object)} and to
+		 * convert occurring exceptions into {@link FunctionException}.
+		 *
+		 * @see Action#execute(Object)
+		 */
+		@Override
+		default public void execute(T rValue)
+		{
+			try
+			{
+				evaluateWithException(rValue);
+			}
+			catch (Exception e)
+			{
+				throw (e instanceof RuntimeException)
+					  ? (RuntimeException) e : new FunctionException(this, e);
+			}
+		}
+	}
 }
