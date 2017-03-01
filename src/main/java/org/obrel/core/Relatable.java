@@ -268,6 +268,23 @@ public interface Relatable
 	}
 
 	/***************************************
+	 * Sets multiple relations at once by applying them from instances of the
+	 * class {@link RelationData}. If used with a static import of the factory
+	 * method {@link RelationData#r(RelationType, Object)} it allows a compact
+	 * assignment of multiple relations at once.
+	 *
+	 * @param rRelations rRelationDatas The relation data objects to set the
+	 *                   relations from
+	 */
+	default public void set(RelationData<?>... rRelations)
+	{
+		for (RelationData<?> rData : rRelations)
+		{
+			rData.applyTo(this);
+		}
+	}
+
+	/***************************************
 	 * Sets a relation to the given target object with a certain relation type
 	 * to this instance. If this is the first call for the given type a new
 	 * relation with that type will be created.
