@@ -20,12 +20,16 @@ package org.obrel.core;
  * A subclass of related object that is intended to hold relation-based
  * parameters. It implements the relation builder interface so that relations
  * can easily be added to an instance. It also provides the factory method
- * {@link #params(RelationData)} which returns a new instance initialized with
- * the given parameters.
+ * {@link #params(RelationData...)} which returns a new instance initialized
+ * with the given parameter relations.
+ *
+ * <p>This class also implements the {@link ProvidesConfiguration} interface so
+ * that it can be used as a holder for configuration data.</p>
  *
  * @author eso
  */
-public class Params extends RelatedObject implements RelationBuilder<Params>
+public class Params extends RelatedObject implements RelationBuilder<Params>,
+													 ProvidesConfiguration
 {
 	//~ Static methods ---------------------------------------------------------
 
@@ -37,8 +41,35 @@ public class Params extends RelatedObject implements RelationBuilder<Params>
 	 *
 	 * @return The new instance
 	 */
-	public static Params params(RelationData<?> rRelations)
+	public static Params params(RelationData<?>... rRelations)
 	{
 		return new Params().with(rRelations);
+	}
+
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> T getConfigValue(RelationType<T> rType, T rDefaultValue)
+	{
+		T rValue = rDefaultValue;
+
+		if (hasRelation(rType))
+		{
+			rValue = get(rType);
+		}
+
+		return rValue;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public <T> void setConfigValue(RelationType<T> rType, T rDefaultValue)
+	{
+		set(rType, rDefaultValue);
 	}
 }
