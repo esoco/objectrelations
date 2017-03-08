@@ -137,7 +137,9 @@ public interface RelationBuilder<R extends RelationBuilder<R>> extends Relatable
 	@SuppressWarnings("unchecked")
 	default public R with(RelationType<Integer> rType, int nValue)
 	{
-		return (R) set(rType, Integer.valueOf(nValue));
+		set(rType, Integer.valueOf(nValue));
+
+		return (R) this;
 	}
 
 	/***************************************
