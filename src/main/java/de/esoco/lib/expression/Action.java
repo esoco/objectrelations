@@ -17,6 +17,7 @@
 package de.esoco.lib.expression;
 
 import de.esoco.lib.expression.function.AbstractFunction;
+import de.esoco.lib.expression.function.FunctionChain;
 
 import java.util.function.Consumer;
 
@@ -57,6 +58,23 @@ public interface Action<T> extends Function<T, Void>, Consumer<T>
 		execute(rValue);
 
 		return null;
+	}
+
+	/***************************************
+	 * Returns a new function object that evaluates the result received from
+	 * another function with this function. Implementations should typically
+	 * subclass {@link AbstractFunction} which already contains an
+	 * implementation of this method.
+	 *
+	 * @param  fPrevious The function to produce this function's input values
+	 *                   with
+	 *
+	 * @return A new instance of {@link FunctionChain}
+	 */
+	@Override
+	default <O> Action<O> from(Function<O, ? extends T> fPrevious)
+	{
+		return Functions.asAction(Functions.chain(this, fPrevious));
 	}
 
 	//~ Inner Interfaces -------------------------------------------------------

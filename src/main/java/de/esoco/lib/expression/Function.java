@@ -70,9 +70,7 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 
 	/***************************************
 	 * Returns a new function object that evaluates the result received from
-	 * another function with this function. Implementations should typically
-	 * subclass {@link AbstractFunction} which already contains an
-	 * implementation of this method.
+	 * another function with this function.
 	 *
 	 * @param  fPrevious The function to produce this function's input values
 	 *                   with
@@ -122,9 +120,7 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 
 	/***************************************
 	 * Returns a new function object that evaluates the result of this function
-	 * with another function and returns the result. Implementations should
-	 * typically subclass {@link AbstractFunction} which already contains an
-	 * implementation of this method.
+	 * with another function and returns the result.
 	 *
 	 * @param  fNext The function to evaluate this function's output values with
 	 *
