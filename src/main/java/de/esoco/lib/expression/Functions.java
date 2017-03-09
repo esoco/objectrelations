@@ -83,16 +83,6 @@ public class Functions
 			}
 		};
 
-	private static final Function<Object, String> AS_STRING =
-		new AbstractFunction<Object, String>("AsString")
-		{
-			@Override
-			public String evaluate(Object rValue)
-			{
-				return rValue != null ? rValue.toString() : "null";
-			}
-		};
-
 	private static final Function<Number, Number> THREAD_SLEEP =
 		new AbstractFunction<Number, Number>("ThreadSleep")
 		{
@@ -177,15 +167,26 @@ public class Functions
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
+	 * Converts a function into an action that ignores the return value.
+	 *
+	 * @param  rFunction The function to convert
+	 *
+	 * @return A new action
+	 */
+	public static <T> Action<T> asAction(Function<T, ?> rFunction)
+	{
+		return v -> rFunction.evaluate(v);
+	}
+
+	/***************************************
 	 * Returns a function that invokes {@link Object#toString()} on the input
 	 * value.
 	 *
 	 * @return A function constant that converts input objects to strings
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> Function<T, String> asString()
 	{
-		return (Function<T, String>) AS_STRING;
+		return v -> v != null ? v.toString() : "null";
 	}
 
 	/***************************************

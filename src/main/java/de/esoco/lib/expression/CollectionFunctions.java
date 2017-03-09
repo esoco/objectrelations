@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package de.esoco.lib.expression;
 
 import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.expression.function.AbstractAction;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.expression.function.AbstractInvertibleFunction;
@@ -208,17 +209,15 @@ public class CollectionFunctions
 	 *
 	 * @return A new function instance
 	 */
-	public static <E, T extends Collection<E>, C extends Collection<E>> Function<C, T> collectAllInto(
+	public static <E, T extends Collection<E>, C extends Collection<E>> Action<C> collectAllInto(
 		final T rTargetCollection)
 	{
-		return new AbstractFunction<C, T>("CollectAllInto")
+		return new AbstractAction<C>("CollectAllInto")
 		{
 			@Override
-			public T evaluate(C rCollection)
+			public void execute(C rCollection)
 			{
 				rTargetCollection.addAll(rCollection);
-
-				return rTargetCollection;
 			}
 		};
 	}
@@ -231,17 +230,15 @@ public class CollectionFunctions
 	 *
 	 * @return A new function instance
 	 */
-	public static <T, C extends Collection<T>> Function<T, C> collectInto(
+	public static <T, C extends Collection<T>> Action<T> collectInto(
 		final C rCollection)
 	{
-		return new AbstractFunction<T, C>("CollectInto")
+		return new AbstractAction<T>("CollectInto")
 		{
 			@Override
-			public C evaluate(T rValue)
+			public void execute(T rValue)
 			{
 				rCollection.add(rValue);
-
-				return rCollection;
 			}
 		};
 	}
