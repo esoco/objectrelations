@@ -128,6 +128,36 @@ public interface Relatable
 	public <T> T get(RelationType<T> rType);
 
 	/***************************************
+	 * Returns a value if a relation with the given type exists or else returns
+	 * a default value. If a relation exists and has a NULL value the returned
+	 * value will be NULL.
+	 *
+	 * @param  rType         The relation type to check
+	 * @param  rDefaultValue The default value to return if no relation exists
+	 *
+	 * @return Either the relation value or the default value
+	 */
+	default public <T> T get(RelationType<T> rType, T rDefaultValue)
+	{
+		return hasRelation(rType) ? get(rType) : rDefaultValue;
+	}
+
+	/***************************************
+	 * Returns an integer value if a relation with the given type exists or else
+	 * returns a default value. <b>Attention</b>: if a relation exists and has a
+	 * NULL value a {@link NullPointerException} will occur!
+	 *
+	 * @param  rType         The integer relation type to check
+	 * @param  nDefaultValue The default value to return if no relation exists
+	 *
+	 * @return Either the relation value or the default value
+	 */
+	default public int get(RelationType<Integer> rType, int nDefaultValue)
+	{
+		return hasRelation(rType) ? get(rType).intValue() : nDefaultValue;
+	}
+
+	/***************************************
 	 * Returns a list of all resolved target objects of an object's public
 	 * relations that match a certain filter. The order in which the relations
 	 * appear in the collection will be the same on multiple invocations of this
