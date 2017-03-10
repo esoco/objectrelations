@@ -44,6 +44,22 @@ public abstract class ExceptionMappingBinaryFunction<L, R, O>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * This method must be implemented by subclasses to perform the function
+	 * evaluation. The method may throw any type of exception to signal an
+	 * error. The invoking {@link #evaluate(Object, Object)} method will convert
+	 * such exceptions into runtime exceptions.
+	 *
+	 * @param  rLeftValue  The left input value for the evaluation
+	 * @param  rRightValue The right input value for the evaluation
+	 *
+	 * @return The result of the evaluation
+	 *
+	 * @throws Exception If an error occurs
+	 */
+	public abstract O evaluateWithException(L rLeftValue, R rRightValue)
+		throws Exception;
+
+	/***************************************
 	 * Overridden to invoke {@link #evaluateWithException(Object, Object)} and
 	 * to convert any occurring exception into a runtime exception.
 	 *
@@ -62,20 +78,4 @@ public abstract class ExceptionMappingBinaryFunction<L, R, O>
 				  ? (RuntimeException) e : new FunctionException(this, e);
 		}
 	}
-
-	/***************************************
-	 * This method must be implemented by subclasses to perform the function
-	 * evaluation. The method may throw any type of exception to signal an
-	 * error. The invoking {@link #evaluate(Object, Object)} method will convert
-	 * such exceptions into runtime exceptions.
-	 *
-	 * @param  rLeftValue  The left input value for the evaluation
-	 * @param  rRightValue The right input value for the evaluation
-	 *
-	 * @return The result of the evaluation
-	 *
-	 * @throws Exception If an error occurs
-	 */
-	protected abstract O evaluateWithException(L rLeftValue, R rRightValue)
-		throws Exception;
 }

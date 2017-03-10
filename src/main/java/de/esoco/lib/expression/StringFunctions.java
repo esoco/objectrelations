@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.expression.function.AbstractInvertibleFunction;
 import de.esoco.lib.expression.function.ExceptionMappingBinaryFunction;
+import de.esoco.lib.expression.function.ExceptionMappingFunction;
 import de.esoco.lib.expression.function.GetSubstring;
 import de.esoco.lib.expression.predicate.AbstractPredicate;
 import de.esoco.lib.reflect.ReflectUtil;
@@ -255,6 +256,24 @@ public class StringFunctions
 	}
 
 	/***************************************
+	 * Returns a new function that converts a byte array into a string with the
+	 * default character set.
+	 *
+	 * @return A new function instance
+	 */
+	public static Function<byte[], String> createString()
+	{
+		return new ExceptionMappingFunction<byte[], String>("createString")
+		{
+			@Override
+			public String evaluateWithException(byte[] rBytes) throws Exception
+			{
+				return new String(rBytes);
+			}
+		};
+	}
+
+	/***************************************
 	 * Returns a new binary function that converts a byte array into a string
 	 * with a certain character set.
 	 *
@@ -269,9 +288,9 @@ public class StringFunctions
 																		   "createString")
 		{
 			@Override
-			protected String evaluateWithException(
-				byte[]  rBytes,
-				Charset rCharset) throws Exception
+			public String evaluateWithException(byte[]  rBytes,
+												Charset rCharset)
+				throws Exception
 			{
 				return new String(rBytes, rCharset);
 			}
