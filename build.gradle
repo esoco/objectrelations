@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'osgi'
+apply plugin: 'eclipse'
 
 project.group   = 'org.obrel'
 project.version = '1.1.0'
