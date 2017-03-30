@@ -44,9 +44,23 @@ public class Pair<F, S> extends Tuple
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
+	 * Creates a new {@link Pair}. This factory method provides a semantic
+	 * alternative to the constructor or the {@link #t(Object, Object)} method.
+	 *
+	 * @param  rFirst  The first value
+	 * @param  rSecond The second value
+	 *
+	 * @return A new pair instance
+	 */
+	public static <F, S> Pair<F, S> of(F rFirst, S rSecond)
+	{
+		return new Pair<>(rFirst, rSecond);
+	}
+
+	/***************************************
 	 * Creates a new {@link Pair}. This factory method is intended to be used
 	 * with static imports to provide a short syntax for defining dual-value
-	 * tuples.
+	 * tuples, especially in varargs lists.
 	 *
 	 * @param  rFirst  The first value
 	 * @param  rSecond The second value
@@ -55,7 +69,7 @@ public class Pair<F, S> extends Tuple
 	 */
 	public static <F, S> Pair<F, S> t(F rFirst, S rSecond)
 	{
-		return new Pair<>(rFirst, rSecond);
+		return Pair.of(rFirst, rSecond);
 	}
 
 	//~ Methods ----------------------------------------------------------------
