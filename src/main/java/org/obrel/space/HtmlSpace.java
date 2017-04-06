@@ -271,7 +271,7 @@ public class HtmlSpace extends RelationSpace<String>
 	{
 		StringBuilder aHtml = new StringBuilder();
 
-		rRelatable.stream()
+		rRelatable.getRelations(null)
 				  .forEach(r ->
 						   aHtml.append(renderRelation(sUrl, r))
 						   .append("<br>"));

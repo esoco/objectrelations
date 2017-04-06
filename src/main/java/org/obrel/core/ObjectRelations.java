@@ -475,7 +475,7 @@ public class ObjectRelations
 					String sType = sElement;
 
 					Relation<?> rElementRelation =
-						rCurrentElement.stream()
+						rCurrentElement.getRelations(null).stream()
 									   .filter(r ->
 											   r.getType()
 											   .getName()
