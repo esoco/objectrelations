@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
+import de.esoco.lib.datatype.Pair;
 import de.esoco.lib.expression.function.AbstractInvertibleFunction;
 import de.esoco.lib.property.HasOrder;
 import de.esoco.lib.reflect.ReflectUtil;
@@ -657,6 +658,15 @@ public class Conversions
 					public RelationType<?> invert(String sName)
 					{
 						return RelationType.valueOf(sName);
+					}
+				});
+			aStringConversions.put(Pair.class,
+				new StringConversion<Pair>(Pair.class)
+				{
+					@Override
+					public Pair<?, ?> invert(String sPair)
+					{
+						return Pair.valueOf(sPair);
 					}
 				});
 			aStringConversions.put(BigDecimal.class,
