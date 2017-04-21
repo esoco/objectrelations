@@ -68,7 +68,7 @@ public class RelatedObject implements Relatable
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> void deleteRelation(Relation<T> rRelation)
+	public void deleteRelation(Relation<?> rRelation)
 	{
 		RelationType<?> rType = rRelation.getType();
 

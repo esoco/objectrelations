@@ -82,7 +82,7 @@ public interface Relatable
 	 *
 	 * @param rRelation The relation to be removed from this instance
 	 */
-	public <T> void deleteRelation(Relation<T> rRelation);
+	public void deleteRelation(Relation<?> rRelation);
 
 	/***************************************
 	 * Deletes all public relations from this instance that match a certain

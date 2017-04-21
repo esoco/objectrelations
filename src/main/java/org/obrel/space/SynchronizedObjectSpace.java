@@ -17,10 +17,14 @@
 package org.obrel.space;
 
 import de.esoco.lib.expression.Function;
+import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
 
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
@@ -28,49 +32,27 @@ import org.obrel.core.TransformedRelation;
 
 
 /********************************************************************
- * An {@link ObjectSpace} implementation that maps values from another object
- * space. The conversion between the generic type of this space and that of the
- * wrapped object space is performed by a value mapping function that must be
- * provided to the constructor. If the mapping function also implements the
- * {@link InvertibleFunction} interface the mapping will be bi-directional and
- * allows write access through the method {@link #put(String, Object)} too (if
- * the wrapped space allows modifications). Otherwise only read access through
- * {@link #get(String)} will be possible (and {@link #delete(String)}, if
- * supported by the wrapped space).
- *
- * <p>By using the same datatype for both type parameters and an identity
- * function this class can also be used as a base class that wraps another
- * object space and modifies or extends it's functionality in some way.</p>
+ * A wrapper for other object spaces that synchronizes concurrent access to the
+ * object space methods.
  *
  * @author eso
  */
-public class MappedSpace<I, O> implements ObjectSpace<I>
+public class SynchronizedObjectSpace<O> extends MappedSpace<O, O>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private ObjectSpace<O>			 rWrappedSpace;
-	private Function<O, I>			 fValueMapper;
-	private InvertibleFunction<O, I> fPutMapper = null;
+	ReadWriteLock aAccessLock = new ReentrantReadWriteLock();
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance with a certain value mapping function.
+	 * Creates a new instance.
 	 *
-	 * @param rWrappedSpace The target object space to map values from and to
-	 * @param fValueMapper  The value mapping function
+	 * @param rWrappedSpace
 	 */
-	public MappedSpace(
-		ObjectSpace<O> rWrappedSpace,
-		Function<O, I> fValueMapper)
+	public SynchronizedObjectSpace(ObjectSpace<O> rWrappedSpace)
 	{
-		this.rWrappedSpace = rWrappedSpace;
-		this.fValueMapper  = fValueMapper;
-
-		if (fValueMapper instanceof InvertibleFunction)
-		{
-			fPutMapper = (InvertibleFunction<O, I>) fValueMapper;
-		}
+		super(rWrappedSpace, Functions.identity());
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -81,7 +63,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	@Override
 	public void delete(String sUrl)
 	{
-		rWrappedSpace.delete(sUrl);
+		synchronizedModification(() -> super.delete(sUrl));
 	}
 
 	/***************************************
@@ -90,16 +72,16 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	@Override
 	public void deleteRelation(Relation<?> rRelation)
 	{
-		rWrappedSpace.deleteRelation(rRelation);
+		synchronizedModification(() -> super.deleteRelation(rRelation));
 	}
 
 	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	public I get(String sUrl)
+	public O get(String sUrl)
 	{
-		return fValueMapper.evaluate(rWrappedSpace.get(sUrl));
+		return synchronizedGet(() -> super.get(sUrl));
 	}
 
 	/***************************************
@@ -108,7 +90,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	@Override
 	public <T> T get(RelationType<T> rType)
 	{
-		return rWrappedSpace.get(rType);
+		return synchronizedGet(() -> super.get(rType));
 	}
 
 	/***************************************
@@ -117,7 +99,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	@Override
 	public <T> Relation<T> getRelation(RelationType<T> rType)
 	{
-		return rWrappedSpace.getRelation(rType);
+		return synchronizedGet(() -> super.getRelation(rType));
 	}
 
 	/***************************************
@@ -127,43 +109,16 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	public List<Relation<?>> getRelations(
 		Predicate<? super Relation<?>> rFilter)
 	{
-		return rWrappedSpace.getRelations(rFilter);
-	}
-
-	/***************************************
-	 * Returns the value mapping function of this space.
-	 *
-	 * @return The value mapping function
-	 */
-	public final Function<O, I> getValueMapper()
-	{
-		return fValueMapper;
-	}
-
-	/***************************************
-	 * Returns the wrapped object space.
-	 *
-	 * @return The wrapped object space
-	 */
-	public final ObjectSpace<O> getWrappedSpace()
-	{
-		return rWrappedSpace;
+		return synchronizedGet(() -> super.getRelations(rFilter));
 	}
 
 	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void put(String sUrl, I rValue)
+	public void put(String sUrl, O rValue)
 	{
-		if (fPutMapper != null)
-		{
-			rWrappedSpace.put(sUrl, fPutMapper.invert(rValue));
-		}
-		else
-		{
-			throw new UnsupportedOperationException("Value mapping not invertible");
-		}
+		synchronizedModification(() -> super.put(sUrl, rValue));
 	}
 
 	/***************************************
@@ -172,7 +127,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	@Override
 	public <T> Relation<T> set(RelationType<T> rType, T rTarget)
 	{
-		return rWrappedSpace.set(rType, rTarget);
+		return synchronizedUpdate(() -> super.set(rType, rTarget));
 	}
 
 	/***************************************
@@ -183,7 +138,10 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 								  Function<V, T>  fTargetResolver,
 								  V				  rIntermediateTarget)
 	{
-		return rWrappedSpace.set(rType, fTargetResolver, rIntermediateTarget);
+		return synchronizedUpdate(() ->
+								  super.set(rType,
+											fTargetResolver,
+											rIntermediateTarget));
 	}
 
 	/***************************************
@@ -194,6 +152,67 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 		RelationType<T>			 rType,
 		InvertibleFunction<T, D> fTransformation)
 	{
-		return rWrappedSpace.transform(rType, fTransformation);
+		return synchronizedUpdate(() -> super.transform(rType, fTransformation));
+	}
+
+	/***************************************
+	 * Performs a synchronized access that returns a value.
+	 *
+	 * @param  fAccess The function that performs the read access
+	 *
+	 * @return The result of the invocation
+	 */
+	<T> T synchronizedGet(Supplier<T> fAccess)
+	{
+		aAccessLock.readLock().lock();
+
+		try
+		{
+			return fAccess.get();
+		}
+		finally
+		{
+			aAccessLock.readLock().unlock();
+		}
+	}
+
+	/***************************************
+	 * Performs a synchronized modification of the wrapped object space.
+	 *
+	 * @param fUpdate The function that provides the result of the invocation
+	 */
+	void synchronizedModification(Runnable fUpdate)
+	{
+		aAccessLock.writeLock().lock();
+
+		try
+		{
+			fUpdate.run();
+		}
+		finally
+		{
+			aAccessLock.writeLock().unlock();
+		}
+	}
+
+	/***************************************
+	 * Performs a synchronized update that returns a value.
+	 *
+	 * @param  fSet The function that performs the read access
+	 *
+	 * @return The result of the invocation
+	 */
+	<T> T synchronizedUpdate(Supplier<T> fSet)
+	{
+		aAccessLock.writeLock().lock();
+
+		try
+		{
+			return fSet.get();
+		}
+		finally
+		{
+			aAccessLock.writeLock().unlock();
+		}
 	}
 }
