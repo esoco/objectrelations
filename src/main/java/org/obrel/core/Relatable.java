@@ -271,14 +271,24 @@ public interface Relatable
 	 * invokes {@link #set(RelationType, Object)} with a NULL value to create a
 	 * new creation. the given relation type to set it's initial value.
 	 *
-	 * @param rType The type of the relation to initialize
+	 * @param  rType The type of the relation to initialize
+	 *
+	 * @return The relation for the given type
 	 */
-	default public void init(RelationType<?> rType)
+	default public <T> Relation<T> init(RelationType<T> rType)
 	{
+		Relation<T> rRelation;
+
 		if (get(rType) == null)
 		{
-			set(rType, null);
+			rRelation = set(rType, null);
 		}
+		else
+		{
+			rRelation = getRelation(rType);
+		}
+
+		return rRelation;
 	}
 
 	/***************************************

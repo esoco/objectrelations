@@ -33,7 +33,8 @@ import org.obrel.core.TransformedRelation;
 
 /********************************************************************
  * A wrapper for other object spaces that synchronizes concurrent access to the
- * object space methods.
+ * object space methods. This is done through a {@link ReadWriteLock} so that
+ * concurrent read accesses won't block each other.
  *
  * @author eso
  */
