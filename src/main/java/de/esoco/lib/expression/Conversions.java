@@ -566,16 +566,16 @@ public class Conversions
 	 * accessed globally through the method {@link #getStringConversion(Class)}.
 	 *
 	 * <p>It is possible to register functions for a base type of certain
-	 * datatypes because the lookup in {@link #getStringConversion(Class)} work
+	 * datatypes because the lookup in {@link #getStringConversion(Class)} works
 	 * recursively. In such a case the application must ensure that the
-	 * registered function can also restore the correct subtype upon inversion
+	 * registered function can also restore the correct sub-type upon inversion
 	 * of the function.</p>
 	 *
 	 * @param rDatatype   The datatype to register the string conversion for
 	 * @param rConversion The string conversion function
 	 */
 	public static <T> void registerStringConversion(
-		Class<T>							  rDatatype,
+		Class<? super T>					  rDatatype,
 		InvertibleFunction<? super T, String> rConversion)
 	{
 		getStringConversionMap().put(rDatatype, rConversion);
