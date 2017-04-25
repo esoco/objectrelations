@@ -575,8 +575,8 @@ public class Conversions
 	 * @param rConversion The string conversion function
 	 */
 	public static <T> void registerStringConversion(
-		Class<? super T>					  rDatatype,
-		InvertibleFunction<? super T, String> rConversion)
+		Class<? super T>			  rDatatype,
+		InvertibleFunction<T, String> rConversion)
 	{
 		getStringConversionMap().put(rDatatype, rConversion);
 	}
