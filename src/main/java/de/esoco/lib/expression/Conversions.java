@@ -587,7 +587,6 @@ public class Conversions
 	 *
 	 * @return The map of string conversion functions
 	 */
-	@SuppressWarnings("rawtypes")
 	private static Map<Class<?>, InvertibleFunction<?, String>> getStringConversionMap()
 	{
 		if (aStringConversions == null)
@@ -652,7 +651,7 @@ public class Conversions
 					}
 				});
 			aStringConversions.put(RelationType.class,
-				new StringConversion<RelationType>(RelationType.class)
+				new StringConversion<RelationType<?>>(RelationType.class)
 				{
 					@Override
 					public RelationType<?> invert(String sName)
@@ -661,7 +660,7 @@ public class Conversions
 					}
 				});
 			aStringConversions.put(Pair.class,
-				new StringConversion<Pair>(Pair.class)
+				new StringConversion<Pair<?, ?>>(Pair.class)
 				{
 					@Override
 					public Pair<?, ?> invert(String sPair)
@@ -743,14 +742,14 @@ public class Conversions
 
 		//~ Instance fields ----------------------------------------------------
 
-		private final Class<T> rDatatype;
+		private final Class<? super T> rDatatype;
 
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
 		 * @see AbstractInvertibleFunction#AbstractInvertibleFunction(String)
 		 */
-		public StringConversion(Class<T> rDatatype)
+		public StringConversion(Class<? super T> rDatatype)
 		{
 			super(rDatatype.getSimpleName() + "ToString");
 			this.rDatatype = rDatatype;
@@ -778,11 +777,12 @@ public class Conversions
 		 * @see InvertibleFunction#invert(Object)
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public T invert(String sValue)
 		{
-			return ReflectUtil.newInstance(rDatatype,
-										   new Object[] { sValue },
-										   STRING_ARG);
+			return (T) ReflectUtil.newInstance(rDatatype,
+											   new Object[] { sValue },
+											   STRING_ARG);
 		}
 	}
 
