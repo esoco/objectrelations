@@ -274,7 +274,7 @@ public class HtmlSpace extends RelationSpace<String>
 	{
 		StringBuilder aHtml = new StringBuilder();
 
-		rRelatable.getRelations(null)
+		rRelatable.getRelations(null).stream().filter(r -> r.getType() != NAME)
 				  .forEach(rRelation ->
 			   			{
 			   				String sRelation =
