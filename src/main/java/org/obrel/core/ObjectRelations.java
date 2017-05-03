@@ -390,7 +390,50 @@ public class ObjectRelations
 	 */
 	public static void urlDelete(Relatable rRoot, String sUrl)
 	{
-		urlDo(rRoot, sUrl, true, ObjectSpaceResolver.URL_DELETE);
+		urlResolve(rRoot, sUrl, true, ObjectSpaceResolver.URL_DELETE);
+	}
+
+	/***************************************
+	 * Returns a relation value referenced by a URL. The URL will be split into
+	 * relation type names that are looked up recursively from the relation
+	 * hierarchy starting at the given root object. That means all intermediate
+	 * elements of the URL must refer to {@link Relatable} instances. If the
+	 * hierarchy doesn't match the URL an exception will be thrown.
+	 *
+	 * @param  rRoot The root relatable to start the URL lookup at
+	 * @param  sUrl  The URL of the relation to get the value from
+	 *
+	 * @return The value at the given URL
+	 *
+	 * @throws NoSuchElementException   If the URL could not be resolved
+	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
+	 *                                  relation type
+	 */
+	public static Object urlGet(Relatable rRoot, String sUrl)
+	{
+		return urlResolve(rRoot, sUrl, true, ObjectSpaceResolver.URL_GET);
+	}
+
+	/***************************************
+	 * Sets or updates a relation value referenced by a URL. The URL will be
+	 * split into relation type names that are looked up recursively from the
+	 * relation hierarchy starting at the given root object. That means all
+	 * intermediate elements of the URL must refer to {@link Relatable}
+	 * instances. If the hierarchy doesn't match the URL an exception will be
+	 * thrown.
+	 *
+	 * @param  rRoot  The root relatable to start the URL lookup at
+	 * @param  sUrl   The URL of the relation to update
+	 * @param  rValue The new or updated value
+	 *
+	 * @throws NoSuchElementException   If the URL could not be resolved
+	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
+	 *                                  relation type or if the given value
+	 *                                  cannot be assigned to the relation type
+	 */
+	public static void urlPut(Relatable rRoot, String sUrl, Object rValue)
+	{
+		urlResolve(rRoot, sUrl, true, new PutResolver<Object>(rValue));
 	}
 
 	/***************************************
@@ -416,10 +459,10 @@ public class ObjectRelations
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	public static Object urlDo(Relatable		   rRoot,
-							   String			   sUrl,
-							   boolean			   bForwardToObjectSpace,
-							   ObjectSpaceResolver fTargetHandler)
+	public static Object urlResolve(Relatable			rRoot,
+									String				sUrl,
+									boolean				bForwardToObjectSpace,
+									ObjectSpaceResolver fTargetHandler)
 	{
 		String[]	    rElements	    = sUrl.split("/");
 		Object		    rNextElement    = rRoot;
@@ -508,49 +551,6 @@ public class ObjectRelations
 		}
 
 		return fTargetHandler.evaluate(rCurrentElement, rType);
-	}
-
-	/***************************************
-	 * Returns a relation value referenced by a URL. The URL will be split into
-	 * relation type names that are looked up recursively from the relation
-	 * hierarchy starting at the given root object. That means all intermediate
-	 * elements of the URL must refer to {@link Relatable} instances. If the
-	 * hierarchy doesn't match the URL an exception will be thrown.
-	 *
-	 * @param  rRoot The root relatable to start the URL lookup at
-	 * @param  sUrl  The URL of the relation to get the value from
-	 *
-	 * @return The value at the given URL
-	 *
-	 * @throws NoSuchElementException   If the URL could not be resolved
-	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
-	 *                                  relation type
-	 */
-	public static Object urlGet(Relatable rRoot, String sUrl)
-	{
-		return urlDo(rRoot, sUrl, true, ObjectSpaceResolver.URL_GET);
-	}
-
-	/***************************************
-	 * Sets or updates a relation value referenced by a URL. The URL will be
-	 * split into relation type names that are looked up recursively from the
-	 * relation hierarchy starting at the given root object. That means all
-	 * intermediate elements of the URL must refer to {@link Relatable}
-	 * instances. If the hierarchy doesn't match the URL an exception will be
-	 * thrown.
-	 *
-	 * @param  rRoot  The root relatable to start the URL lookup at
-	 * @param  sUrl   The URL of the relation to update
-	 * @param  rValue The new or updated value
-	 *
-	 * @throws NoSuchElementException   If the URL could not be resolved
-	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
-	 *                                  relation type or if the given value
-	 *                                  cannot be assigned to the relation type
-	 */
-	public static void urlPut(Relatable rRoot, String sUrl, Object rValue)
-	{
-		urlDo(rRoot, sUrl, true, new PutResolver<Object>(rValue));
 	}
 
 	/***************************************

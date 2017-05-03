@@ -69,7 +69,7 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T>
 	{
 		if (bModificationAllowed)
 		{
-			ObjectRelations.urlDo(this, sUrl, false, URL_DELETE);
+			ObjectRelations.urlResolve(this, sUrl, false, URL_DELETE);
 		}
 		else
 		{
@@ -84,7 +84,7 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T>
 	@SuppressWarnings("unchecked")
 	public T get(String sUrl)
 	{
-		return (T) ObjectRelations.urlDo(this, sUrl, false, URL_GET);
+		return (T) ObjectRelations.urlResolve(this, sUrl, false, URL_GET);
 	}
 
 	/***************************************
@@ -95,10 +95,10 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T>
 	{
 		if (bModificationAllowed)
 		{
-			ObjectRelations.urlDo(this,
-								  sUrl,
-								  false,
-								  new PutResolver<T>(rValue));
+			ObjectRelations.urlResolve(this,
+									   sUrl,
+									   false,
+									   new PutResolver<T>(rValue));
 		}
 		else
 		{

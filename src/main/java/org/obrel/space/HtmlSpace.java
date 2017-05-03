@@ -23,7 +23,6 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import org.obrel.core.Relatable;
-import org.obrel.core.RelatedObject;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
@@ -208,7 +207,7 @@ public class HtmlSpace extends RelationSpace<String>
 
 			if (rObject instanceof Relatable)
 			{
-				Relatable rPageObject = (RelatedObject) rObject;
+				Relatable rPageObject = (Relatable) rObject;
 
 				sTitle =
 					getPageTitle(rObject == rDataSpace ? this : rPageObject);
@@ -238,7 +237,7 @@ public class HtmlSpace extends RelationSpace<String>
 	protected String renderRelation(String sUrl, Relation<?> rRelation)
 	{
 		Object rValue = rRelation.getTarget();
-		String sHtml  = "";
+		String sHtml  = null;
 
 		if (rValue instanceof Relatable)
 		{
@@ -250,10 +249,14 @@ public class HtmlSpace extends RelationSpace<String>
 		else
 		{
 			String sLabel = rRelation.getType().getSimpleName();
+			String sValue = renderDisplayValue(rValue);
 
-			sLabel = TextConvert.capitalize(sLabel, " ");
-			sHtml  = get(TEXT_DISPLAY_TEMPLATE);
-			sHtml  = String.format(sHtml, sLabel, renderDisplayValue(rValue));
+			if (sValue != null)
+			{
+				sLabel = TextConvert.capitalize(sLabel, " ");
+				sHtml  =
+					String.format(get(TEXT_DISPLAY_TEMPLATE), sLabel, sValue);
+			}
 		}
 
 		return sHtml;
@@ -272,9 +275,16 @@ public class HtmlSpace extends RelationSpace<String>
 		StringBuilder aHtml = new StringBuilder();
 
 		rRelatable.getRelations(null)
-				  .forEach(r ->
-						   aHtml.append(renderRelation(sUrl, r))
-						   .append("<br>"));
+				  .forEach(rRelation ->
+			   			{
+			   				String sRelation =
+			   					renderRelation(sUrl, rRelation);
+
+			   				if (sRelation != null)
+			   				{
+			   					aHtml.append(sRelation).append("<br>");
+			   				}
+						   });
 
 		return aHtml.toString();
 	}
@@ -288,13 +298,13 @@ public class HtmlSpace extends RelationSpace<String>
 	 */
 	private String renderDisplayValue(Object rValue)
 	{
-		String sHtml;
+		String sHtml = null;
 
 		if (rValue instanceof Date)
 		{
 			sHtml = DateFormat.getDateTimeInstance().format(rValue);
 		}
-		else
+		else if (rValue != null)
 		{
 			sHtml = rValue.toString();
 		}

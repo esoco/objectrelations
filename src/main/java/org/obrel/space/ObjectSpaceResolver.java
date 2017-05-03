@@ -25,7 +25,7 @@ import org.obrel.core.RelationType;
 
 /********************************************************************
  * A binary function extension that resolves URLs in object spaces. Invoked by
- * {@link ObjectRelations#urlDo(Relatable, String, boolean, BinaryFunction)}.
+ * {@link ObjectRelations#urlResolve(Relatable, String, boolean, BinaryFunction)}.
  *
  * @author eso
  */
@@ -50,7 +50,7 @@ public interface ObjectSpaceResolver
 
 	/***************************************
 	 * Resolves a URL in a certain {@link ObjectSpace}. Will be invoked by
-	 * {@link ObjectRelations#urlDo(Relatable, String, boolean, BinaryFunction)}
+	 * {@link ObjectRelations#urlResolve(Relatable, String, boolean, BinaryFunction)}
 	 * for the remaining URL if the URL traversal encounters an object space
 	 * element.
 	 *

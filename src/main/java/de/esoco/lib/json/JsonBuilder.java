@@ -21,7 +21,6 @@ import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.expression.function.AbstractInvertibleFunction;
 import de.esoco.lib.expression.predicate.AbstractPredicate;
 import de.esoco.lib.json.JsonUtil.JsonStructure;
 
@@ -60,6 +59,8 @@ import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 public class JsonBuilder
 {
 	//~ Static fields/initializers ---------------------------------------------
+
+	private static final ConvertJson CONVERT_JSON = new ConvertJson();
 
 	private static final Collection<RelationType<?>> DEFAULT_EXCLUDED_RELATION_TYPES =
 		CollectionUtil.<RelationType<?>>setOf(RELATION_LISTENERS,
@@ -115,25 +116,11 @@ public class JsonBuilder
 	 * Returns an invertible function that converts objects into JSON strings
 	 * and in inverted form parses JSON strings into objects.
 	 *
-	 * @return An invertible function that converts objects into JSON and vice
-	 *         versa
+	 * @return An instance of {@link ConvertJson}
 	 */
 	public static InvertibleFunction<Object, String> convertJson()
 	{
-		return new AbstractInvertibleFunction<Object, String>("")
-		{
-			@Override
-			public Object invert(String sJson)
-			{
-				return JsonParser.parseValue(sJson);
-			}
-
-			@Override
-			public String evaluate(Object rValue)
-			{
-				return new JsonBuilder().append(rValue).toString();
-			}
-		};
+		return CONVERT_JSON;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -310,8 +297,9 @@ public class JsonBuilder
 				if (--nCount > 0)
 				{
 					aJson.append(',');
-					newLine();
 				}
+
+				newLine();
 			}
 		}
 
@@ -478,7 +466,6 @@ public class JsonBuilder
 			sCurrentIndent.substring(0,
 									 sCurrentIndent.length() -
 									 sIndent.length());
-		newLine();
 		aJson.append(JsonStructure.OBJECT.cClose);
 
 		return this;
@@ -543,8 +530,9 @@ public class JsonBuilder
 			if (--nCount > 0)
 			{
 				aJson.append(',');
-				newLine();
 			}
+
+			newLine();
 		}
 
 		return this;
@@ -561,5 +549,38 @@ public class JsonBuilder
 		aJson.append(sCurrentIndent);
 
 		return this;
+	}
+
+	//~ Inner Classes ----------------------------------------------------------
+
+	/********************************************************************
+	 * An invertible function to convert objects to ({@link #evaluate(Object)})
+	 * and from ({@link #invert(String)} JSON. Can be subclassed to extend the
+	 * base functionality.
+	 *
+	 * @author eso
+	 */
+	public static class ConvertJson
+		implements InvertibleFunction<Object, String>
+	{
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public String evaluate(Object rValue)
+		{
+			return new JsonBuilder().append(rValue).toString();
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Object invert(String sJson)
+		{
+			return JsonParser.parseValue(sJson);
+		}
 	}
 }
