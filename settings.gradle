@@ -1,5 +1,12 @@
 rootProject.name = "objectrelations"
 
+buildscript {
+    repositories { maven { url 'https://plugins.gradle.org/m2/' }}
+    dependencies { classpath 'gradle.plugin.net.vivin:gradle-semantic-build-versioning:3.0.4' }
+}
+
+apply plugin: 'net.vivin.gradle-semantic-build-versioning'
+
 def baseProjects = [':esoco-common']
 
 baseProjects.each { projectName ->
