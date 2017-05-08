@@ -38,7 +38,7 @@ public abstract class ExceptionMappingBinaryPredicate<L, R>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * @see AbstractBinaryPredicate#AbstractBinaryPredicate(Object, String)
 	 */
 	public ExceptionMappingBinaryPredicate(R rRightValue, String sToken)
 	{

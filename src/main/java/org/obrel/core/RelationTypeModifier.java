@@ -45,8 +45,8 @@ package org.obrel.core;
  *     access to the relations with a private type. This modifier can also be
  *     used to prevent write access to certain relations: by internally using a
  *     writable relation type that is non-public and another public type as a
- *     view with {@link Relation#viewAs(RelationType, Relatable)} (because views
- *     are always readonly).</li>
+ *     view with {@link Relation#viewAs(RelationType, RelatedObject)} (because
+ *     views are always readonly).</li>
  * </ul>
  */
 public enum RelationTypeModifier

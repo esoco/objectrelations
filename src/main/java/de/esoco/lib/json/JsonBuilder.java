@@ -354,8 +354,8 @@ public class JsonBuilder
 	 * strings, i.e. should either have a basic datatype or a conversion to
 	 * string registered with {@link
 	 * Conversions#registerStringConversion(Class,InvertibleFunction)}. If not
-	 * the resulting JSON string will probably not be parseable by the method
-	 * {@link #fromJson(Relatable, String)}.</p>
+	 * the resulting JSON string will probably not be parseable by the class
+	 * {@link JsonParser}.</p>
 	 *
 	 * @param  rObject        The object to append the relations of
 	 * @param  rRelationTypes The types of the relation to be converted to JSON

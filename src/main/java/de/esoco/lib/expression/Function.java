@@ -60,7 +60,7 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 	/***************************************
 	 * Invokes {@link #evaluate(Object)}.
 	 *
-	 * @see java.util.function.Function#apply(I)
+	 * @see java.util.function.Function#apply(Object)
 	 */
 	@Override
 	default O apply(I rInput)

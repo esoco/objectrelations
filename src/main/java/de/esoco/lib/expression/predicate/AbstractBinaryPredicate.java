@@ -36,7 +36,7 @@ public abstract class AbstractBinaryPredicate<L, R>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * @see AbstractBinaryFunction#AbstractBinaryFunction(Object, String)
 	 */
 	public AbstractBinaryPredicate(R rRightValue, String sToken)
 	{

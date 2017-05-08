@@ -40,7 +40,7 @@ public class DirectRelation<T> extends Relation<T>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * @see Relation#Relation(Relatable, RelationType)
+	 * @see Relation#Relation(RelationType)
 	 */
 	public DirectRelation(RelationType<T> rType, T rTarget)
 	{

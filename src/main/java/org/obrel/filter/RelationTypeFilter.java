@@ -36,8 +36,7 @@ public class RelationTypeFilter
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * @see AbstractBinaryPredicate#AbstractBinaryPredicate(Object, String,
-	 *      boolean)
+	 * @see AbstractBinaryPredicate#AbstractBinaryPredicate(Object, String)
 	 */
 	public RelationTypeFilter(Predicate<RelationType<?>> rTypePredicate)
 	{

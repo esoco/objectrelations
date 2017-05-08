@@ -34,7 +34,7 @@ public abstract class ExceptionMappingBinaryFunction<L, R, O>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * @see AbstractBinaryFunction#AbstractBinaryFunction(Object, String)
 	 */
 	public ExceptionMappingBinaryFunction(R rRightValue, String sToken)
 	{

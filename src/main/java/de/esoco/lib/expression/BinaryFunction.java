@@ -30,8 +30,8 @@ import de.esoco.lib.expression.function.DualFunctionChain;
  * <p>To increase the usefulness of binary functions this interface extends the
  * standard (unary) {@link Function} interface which contains a single-argument
  * {@link Function#evaluate(Object)} method. To support the unary evaluation
- * this interface defines the method {@link #setRightValue(Object)} which
- * provides a way to set the right value of a binary function at runtime.
+ * this interface defines the method {@link #getRightValue()} that can be
+ * overridden by subclasses to provide a default right value, for example.
  * Applications that only want to use the direct evaluation of binary functions
  * may ignore the methods for unary usage.</p>
  *

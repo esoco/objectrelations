@@ -55,7 +55,7 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * {@inheritDoc}
+	 * @see RelationType#RelationType(RelationTypeModifier...)
 	 */
 	public AutomaticType(RelationTypeModifier... rModifiers)
 	{
@@ -63,7 +63,7 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * @see RelationType#RelationType(String, Class, RelationTypeModifier...)
 	 */
 	public AutomaticType(String					 sName,
 						 Class<? super T>		 rTargetType,
@@ -73,7 +73,7 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * @see RelationType#RelationType(Object, Function, RelationTypeModifier...)
 	 */
 	public AutomaticType(T										rDefaultValue,
 						 Function<? super Relatable, ? super T> fInitialValue,
@@ -83,7 +83,8 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * @see RelationType#RelationType(String, Class, Function,
+	 *      RelationTypeModifier...)
 	 */
 	public AutomaticType(String									sName,
 						 Class<? super T>						rTargetType,
@@ -94,7 +95,8 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * @see RelationType#RelationType(String, Class, Object, Function,
+	 *      RelationTypeModifier...)
 	 */
 	public AutomaticType(String									sName,
 						 Class<? super T>						rTargetType,

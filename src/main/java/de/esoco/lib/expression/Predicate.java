@@ -75,7 +75,7 @@ public interface Predicate<T> extends Function<T, Boolean>,
 	/***************************************
 	 * Invokes {@link #evaluate(Object)}.
 	 *
-	 * @see java.util.function.Predicate#test(T)
+	 * @see java.util.function.Predicate#test(Object)
 	 */
 	@Override
 	@SuppressWarnings("boxing")

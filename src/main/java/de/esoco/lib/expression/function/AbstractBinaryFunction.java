@@ -75,7 +75,10 @@ public abstract class AbstractBinaryFunction<L, R, O>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Invokes {@link Functions#chainLeft(BinaryFunction, BinaryFunction)} with
+	 * the other function first and then this.
+	 *
+	 * @see Functions#chainLeft(BinaryFunction, BinaryFunction)
 	 */
 	public <T> BinaryFunction<L, R, T> thenLeft(
 		BinaryFunction<? super O, R, T> rOther)
@@ -84,7 +87,10 @@ public abstract class AbstractBinaryFunction<L, R, O>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Invokes {@link Functions#chainRight(BinaryFunction, BinaryFunction)} with
+	 * the other function first and then this.
+	 *
+	 * @see Functions#chainRight(BinaryFunction, BinaryFunction)
 	 */
 	public <T> BinaryFunction<L, R, T> thenRight(
 		BinaryFunction<L, ? super O, T> rOther)
