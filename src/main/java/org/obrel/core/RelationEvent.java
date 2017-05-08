@@ -44,10 +44,11 @@ import org.obrel.type.StandardTypes;
  * modifications in the particular object or (if registered on a relation type)
  * of all changes to relations of that type in any object.</p>
  *
- * <p>A listener's {@link EventHandler#handleEvent(Event) handleEvent()} method
- * will be invoked if a relation event occurs. The {@link RelationEvent}
- * parameter contains the informations that are relevant for the particular
- * event and can be queried with the respective methods of the event class.</p>
+ * <p>A listener's {@link EventHandler#handleEvent(de.esoco.lib.event.Event)
+ * handleEvent()} method will be invoked if a relation event occurs. The {@link
+ * RelationEvent} parameter contains the informations that are relevant for the
+ * particular event and can be queried with the respective methods of the event
+ * class.</p>
  *
  * @author eso
  */

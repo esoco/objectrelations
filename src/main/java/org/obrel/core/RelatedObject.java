@@ -448,7 +448,7 @@ public class RelatedObject implements Relatable
 	/***************************************
 	 * Copies all relations from a source object to this one. This is an
 	 * internal helper method for {@link
-	 * ObjectRelations#copyRelations(RelatedObject, RelatedObject, boolean)}.
+	 * ObjectRelations#copyRelations(Relatable, Relatable, boolean)}.
 	 *
 	 * @param rSource  The source object to copy the relations from
 	 * @param bReplace TRUE to replace existing relations, FALSE to keep them

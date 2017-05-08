@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -74,11 +74,10 @@ public class SerializationTest
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Helper method to create the {@link #NAME_PROPERTY_TYPE_BYTES} array. Only
-	 * needed when the serialized form of the {@link StandardTypes#NAME}
-	 * relation type changes. Remove the comment of the {@link BeforeClass}
-	 * annotation to print the serialized data to the console, then copy it into
-	 * the array.
+	 * Helper method to create the 'NAME_PROPERTY_TYPE_BYTES' array. Only needed
+	 * when the serialized form of the {@link StandardTypes#NAME} relation type
+	 * changes. Remove the comment of the {@link BeforeClass} annotation to
+	 * print the serialized data to the console, then copy it into the array.
 	 */
 //	@BeforeClass
 	public static void createNameRelationTypeBytes()
@@ -107,8 +106,8 @@ public class SerializationTest
 
 	/***************************************
 	 * Reads the relation type instance {@link StandardTypes#NAME} from the
-	 * {@link #NAME_PROPERTY_TYPE_BYTES} array. The name of this test method
-	 * starts with an underscore because it must be run first to test the
+	 * 'NAME_PROPERTY_TYPE_BYTES' array. The name of this test method starts
+	 * with an underscore because it must be run first to test the
 	 * deserialization of a type that hasn't been defined yet by accessing a
 	 * standard type. This will test the automatic relation type registration
 	 * mechanism that is implemented by the class {@link RelationType} which in

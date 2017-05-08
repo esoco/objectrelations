@@ -173,7 +173,7 @@ public class RelationListenerTest
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * @see EventHandler#handleEvent(Event)
+		 * @see EventHandler#handleEvent(de.esoco.lib.event.Event)
 		 */
 		@Override
 		public void handleEvent(RelationEvent<T> rEvent)

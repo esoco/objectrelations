@@ -336,9 +336,10 @@ public class ObjectRelations
 	 * endless loop will occur. Furthermore all relations in the source object
 	 * must be convertible to strings, i.e. should either have a basic (JSON)
 	 * datatype or a conversion to string registered with {@link
-	 * Conversions#registerStringConversion(Class,InvertibleFunction)}. If not
-	 * the resulting JSON string will probably not be parseable by the method
-	 * {@link #fromJson(Relatable, String)}.
+	 * Conversions#registerStringConversion(Class,
+	 * de.esoco.lib.expression.InvertibleFunction)}. If not the resulting JSON
+	 * string will probably not be parseable by the method {@link
+	 * #fromJson(Relatable, String)}.
 	 *
 	 * @param  rObject        The object to convert
 	 * @param  rRelationTypes The types of the relation to be converted to JSON

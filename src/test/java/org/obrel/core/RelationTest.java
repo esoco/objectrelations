@@ -458,7 +458,8 @@ public class RelationTest
 	}
 
 	/***************************************
-	 * Test of {@link RelatedObject#set(RelationType, Function, Object)}.
+	 * Test of {@link RelatedObject#set(RelationType,
+	 * de.esoco.lib.expression.Function, Object)}.
 	 */
 	@Test
 	public void testIntermediateRelation()
@@ -648,7 +649,8 @@ public class RelationTest
 
 	/***************************************
 	 * Test of {@link ObjectRelations#urlGet(Relatable, String)} and {@link
-	 * ObjectRelations#resolve(Relatable, String)}.
+	 * ObjectRelations#urlResolve(Relatable, String, boolean,
+	 * org.obrel.space.ObjectSpaceResolver)}.
 	 */
 	@Test
 	public void testUrlGet()
