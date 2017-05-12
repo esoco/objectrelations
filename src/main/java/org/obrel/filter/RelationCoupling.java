@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.filter;
 
+import de.esoco.lib.expression.function.RelationAccessor;
 import de.esoco.lib.property.Gettable;
 import de.esoco.lib.property.HasValue;
 import de.esoco.lib.property.Settable;
@@ -133,6 +134,24 @@ public class RelationCoupling<T>
 		rRelatable.init(rType).get(COUPLINGS).add(aCoupling);
 
 		return aCoupling;
+	}
+
+	/***************************************
+	 * Bi-directionally couples a relation with a different relation in another
+	 * relatable object.
+	 *
+	 * @see #couple(Relatable, RelationType, Consumer, Supplier)
+	 */
+	public static <T> RelationCoupling<T> couple(
+		Relatable		rRelatable,
+		RelationType<T> rType,
+		Relatable		rCoupledRelatable,
+		RelationType<T> rCoupledType)
+	{
+		RelationAccessor<T> fTarget =
+			new RelationAccessor<>(rCoupledRelatable, rCoupledType);
+
+		return couple(rRelatable, rType, fTarget, fTarget);
 	}
 
 	/***************************************
