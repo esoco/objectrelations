@@ -202,6 +202,18 @@ public interface Relatable
 	}
 
 	/***************************************
+	 * Returns all relations.
+	 *
+	 * @return The relations
+	 *
+	 * @see    #getRelations(Predicate)
+	 */
+	default public List<Relation<?>> getRelations()
+	{
+		return getRelations(null);
+	}
+
+	/***************************************
 	 * Returns a list of all public relations that match a certain filter. The
 	 * order in which the relations appear in the collection will be the same on
 	 * multiple invocations of this method. The returned list can be freely
@@ -264,7 +276,7 @@ public interface Relatable
 	}
 
 	/***************************************
-	 * Initializes a relation with a certain so that the relation exists
+	 * Initializes a relation with a certain type so that the relation exists
 	 * afterwards. First tries to create the initial value of the relation type
 	 * with {@link #get(RelationType)}. If that yields NULL indicating that no
 	 * initial value exists and therefore no relation has been created it
