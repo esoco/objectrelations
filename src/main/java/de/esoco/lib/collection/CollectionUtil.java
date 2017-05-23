@@ -586,7 +586,7 @@ public class CollectionUtil
 	@SafeVarargs
 	public static <K, V> Map<K, V> fixedOrderedMapOf(Pair<K, V>... rEntries)
 	{
-		return Collections.unmodifiableMap(fixedMapOf(rEntries));
+		return Collections.unmodifiableMap(orderedMapOf(rEntries));
 	}
 
 	/***************************************
