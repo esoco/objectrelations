@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
+import de.esoco.lib.event.EventDispatcher;
 import de.esoco.lib.event.EventHandler;
 
 import org.junit.Test;
@@ -158,9 +159,11 @@ public class RelationListenerTest
 		aTest2.deleteRelation(NAME);
 		assertNull(rRelationTarget);
 
-		NAME.get(RELATION_TYPE_LISTENERS).remove(aListener);
-		assertTrue(NAME.get(RELATION_TYPE_LISTENERS).getEventHandlerCount() ==
-				   0);
+		EventDispatcher<RelationEvent<?>> rTypeEventDispatcher =
+			NAME.get(RELATION_TYPE_LISTENERS);
+
+		rTypeEventDispatcher.remove(aListener);
+		assertTrue(rTypeEventDispatcher.getEventHandlerCount() == 0);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
