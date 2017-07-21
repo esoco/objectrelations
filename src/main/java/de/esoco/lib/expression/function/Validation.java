@@ -1,5 +1,5 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'esoco-business' project.
+// This file is a part of the 'objectrelations' project.
 // Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -127,7 +127,7 @@ public interface Validation<T> extends Function<T, ValidationResult>
 		 */
 		public boolean isValid()
 		{
-			return sMessage != null;
+			return sMessage == null;
 		}
 	}
 }
