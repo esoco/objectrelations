@@ -47,7 +47,8 @@ public class HtmlSpace extends RelationSpace<String>
 	 * content.
 	 */
 	public static final RelationType<String> PAGE_TEMPLATE =
-		newInitialValueType("<html>\n" +
+		newInitialValueType("<!DOCTYPE html>\n" +
+							"<html>\n" +
 							"<head>\n" +
 							"<title>%s</title>\n" +
 							"</head>\n" +
@@ -243,8 +244,7 @@ public class HtmlSpace extends RelationSpace<String>
 		{
 			String sType = rRelation.getType().getSimpleName().toLowerCase();
 
-			sHtml =
-				String.format(get(INTERNAL_LINK_TEMPLATE), sUrl + sType, sType);
+			sHtml = String.format(get(INTERNAL_LINK_TEMPLATE), sType, sType);
 		}
 		else
 		{

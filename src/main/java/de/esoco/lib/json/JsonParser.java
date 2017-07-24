@@ -114,7 +114,7 @@ public class JsonParser
 	 */
 	public static Function<String, Map<String, Object>> parseJsonObject()
 	{
-		return sJson -> parseObject(sJson, new LinkedHashMap<String, Object>());
+		return sJson -> parseObject(sJson);
 	}
 
 	/***************************************
@@ -206,22 +206,22 @@ public class JsonParser
 	}
 
 	/***************************************
-	 * Parses a JSON object into a map.
+	 * Parses a JSON object into a map. The map will preserve the order in which
+	 * the object attributes in the JSON string.
 	 *
 	 * @param  sJsonObject The JSON object string
-	 * @param  rMap        The target map
 	 *
-	 * @return The input map containing the parsed object attributes
+	 * @return A new map containing the parsed object attributes
 	 */
-	public static Map<String, Object> parseObject(
-		String				sJsonObject,
-		Map<String, Object> rMap)
+	public static Map<String, Object> parseObject(String sJsonObject)
 	{
+		Map<String, Object> aMap = new LinkedHashMap<>();
+
 		parseStructure(sJsonObject,
 					   JsonStructure.OBJECT,
-					   sMapping -> parseMapping(sMapping, rMap));
+					   sMapping -> parseMapping(sMapping, aMap));
 
-		return rMap;
+		return aMap;
 	}
 
 	/***************************************
@@ -298,8 +298,7 @@ public class JsonParser
 		}
 		else if (sJsonValue.charAt(0) == JsonStructure.OBJECT.cOpen)
 		{
-			aValue =
-				parseObject(sJsonValue, new LinkedHashMap<String, Object>());
+			aValue = parseObject(sJsonValue);
 		}
 		else if (sJsonValue.charAt(0) == JsonStructure.ARRAY.cOpen)
 		{
@@ -356,8 +355,7 @@ public class JsonParser
 		}
 		else if (Map.class.isAssignableFrom(rDatatype))
 		{
-			rValue =
-				parseObject(sJsonValue, new LinkedHashMap<String, Object>());
+			rValue = parseObject(sJsonValue);
 		}
 		else if (Date.class.isAssignableFrom(rDatatype))
 		{
