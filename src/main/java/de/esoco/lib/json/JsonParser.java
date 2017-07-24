@@ -17,11 +17,8 @@
 package de.esoco.lib.json;
 
 import de.esoco.lib.expression.Action;
-import de.esoco.lib.expression.BinaryFunction;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Function;
-import de.esoco.lib.expression.function.AbstractAction;
-import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.json.JsonUtil.JsonStructure;
 import de.esoco.lib.reflect.ReflectUtil;
 
@@ -73,19 +70,13 @@ public class JsonParser
 	 * @return The input collection containing the parsed array values
 	 */
 	public static <C extends Collection<Object>> C parseArray(
-		String  sJsonArray,
-		final C rCollection)
+		String sJsonArray,
+		C	   rCollection)
 	{
 		parseStructure(sJsonArray,
 					   JsonStructure.ARRAY,
-			new AbstractAction<String>("ParseJsonArrayElement")
-			{
-				@Override
-				public void execute(String sArrayElement)
-				{
-					rCollection.add(parseValue(sArrayElement));
-				}
-			});
+					   sArrayElement ->
+					   rCollection.add(parseValue(sArrayElement)));
 
 		return rCollection;
 	}
@@ -109,18 +100,9 @@ public class JsonParser
 	 *
 	 * @return A new binary function instance
 	 */
-	public static <T> BinaryFunction<String, Class<T>, T> parseJson(
-		Class<T> rDatatype)
+	public static <T> Function<String, T> parseJson(Class<T> rDatatype)
 	{
-		return new AbstractBinaryFunction<String, Class<T>, T>(rDatatype,
-															   "ParseJsonWithDatatype")
-		{
-			@Override
-			public T evaluate(String sJsonValue, Class<T> rDatatype)
-			{
-				return parseValue(sJsonValue, rDatatype);
-			}
-		};
+		return sJsonValue -> parseValue(sJsonValue, rDatatype);
 	}
 
 	/***************************************
@@ -232,23 +214,12 @@ public class JsonParser
 	 * @return The input map containing the parsed object attributes
 	 */
 	public static Map<String, Object> parseObject(
-		String					  sJsonObject,
-		final Map<String, Object> rMap)
+		String				sJsonObject,
+		Map<String, Object> rMap)
 	{
 		parseStructure(sJsonObject,
 					   JsonStructure.OBJECT,
-			new AbstractAction<String>("ParseJsonObjectElement")
-			{
-				@Override
-				public void execute(String sMapping)
-				{
-					int    nPos		  = sMapping.indexOf(':');
-					String sKey		  = sMapping.substring(1, nPos - 1).trim();
-					String sJsonValue = sMapping.substring(nPos + 1).trim();
-
-					rMap.put(sKey, parseValue(sJsonValue));
-				}
-			});
+					   sMapping -> parseMapping(sMapping, rMap));
 
 		return rMap;
 	}
@@ -266,19 +237,12 @@ public class JsonParser
 	 * @see    #parseRelation(String, Relatable)
 	 */
 	public static <R extends Relatable> R parseRelatable(
-		String  sJsonObject,
-		final R rTarget)
+		String sJsonObject,
+		R	   rTarget)
 	{
 		parseStructure(sJsonObject,
 					   JsonStructure.OBJECT,
-			new AbstractAction<String>("ParseJsonArrayElement")
-			{
-				@Override
-				public void execute(String sObjectElement)
-				{
-					parseRelation(sObjectElement, rTarget);
-				}
-			});
+					   sObjectElement -> parseRelation(sObjectElement, rTarget));
 
 		return rTarget;
 	}
@@ -469,6 +433,21 @@ public class JsonParser
 		}
 
 		return sJsonStructure.substring(1, sJsonStructure.length() - 1).trim();
+	}
+
+	/***************************************
+	 * Parses a JSON key-value mapping into a map.
+	 *
+	 * @param sMapping The raw mapping string
+	 * @param rMap     The target map
+	 */
+	private static void parseMapping(String sMapping, Map<String, Object> rMap)
+	{
+		int    nPos		  = sMapping.indexOf(':');
+		String sKey		  = sMapping.substring(1, nPos - 1).trim();
+		String sJsonValue = sMapping.substring(nPos + 1).trim();
+
+		rMap.put(sKey, parseValue(sJsonValue));
 	}
 
 	/***************************************
