@@ -212,7 +212,7 @@ public class RelationCoupling<T>
 	}
 
 	/***************************************
-	 * Invokes {@link #get()} for all couplings of relation with certain
+	 * Invokes {@link #get()} for all couplings of relations with certain
 	 * relation types.
 	 *
 	 * @param rRelatable The relatable to get the relations from
