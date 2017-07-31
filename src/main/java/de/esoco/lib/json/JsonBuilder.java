@@ -247,8 +247,7 @@ public class JsonBuilder
 
 				if (--nCount > 0)
 				{
-					aJson.append(',');
-					aJson.append(' ');
+					aJson.append(", ");
 				}
 			}
 		}
@@ -504,7 +503,9 @@ public class JsonBuilder
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Returns the current JSON string representation of this instance.
+	 *
+	 * @return The JSON string
 	 */
 	@Override
 	public String toString()
@@ -580,7 +581,7 @@ public class JsonBuilder
 		@Override
 		public Object invert(String sJson)
 		{
-			return JsonParser.parseValue(sJson);
+			return new JsonParser().parseValue(sJson);
 		}
 	}
 }

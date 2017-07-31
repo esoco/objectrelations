@@ -86,7 +86,7 @@ public class Tuple implements Iterable<Object>, Serializable
 	{
 		List<Object> aValues = new ArrayList<>();
 
-		JsonParser.parseArray(sTuple, aValues);
+		new JsonParser().parseArray(sTuple, aValues);
 
 		return new Tuple(aValues.toArray());
 	}

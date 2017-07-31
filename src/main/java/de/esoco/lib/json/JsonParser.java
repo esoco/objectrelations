@@ -53,13 +53,13 @@ public class JsonParser
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Private, only static use.
+	 * Creates a new instance.
 	 */
-	private JsonParser()
+	public JsonParser()
 	{
 	}
 
-	//~ Static methods ---------------------------------------------------------
+	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
 	 * Parses a JSON array into a collection.
@@ -69,7 +69,7 @@ public class JsonParser
 	 *
 	 * @return The input collection containing the parsed array values
 	 */
-	public static <C extends Collection<Object>> C parseArray(
+	public <C extends Collection<Object>> C parseArray(
 		String sJsonArray,
 		C	   rCollection)
 	{
@@ -87,7 +87,7 @@ public class JsonParser
 	 *
 	 * @return A function that parses JSON string into objects
 	 */
-	public static Function<String, Object> parseJson()
+	public Function<String, Object> parseJson()
 	{
 		return sJson -> parseValue(sJson);
 	}
@@ -100,7 +100,7 @@ public class JsonParser
 	 *
 	 * @return A new binary function instance
 	 */
-	public static <T> Function<String, T> parseJson(Class<T> rDatatype)
+	public <T> Function<String, T> parseJson(Class<T> rDatatype)
 	{
 		return sJsonValue -> parseValue(sJsonValue, rDatatype);
 	}
@@ -112,7 +112,7 @@ public class JsonParser
 	 *
 	 * @return A new map containing the parsed object attributes
 	 */
-	public static Function<String, Map<String, Object>> parseJsonObject()
+	public Function<String, Map<String, Object>> parseJsonObject()
 	{
 		return sJson -> parseObject(sJson);
 	}
@@ -125,7 +125,7 @@ public class JsonParser
 	 * @return The corresponding {@link Number} subclass for the input value
 	 */
 	@SuppressWarnings("boxing")
-	public static Number parseNumber(String sJsonNumber)
+	public Number parseNumber(String sJsonNumber)
 	{
 		Number aNumber;
 
@@ -163,7 +163,7 @@ public class JsonParser
 	 *
 	 * @return The resulting value or NULL if no mapping exists
 	 */
-	public static Number parseNumber(
+	public Number parseNumber(
 		String					sJsonNumber,
 		Class<? extends Number> rDatatype)
 	{
@@ -213,7 +213,7 @@ public class JsonParser
 	 *
 	 * @return A new map containing the parsed object attributes
 	 */
-	public static Map<String, Object> parseObject(String sJsonObject)
+	public Map<String, Object> parseObject(String sJsonObject)
 	{
 		Map<String, Object> aMap = new LinkedHashMap<>();
 
@@ -236,9 +236,7 @@ public class JsonParser
 	 *
 	 * @see    #parseRelation(String, Relatable)
 	 */
-	public static <R extends Relatable> R parseRelatable(
-		String sJsonObject,
-		R	   rTarget)
+	public <R extends Relatable> R parseRelatable(String sJsonObject, R rTarget)
 	{
 		parseStructure(sJsonObject,
 					   JsonStructure.OBJECT,
@@ -259,7 +257,7 @@ public class JsonParser
 	 * @param rTarget The related object to set the relation in
 	 */
 	@SuppressWarnings("unchecked")
-	public static void parseRelation(String sJson, Relatable rTarget)
+	public void parseRelation(String sJson, Relatable rTarget)
 	{
 		int    nColon     = sJson.indexOf(':');
 		String sTypeName  = sJson.substring(1, nColon - 1).trim();
@@ -286,7 +284,7 @@ public class JsonParser
 	 *
 	 * @return The parsed value
 	 */
-	public static Object parseValue(String sJsonValue)
+	public Object parseValue(String sJsonValue)
 	{
 		Object aValue;
 
@@ -330,9 +328,7 @@ public class JsonParser
 	 * @return The parsed value
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T parseValue(
-		String			   sJsonValue,
-		Class<? extends T> rDatatype)
+	public <T> T parseValue(String sJsonValue, Class<? extends T> rDatatype)
 	{
 		Object rValue = null;
 
@@ -417,9 +413,7 @@ public class JsonParser
 	 * @throws IllegalArgumentException If the content doesn't represent the
 	 *                                  expected structure
 	 */
-	private static String getContent(
-		String		  sJsonStructure,
-		JsonStructure eStructure)
+	private String getContent(String sJsonStructure, JsonStructure eStructure)
 	{
 		if (sJsonStructure.charAt(0) != eStructure.cOpen ||
 			sJsonStructure.charAt(sJsonStructure.length() - 1) !=
@@ -439,7 +433,7 @@ public class JsonParser
 	 * @param sMapping The raw mapping string
 	 * @param rMap     The target map
 	 */
-	private static void parseMapping(String sMapping, Map<String, Object> rMap)
+	private void parseMapping(String sMapping, Map<String, Object> rMap)
 	{
 		int    nPos		  = sMapping.indexOf(':');
 		String sKey		  = sMapping.substring(1, nPos - 1).trim();
@@ -455,9 +449,9 @@ public class JsonParser
 	 * @param eStructure      The type of the JSON structure
 	 * @param fProcessElement The action to execute for each structure element
 	 */
-	private static void parseStructure(String		  sJsonData,
-									   JsonStructure  eStructure,
-									   Action<String> fProcessElement)
+	private void parseStructure(String		   sJsonData,
+								JsonStructure  eStructure,
+								Action<String> fProcessElement)
 	{
 		String sJson		 = getContent(sJsonData, eStructure);
 		int    nMax			 = sJson.length() - 1;

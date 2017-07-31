@@ -90,7 +90,7 @@ public class Pair<F, S> extends Tuple
 	{
 		List<Object> aValues = new ArrayList<>(2);
 
-		JsonParser.parseArray(sPair, aValues);
+		new JsonParser().parseArray(sPair, aValues);
 
 		if (aValues.size() != 2)
 		{

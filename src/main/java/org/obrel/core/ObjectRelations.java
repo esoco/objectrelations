@@ -100,7 +100,7 @@ public class ObjectRelations
 	 */
 	public static <T extends Relatable> T fromJson(T rTarget, String sJson)
 	{
-		return JsonParser.parseRelatable(sJson, rTarget);
+		return new JsonParser().parseRelatable(sJson, rTarget);
 	}
 
 	/***************************************
@@ -519,7 +519,8 @@ public class ObjectRelations
 					String sType = sElement;
 
 					Relation<?> rElementRelation =
-						rCurrentElement.getRelations(null).stream()
+						rCurrentElement.getRelations(null)
+									   .stream()
 									   .filter(r ->
 											   r.getType()
 											   .getName()
