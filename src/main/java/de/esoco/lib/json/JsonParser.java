@@ -59,6 +59,21 @@ public class JsonParser
 	{
 	}
 
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Returns a binary function that parses a JSON string into an Object with a
+	 * certain datatype by invoking {@link #parseValue(String, Class)}.
+	 *
+	 * @param  rDatatype The preset datatype for unary function invocation
+	 *
+	 * @return A new binary function instance
+	 */
+	public static <T> Function<String, T> parseJson(Class<T> rDatatype)
+	{
+		return sJsonValue -> new JsonParser().parseValue(sJsonValue, rDatatype);
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -90,19 +105,6 @@ public class JsonParser
 	public Function<String, Object> parseJson()
 	{
 		return sJson -> parseValue(sJson);
-	}
-
-	/***************************************
-	 * Returns a binary function that parses a JSON string into an Object with a
-	 * certain datatype by invoking {@link #parseValue(String, Class)}.
-	 *
-	 * @param  rDatatype The preset datatype for unary function invocation
-	 *
-	 * @return A new binary function instance
-	 */
-	public <T> Function<String, T> parseJson(Class<T> rDatatype)
-	{
-		return sJsonValue -> parseValue(sJsonValue, rDatatype);
 	}
 
 	/***************************************
