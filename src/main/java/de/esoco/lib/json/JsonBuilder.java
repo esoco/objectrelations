@@ -123,6 +123,36 @@ public class JsonBuilder
 		return CONVERT_JSON;
 	}
 
+	/***************************************
+	 * Converts a value into a JSON string. If the value is a relatable object
+	 * it's relations will also be converted but not recursively.
+	 *
+	 * @param  rValue The value to convert
+	 *
+	 * @return The JSON string
+	 */
+	public static String toJson(Object rValue)
+	{
+		JsonBuilder aJsonBuilder = new JsonBuilder();
+
+		if (rValue instanceof Relatable)
+		{
+			Collection<RelationType<?>> rRelationTypes =
+				CollectionUtil.map(((Relatable) rValue).getRelations(),
+								   r -> r.getType());
+
+			aJsonBuilder.appendObject((Relatable) rValue,
+									  rRelationTypes,
+									  false);
+		}
+		else
+		{
+			aJsonBuilder.append(rValue);
+		}
+
+		return aJsonBuilder.toString();
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -168,7 +198,7 @@ public class JsonBuilder
 			}
 			else if (bRecursive && Relatable.class.isAssignableFrom(rDatatype))
 			{
-				appendObject((Relatable) rValue, null);
+				appendObject((Relatable) rValue, null, true);
 			}
 			else
 			{
@@ -312,28 +342,28 @@ public class JsonBuilder
 	 * as a JSON object structure. See {@link #appendRelations(Relatable,
 	 * Collection)} for details about how the relations are appended.
 	 *
-	 * <p>Only if a relatable object is appended by invoking this method will
-	 * relatable objects be appended recursively. Otherwise only their string
-	 * representation will be appended. If such a recursion is not wanted the
-	 * relatable object needs to be appended by using the other methods of this
-	 * class.</p>
+	 * <p>The boolean parameter defines whether this method will be applied
+	 * recursively to relatable objects in relation or if only their string
+	 * representation will be appended. Using recursion should be used with
+	 * caution as circular references can cause stack overflows.</p>
 	 *
 	 * @param  rObject        The object to append the relations of
 	 * @param  rRelationTypes The types of the relation to be converted to JSON
 	 *                        (NULL for all)
+	 * @param  bRecursive     TRUE to recursively
 	 *
 	 * @return This instance for concatenation
 	 *
 	 * @see    #appendRelations(Relatable, Collection)
 	 */
-	public JsonBuilder appendObject(
-		Relatable					rObject,
-		Collection<RelationType<?>> rRelationTypes)
+	public JsonBuilder appendObject(Relatable					rObject,
+									Collection<RelationType<?>> rRelationTypes,
+									boolean						bRecursive)
 	{
 		beginObject();
-		bRecursive = true;
+		this.bRecursive = bRecursive;
 		appendRelations(rObject, rRelationTypes);
-		bRecursive = false;
+		this.bRecursive = false;
 		endObject();
 
 		return this;

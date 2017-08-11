@@ -106,7 +106,7 @@ public class JsonBuilderTest
 		aTest.set(StandardTypes.CHILDREN,
 				  Arrays.<Relatable>asList(aChild1, aChild2));
 
-		aJson.appendObject(aTest, null);
+		aJson.appendObject(aTest, null, true);
 	}
 
 	/***************************************

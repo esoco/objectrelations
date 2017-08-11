@@ -371,7 +371,7 @@ public class ObjectRelations
 		Relatable					rObject,
 		Collection<RelationType<?>> rRelationTypes)
 	{
-		return new JsonBuilder().appendObject(rObject, rRelationTypes)
+		return new JsonBuilder().appendObject(rObject, rRelationTypes, true)
 								.toString();
 	}
 
