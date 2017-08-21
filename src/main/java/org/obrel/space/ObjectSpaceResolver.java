@@ -149,7 +149,7 @@ public interface ObjectSpaceResolver
 		{
 			Object rValue = getValue();
 
-			if (!rType.getTargetType().isAssignableFrom(rValue.getClass()))
+			if (!rType.getValueType().isAssignableFrom(rValue.getClass()))
 			{
 				String sMessage =
 					String.format("Invalid value for type '%s': %s",

@@ -523,7 +523,7 @@ public class Conversions
 	@SuppressWarnings("unchecked")
 	public static <T> T parseValue(String sValue, RelationType<T> rTargetType)
 	{
-		Class<T> rDatatype = (Class<T>) rTargetType.getTargetType();
+		Class<T> rDatatype = (Class<T>) rTargetType.getValueType();
 		T		 aResult;
 
 		boolean bOrdered = rTargetType.hasFlag(ORDERED);

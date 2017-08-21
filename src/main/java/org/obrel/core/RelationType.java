@@ -515,7 +515,7 @@ public class RelationType<T> extends RelatedObject
 	 *
 	 * @return The target datatype
 	 */
-	public final Class<? super T> getTargetType()
+	public final Class<? super T> getValueType()
 	{
 		return rTargetType;
 	}

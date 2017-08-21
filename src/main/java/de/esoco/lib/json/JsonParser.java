@@ -273,7 +273,7 @@ public class JsonParser
 											   sTypeName);
 		}
 
-		Object rValue = parseValue(sJsonValue, rRelationType.getTargetType());
+		Object rValue = parseValue(sJsonValue, rRelationType.getValueType());
 
 		rTarget.set((RelationType<Object>) rRelationType, rValue);
 	}

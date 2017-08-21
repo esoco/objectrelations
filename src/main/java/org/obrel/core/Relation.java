@@ -93,7 +93,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 															 rTarget.getClass()
 															 .getName(),
 															 rType
-															 .getTargetType()));
+															 .getValueType()));
 		}
 	}
 
@@ -111,7 +111,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 		assert rType != null;
 
 		return rTarget == null ||
-			   rType.getTargetType().isAssignableFrom(rTarget.getClass());
+			   rType.getValueType().isAssignableFrom(rTarget.getClass());
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -356,7 +356,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	@SuppressWarnings("unchecked")
 	public void immutable()
 	{
-		Class<?> rTargetType = rType.getTargetType();
+		Class<?> rTargetType = rType.getValueType();
 		Object   rTarget     = getTarget();
 
 		if (rTarget instanceof Immutability)
