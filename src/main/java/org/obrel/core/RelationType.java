@@ -26,6 +26,7 @@ import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.predicate.ElementPredicate;
+import de.esoco.lib.model.AttributeBinding;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
@@ -76,7 +77,8 @@ import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
  * @author eso
  */
 public class RelationType<T> extends RelatedObject
-	implements ElementAccessFunction<RelationType<T>, Relatable, T>,
+	implements AttributeBinding<Relatable, T>,
+			   ElementAccessFunction<RelationType<T>, Relatable, T>,
 			   Serializable
 {
 	//~ Static fields/initializers ---------------------------------------------
@@ -511,16 +513,6 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	/***************************************
-	 * Returns the target value datatype of relations of this type.
-	 *
-	 * @return The target datatype
-	 */
-	public final Class<? super T> getValueType()
-	{
-		return rTargetType;
-	}
-
-	/***************************************
 	 * Returns the relation type name.
 	 *
 	 * @see RelatedObject#toString()
@@ -529,6 +521,17 @@ public class RelationType<T> extends RelatedObject
 	public String getToken()
 	{
 		return getName();
+	}
+
+	/***************************************
+	 * Returns the target value datatype of relations of this type.
+	 *
+	 * @return The target datatype
+	 */
+	@Override
+	public final Class<? super T> getValueType()
+	{
+		return rTargetType;
 	}
 
 	/***************************************
