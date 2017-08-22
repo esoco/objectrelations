@@ -26,7 +26,6 @@ import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.predicate.ElementPredicate;
-import de.esoco.lib.model.AttributeBinding;
 
 import java.io.InvalidObjectException;
 import java.io.ObjectStreamException;
@@ -77,8 +76,7 @@ import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
  * @author eso
  */
 public class RelationType<T> extends RelatedObject
-	implements AttributeBinding<Relatable, T>,
-			   ElementAccessFunction<RelationType<T>, Relatable, T>,
+	implements ElementAccessFunction<RelationType<T>, Relatable, T>,
 			   Serializable
 {
 	//~ Static fields/initializers ---------------------------------------------
@@ -103,7 +101,7 @@ public class RelationType<T> extends RelatedObject
 	/** @serial The type name, including the namespace (if set). */
 	private String sName = INIT_TYPE;
 
-	private transient Class<? super T>		    rTargetType;
+	private transient Class<? super T>		    rValueType;
 	private transient Set<RelationTypeModifier> aModifiers;
 
 	private transient T rDefaultValue = null;
@@ -524,14 +522,13 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	/***************************************
-	 * Returns the target value datatype of relations of this type.
+	 * Returns the value datatype of relations of this type.
 	 *
-	 * @return The target datatype
+	 * @return The datatype of the values returned by relations of this type
 	 */
-	@Override
 	public final Class<? super T> getValueType()
 	{
-		return rTargetType;
+		return rValueType;
 	}
 
 	/***************************************
@@ -815,8 +812,8 @@ public class RelationType<T> extends RelatedObject
 					Class<? super T>		rTargetType,
 					Action<RelationType<?>> fInitAction)
 	{
-		this.sName		 = sName;
-		this.rTargetType = rTargetType;
+		this.sName	    = sName;
+		this.rValueType = rTargetType;
 
 		if (sName != INIT_TYPE)
 		{
