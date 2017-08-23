@@ -47,10 +47,10 @@ import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
  * A builder for JSON strings that can append arbitrary data objects to a JSON
  * string. This includes support for {@link Relatable} and {@link Relation}
  * objects. If such an object is appended by invoking the method {@link
- * #appendObject(Relatable, Collection)} all given relations of that object will
- * be appended to the JSON string by invoking {@link #append(Relation, boolean,
- * boolean)}. This includes the recursive evaluation for other relatable objects
- * that are referenced from relations.
+ * #appendObject(Relatable, Collection, boolean)} all given relations of that
+ * object will be appended to the JSON string by invoking {@link
+ * #append(Relation, boolean, boolean)}. This includes the recursive evaluation
+ * for other relatable objects that are referenced from relations.
  *
  * @author eso
  * @see    JsonParser
