@@ -20,6 +20,7 @@ import de.esoco.lib.expression.function.Validation.ValidationResult;
 
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 
 /********************************************************************
@@ -31,6 +32,27 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface Validation<T> extends Function<T, ValidationResult>
 {
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Returns a new validation that checks a value with the given predicate and
+	 * returns the corresponding {@link ValidationResult}.
+	 *
+	 * @param  pIsValid        The predicate that checks a value for validity
+	 * @param  sInvalidMessage The message to be displayed if the validation
+	 *                         fails
+	 *
+	 * @return A new validation instance
+	 */
+	public static <T> Validation<T> ensure(
+		Predicate<T> pIsValid,
+		String		 sInvalidMessage)
+	{
+		return v ->
+			   pIsValid.test(v) ? ValidationResult.valid()
+								: ValidationResult.invalid(sInvalidMessage);
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
