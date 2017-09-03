@@ -68,11 +68,21 @@ public class MetaTypes
 
 	/**
 	 * The class that declares the target type. Used for relations type to
-	 * record the class in which they are declared. Final as this will never
+	 * record the class in which they are declared. FINAL as this will never
 	 * change after the initial declaration.
 	 */
 	public static final RelationType<Class<?>> DECLARING_CLASS =
 		RelationTypes.DECLARING_CLASS;
+
+	/**
+	 * The relation types that have been declared in a class, in the order in
+	 * which they are declared. References to relation types from other contexts
+	 * like {@link StandardTypes} are also included. Types with the modifier
+	 * PRIVATE are excluded. FINAL as this list will never change after the
+	 * initial declaration.
+	 */
+	public static final RelationType<List<RelationType<?>>> DECLARED_RELATION_TYPES =
+		RelationTypes.DECLARED_RELATION_TYPES;
 
 	/**
 	 * The datatype class of a certain element; this type is final because it is

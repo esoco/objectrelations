@@ -27,6 +27,7 @@ import java.lang.reflect.Type;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,6 +84,13 @@ public class RelationTypes
 	public static final RelationType<Class<?>> VALUE_DATATYPE =
 		new RelationType<>("VALUE_DATATYPE", Class.class);
 
+	// needs to be declared last as List type references ELEMENT_DATATYPE
+	/** @see MetaTypes#DECLARED_RELATION_TYPES */
+	public static final RelationType<List<RelationType<?>>> DECLARED_RELATION_TYPES =
+		newListType("DECLARED_RELATION_TYPES",
+					RelationType.class,
+					RelationTypeModifier.FINAL);
+
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
@@ -122,6 +130,8 @@ public class RelationTypes
 		List<Field> rFields		    = ReflectUtil.getAllFields(rClass);
 		String	    sClassNamespace = getRelationTypeNamespace(rClass);
 
+		List<RelationType<?>> aDeclaredTypes = new ArrayList<>();
+
 		if (sClassNamespace.length() > 0)
 		{
 			sClassNamespace += ".";
@@ -147,6 +157,11 @@ public class RelationTypes
 							initRelationTypeField(rField,
 												  rRelationType,
 												  sClassNamespace);
+
+							if (!rRelationType.hasModifier(RelationTypeModifier.PRIVATE))
+							{
+								aDeclaredTypes.add(rRelationType);
+							}
 						}
 						else if (rRelationType != null)
 						{
@@ -166,6 +181,13 @@ public class RelationTypes
 
 				throw new IllegalArgumentException(sMessage, e);
 			}
+		}
+
+		if (!aDeclaredTypes.isEmpty())
+		{
+			ObjectRelations.getRelatable(rClass)
+						   .set(DECLARED_RELATION_TYPES,
+								Collections.unmodifiableList(aDeclaredTypes));
 		}
 	}
 
@@ -833,8 +855,9 @@ public class RelationTypes
 											   sFieldName);
 		}
 
-		String sTypeName	  = rRelationType.getName();
-		String sTypeNamespace = rRelationType.get(RELATION_TYPE_NAMESPACE);
+		Class<?> rDeclaringClass = rField.getDeclaringClass();
+		String   sTypeName		 = rRelationType.getName();
+		String   sTypeNamespace  = rRelationType.get(RELATION_TYPE_NAMESPACE);
 
 		Type rTargetType =
 			((ParameterizedType) rField.getGenericType())
@@ -859,18 +882,18 @@ public class RelationTypes
 		{
 			assert ReflectUtil.getRawType(rTargetType) ==
 				   rRelationType.getValueType() : String.format("Invalid target type for RelationType %s: %s (expected: %s)",
-																 sTypeName,
-																 rRelationType
-																 .getValueType(),
-																 rField
-																 .getType());
+																sTypeName,
+																rRelationType
+																.getValueType(),
+																rField
+																.getType());
 
 			if (!rField.isAnnotationPresent(NoRelationNameCheck.class))
 			{
 				// check if field and type names match
 				assert sFieldName.equals(rRelationType.getSimpleName()) : String
 					   .format("RelationType name mismatch for %s.%s: %s",
-							   rField.getDeclaringClass().getName(),
+							   rDeclaringClass.getName(),
 							   sFieldName,
 							   sTypeName);
 			}
@@ -887,7 +910,7 @@ public class RelationTypes
 		// relation type references in other classes
 		if (!rRelationType.hasRelation(DECLARING_CLASS))
 		{
-			rRelationType.annotate(DECLARING_CLASS, rField.getDeclaringClass());
+			rRelationType.annotate(DECLARING_CLASS, rDeclaringClass);
 		}
 	}
 }

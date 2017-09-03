@@ -109,6 +109,7 @@ public class RelationTest
 	static final RelationType<Integer> TEST_ANNOTATED =
 		RelationTypes.<Integer>newType().annotate(MetaTypes.ORDERED);
 
+	// test if name check annotation works
 	@NoRelationNameCheck
 	static final RelationType<String> TEST_NAME = StandardTypes.NAME;
 
@@ -571,6 +572,25 @@ public class RelationTest
 
 		assertTrue(TEST_FLAGGED.hasFlag(MetaTypes.MANDATORY));
 		assertTrue(TEST_ANNOTATED.hasFlag(MetaTypes.ORDERED));
+
+		assertTrue(StandardTypes.NAME.get(MetaTypes.DECLARING_CLASS) ==
+				   StandardTypes.class);
+
+		List<RelationType<?>> rStandardTypes =
+			ObjectRelations.getRelatable(StandardTypes.class)
+						   .get(MetaTypes.DECLARED_RELATION_TYPES);
+
+		assertTrue(rStandardTypes.contains(StandardTypes.NAME));
+
+		try
+		{
+			rStandardTypes.clear();
+			fail();
+		}
+		catch (Exception e)
+		{
+			// this is expected
+		}
 	}
 
 	/***************************************

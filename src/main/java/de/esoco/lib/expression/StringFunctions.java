@@ -376,6 +376,18 @@ public class StringFunctions
 	}
 
 	/***************************************
+	 * Checks whether a string variable is empty (NULL or has a length of zero).
+	 *
+	 * @param  sString The string to test
+	 *
+	 * @return TRUE if the string variable is empty
+	 */
+	public static boolean isEmpty(CharSequence sString)
+	{
+		return IS_EMPTY.test(sString);
+	}
+
+	/***************************************
 	 * Returns a predicate constant that checks whether a string contains a
 	 * valid internationalized domain name in Unicode format. This is achieved
 	 * by invoking {@link IDN#toASCII(String)} on the input string and checking
