@@ -23,16 +23,19 @@ package de.esoco.lib.json;
  *
  * @author eso
  */
-public interface JsonSerializable
+public interface JsonSerializable<T extends JsonSerializable<T>>
 {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
 	 * Parses the contents of this instance from a JSON string.
 	 *
-	 * @param sJson The JSON string to parse
+	 * @param  sJson The JSON string to parse
+	 *
+	 * @return This instance so that it can be directly used after
+	 *         de-serialization
 	 */
-	public void fromJson(String sJson);
+	public T fromJson(String sJson);
 
 	/***************************************
 	 * Converts this instance into a JSON representation that can be

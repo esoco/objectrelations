@@ -29,7 +29,8 @@ import org.obrel.core.RelationType;
  *
  * @author eso
  */
-public class JsonObject extends RelatedObject implements JsonSerializable
+public class JsonObject<T extends JsonObject<T>> extends RelatedObject
+	implements JsonSerializable<T>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -57,9 +58,12 @@ public class JsonObject extends RelatedObject implements JsonSerializable
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void fromJson(String sJson)
+	@SuppressWarnings("unchecked")
+	public T fromJson(String sJson)
 	{
 		new JsonParser().parseRelatable(sJson, this);
+
+		return (T) this;
 	}
 
 	/***************************************
