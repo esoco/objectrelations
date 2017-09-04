@@ -195,7 +195,7 @@ public class JsonBuilder
 		{
 			appendString(JsonUtil.escape(rValue.toString()));
 		}
-		else if (rValue instanceof Relatable)
+		else if (bRecursiveRelations && rValue instanceof Relatable)
 		{
 			appendRelatable((Relatable) rValue, null, bRecursiveRelations);
 		}
@@ -371,10 +371,10 @@ public class JsonBuilder
 		Collection<RelationType<?>> rRelationTypes,
 		boolean						bRecursive)
 	{
+		bRecursiveRelations = bRecursive;
+
 		beginObject();
-		this.bRecursiveRelations = bRecursive;
 		appendRelations(rObject, rRelationTypes);
-		this.bRecursiveRelations = false;
 		endObject();
 
 		return this;
