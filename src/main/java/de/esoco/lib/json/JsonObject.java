@@ -68,6 +68,6 @@ public class JsonObject extends RelatedObject implements JsonSerializable
 	@Override
 	public String toJson()
 	{
-		return new JsonBuilder().appendRelatable(null, null, true).toString();
+		return new JsonBuilder().appendRelatable(this, null, true).toString();
 	}
 }
