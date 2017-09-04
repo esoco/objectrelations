@@ -185,9 +185,13 @@ public class RelationTypes
 
 		if (!aDeclaredTypes.isEmpty())
 		{
-			ObjectRelations.getRelatable(rClass)
-						   .set(DECLARED_RELATION_TYPES,
-								Collections.unmodifiableList(aDeclaredTypes));
+			Relatable rClassRelatable = ObjectRelations.getRelatable(rClass);
+
+			if (!rClassRelatable.hasRelation(DECLARED_RELATION_TYPES))
+			{
+				rClassRelatable.set(DECLARED_RELATION_TYPES,
+									Collections.unmodifiableList(aDeclaredTypes));
+			}
 		}
 	}
 
