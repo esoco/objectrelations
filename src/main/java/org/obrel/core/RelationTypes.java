@@ -87,9 +87,9 @@ public class RelationTypes
 	// needs to be declared last as List type references ELEMENT_DATATYPE
 	/** @see MetaTypes#DECLARED_RELATION_TYPES */
 	public static final RelationType<List<RelationType<?>>> DECLARED_RELATION_TYPES =
-		newListType("DECLARED_RELATION_TYPES",
-					RelationType.class,
-					RelationTypeModifier.FINAL);
+		newRelationType("DECLARED_RELATION_TYPES",
+						List.class,
+						RelationTypeModifier.FINAL);
 
 	//~ Static methods ---------------------------------------------------------
 
