@@ -173,7 +173,7 @@ public class JsonBuilder
 		}
 		else if (rValue instanceof JsonSerializable)
 		{
-			aJson.append(((JsonSerializable) rValue).toJson());
+			aJson.append(((JsonSerializable<?>) rValue).toJson());
 		}
 		else if (rValue instanceof Boolean || rValue instanceof Number)
 		{

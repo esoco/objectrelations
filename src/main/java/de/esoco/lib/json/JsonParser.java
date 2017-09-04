@@ -337,7 +337,7 @@ public class JsonParser
 		{
 			rValue = ReflectUtil.newInstance(rDatatype);
 
-			((JsonSerializable) rValue).fromJson(sJsonValue);
+			((JsonSerializable<?>) rValue).fromJson(sJsonValue);
 		}
 		else if (rDatatype == Boolean.class)
 		{
