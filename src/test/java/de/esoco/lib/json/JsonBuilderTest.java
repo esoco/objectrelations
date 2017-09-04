@@ -16,11 +16,14 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
+import de.esoco.lib.collection.CollectionUtil;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -28,11 +31,19 @@ import org.obrel.core.Relatable;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
+import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
+
+import static de.esoco.lib.datatype.Pair.t;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import static org.obrel.type.StandardTypes.CHILDREN;
+import static org.obrel.type.StandardTypes.INFO;
+import static org.obrel.type.StandardTypes.NAME;
+import static org.obrel.type.StandardTypes.PORT;
 
 
 /********************************************************************
@@ -78,35 +89,60 @@ public class JsonBuilderTest
 	@Test
 	public void testAppendObjectFromMap()
 	{
+		@SuppressWarnings("boxing")
+		Map<String, Object> aData =
+			CollectionUtil.orderedMapOf(t("name", "Name"),
+										t("value", 42),
+										t("flag", true),
+										t("nothing", null),
+										t("array",
+										  Arrays.asList("a1", "a2", "a3")),
+										t("map",
+										  CollectionUtil.orderedMapOf(t("m1",
+																		"v1"))));
+
+		JsonBuilder aJsonBuilder = new JsonBuilder().compact();
+
+		assertEquals("{\"name\":\"Name\",\"value\":42,\"flag\":true," +
+					 "\"nothing\":null,\"array\":[\"a1\",\"a2\",\"a3\"]," +
+					 "\"map\":{\"m1\":\"v1\"}}",
+					 aJsonBuilder.append(aData).toString());
 	}
 
 	/***************************************
 	 * Test method
 	 */
 	@Test
-	public void testAppendObjectFromRelatable()
+	public void testAppendRelatable()
 	{
-		JsonBuilder aJson = new JsonBuilder("\t");
+		JsonBuilder aJson = new JsonBuilder().compact();
 
-		RelatedObject aTest   = new RelatedObject();
-		RelatedObject aParent = new RelatedObject();
-		RelatedObject aChild1 = new RelatedObject();
-		RelatedObject aChild2 = new RelatedObject();
+		aJson.appendRelatable(createTestRelatable(), null, true);
 
-		aParent.set(StandardTypes.NAME, "PARENT");
-		aParent.set(StandardTypes.INFO, "JSON_OBJECT");
+		assertEquals("{\"NAME\":\"TEST\",\"INFO\":\"JSON\",\"PORT\":12345,\"MODIFIED\":true," +
+					 "\"PARENT\":{\"NAME\":\"PARENT\",\"INFO\":\"JSON_OBJECT\"}," +
+					 "\"CHILDREN\":[{\"NAME\":\"CHILD1\"},{\"NAME\":\"CHILD2\"}]}",
+					 aJson.toString());
+	}
 
-		aChild1.set(StandardTypes.NAME, "CHILD1");
-		aChild2.set(StandardTypes.NAME, "CHILD2");
+	/***************************************
+	 * Test method
+	 */
+	@Test
+	public void testAppendRelatableWithSerializedTypes()
+	{
+		JsonBuilder aJson = new JsonBuilder().compact();
 
-		aTest.set(StandardTypes.NAME, "TEST");
-		aTest.set(StandardTypes.INFO, "JSON");
-		aTest.set(StandardTypes.PORT, 12345);
-		aTest.set(StandardTypes.PARENT, aParent);
-		aTest.set(StandardTypes.CHILDREN,
-				  Arrays.<Relatable>asList(aChild1, aChild2));
+		Relatable aTestObj = createTestRelatable();
 
-		aJson.appendObject(aTest, null, true);
+		aTestObj.set(JsonBuilder.JSON_SERIALIZED_TYPES,
+					 Arrays.asList(NAME, INFO, PORT, CHILDREN));
+
+		aJson.appendRelatable(aTestObj, null, true);
+
+		assertEquals("{\"NAME\":\"TEST\",\"INFO\":\"JSON\",\"PORT\":12345," +
+					 "\"CHILDREN\":[{\"NAME\":\"CHILD1\"},{\"NAME\":\"CHILD2\"}]}",
+					 aJson.toString());
 	}
 
 	/***************************************
@@ -188,6 +224,35 @@ public class JsonBuilderTest
 		assertEquals("\"\\ttest string\\n\\r\\tmultiline \u011F\"",
 					 new JsonBuilder().append("\ttest string\n\r\tmultiline \u011f")
 					 .toString());
+	}
+
+	/***************************************
+	 * Creates a {@link Relatable} object with test data.
+	 *
+	 * @return
+	 */
+	protected Relatable createTestRelatable()
+	{
+		RelatedObject aTestObj = new RelatedObject();
+		RelatedObject aParent  = new RelatedObject();
+		RelatedObject aChild1  = new RelatedObject();
+		RelatedObject aChild2  = new RelatedObject();
+
+		aParent.set(StandardTypes.NAME, "PARENT");
+		aParent.set(StandardTypes.INFO, "JSON_OBJECT");
+
+		aChild1.set(StandardTypes.NAME, "CHILD1");
+		aChild2.set(StandardTypes.NAME, "CHILD2");
+
+		aTestObj.set(StandardTypes.NAME, "TEST");
+		aTestObj.set(StandardTypes.INFO, "JSON");
+		aTestObj.set(StandardTypes.PORT, 12345);
+		aTestObj.set(MetaTypes.MODIFIED);
+		aTestObj.set(StandardTypes.PARENT, aParent);
+		aTestObj.set(StandardTypes.CHILDREN,
+					 Arrays.<Relatable>asList(aChild1, aChild2));
+
+		return aTestObj;
 	}
 
 	/***************************************

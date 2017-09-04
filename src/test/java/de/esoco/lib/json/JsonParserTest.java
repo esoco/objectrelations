@@ -43,31 +43,11 @@ import static org.junit.Assert.assertTrue;
  */
 public class JsonParserTest
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private JsonParser aParser = new JsonParser();
+
 	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testParseCollection()
-	{
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testParseMap()
-	{
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testParseNumber()
-	{
-	}
 
 	/***************************************
 	 * Test method
@@ -107,80 +87,57 @@ public class JsonParserTest
 	/***************************************
 	 * Test method
 	 */
-	@Test
-	public void testParseRelation()
-	{
-	}
-
-	/***************************************
-	 * Test method
-	 */
 	@SuppressWarnings("boxing")
 	@Test
 	public void testParseValue()
 	{
-		assertEquals("TEST 123", new JsonParser().parseValue("\"TEST 123\""));
-		assertEquals("", new JsonParser().parseValue("\"\""));
+		assertEquals("TEST 123", aParser.parse("\"TEST 123\""));
+		assertEquals("", aParser.parse("\"\""));
 
-		assertEquals("null", new JsonParser().parseValue("\"null\""));
-		assertEquals(null, new JsonParser().parseValue("null"));
+		assertEquals("null", aParser.parse("\"null\""));
+		assertEquals(null, aParser.parse("null"));
 
-		assertEquals("true", new JsonParser().parseValue("\"true\""));
-		assertEquals(Boolean.TRUE, new JsonParser().parseValue("true"));
-		assertEquals("false", new JsonParser().parseValue("\"false\""));
-		assertEquals(Boolean.FALSE, new JsonParser().parseValue("false"));
+		assertEquals("true", aParser.parse("\"true\""));
+		assertEquals(Boolean.TRUE, aParser.parse("true"));
+		assertEquals("false", aParser.parse("\"false\""));
+		assertEquals(Boolean.FALSE, aParser.parse("false"));
 
-		assertEquals(new Integer(12345678),
-					 new JsonParser().parseValue("12345678"));
+		assertEquals(new Integer(12345678), aParser.parse("12345678"));
 		assertEquals(Integer.MIN_VALUE,
-					 new JsonParser().parseValue(Integer.toString(Integer.MIN_VALUE)));
+					 aParser.parse(Integer.toString(Integer.MIN_VALUE)));
 		assertEquals(Integer.MAX_VALUE,
-					 new JsonParser().parseValue(Integer.toString(Integer.MAX_VALUE)));
+					 aParser.parse(Integer.toString(Integer.MAX_VALUE)));
 
 		assertEquals(new Long(1234567890123456L),
-					 new JsonParser().parseValue("1234567890123456"));
+					 aParser.parse("1234567890123456"));
 		assertEquals(Long.MIN_VALUE,
-					 new JsonParser().parseValue(Long.toString(Long.MIN_VALUE)));
+					 aParser.parse(Long.toString(Long.MIN_VALUE)));
 		assertEquals(Long.MAX_VALUE,
-					 new JsonParser().parseValue(Long.toString(Long.MAX_VALUE)));
+					 aParser.parse(Long.toString(Long.MAX_VALUE)));
 
 		assertEquals(new Integer(Short.MIN_VALUE),
-					 new JsonParser().parseValue(Short.toString(Short.MIN_VALUE)));
+					 aParser.parse(Short.toString(Short.MIN_VALUE)));
 		assertEquals(new Integer(Short.MAX_VALUE),
-					 new JsonParser().parseValue(Short.toString(Short.MAX_VALUE)));
+					 aParser.parse(Short.toString(Short.MAX_VALUE)));
 
 		assertEquals(new BigInteger("1234567890123456789012345678901234567890"),
-					 new JsonParser().parseValue("1234567890123456789012345678901234567890"));
+					 aParser.parse("1234567890123456789012345678901234567890"));
 
-		assertEquals(new BigDecimal("0.01"),
-					 new JsonParser().parseValue("0.01"));
-		assertEquals(new BigDecimal("42.0"),
-					 new JsonParser().parseValue("42.0"));
-		assertEquals(new BigDecimal("-42.0"),
-					 new JsonParser().parseValue("-42.0"));
-		assertEquals(new BigDecimal("-42.0e42"),
-					 new JsonParser().parseValue("-42.0E42"));
+		assertEquals(new BigDecimal("0.01"), aParser.parse("0.01"));
+		assertEquals(new BigDecimal("42.0"), aParser.parse("42.0"));
+		assertEquals(new BigDecimal("-42.0"), aParser.parse("-42.0"));
+		assertEquals(new BigDecimal("-42.0e42"), aParser.parse("-42.0E42"));
 
-		assertEquals(new HashMap<String, Object>(),
-					 new JsonParser().parseValue("{}"));
+		assertEquals(new HashMap<String, Object>(), aParser.parse("{}"));
 		assertEquals(CollectionUtil.mapOf(t("TESTKEY", "TESTVALUE")),
-					 new JsonParser().parseValue("{\"TESTKEY\": \"TESTVALUE\"}"));
+					 aParser.parse("{\"TESTKEY\": \"TESTVALUE\"}"));
 		assertEquals(CollectionUtil.mapOf(t("TESTKEY1", "TESTVALUE1"),
 										  t("TESTKEY2", "TESTVALUE2")),
-					 new JsonParser().parseValue("{\"TESTKEY1\": \"TESTVALUE1\"," +
-												 " \"TESTKEY2\": \"TESTVALUE2\"}"));
+					 aParser.parse("{\"TESTKEY1\": \"TESTVALUE1\"," +
+								   " \"TESTKEY2\": \"TESTVALUE2\"}"));
 
-		assertEquals(new ArrayList<Object>(),
-					 new JsonParser().parseValue("[]"));
+		assertEquals(new ArrayList<Object>(), aParser.parse("[]"));
 		assertEquals(Arrays.asList("TEST1", "TEST2"),
-					 new JsonParser().parseValue("[\"TEST1\", \"TEST2\"]"));
-	}
-
-	/***************************************
-	 * Test method
-	 */
-	@Test
-	public void testParseValueWithDatatype()
-	{
+					 aParser.parse("[\"TEST1\", \"TEST2\"]"));
 	}
 }
