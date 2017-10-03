@@ -188,6 +188,12 @@ public class MetaTypes
 	/** Marks an object that has been modified. */
 	public static final RelationType<Boolean> MODIFIED = newFlagType();
 
+	/**
+	 * Marks an object as locked. This is only a declarative type. How the
+	 * locking is implemented must be determined in the using application.
+	 */
+	public static final RelationType<Boolean> LOCKED = newFlagType();
+
 	/** Marks an object to be invalid. */
 	public static final RelationType<Boolean> INVALID = newFlagType();
 
