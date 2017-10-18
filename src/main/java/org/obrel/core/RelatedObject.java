@@ -102,7 +102,7 @@ public class RelatedObject implements Relatable
 			}
 			else
 			{
-				rRelation = new DirectRelation<T>(rType, rInitialValue);
+				rRelation = rType.newRelation(this, rInitialValue);
 
 				if (hasFlag(IMMUTABLE))
 				{
@@ -211,7 +211,7 @@ public class RelatedObject implements Relatable
 	}
 
 	/***************************************
-	 * @see Relatable#set(RelationType, Function, Object)
+	 * {@inheritDoc}
 	 */
 	@Override
 	public final <T, I> Relation<T> set(RelationType<T> rType,
@@ -223,9 +223,9 @@ public class RelatedObject implements Relatable
 		if (rRelation == null)
 		{
 			rRelation =
-				new IntermediateRelation<T, I>(rType,
-											   fTargetResolver,
-											   rIntermediateTarget);
+				rType.newIntermediateRelation(this,
+											  fTargetResolver,
+											  rIntermediateTarget);
 
 			// addRelation() will replace an existing relation with the given type
 			addRelation(rRelation, true);
@@ -261,7 +261,7 @@ public class RelatedObject implements Relatable
 	}
 
 	/***************************************
-	 * @see Relatable#transform(RelationType, InvertibleFunction)
+	 * {@inheritDoc}
 	 */
 	@Override
 	public <T, D> TransformedRelation<T, D> transform(
@@ -272,7 +272,7 @@ public class RelatedObject implements Relatable
 		T		    rTarget;
 
 		TransformedRelation<T, D> rTransformedRelation =
-			new TransformedRelation<T, D>(rType, fTransformation);
+			rType.newTransformedRelation(this, fTransformation);
 
 		if (rRelation instanceof RelationWrapper<?, ?, ?>)
 		{

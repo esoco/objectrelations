@@ -367,9 +367,10 @@ public interface Relatable
 	}
 
 	/***************************************
-	 * Creates a relation that stores the target value in an intermediate
-	 * format. When the relation target is queried later it will be created by
-	 * applying a conversion function to the intermediate value.
+	 * Creates a relation that initially stores the target value in an
+	 * intermediate format. When the relation target is queried it will be
+	 * created by applying a conversion function to the intermediate value. This
+	 * allows to lazily initialize relations only when they are really needed.
 	 *
 	 * <p>If a relation with the given type exists already this method will
 	 * throw an exception to prevent the inadvertent overriding of relations. If

@@ -23,6 +23,7 @@ import de.esoco.lib.expression.ElementAccess;
 import de.esoco.lib.expression.ElementAccessFunction;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
+import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.predicate.ElementPredicate;
@@ -698,6 +699,62 @@ public class RelationType<T> extends RelatedObject
 	protected void deleteRelation(Relatable rParent, Relation<?> rRelation)
 	{
 		assert rRelation.getType() == this;
+	}
+
+	/***************************************
+	 * Returns a new relation for this type in the given parent object that
+	 * stores the relation target in an intermediate format until the relation
+	 * is queried for the first time. The default implementation returns a new
+	 * instance of {@link IntermediateRelation}.
+	 *
+	 * @param  rParent             The parent object of the new relation
+	 * @param  fTargetResolver     The function that must be applied to the
+	 *                             intermediate target value to resolve the
+	 *                             final target value
+	 * @param  rIntermediateTarget The intermediate target value (must not be
+	 *                             NULL)
+	 *
+	 * @return The new relation
+	 */
+	protected <I> Relation<T> newIntermediateRelation(
+		RelatedObject  rParent,
+		Function<I, T> fTargetResolver,
+		I			   rIntermediateTarget)
+	{
+		return new IntermediateRelation<T, I>(this,
+											  fTargetResolver,
+											  rIntermediateTarget);
+	}
+
+	/***************************************
+	 * Returns a new relation for this type in the given parent object. The
+	 * default implementation returns a new instance of {@link DirectRelation}.
+	 *
+	 * @param  rParent The parent object of the new relation
+	 * @param  rTarget The target value of the relation
+	 *
+	 * @return The new relation
+	 */
+	protected Relation<T> newRelation(RelatedObject rParent, T rTarget)
+	{
+		return new DirectRelation<T>(this, rTarget);
+	}
+
+	/***************************************
+	 * Returns a new relation for this type in the given parent object that
+	 * stores the relation target in a transformed format. The default
+	 * implementation returns a new instance of {@link TransformedRelation}.
+	 *
+	 * @param  rParent         The parent object of the new relation
+	 * @param  fTransformation The transformation to apply to target values
+	 *
+	 * @return The new relation
+	 */
+	protected <D> TransformedRelation<T, D> newTransformedRelation(
+		RelatedObject			 rParent,
+		InvertibleFunction<T, D> fTransformation)
+	{
+		return new TransformedRelation<>(this, fTransformation);
 	}
 
 	/***************************************
