@@ -61,6 +61,9 @@ public class Functions
 {
 	//~ Static fields/initializers ---------------------------------------------
 
+	/** A runnable instance that does nothing. */
+	public static final Runnable NO_OPERATION = () ->{};
+
 	private static final InvertibleFunction<Object, Object> IDENTITY =
 		new AbstractInvertibleFunction<Object, Object>("Identity")
 		{
