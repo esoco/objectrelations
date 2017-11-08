@@ -633,6 +633,27 @@ public class Functions
 	}
 
 	/***************************************
+	 * A helper method that measures the execution time of a {@link Runnable}
+	 * object.
+	 *
+	 * @param sDescription  The description of the measured code
+	 * @param rProfiledCode The code to measure the execution time of
+	 */
+	@SuppressWarnings("boxing")
+	public static void measure(String sDescription, Runnable rProfiledCode)
+	{
+		long t = System.currentTimeMillis();
+
+		rProfiledCode.run();
+
+		t = System.currentTimeMillis() - t;
+		System.out.printf("[TIME] %s: %d.%03ds\n",
+						  sDescription,
+						  t / 1000,
+						  t % 1000);
+	}
+
+	/***************************************
 	 * Returns a new function instance that prints input values to a certain
 	 * print writer without a trailing linefeed.
 	 *
