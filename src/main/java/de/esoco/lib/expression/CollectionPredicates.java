@@ -35,7 +35,7 @@ public class CollectionPredicates
 {
 	//~ Static fields/initializers ---------------------------------------------
 
-	/** Always returns true */
+	/** Yields TRUE if a collection is empty. */
 	private static final Predicate<Collection<?>> IS_EMPTY =
 		new AbstractPredicate<Collection<?>>("IsEmpty")
 		{
@@ -43,6 +43,17 @@ public class CollectionPredicates
 			public final Boolean evaluate(Collection<?> rCollection)
 			{
 				return rCollection.isEmpty();
+			}
+		};
+
+	/** Yields TRUE if a collection is not empty. */
+	private static final Predicate<Collection<?>> NOT_EMPTY =
+		new AbstractPredicate<Collection<?>>("IsEmpty")
+		{
+			@Override
+			public final Boolean evaluate(Collection<?> rCollection)
+			{
+				return !rCollection.isEmpty();
 			}
 		};
 
@@ -113,5 +124,16 @@ public class CollectionPredicates
 	public static Predicate<Collection<?>> isEmpty()
 	{
 		return IS_EMPTY;
+	}
+
+	/***************************************
+	 * Returns a predicate constant that evaluates to TRUE if a collection is
+	 * not empty.
+	 *
+	 * @return A predicate constant
+	 */
+	public static Predicate<Collection<?>> notEmpty()
+	{
+		return NOT_EMPTY;
 	}
 }
