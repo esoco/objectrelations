@@ -20,6 +20,7 @@ import de.esoco.lib.event.EventDispatcher;
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.property.Immutability;
+import de.esoco.lib.property.SortDirection;
 
 import java.io.Closeable;
 
@@ -247,19 +248,8 @@ public class MetaTypes
 	 */
 	public static final RelationType<Boolean> TRANSACTIONAL = newFlagType();
 
-	/**
-	 * Marks an element that shall be used for sorting. TRUE defines ascending
-	 * and FALSE descending order. If this flag is not set (to be checked with
-	 * {@link Relatable#hasRelation(RelationType)}) the element should not be
-	 * considered for sorting.
-	 */
-	public static final RelationType<Boolean> SORT_ASCENDING = newFlagType();
-
-	/**
-	 * Contains the sort order (or priority) for elements that are used for
-	 * sorting. Can be used in conjunction with {@link #SORT_ASCENDING}.
-	 */
-	public static final RelationType<Integer> SORT_ORDER = newType();
+	/** Defines the sort direction on the annotated element. */
+	public static final RelationType<SortDirection> SORT_DIRECTION = newType();
 
 	/**
 	 * The namespace of a relation type. This meta type is only intended to be
