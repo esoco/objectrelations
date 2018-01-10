@@ -7,6 +7,7 @@ git:
   depth: 3
 
 before_install:
+  - pwd 
   - git clone -b ${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH} --depth 3 https://github.com/esoco/esoco-common
 
 before_cache:
