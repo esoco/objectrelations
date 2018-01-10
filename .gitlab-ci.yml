@@ -4,6 +4,9 @@ stages:
   - build
   - test
 
+install:
+  - git clone -b $TRAVIS_BRANCH https://github.com/esoco/esoco-common
+
 before_script:
   - export GRADLE_USER_HOME=`pwd`/.gradle
 
@@ -11,6 +14,9 @@ cache:
   paths:
     - .gradle/wrapper
     - .gradle/caches
+    
+git:
+  depth: 1
 
 build:
   stage: build
