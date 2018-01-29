@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,23 @@ import java.util.function.Consumer;
  */
 public interface Action<T> extends Function<T, Void>, Consumer<T>
 {
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Takes an action that throws an exception and returns it as an action that
+	 * can be executed without a checked exception. This method is mainly
+	 * intended to be used with lambdas that throw exceptions.
+	 *
+	 * @param  fChecked The checked action to wrap as unchecked
+	 *
+	 * @return The unchecked action
+	 */
+	public static <T, E extends Exception> Action<T> unchecked(
+		ThrowingAction<T, E> fChecked)
+	{
+		return fChecked;
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-import de.esoco.lib.expression.Action.ThrowingAction;
-import de.esoco.lib.expression.BinaryFunction.ThrowingBinaryFunction;
 import de.esoco.lib.expression.Function.ThrowingFunction;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.AbstractFunction;
@@ -792,58 +790,14 @@ public class Functions
 		ThrowingFunction<I, R, Exception> fOpenResource,
 		ThrowingFunction<R, O, Exception> fProduceResult)
 	{
-		return unchecked(i ->
-			 			{
-			 				try (R rResource = fOpenResource.evaluate(i))
-			 				{
-			 					return fProduceResult.evaluate(rResource);
-			 				}
-						 });
-	}
-
-	/***************************************
-	 * Takes an action that throws an exception and returns it as an action that
-	 * can be executed without a checked exception. This method is mainly
-	 * intended to be used with lambdas that throw exceptions.
-	 *
-	 * @param  fChecked The checked action to wrap as unchecked
-	 *
-	 * @return The unchecked action
-	 */
-	public static <T, E extends Exception> Action<T> unchecked(
-		ThrowingAction<T, E> fChecked)
-	{
-		return fChecked;
-	}
-
-	/***************************************
-	 * Takes a function that throws an exception and returns it as a function
-	 * that can be executed without a checked exception. This method is mainly
-	 * intended to be used with lambdas that throw exceptions.
-	 *
-	 * @param  fChecked The checked function to wrap as unchecked
-	 *
-	 * @return The unchecked function
-	 */
-	public static <I, O, E extends Exception> Function<I, O> unchecked(
-		ThrowingFunction<I, O, E> fChecked)
-	{
-		return fChecked;
-	}
-
-	/***************************************
-	 * Takes a binary function that throws an exception and returns it as a
-	 * function that can be executed without checked exception. This method is
-	 * mainly intended to be used with lambdas that throw exceptions.
-	 *
-	 * @param  fChecked The checked binary function to wrap as unchecked
-	 *
-	 * @return The unchecked binary function
-	 */
-	public static <L, R, O, E extends Exception> BinaryFunction<L, R, O> unchecked(
-		ThrowingBinaryFunction<L, R, O, E> fChecked)
-	{
-		return fChecked;
+		return Function.unchecked(i ->
+					  			{
+					  				try (R rResource =
+					  					 fOpenResource.evaluate(i))
+					  				{
+					  					return fProduceResult.evaluate(rResource);
+					  				}
+								  });
 	}
 
 	/***************************************

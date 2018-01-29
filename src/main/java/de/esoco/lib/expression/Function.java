@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +38,23 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 	 * function in the result of the {@link Object#toString()} method.
 	 */
 	public static final String INPUT_PLACEHOLDER = "#";
+
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Takes a function that throws an exception and returns it as a function
+	 * that can be executed without a checked exception. This method is mainly
+	 * intended to be used with lambdas that throw exceptions.
+	 *
+	 * @param  fChecked The checked function to wrap as unchecked
+	 *
+	 * @return The unchecked function
+	 */
+	public static <I, O, E extends Exception> Function<I, O> unchecked(
+		ThrowingFunction<I, O, E> fChecked)
+	{
+		return fChecked;
+	}
 
 	//~ Methods ----------------------------------------------------------------
 
