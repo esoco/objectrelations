@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,9 +36,17 @@ public abstract class AbstractFunction<I, O> extends RelatedObject
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private final String sToken;
+	private String sToken;
 
 	//~ Constructors -----------------------------------------------------------
+
+	/***************************************
+	 * Creates a new instance that uses the class name as the token.
+	 */
+	public AbstractFunction()
+	{
+		this(null);
+	}
 
 	/***************************************
 	 * Creates a new instance.
@@ -98,6 +106,11 @@ public abstract class AbstractFunction<I, O> extends RelatedObject
 	@Override
 	public String getToken()
 	{
+		if (sToken == null)
+		{
+			sToken = getClass().getSimpleName();
+		}
+
 		return sToken;
 	}
 

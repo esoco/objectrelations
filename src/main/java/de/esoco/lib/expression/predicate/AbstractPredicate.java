@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,9 +32,14 @@ public abstract class AbstractPredicate<T> extends AbstractFunction<T, Boolean>
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance with a certain description string.
-	 *
-	 * @param sToken The description of this predicate
+	 * @see AbstractFunction#AbstractFunction()
+	 */
+	public AbstractPredicate()
+	{
+	}
+
+	/***************************************
+	 * @see AbstractFunction#AbstractFunction(String)
 	 */
 	public AbstractPredicate(String sToken)
 	{

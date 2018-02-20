@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +28,13 @@ public abstract class AbstractInvertibleFunction<I, O>
 	extends AbstractFunction<I, O> implements InvertibleFunction<I, O>
 {
 	//~ Constructors -----------------------------------------------------------
+
+	/***************************************
+	 * @see AbstractFunction#AbstractFunction()
+	 */
+	public AbstractInvertibleFunction()
+	{
+	}
 
 	/***************************************
 	 * @see AbstractFunction#AbstractFunction(String)
