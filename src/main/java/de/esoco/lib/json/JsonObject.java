@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,9 +18,11 @@ package de.esoco.lib.json;
 
 import de.esoco.lib.collection.CollectionUtil;
 
+import org.obrel.core.ObjectRelations;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
+import org.obrel.type.MetaTypes;
 
 
 /********************************************************************
@@ -35,10 +37,14 @@ public class JsonObject<T extends JsonObject<T>> extends RelatedObject
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance that will convert all relation types to JSON that
+	 * have been declared in a subclass of this class.
 	 */
 	public JsonObject()
 	{
+		set(JsonBuilder.JSON_SERIALIZED_TYPES,
+			ObjectRelations.getRelatable(getClass())
+			.get(MetaTypes.DECLARED_RELATION_TYPES));
 	}
 
 	/***************************************
@@ -49,7 +55,7 @@ public class JsonObject<T extends JsonObject<T>> extends RelatedObject
 	public JsonObject(RelationType<?>... rJsonTypes)
 	{
 		set(JsonBuilder.JSON_SERIALIZED_TYPES,
-			CollectionUtil.setOf(rJsonTypes));
+			CollectionUtil.orderedSetOf(rJsonTypes));
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -72,6 +78,8 @@ public class JsonObject<T extends JsonObject<T>> extends RelatedObject
 	@Override
 	public String toJson()
 	{
-		return new JsonBuilder().appendRelatable(this, null, true).toString();
+		return new JsonBuilder().indent("\t")
+								.appendRelatable(this, null, true)
+								.toString();
 	}
 }

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,6 +62,17 @@ public class JsonParser
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
+	 * Returns a function that parses a JSON string into objects. The parsing is
+	 * done by {@link #parse(String)}.
+	 *
+	 * @return A function that parses JSON string into objects
+	 */
+	public static Function<String, Object> parseJson()
+	{
+		return sJson -> new JsonParser().parse(sJson);
+	}
+
+	/***************************************
 	 * Returns a binary function that parses a JSON string into an Object with a
 	 * certain datatype by invoking {@link #parseValue(String, Class)}.
 	 *
@@ -71,7 +82,7 @@ public class JsonParser
 	 */
 	public static <T> Function<String, T> parseJson(Class<T> rDatatype)
 	{
-		return sJsonValue -> new JsonParser().parseValue(sJsonValue, rDatatype);
+		return sJson -> new JsonParser().parseValue(sJson, rDatatype);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -80,39 +91,41 @@ public class JsonParser
 	 * Parses a JSON string value according to it's JSON datatype. For more
 	 * enhanced datatype parsing see {@link #parseValue(String, Class)}.
 	 *
-	 * @param  sJsonValue The JSON value string
+	 * @param  sJson The JSON value string
 	 *
-	 * @return The parsed value
+	 * @return The parsed value (NULL if input is NULL or empty)
 	 */
-	public Object parse(String sJsonValue)
+	public Object parse(String sJson)
 	{
 		Object aValue;
 
-		if (sJsonValue.charAt(0) == JsonStructure.STRING.cOpen)
-		{
-			aValue =
-				JsonUtil.restore(sJsonValue.substring(1,
-													  sJsonValue.length() - 1));
-		}
-		else if (sJsonValue.charAt(0) == JsonStructure.OBJECT.cOpen)
-		{
-			aValue = parseObject(sJsonValue);
-		}
-		else if (sJsonValue.charAt(0) == JsonStructure.ARRAY.cOpen)
-		{
-			aValue = parseArray(sJsonValue, new ArrayList<>());
-		}
-		else if (sJsonValue.equals("null"))
+		if (sJson == null || sJson.isEmpty())
 		{
 			aValue = null;
 		}
-		else if (sJsonValue.equals("true") || sJsonValue.equals("false"))
+		else if (sJson.charAt(0) == JsonStructure.STRING.cOpen)
 		{
-			aValue = Boolean.valueOf(sJsonValue);
+			aValue = JsonUtil.restore(sJson.substring(1, sJson.length() - 1));
+		}
+		else if (sJson.charAt(0) == JsonStructure.OBJECT.cOpen)
+		{
+			aValue = parseObject(sJson);
+		}
+		else if (sJson.charAt(0) == JsonStructure.ARRAY.cOpen)
+		{
+			aValue = parseArray(sJson, new ArrayList<>());
+		}
+		else if (sJson.equals("null"))
+		{
+			aValue = null;
+		}
+		else if (sJson.equals("true") || sJson.equals("false"))
+		{
+			aValue = Boolean.valueOf(sJson);
 		}
 		else
 		{
-			aValue = parseNumber(sJsonValue);
+			aValue = parseNumber(sJson);
 		}
 
 		return aValue;
@@ -135,17 +148,6 @@ public class JsonParser
 					   sArrayElement -> rCollection.add(parse(sArrayElement)));
 
 		return rCollection;
-	}
-
-	/***************************************
-	 * Returns a function that parses a JSON string into objects. The parsing is
-	 * done by {@link #parse(String)}.
-	 *
-	 * @return A function that parses JSON string into objects
-	 */
-	public Function<String, Object> parseJson()
-	{
-		return sJson -> parse(sJson);
 	}
 
 	/***************************************
@@ -331,7 +333,7 @@ public class JsonParser
 	@SuppressWarnings("unchecked")
 	public <T> T parseValue(String sJsonValue, Class<? extends T> rDatatype)
 	{
-		Object rValue = null;
+		Object rValue;
 
 		if (JsonSerializable.class.isAssignableFrom(rDatatype))
 		{

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.json.JsonUtil.JsonStructure;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -113,11 +114,17 @@ public class JsonBuilder
 	 * Returns a function that builds a JSON string from arbitrary input
 	 * objects.
 	 *
+	 * @param  sIndent The indentation of generated JSON objects (empty string
+	 *                 for none)
+	 *
 	 * @return A function that converts objects into JSON
 	 */
-	public static <T> Function<T, String> buildJson()
+	public static <T> Function<T, String> buildJson(String sIndent)
 	{
-		return rValue -> new JsonBuilder().append(rValue).toString();
+		return rValue ->
+			   new JsonBuilder().indent(sIndent)
+								.append(rValue)
+								.toString();
 	}
 
 	/***************************************
@@ -182,6 +189,10 @@ public class JsonBuilder
 		else if (rValue instanceof Date)
 		{
 			appendString(JSON_DATE_FORMAT.format((Date) rValue));
+		}
+		else if (rValue.getClass().isArray())
+		{
+			appendArray(Arrays.asList((Object[]) rValue));
 		}
 		else if (rValue instanceof Collection)
 		{
@@ -335,9 +346,8 @@ public class JsonBuilder
 				if (--nCount > 0)
 				{
 					aJson.append(',');
+					newLine();
 				}
-
-				newLine();
 			}
 		}
 
@@ -413,31 +423,30 @@ public class JsonBuilder
 		Relatable					rObject,
 		Collection<RelationType<?>> rRelationTypes)
 	{
-		Predicate<Relation<?>> pRelations = IS_NOT_TRANSIENT;
+		Predicate<Relation<?>> pMatchesType;
+		boolean				   bWithNamespace = true;
 
 		if (rRelationTypes == null &&
 			rObject.hasRelation(JSON_SERIALIZED_TYPES))
 		{
 			rRelationTypes = rObject.get(JSON_SERIALIZED_TYPES);
+			bWithNamespace = false;
 		}
 
 		if (rRelationTypes != null)
 		{
 			Collection<RelationType<?>> rTypes = rRelationTypes;
 
-			pRelations =
-				pRelations.and(rRelation ->
-							   rTypes.contains(rRelation.getType()));
+			pMatchesType = r -> rTypes.contains(r.getType());
 		}
 		else
 		{
-			pRelations =
-				pRelations.and(rRelation ->
-							   !aExcludedRelationTypes.contains(rRelation
-																.getType()));
+			pMatchesType = r -> !aExcludedRelationTypes.contains(r.getType());
 		}
 
-		appendRelations(rObject.getRelations(pRelations));
+		appendRelations(rObject.getRelations(IS_NOT_TRANSIENT.and(pMatchesType)),
+						bWithNamespace,
+						false);
 
 		return this;
 	}
@@ -517,6 +526,7 @@ public class JsonBuilder
 			sCurrentIndent.substring(0,
 									 sCurrentIndent.length() -
 									 sIndent.length());
+		newLine();
 		aJson.append(JsonStructure.OBJECT.cClose);
 
 		return this;
@@ -606,17 +616,24 @@ public class JsonBuilder
 	/***************************************
 	 * Appends a collection of relations to this JSON string.
 	 *
-	 * @param  rRelations The relations to append
+	 * @param  rRelations        The relations to append
+	 * @param  bWithNamespace    TRUE to include the relation type namespace,
+	 *                           FALSE to only use it's simple name
+	 * @param  bAppendNullValues TRUE if NULL values should be appended, FALSE
+	 *                           if they should be omitted
 	 *
 	 * @return This instance for concatenation
 	 */
-	private JsonBuilder appendRelations(Collection<Relation<?>> rRelations)
+	private JsonBuilder appendRelations(
+		Collection<Relation<?>> rRelations,
+		boolean					bWithNamespace,
+		boolean					bAppendNullValues)
 	{
 		int nCount = rRelations.size();
 
 		for (Relation<?> rRelation : rRelations)
 		{
-			append(rRelation, true, false);
+			append(rRelation, bWithNamespace, bAppendNullValues);
 
 			if (--nCount > 0)
 			{
