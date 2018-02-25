@@ -16,14 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
-import de.esoco.lib.collection.CollectionUtil;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 import org.junit.Test;
 
@@ -128,12 +125,12 @@ public class JsonParserTest
 		assertEquals(new BigDecimal("-42.0"), aParser.parse("-42.0"));
 		assertEquals(new BigDecimal("-42.0e42"), aParser.parse("-42.0E42"));
 
-		assertEquals(new HashMap<String, Object>(), aParser.parse("{}"));
-		assertEquals(CollectionUtil.orderedMapOf(t("TESTKEY", "TESTVALUE")),
+		assertEquals(new JsonObject(), aParser.parse("{}"));
+		assertEquals(new JsonObject(t("TESTKEY", "TESTVALUE")),
 					 aParser.parse("{\"TESTKEY\": \"TESTVALUE\"}"));
-		assertEquals(CollectionUtil.orderedMapOf(t("TESTKEY1", "TESTVALUE1"),
-												 t("TESTKEY2", "TESTVALUE2"),
-												 t("NULLVALUE", null)),
+		assertEquals(new JsonObject(t("TESTKEY1", "TESTVALUE1"),
+									t("TESTKEY2", "TESTVALUE2"),
+									t("NULLVALUE", null)),
 					 aParser.parse("{\"TESTKEY1\": \"TESTVALUE1\"," +
 								   " \"TESTKEY2\": \"TESTVALUE2\"," +
 								   "\"NULLVALUE\": null}"));

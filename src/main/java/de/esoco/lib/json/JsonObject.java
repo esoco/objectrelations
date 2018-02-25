@@ -16,6 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
+import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.datatype.Pair;
+
 import java.math.BigDecimal;
 
 import java.util.Map;
@@ -42,14 +45,44 @@ public class JsonObject extends RelatedObject
 
 	/***************************************
 	 * Creates a new instance with pre-set properties. It is expected (but not
+	 * checked) that the given properties only contains valid JSON datatypes.
+	 * Otherwise subsequent property queries will probably fail.
+	 *
+	 * @param rObjectProperties The JSON object properties of this instance
+	 */
+	@SafeVarargs
+	public JsonObject(Pair<String, Object>... rObjectProperties)
+	{
+		this(CollectionUtil.orderedMapOf(rObjectProperties));
+	}
+
+	/***************************************
+	 * Creates a new instance with pre-set properties. It is expected (but not
 	 * checked) that the given properties map only contains valid JSON
 	 * datatypes. Otherwise subsequent property queries will probably fail.
 	 *
-	 * @param aObjectProperties The JSON object properties of this instance
+	 * @param rObjectProperties The JSON object properties of this instance
 	 */
-	public JsonObject(Map<String, Object> aObjectProperties)
+	public JsonObject(Map<String, Object> rObjectProperties)
 	{
-		get(Json.JSON_OBJECT_DATA).putAll(aObjectProperties);
+		if (!rObjectProperties.isEmpty())
+		{
+			get(Json.JSON_OBJECT_DATA).putAll(rObjectProperties);
+		}
+	}
+
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Creates a new instance from a JSON string.
+	 *
+	 * @param  sJson The JSON object declaration
+	 *
+	 * @return The new object
+	 */
+	public static JsonObject valueOf(String sJson)
+	{
+		return new JsonObject().fromJson(sJson);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -88,7 +121,13 @@ public class JsonObject extends RelatedObject
 	@Override
 	public JsonObject fromJson(String sJson)
 	{
-		set(Json.JSON_OBJECT_DATA, new JsonParser().parseObjectMap(sJson));
+		Map<String, Object> rProperties =
+			new JsonParser().parseObjectMap(sJson);
+
+		if (!rProperties.isEmpty())
+		{
+			set(Json.JSON_OBJECT_DATA, rProperties);
+		}
 
 		return this;
 	}

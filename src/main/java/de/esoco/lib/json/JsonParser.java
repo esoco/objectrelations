@@ -93,9 +93,9 @@ public class JsonParser
 	 *
 	 * @return A new map containing the parsed object attributes
 	 */
-	public static Function<String, JsonObject> parseJsonObject()
+	public static Function<String, Map<String, Object>> parseJsonMap()
 	{
-		return sJson -> new JsonParser().parseObject(sJson);
+		return sJson -> new JsonParser().parseObjectMap(sJson);
 	}
 
 	//~ Methods ----------------------------------------------------------------

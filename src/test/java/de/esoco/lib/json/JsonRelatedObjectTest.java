@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
@@ -28,7 +27,6 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.StandardTypes;
 
-import static de.esoco.lib.collection.CollectionUtil.orderedMapOf;
 import static de.esoco.lib.datatype.Pair.t;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -57,7 +55,7 @@ public class JsonRelatedObjectTest
 		"	\"FLAG\": true,\n" +
 		"	\"ARRAY\": [1, 2, 3, 4, 5],\n" +
 		"	\"LIST\": [1, 2, 3, 4],\n" +
-		"	\"MAP\": {\n" +
+		"	\"JSON_OBJECT\": {\n" +
 		"		\"k1\": \"v1\",\n" +
 		"		\"k2\": \"v2\",\n" +
 		"		\"k3\": \"v3\"\n" +
@@ -72,8 +70,8 @@ public class JsonRelatedObjectTest
 
 	private static final List<Integer> TEST_LIST = Arrays.asList(1, 2, 3, 4);
 
-	private static final Map<String, String> TEST_MAP =
-		orderedMapOf(t("k1", "v1"), t("k2", "v2"), t("k3", "v3"));
+	private static final JsonObject TEST_OBJECT =
+		new JsonObject(t("k1", "v1"), t("k2", "v2"), t("k3", "v3"));
 
 	//~ Methods ----------------------------------------------------------------
 
@@ -114,7 +112,7 @@ public class JsonRelatedObjectTest
 		assertEquals(TEST_DECIMAL, aTestObject.get(JsonTestObject.DECIMAL));
 		assertArrayEquals(TEST_ARRAY, aTestObject.get(JsonTestObject.ARRAY));
 		assertEquals(TEST_LIST, aTestObject.get(JsonTestObject.LIST));
-		assertEquals(TEST_MAP, aTestObject.get(JsonTestObject.MAP));
+		assertEquals(TEST_OBJECT, aTestObject.get(JsonTestObject.JSON_OBJECT));
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -177,10 +175,10 @@ public class JsonRelatedObjectTest
 		static final RelationType<BigDecimal> DECIMAL	    = newType();
 		static final RelationType<Boolean>    FLAG		    = newType();
 
-		static final RelationType<Integer[]>		   ARRAY = newType();
-		static final RelationType<List<Integer>>	   LIST  = newType();
-		static final RelationType<Map<String, String>> MAP   = newType();
-		static final RelationType<JsonChildObject>     CHILD = newType();
+		static final RelationType<Integer[]>	   ARRAY	   = newType();
+		static final RelationType<List<Integer>>   LIST		   = newType();
+		static final RelationType<JsonObject>	   JSON_OBJECT = newType();
+		static final RelationType<JsonChildObject> CHILD	   = newType();
 
 		static
 		{
@@ -202,7 +200,7 @@ public class JsonRelatedObjectTest
 			set(FLAG);
 			set(ARRAY, TEST_ARRAY);
 			set(LIST, TEST_LIST);
-			set(MAP, TEST_MAP);
+			set(JSON_OBJECT, TEST_OBJECT);
 			set(CHILD, null);
 		}
 	}
