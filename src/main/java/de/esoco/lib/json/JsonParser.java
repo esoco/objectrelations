@@ -19,8 +19,9 @@ package de.esoco.lib.json;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Function;
-import de.esoco.lib.json.JsonUtil.JsonStructure;
+import de.esoco.lib.json.Json.JsonStructure;
 import de.esoco.lib.reflect.ReflectUtil;
+import de.esoco.lib.text.TextConvert;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -39,7 +40,7 @@ import org.obrel.core.Relatable;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
 
-import static de.esoco.lib.json.JsonUtil.JSON_DATE_FORMAT;
+import static de.esoco.lib.json.Json.JSON_DATE_FORMAT;
 
 
 /********************************************************************
@@ -85,6 +86,18 @@ public class JsonParser
 		return sJson -> new JsonParser().parseValue(sJson, rDatatype);
 	}
 
+	/***************************************
+	 * Returns a function that parses a JSON object and returns a map containing
+	 * the parsed values. The returned map preserves the order of the parsed
+	 * values in the input string.
+	 *
+	 * @return A new map containing the parsed object attributes
+	 */
+	public static Function<String, JsonObject> parseJsonObject()
+	{
+		return sJson -> new JsonParser().parseObject(sJson);
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -105,7 +118,7 @@ public class JsonParser
 		}
 		else if (sJson.charAt(0) == JsonStructure.STRING.cOpen)
 		{
-			aValue = JsonUtil.restore(sJson.substring(1, sJson.length() - 1));
+			aValue = Json.restore(sJson.substring(1, sJson.length() - 1));
 		}
 		else if (sJson.charAt(0) == JsonStructure.OBJECT.cOpen)
 		{
@@ -148,18 +161,6 @@ public class JsonParser
 					   sArrayElement -> rCollection.add(parse(sArrayElement)));
 
 		return rCollection;
-	}
-
-	/***************************************
-	 * Returns a function that parses a JSON object and returns a map containing
-	 * the parsed values. The returned map preserves the order of the parsed
-	 * values in the input string.
-	 *
-	 * @return A new map containing the parsed object attributes
-	 */
-	public Function<String, Map<String, Object>> parseJsonObject()
-	{
-		return sJson -> parseObject(sJson);
 	}
 
 	/***************************************
@@ -251,14 +252,27 @@ public class JsonParser
 	}
 
 	/***************************************
-	 * Parses a JSON object into a map. The map will preserve the order in which
-	 * the object attributes in the JSON string.
+	 * Parses a JSON object structure into a {@link JsonObject}. This is the
+	 * same as invoking {@link JsonObject#fromJson(String)} on the input string.
 	 *
 	 * @param  sJsonObject The JSON object string
 	 *
 	 * @return A new map containing the parsed object attributes
 	 */
-	public Map<String, Object> parseObject(String sJsonObject)
+	public JsonObject parseObject(String sJsonObject)
+	{
+		return new JsonObject().fromJson(sJsonObject);
+	}
+
+	/***************************************
+	 * Parses a JSON object structure into a map. The map will preserve the
+	 * order in which the object attributes in the JSON string.
+	 *
+	 * @param  sJsonObject The JSON object string
+	 *
+	 * @return A new map containing the parsed object attributes
+	 */
+	public Map<String, Object> parseObjectMap(String sJsonObject)
 	{
 		Map<String, Object> aMap = new LinkedHashMap<>();
 
@@ -304,11 +318,30 @@ public class JsonParser
 	@SuppressWarnings("unchecked")
 	public void parseRelation(String sJson, Relatable rTarget)
 	{
-		int    nColon     = sJson.indexOf(':');
-		String sTypeName  = sJson.substring(1, nColon - 1).trim();
-		String sJsonValue = sJson.substring(nColon + 1).trim();
+		int			    nColon		  = sJson.indexOf(':');
+		String		    sTypeName     = sJson.substring(1, nColon - 1).trim();
+		String		    sJsonValue    = sJson.substring(nColon + 1).trim();
+		RelationType<?> rRelationType = null;
 
-		RelationType<?> rRelationType = RelationType.valueOf(sTypeName);
+		Collection<RelationType<?>> rJsonTypes =
+			rTarget.get(Json.JSON_SERIALIZED_TYPES);
+
+		if (rJsonTypes != null)
+		{
+			sTypeName = TextConvert.uppercaseIdentifier(sTypeName);
+
+			for (RelationType<?> rType : rJsonTypes)
+			{
+				if (rType.getSimpleName().equalsIgnoreCase(sTypeName))
+				{
+					rRelationType = rType;
+				}
+			}
+		}
+		else
+		{
+			rRelationType = RelationType.valueOf(sTypeName);
+		}
 
 		if (rRelationType == null)
 		{
@@ -335,7 +368,11 @@ public class JsonParser
 	{
 		Object rValue;
 
-		if (JsonSerializable.class.isAssignableFrom(rDatatype))
+		if ("null".equals(sJsonValue))
+		{
+			rValue = null;
+		}
+		else if (JsonSerializable.class.isAssignableFrom(rDatatype))
 		{
 			rValue = ReflectUtil.newInstance(rDatatype);
 
@@ -349,6 +386,10 @@ public class JsonParser
 		{
 			rValue =
 				parseNumber(sJsonValue, (Class<? extends Number>) rDatatype);
+		}
+		else if (rDatatype.isArray())
+		{
+			rValue = parseArray(sJsonValue, new ArrayList<>()).toArray();
 		}
 		else if (Collection.class.isAssignableFrom(rDatatype))
 		{
@@ -400,7 +441,7 @@ public class JsonParser
 		else
 		{
 			sJsonValue = getContent(sJsonValue, JsonStructure.STRING);
-			sJsonValue = JsonUtil.restore(sJsonValue);
+			sJsonValue = Json.restore(sJsonValue);
 			rValue     = Conversions.parseValue(sJsonValue, rDatatype);
 		}
 

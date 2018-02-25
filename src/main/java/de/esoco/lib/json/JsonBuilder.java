@@ -21,7 +21,7 @@ import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.json.JsonUtil.JsonStructure;
+import de.esoco.lib.json.Json.JsonStructure;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,9 +34,8 @@ import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
-import org.obrel.core.RelationTypes;
 
-import static de.esoco.lib.json.JsonUtil.JSON_DATE_FORMAT;
+import static de.esoco.lib.json.Json.JSON_DATE_FORMAT;
 
 import static org.obrel.type.MetaTypes.IMMUTABLE;
 import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
@@ -55,18 +54,11 @@ import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
  *
  * @author eso
  * @see    JsonParser
- * @see    JsonUtil
+ * @see    Json
  */
 public class JsonBuilder
 {
 	//~ Static fields/initializers ---------------------------------------------
-
-	/**
-	 * The relation types of a {@link Relatable} object that should be
-	 * considered for JSON serialization.
-	 */
-	public static final RelationType<Collection<RelationType<?>>> JSON_SERIALIZED_TYPES =
-		RelationTypes.newType();
 
 	private static final ConvertJson CONVERT_JSON = new ConvertJson();
 
@@ -79,11 +71,6 @@ public class JsonBuilder
 											  RELATION_TYPE_LISTENERS,
 											  RELATION_UPDATE_LISTENERS,
 											  IMMUTABLE);
-
-	static
-	{
-		RelationTypes.init(JsonBuilder.class);
-	}
 
 	//~ Instance fields --------------------------------------------------------
 
@@ -180,7 +167,7 @@ public class JsonBuilder
 		}
 		else if (rValue instanceof JsonSerializable)
 		{
-			aJson.append(((JsonSerializable<?>) rValue).toJson());
+			((JsonSerializable<?>) rValue).appendTo(this);
 		}
 		else if (rValue instanceof Boolean || rValue instanceof Number)
 		{
@@ -204,7 +191,7 @@ public class JsonBuilder
 		}
 		else if (rValue instanceof RelationType)
 		{
-			appendString(JsonUtil.escape(rValue.toString()));
+			appendString(Json.escape(rValue.toString()));
 		}
 		else if (bRecursiveRelations && rValue instanceof Relatable)
 		{
@@ -224,7 +211,7 @@ public class JsonBuilder
 				sValue = rValue.toString();
 			}
 
-			appendString(JsonUtil.escape(sValue));
+			appendString(Json.escape(sValue));
 		}
 
 		return this;
@@ -427,9 +414,9 @@ public class JsonBuilder
 		boolean				   bWithNamespace = true;
 
 		if (rRelationTypes == null &&
-			rObject.hasRelation(JSON_SERIALIZED_TYPES))
+			rObject.hasRelation(Json.JSON_SERIALIZED_TYPES))
 		{
-			rRelationTypes = rObject.get(JSON_SERIALIZED_TYPES);
+			rRelationTypes = rObject.get(Json.JSON_SERIALIZED_TYPES);
 			bWithNamespace = false;
 		}
 
@@ -446,7 +433,7 @@ public class JsonBuilder
 
 		appendRelations(rObject.getRelations(IS_NOT_TRANSIENT.and(pMatchesType)),
 						bWithNamespace,
-						false);
+						true);
 
 		return this;
 	}
@@ -454,7 +441,7 @@ public class JsonBuilder
 	/***************************************
 	 * Appends a string value by wrapping it in the JSON string delimiters. The
 	 * string will not be escaped. That need to be done separately by invoking
-	 * {@link JsonUtil#escape(String)} if necessary.
+	 * {@link Json#escape(String)} if necessary.
 	 *
 	 * @param  sStringValue sText The text string to append
 	 *
@@ -638,9 +625,8 @@ public class JsonBuilder
 			if (--nCount > 0)
 			{
 				aJson.append(',');
+				newLine();
 			}
-
-			newLine();
 		}
 
 		return this;

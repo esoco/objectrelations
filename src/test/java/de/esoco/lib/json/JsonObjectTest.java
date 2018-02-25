@@ -19,19 +19,15 @@ package de.esoco.lib.json;
 import java.math.BigDecimal;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
-
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-import org.obrel.type.StandardTypes;
 
 import static de.esoco.lib.collection.CollectionUtil.orderedMapOf;
 import static de.esoco.lib.datatype.Pair.t;
 
-import static org.obrel.core.RelationTypes.newType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 /********************************************************************
@@ -39,73 +35,107 @@ import static org.obrel.core.RelationTypes.newType;
  *
  * @author eso
  */
+@SuppressWarnings("boxing")
 public class JsonObjectTest
 {
+	//~ Static fields/initializers ---------------------------------------------
+
+	private static final String SERIALIZED_JSON =
+		"{\n" +
+		"	\"testNull\": null,\n" +
+		"	\"testString\": \"TEST\",\n" +
+		"	\"testFlag\": true,\n" +
+		"	\"testInt\": 42,\n" +
+		"	\"testDecimal\": 3.14159,\n" +
+		"	\"testCollection\": [\"test1\", \"test2\", \"test3\"],\n" +
+		"	\"testChild\": {\n" +
+		"		\"childName\": \"CHILD\",\n" +
+		"		\"childId\": 1\n" +
+		"	}\n" +
+		"}";
+
+	//~ Instance fields --------------------------------------------------------
+
+	private JsonObject aChildObject =
+		new JsonObject(orderedMapOf(t("childName", "CHILD"), t("childId", 1)));
+	private JsonObject aJsonObject  =
+		new JsonObject(orderedMapOf(t("testNull", null),
+									t("testString", "TEST"),
+									t("testFlag", true),
+									t("testInt", 42),
+									t("testDecimal", new BigDecimal("3.14159")),
+									t("testCollection",
+									  Arrays.asList("test1", "test2", "test3")),
+									t("testChild", aChildObject)));
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * JSON parsing test.
+	 * Test of {@link JsonObject#toJson()} (including {@link
+	 * JsonObject#appendTo(JsonBuilder)}).
 	 */
 	@Test
-	public void testBuildJson()
+	public void testFromJson()
 	{
-		JsonTestObject aTestObject = new JsonTestObject();
-
-		System.out.printf("JSON: %s\n", aTestObject.toJson());
+		assertJsonProperties(new JsonObject().fromJson(SERIALIZED_JSON));
 	}
 
 	/***************************************
-	 * JSON building test.
+	 * Test of {@link JsonObject#get(String, Object)}.
 	 */
 	@Test
-	public void testParseJson()
+	public void testGetProperty()
 	{
+		assertJsonProperties(aJsonObject);
+		aJsonObject.set("testLong", 555L);
+		assertEquals(Long.valueOf(555), aJsonObject.get("testLong", 0));
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
-	 * A test object that contains some JSON relation type attributes.
-	 *
-	 * @author eso
+	/***************************************
+	 * Test of {@link JsonObject#set(String, Object)}.
 	 */
-	static class JsonTestObject extends JsonObject<JsonTestObject>
+	@Test
+	public void testSetProperty()
 	{
-		//~ Static fields/initializers -----------------------------------------
+		JsonObject aTestObject = new JsonObject();
 
-		static final RelationType<String> NAME = StandardTypes.NAME;
+		aTestObject.set("testName", "TEST");
+		aTestObject.set("testObject", new JsonObject());
 
-		static final RelationType<String>			   PACKAGE = newType();
-		static final RelationType<Integer>			   ID	   = newType();
-		static final RelationType<Float>			   FLOAT   = newType();
-		static final RelationType<BigDecimal>		   DECIMAL = newType();
-		static final RelationType<Boolean>			   FLAG    = newType();
-		static final RelationType<Integer[]>		   ARRAY   = newType();
-		static final RelationType<List<Integer>>	   LIST    = newType();
-		static final RelationType<Map<String, String>> MAP     = newType();
+		assertEquals("TEST", aTestObject.get("testName", null));
+		assertEquals(new JsonObject(), aTestObject.get("testObject", null));
+	}
 
-		static
-		{
-			RelationTypes.init(JsonTestObject.class);
-		}
+	/***************************************
+	 * Test of {@link JsonObject#toJson()} (including {@link
+	 * JsonObject#appendTo(JsonBuilder)}).
+	 */
+	@Test
+	public void testToJson()
+	{
+		String sJson = aJsonObject.toJson();
 
-		//~ Constructors -------------------------------------------------------
+		assertEquals(SERIALIZED_JSON, sJson);
+	}
 
-		/***************************************
-		 * Creates a new instance.
-		 */
-		@SuppressWarnings("boxing")
-		public JsonTestObject()
-		{
-			set(NAME, getClass().getSimpleName());
-			set(PACKAGE, getClass().getPackage().getName());
-			set(ID, 1);
-			set(FLOAT, 42.001F);
-			set(DECIMAL, new BigDecimal("3.14159"));
-			set(FLAG);
-			set(ARRAY, new Integer[] { 1, 2, 3, 4, 5 });
-			set(LIST, Arrays.asList(1, 2, 3, 4));
-			set(MAP, orderedMapOf(t("k1", "v1"), t("k2", "v2"), t("k3", "v3")));
-		}
+	/***************************************
+	 * Asserts that the given object contains all test properties.
+	 *
+	 * @param rJsonObject The JSON object
+	 */
+	private void assertJsonProperties(JsonObject rJsonObject)
+	{
+		assertNull(rJsonObject.getRawProperty("testNull"));
+		assertTrue(rJsonObject.hasFlag("testFlag"));
+		assertTrue(rJsonObject.hasProperty("testNull"));
+		assertEquals(Json.JSON_DATE_FORMAT,
+					 rJsonObject.get("testNull", Json.JSON_DATE_FORMAT));
+		assertEquals("TEST", rJsonObject.get("testString", ""));
+		assertEquals(Integer.valueOf(42), rJsonObject.get("testInt", 0));
+		assertEquals(new BigDecimal("3.14159"),
+					 rJsonObject.get("testDecimal", BigDecimal.ZERO));
+		assertEquals(Arrays.asList("test1", "test2", "test3"),
+					 rJsonObject.get("testCollection", null));
+		assertEquals(aChildObject, rJsonObject.get("testChild", null));
 	}
 }

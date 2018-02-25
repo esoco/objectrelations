@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -129,12 +129,14 @@ public class JsonParserTest
 		assertEquals(new BigDecimal("-42.0e42"), aParser.parse("-42.0E42"));
 
 		assertEquals(new HashMap<String, Object>(), aParser.parse("{}"));
-		assertEquals(CollectionUtil.mapOf(t("TESTKEY", "TESTVALUE")),
+		assertEquals(CollectionUtil.orderedMapOf(t("TESTKEY", "TESTVALUE")),
 					 aParser.parse("{\"TESTKEY\": \"TESTVALUE\"}"));
-		assertEquals(CollectionUtil.mapOf(t("TESTKEY1", "TESTVALUE1"),
-										  t("TESTKEY2", "TESTVALUE2")),
+		assertEquals(CollectionUtil.orderedMapOf(t("TESTKEY1", "TESTVALUE1"),
+												 t("TESTKEY2", "TESTVALUE2"),
+												 t("NULLVALUE", null)),
 					 aParser.parse("{\"TESTKEY1\": \"TESTVALUE1\"," +
-								   " \"TESTKEY2\": \"TESTVALUE2\"}"));
+								   " \"TESTKEY2\": \"TESTVALUE2\"," +
+								   "\"NULLVALUE\": null}"));
 
 		assertEquals(new ArrayList<Object>(), aParser.parse("[]"));
 		assertEquals(Arrays.asList("TEST1", "TEST2"),

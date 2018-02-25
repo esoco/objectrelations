@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -135,7 +135,7 @@ public class JsonBuilderTest
 
 		Relatable aTestObj = createTestRelatable();
 
-		aTestObj.set(JsonBuilder.JSON_SERIALIZED_TYPES,
+		aTestObj.set(Json.JSON_SERIALIZED_TYPES,
 					 Arrays.asList(NAME, INFO, PORT, CHILDREN));
 
 		aJson.appendRelatable(aTestObj, null, true);
@@ -271,7 +271,7 @@ public class JsonBuilderTest
 		cal.set(Calendar.MILLISECOND, 123);
 
 		assertEquals(String.format("\"%s\"",
-								   JsonUtil.JSON_DATE_FORMAT.format(cal.getTime())),
+								   Json.JSON_DATE_FORMAT.format(cal.getTime())),
 					 new JsonBuilder().append(cal.getTime()).toString());
 	}
 }

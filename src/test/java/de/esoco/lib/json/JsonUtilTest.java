@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 
 /********************************************************************
- * Test of {@link JsonUtil}
+ * Test of {@link Json}
  *
  * @author eso
  */
@@ -31,52 +31,52 @@ public class JsonUtilTest
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Test of {@link JsonUtil#escape(String)}
+	 * Test of {@link Json#escape(String)}
 	 */
 	@Test
 	public void testEscape()
 	{
-		assertEquals("\\\"", JsonUtil.escape("\""));
-		assertEquals("\\\\", JsonUtil.escape("\\"));
-		assertEquals("\\/", JsonUtil.escape("/"));
-		assertEquals("\\b", JsonUtil.escape("\b"));
-		assertEquals("\\f", JsonUtil.escape("\f"));
-		assertEquals("\\n", JsonUtil.escape("\n"));
-		assertEquals("\\r", JsonUtil.escape("\r"));
-		assertEquals("\\t", JsonUtil.escape("\t"));
-		assertEquals("\\u0000-\\u001F", JsonUtil.escape("\u0000-\u001f"));
-		assertEquals("\\u007F-\\u009F", JsonUtil.escape("\u007f-\u009f"));
-		assertEquals("\\u2000-\\u20FF", JsonUtil.escape("\u2000-\u20ff"));
-		assertEquals("\u2100,\u21FF", JsonUtil.escape("\u2100,\u21ff"));
-		assertEquals("\uFFFF", JsonUtil.escape("\uffff"));
+		assertEquals("\\\"", Json.escape("\""));
+		assertEquals("\\\\", Json.escape("\\"));
+		assertEquals("\\/", Json.escape("/"));
+		assertEquals("\\b", Json.escape("\b"));
+		assertEquals("\\f", Json.escape("\f"));
+		assertEquals("\\n", Json.escape("\n"));
+		assertEquals("\\r", Json.escape("\r"));
+		assertEquals("\\t", Json.escape("\t"));
+		assertEquals("\\u0000-\\u001F", Json.escape("\u0000-\u001f"));
+		assertEquals("\\u007F-\\u009F", Json.escape("\u007f-\u009f"));
+		assertEquals("\\u2000-\\u20FF", Json.escape("\u2000-\u20ff"));
+		assertEquals("\u2100,\u21FF", Json.escape("\u2100,\u21ff"));
+		assertEquals("\uFFFF", Json.escape("\uffff"));
 		assertEquals("\\\"\\\\\\/\\b\\f\\n\\r\\t\\\"",
-					 JsonUtil.escape("\"\\/\b\f\n\r\t\""));
+					 Json.escape("\"\\/\b\f\n\r\t\""));
 		assertEquals(" \\\" \\\\ \\/ \\b \\f \\n \\r \\t \\\" ",
-					 JsonUtil.escape(" \" \\ / \b \f \n \r \t \" "));
+					 Json.escape(" \" \\ / \b \f \n \r \t \" "));
 	}
 
 	/***************************************
-	 * Test of {@link JsonUtil#restore(String)}
+	 * Test of {@link Json#restore(String)}
 	 */
 	@Test
 	public void testRestore()
 	{
-		assertEquals("\"", JsonUtil.restore("\\\""));
-		assertEquals("\\", JsonUtil.restore("\\\\"));
-		assertEquals("/", JsonUtil.restore("\\/"));
-		assertEquals("\b", JsonUtil.restore("\\b"));
-		assertEquals("\f", JsonUtil.restore("\\f"));
-		assertEquals("\n", JsonUtil.restore("\\n"));
-		assertEquals("\r", JsonUtil.restore("\\r"));
-		assertEquals("\t", JsonUtil.restore("\\t"));
-		assertEquals("\u0000-\u001F", JsonUtil.restore("\\u0000-\\u001f"));
-		assertEquals("\u007F-\u009F", JsonUtil.restore("\\u007f-\\u009f"));
-		assertEquals("\u2000-\u20FF", JsonUtil.restore("\\u2000-\\u20ff"));
-		assertEquals("\u2100,\u21FF", JsonUtil.restore("\u2100,\u21ff"));
-		assertEquals("\uFFFF", JsonUtil.restore("\uffff"));
+		assertEquals("\"", Json.restore("\\\""));
+		assertEquals("\\", Json.restore("\\\\"));
+		assertEquals("/", Json.restore("\\/"));
+		assertEquals("\b", Json.restore("\\b"));
+		assertEquals("\f", Json.restore("\\f"));
+		assertEquals("\n", Json.restore("\\n"));
+		assertEquals("\r", Json.restore("\\r"));
+		assertEquals("\t", Json.restore("\\t"));
+		assertEquals("\u0000-\u001F", Json.restore("\\u0000-\\u001f"));
+		assertEquals("\u007F-\u009F", Json.restore("\\u007f-\\u009f"));
+		assertEquals("\u2000-\u20FF", Json.restore("\\u2000-\\u20ff"));
+		assertEquals("\u2100,\u21FF", Json.restore("\u2100,\u21ff"));
+		assertEquals("\uFFFF", Json.restore("\uffff"));
 		assertEquals("\"\\/\b\f\n\r\t\"",
-					 JsonUtil.restore("\\\"\\\\\\/\\b\\f\\n\\r\\t\\\""));
+					 Json.restore("\\\"\\\\\\/\\b\\f\\n\\r\\t\\\""));
 		assertEquals(" \" \\ / \b \f \n \r \t \" ",
-					 JsonUtil.restore(" \\\" \\\\ \\/ \\b \\f \\n \\r \\t \\\" "));
+					 Json.restore(" \\\" \\\\ \\/ \\b \\f \\n \\r \\t \\\" "));
 	}
 }
