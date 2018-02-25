@@ -100,19 +100,19 @@ public class JsonObject extends RelatedObject
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj)
+	public boolean equals(Object rOther)
 	{
-		if (rObj == this)
+		if (rOther == this)
 		{
 			return true;
 		}
 
-		if (rObj.getClass() != getClass())
+		if (rOther == null || rOther.getClass() != getClass())
 		{
 			return false;
 		}
 
-		return relationsEqual((JsonObject) rObj);
+		return relationsEqual((JsonObject) rOther);
 	}
 
 	/***************************************
@@ -238,7 +238,7 @@ public class JsonObject extends RelatedObject
 	@Override
 	public int hashCode()
 	{
-		return 17 * relationsHashCode();
+		return 11 + relationsHashCode();
 	}
 
 	/***************************************

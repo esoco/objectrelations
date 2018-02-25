@@ -31,6 +31,7 @@ import static de.esoco.lib.datatype.Pair.t;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import static org.obrel.core.RelationTypes.newType;
 
@@ -47,7 +48,7 @@ public class JsonRelatedObjectTest
 
 	private static final String TEST_OBJECT_JSON =
 		"{\n" +
-		"	\"NAME\": \"JsonTestObject\",\n" +
+		"	\"NAME\": \"TestObject\",\n" +
 		"	\"CLASS_PACKAGE\": \"de.esoco.lib.json\",\n" +
 		"	\"OBJECT_ID\": 1,\n" +
 		"	\"FLOAT\": 42.001,\n" +
@@ -59,9 +60,16 @@ public class JsonRelatedObjectTest
 		"		\"k1\": \"v1\",\n" +
 		"		\"k2\": \"v2\",\n" +
 		"		\"k3\": \"v3\"\n" +
-		"	},\n" +
-		"	\"CHILD\": null\n" +
+		"	}%s\n" +
 		"}";
+
+	private static final String TEST_OBJECT_NULL_CHILD = ",\n	\"CHILD\": null";
+	private static final String TEST_OBJECT_ONE_CHILD  =
+		",\n" +
+		"	\"CHILD\": {\n" +
+		"		\"ID\": 42,\n" +
+		"		\"NAME\": \"CHILD\"\n" +
+		"	}";
 
 	private static final Float	    TEST_FLOAT   = 42.001F;
 	private static final BigDecimal TEST_DECIMAL = new BigDecimal("3.14159");
@@ -81,14 +89,17 @@ public class JsonRelatedObjectTest
 	@Test
 	public void testBuildJson()
 	{
-		JsonTestObject aTestObject = new JsonTestObject();
+		TestObject aTestObject = new TestObject();
 
 		aTestObject.setTestValues();
 
-		assertEquals(TEST_OBJECT_JSON, aTestObject.toJson());
+		assertEquals(String.format(TEST_OBJECT_JSON, TEST_OBJECT_NULL_CHILD),
+					 aTestObject.toJson());
 
-		aTestObject.set(JsonTestObject.CHILD, new JsonChildObject(42, "CHILD"));
-		System.out.println(aTestObject.toJson());
+		aTestObject.set(TestObject.CHILD, new ChildObject(42, "CHILD"));
+
+		assertEquals(String.format(TEST_OBJECT_JSON, TEST_OBJECT_ONE_CHILD),
+					 aTestObject.toJson());
 	}
 
 	/***************************************
@@ -97,22 +108,40 @@ public class JsonRelatedObjectTest
 	@Test
 	public void testParseJson()
 	{
-		JsonTestObject aTestObject = new JsonTestObject();
+		TestObject aTestObject = new TestObject();
 
-		aTestObject.fromJson(TEST_OBJECT_JSON);
+		aTestObject.fromJson(String.format(TEST_OBJECT_JSON,
+										   TEST_OBJECT_NULL_CHILD));
 
-		assertEquals(JsonTestObject.class.getSimpleName(),
-					 aTestObject.get(JsonTestObject.NAME));
-		assertEquals(JsonTestObject.class.getPackage().getName(),
-					 aTestObject.get(JsonTestObject.CLASS_PACKAGE));
-		assertEquals(Integer.valueOf(1),
-					 aTestObject.get(JsonTestObject.OBJECT_ID));
-		assertEquals(true, aTestObject.get(JsonTestObject.FLAG));
-		assertEquals(TEST_FLOAT, aTestObject.get(JsonTestObject.FLOAT));
-		assertEquals(TEST_DECIMAL, aTestObject.get(JsonTestObject.DECIMAL));
-		assertArrayEquals(TEST_ARRAY, aTestObject.get(JsonTestObject.ARRAY));
-		assertEquals(TEST_LIST, aTestObject.get(JsonTestObject.LIST));
-		assertEquals(TEST_OBJECT, aTestObject.get(JsonTestObject.JSON_OBJECT));
+		assertJsonRelations(aTestObject);
+		assertNull(aTestObject.get(TestObject.CHILD));
+
+		aTestObject.fromJson(String.format(TEST_OBJECT_JSON,
+										   TEST_OBJECT_ONE_CHILD));
+
+		assertJsonRelations(aTestObject);
+		assertEquals(new ChildObject(42, "CHILD"),
+					 aTestObject.get(TestObject.CHILD));
+	}
+
+	/***************************************
+	 * Assert correct relation values.
+	 *
+	 * @param rTestObject The test object
+	 */
+	private void assertJsonRelations(TestObject rTestObject)
+	{
+		assertEquals(TestObject.class.getSimpleName(),
+					 rTestObject.get(TestObject.NAME));
+		assertEquals(TestObject.class.getPackage().getName(),
+					 rTestObject.get(TestObject.CLASS_PACKAGE));
+		assertEquals(Integer.valueOf(1), rTestObject.get(TestObject.OBJECT_ID));
+		assertEquals(true, rTestObject.get(TestObject.FLAG));
+		assertEquals(TEST_FLOAT, rTestObject.get(TestObject.FLOAT));
+		assertEquals(TEST_DECIMAL, rTestObject.get(TestObject.DECIMAL));
+		assertArrayEquals(TEST_ARRAY, rTestObject.get(TestObject.ARRAY));
+		assertEquals(TEST_LIST, rTestObject.get(TestObject.LIST));
+		assertEquals(TEST_OBJECT, rTestObject.get(TestObject.JSON_OBJECT));
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -122,8 +151,7 @@ public class JsonRelatedObjectTest
 	 *
 	 * @author eso
 	 */
-	public static class JsonChildObject
-		extends JsonRelatedObject<JsonChildObject>
+	public static class ChildObject extends JsonRelatedObject<ChildObject>
 	{
 		//~ Static fields/initializers -----------------------------------------
 
@@ -132,7 +160,7 @@ public class JsonRelatedObjectTest
 
 		static
 		{
-			RelationTypes.init(JsonChildObject.class);
+			RelationTypes.init(ChildObject.class);
 		}
 
 		//~ Constructors -------------------------------------------------------
@@ -140,7 +168,7 @@ public class JsonRelatedObjectTest
 		/***************************************
 		 * Creates a new instance.
 		 */
-		public JsonChildObject()
+		public ChildObject()
 		{
 		}
 
@@ -151,7 +179,7 @@ public class JsonRelatedObjectTest
 		 * @param sName
 		 */
 		@SuppressWarnings("boxing")
-		public JsonChildObject(int nId, String sName)
+		public ChildObject(int nId, String sName)
 		{
 			set(ID, nId);
 			set(NAME, sName);
@@ -163,7 +191,7 @@ public class JsonRelatedObjectTest
 	 *
 	 * @author eso
 	 */
-	public static class JsonTestObject extends JsonRelatedObject<JsonTestObject>
+	public static class TestObject extends JsonRelatedObject<TestObject>
 	{
 		//~ Static fields/initializers -----------------------------------------
 
@@ -175,14 +203,14 @@ public class JsonRelatedObjectTest
 		static final RelationType<BigDecimal> DECIMAL	    = newType();
 		static final RelationType<Boolean>    FLAG		    = newType();
 
-		static final RelationType<Integer[]>	   ARRAY	   = newType();
-		static final RelationType<List<Integer>>   LIST		   = newType();
-		static final RelationType<JsonObject>	   JSON_OBJECT = newType();
-		static final RelationType<JsonChildObject> CHILD	   = newType();
+		static final RelationType<Integer[]>     ARRAY		 = newType();
+		static final RelationType<List<Integer>> LIST		 = newType();
+		static final RelationType<JsonObject>    JSON_OBJECT = newType();
+		static final RelationType<ChildObject>   CHILD		 = newType();
 
 		static
 		{
-			RelationTypes.init(JsonTestObject.class);
+			RelationTypes.init(TestObject.class);
 		}
 
 		//~ Methods ------------------------------------------------------------

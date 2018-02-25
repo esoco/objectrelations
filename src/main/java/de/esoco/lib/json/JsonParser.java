@@ -23,6 +23,8 @@ import de.esoco.lib.json.Json.JsonStructure;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
 
+import java.lang.reflect.Array;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -33,6 +35,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -389,7 +392,13 @@ public class JsonParser
 		}
 		else if (rDatatype.isArray())
 		{
-			rValue = parseArray(sJsonValue, new ArrayList<>()).toArray();
+			List<?> rArrayValues = parseArray(sJsonValue, new ArrayList<>());
+
+			rValue =
+				rArrayValues.toArray((T[]) Array.newInstance(rDatatype
+															 .getComponentType(),
+															 rArrayValues
+															 .size()));
 		}
 		else if (Collection.class.isAssignableFrom(rDatatype))
 		{

@@ -73,11 +73,39 @@ public class JsonRelatedObject<T extends JsonRelatedObject<T>>
 	 * {@inheritDoc}
 	 */
 	@Override
+	public boolean equals(Object rOther)
+	{
+		if (rOther == this)
+		{
+			return true;
+		}
+
+		if (rOther == null || rOther.getClass() != getClass())
+		{
+			return false;
+		}
+
+		return relationsEqual((JsonRelatedObject<?>) rOther);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public T fromJson(String sJson)
 	{
 		new JsonParser().parseRelatable(sJson, this);
 
 		return (T) this;
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode()
+	{
+		return 17 + relationsHashCode();
 	}
 }
