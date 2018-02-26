@@ -23,6 +23,8 @@ import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.json.Json.JsonStructure;
 
+import java.lang.reflect.Array;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -179,6 +181,18 @@ public class JsonBuilder
 		}
 		else if (rValue.getClass().isArray())
 		{
+			if (rValue.getClass().getComponentType().isPrimitive())
+			{
+				int		 nCount		    = Array.getLength(rValue);
+				Object[] aWrappedValues = new Object[nCount];
+
+				for (int i = 0; i < nCount; i++)
+				{
+					aWrappedValues[i] = Array.get(rValue, i);
+				}
+				rValue = aWrappedValues;
+			}
+
 			appendArray(Arrays.asList((Object[]) rValue));
 		}
 		else if (rValue instanceof Collection)

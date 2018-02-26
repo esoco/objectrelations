@@ -54,7 +54,8 @@ public class JsonRelatedObjectTest
 		"	\"FLOAT\": 42.001,\n" +
 		"	\"DECIMAL\": 3.14159,\n" +
 		"	\"FLAG\": true,\n" +
-		"	\"ARRAY\": [1, 2, 3, 4, 5],\n" +
+		"	\"BYTE_ARRAY\": [49, 50, 51, 52, 53],\n" +
+		"	\"INTEGER_ARRAY\": [1, 2, 3, 4, 5],\n" +
 		"	\"LIST\": [1, 2, 3, 4],\n" +
 		"	\"JSON_OBJECT\": {\n" +
 		"		\"k1\": \"v1\",\n" +
@@ -71,9 +72,12 @@ public class JsonRelatedObjectTest
 		"		\"NAME\": \"CHILD\"\n" +
 		"	}";
 
-	private static final Float	    TEST_FLOAT   = 42.001F;
-	private static final BigDecimal TEST_DECIMAL = new BigDecimal("3.14159");
-	private static final Integer[]  TEST_ARRAY   =
+	private static final Float	    TEST_FLOAT		   = 42.001F;
+	private static final BigDecimal TEST_DECIMAL	   =
+		new BigDecimal("3.14159");
+	private static final byte[]     TEST_BYTE_ARRAY    =
+		new byte[] { 0x31, 0x32, 0x33, 0x34, 0x35 };
+	private static final Integer[]  TEST_INTEGER_ARRAY =
 		new Integer[] { 1, 2, 3, 4, 5 };
 
 	private static final List<Integer> TEST_LIST = Arrays.asList(1, 2, 3, 4);
@@ -139,7 +143,8 @@ public class JsonRelatedObjectTest
 		assertEquals(true, rTestObject.get(TestObject.FLAG));
 		assertEquals(TEST_FLOAT, rTestObject.get(TestObject.FLOAT));
 		assertEquals(TEST_DECIMAL, rTestObject.get(TestObject.DECIMAL));
-		assertArrayEquals(TEST_ARRAY, rTestObject.get(TestObject.ARRAY));
+		assertArrayEquals(TEST_INTEGER_ARRAY,
+						  rTestObject.get(TestObject.INTEGER_ARRAY));
 		assertEquals(TEST_LIST, rTestObject.get(TestObject.LIST));
 		assertEquals(TEST_OBJECT, rTestObject.get(TestObject.JSON_OBJECT));
 	}
@@ -197,16 +202,16 @@ public class JsonRelatedObjectTest
 
 		static final RelationType<String> NAME = StandardTypes.NAME;
 
-		static final RelationType<String>     CLASS_PACKAGE = newType();
-		static final RelationType<Integer>    OBJECT_ID     = newType();
-		static final RelationType<Float>	  FLOAT		    = newType();
-		static final RelationType<BigDecimal> DECIMAL	    = newType();
-		static final RelationType<Boolean>    FLAG		    = newType();
-
-		static final RelationType<Integer[]>     ARRAY		 = newType();
-		static final RelationType<List<Integer>> LIST		 = newType();
-		static final RelationType<JsonObject>    JSON_OBJECT = newType();
-		static final RelationType<ChildObject>   CHILD		 = newType();
+		static final RelationType<String>		 CLASS_PACKAGE = newType();
+		static final RelationType<Integer>		 OBJECT_ID     = newType();
+		static final RelationType<Float>		 FLOAT		   = newType();
+		static final RelationType<BigDecimal>    DECIMAL	   = newType();
+		static final RelationType<Boolean>		 FLAG		   = newType();
+		static final RelationType<byte[]>		 BYTE_ARRAY    = newType();
+		static final RelationType<Integer[]>     INTEGER_ARRAY = newType();
+		static final RelationType<List<Integer>> LIST		   = newType();
+		static final RelationType<JsonObject>    JSON_OBJECT   = newType();
+		static final RelationType<ChildObject>   CHILD		   = newType();
 
 		static
 		{
@@ -226,7 +231,8 @@ public class JsonRelatedObjectTest
 			set(FLOAT, TEST_FLOAT);
 			set(DECIMAL, TEST_DECIMAL);
 			set(FLAG);
-			set(ARRAY, TEST_ARRAY);
+			set(BYTE_ARRAY, TEST_BYTE_ARRAY);
+			set(INTEGER_ARRAY, TEST_INTEGER_ARRAY);
 			set(LIST, TEST_LIST);
 			set(JSON_OBJECT, TEST_OBJECT);
 			set(CHILD, null);

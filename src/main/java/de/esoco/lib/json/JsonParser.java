@@ -148,22 +148,49 @@ public class JsonParser
 	}
 
 	/***************************************
-	 * Parses a JSON array into a collection.
+	 * Parses a JSON array into a collection. The collection elements will be
+	 * parsed by {@link #parse(String)}. For better control of the element
+	 * datatype the method {@link #parseArray(String, Collection, Class)} can be
+	 * used.
 	 *
-	 * @param  sJsonArray  The JSON array string
-	 * @param  rCollection The target collection
+	 * @param  sJsonArray        The JSON array string
+	 * @param  rTargetCollection The target collection
 	 *
 	 * @return The input collection containing the parsed array values
 	 */
 	public <C extends Collection<Object>> C parseArray(
 		String sJsonArray,
-		C	   rCollection)
+		C	   rTargetCollection)
 	{
 		parseStructure(sJsonArray,
 					   JsonStructure.ARRAY,
-					   sArrayElement -> rCollection.add(parse(sArrayElement)));
+					   sArrayElement ->
+					   rTargetCollection.add(parse(sArrayElement)));
 
-		return rCollection;
+		return rTargetCollection;
+	}
+
+	/***************************************
+	 * Parses the values from a JSON array into a collection with a specific
+	 * datatype.
+	 *
+	 * @param  sJsonArray        The JSON array string
+	 * @param  rTargetCollection The target collection
+	 * @param  rElementType      The data type of the collection elements
+	 *
+	 * @return The input collection containing the parsed array values
+	 */
+	public <T, C extends Collection<T>> C parseArray(String   sJsonArray,
+													 C		  rTargetCollection,
+													 Class<T> rElementType)
+	{
+		parseStructure(sJsonArray,
+					   JsonStructure.ARRAY,
+					   sArrayElement ->
+					   rTargetCollection.add(parseValue(sArrayElement,
+														rElementType)));
+
+		return rTargetCollection;
 	}
 
 	/***************************************
@@ -381,9 +408,18 @@ public class JsonParser
 
 			((JsonSerializable<?>) rValue).fromJson(sJsonValue);
 		}
-		else if (rDatatype == Boolean.class)
+		else if (rDatatype == Boolean.class || rDatatype == boolean.class)
 		{
 			rValue = Boolean.valueOf(sJsonValue);
+		}
+		else if (rDatatype.isPrimitive())
+		{
+			// all non-boolean primitives must be numbers as character values
+			// are not supported in JSON
+			rValue =
+				parseNumber(sJsonValue,
+							(Class<? extends Number>) ReflectUtil
+							.getWrapperType(rDatatype));
 		}
 		else if (Number.class.isAssignableFrom(rDatatype))
 		{
@@ -392,13 +428,7 @@ public class JsonParser
 		}
 		else if (rDatatype.isArray())
 		{
-			List<?> rArrayValues = parseArray(sJsonValue, new ArrayList<>());
-
-			rValue =
-				rArrayValues.toArray((T[]) Array.newInstance(rDatatype
-															 .getComponentType(),
-															 rArrayValues
-															 .size()));
+			rValue = parseArray(sJsonValue, rDatatype);
 		}
 		else if (Collection.class.isAssignableFrom(rDatatype))
 		{
@@ -414,38 +444,11 @@ public class JsonParser
 		}
 		else if (Date.class.isAssignableFrom(rDatatype))
 		{
-			sJsonValue = getContent(sJsonValue, JsonStructure.STRING);
-
-			try
-			{
-				rValue = JSON_DATE_FORMAT.parse(sJsonValue);
-			}
-			catch (ParseException e)
-			{
-				throw new IllegalStateException(e);
-			}
+			rValue = parseDate(sJsonValue);
 		}
 		else if (Relatable.class.isAssignableFrom(rDatatype))
 		{
-			if (RelationType.class.isAssignableFrom(rDatatype))
-			{
-				rValue = RelationType.valueOf(sJsonValue);
-			}
-			else
-			{
-				Relatable aRelatable;
-
-				if (rDatatype == Relatable.class)
-				{
-					aRelatable = new RelatedObject();
-				}
-				else
-				{
-					aRelatable = (Relatable) ReflectUtil.newInstance(rDatatype);
-				}
-
-				rValue = parseRelatable(sJsonValue, aRelatable);
-			}
+			rValue = parseRelatable(sJsonValue, rDatatype);
 		}
 		else
 		{
@@ -487,6 +490,58 @@ public class JsonParser
 	}
 
 	/***************************************
+	 * Parses a JSON array into a Java array. The target datatype can also be an
+	 * array of primitive values.
+	 *
+	 * @param  sJsonArray The JSON array string
+	 * @param  rArrayType The target datatype
+	 *
+	 * @return A new array of the given target type
+	 */
+	private Object parseArray(String sJsonArray, Class<?> rArrayType)
+	{
+		Class<?> rComponentType = rArrayType.getComponentType();
+
+		List<?> rArrayValues =
+			parseArray(sJsonArray, new ArrayList<>(), rComponentType);
+
+		int    nCount = rArrayValues.size();
+		Object rValue = Array.newInstance(rComponentType, nCount);
+
+		for (int i = 0; i < nCount; i++)
+		{
+			Array.set(rValue, i, rArrayValues.get(i));
+		}
+
+		return rValue;
+	}
+
+	/***************************************
+	 * Parses a JSON date value that must be formatted in the standard JSON date
+	 * format defined by {@link Json#JSON_DATE_FORMAT}.
+	 *
+	 * @param  sJsonDate The JSON date value
+	 *
+	 * @return A {@link Date} instance
+	 *
+	 * @throws IllegalArgumentException If the given JSON string cannot be
+	 *                                  parsed
+	 */
+	private Date parseDate(String sJsonDate)
+	{
+		sJsonDate = getContent(sJsonDate, JsonStructure.STRING);
+
+		try
+		{
+			return JSON_DATE_FORMAT.parse(sJsonDate);
+		}
+		catch (ParseException e)
+		{
+			throw new IllegalArgumentException("Invalid JSON date", e);
+		}
+	}
+
+	/***************************************
 	 * Parses a JSON key-value mapping into a map.
 	 *
 	 * @param sMapping The raw mapping string
@@ -499,6 +554,44 @@ public class JsonParser
 		String sJsonValue = sMapping.substring(nPos + 1).trim();
 
 		rMap.put(sKey, parse(sJsonValue));
+	}
+
+	/***************************************
+	 * Handles the parsing into {@link Relatable} instances.
+	 *
+	 * @param  sJsonValue The JSON value to parse
+	 * @param  rDatatype  The target datatype (must be a subclass of {@link
+	 *                    Relatable})
+	 *
+	 * @return The parsed object
+	 */
+	private <T> Object parseRelatable(
+		String			   sJsonValue,
+		Class<? extends T> rDatatype)
+	{
+		Object rValue;
+
+		if (RelationType.class.isAssignableFrom(rDatatype))
+		{
+			rValue = RelationType.valueOf(sJsonValue);
+		}
+		else
+		{
+			Relatable aRelatable;
+
+			if (rDatatype == Relatable.class)
+			{
+				aRelatable = new RelatedObject();
+			}
+			else
+			{
+				aRelatable = (Relatable) ReflectUtil.newInstance(rDatatype);
+			}
+
+			rValue = parseRelatable(sJsonValue, aRelatable);
+		}
+
+		return rValue;
 	}
 
 	/***************************************
