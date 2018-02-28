@@ -82,7 +82,7 @@ public class JsonParser
 	 *
 	 * @param  rDatatype The preset datatype for unary function invocation
 	 *
-	 * @return A new binary function instance
+	 * @return The parsing function
 	 */
 	public static <T> Function<String, T> parseJson(Class<T> rDatatype)
 	{
@@ -90,11 +90,25 @@ public class JsonParser
 	}
 
 	/***************************************
+	 * Returns a function that parses a JSON array into a list with a specific
+	 * element type.
+	 *
+	 * @param  rElementType The datatype of the list elements
+	 *
+	 * @return The parsing function
+	 */
+	public static <T> Function<String, List<T>> parseJsonArray(
+		Class<T> rElementType)
+	{
+		return sJson -> new JsonParser().parseArray(sJson, rElementType);
+	}
+
+	/***************************************
 	 * Returns a function that parses a JSON object and returns a map containing
 	 * the parsed values. The returned map preserves the order of the parsed
 	 * values in the input string.
 	 *
-	 * @return A new map containing the parsed object attributes
+	 * @return The parsing function
 	 */
 	public static Function<String, Map<String, Object>> parseJsonMap()
 	{
@@ -174,23 +188,21 @@ public class JsonParser
 	 * Parses the values from a JSON array into a collection with a specific
 	 * datatype.
 	 *
-	 * @param  sJsonArray        The JSON array string
-	 * @param  rTargetCollection The target collection
-	 * @param  rElementType      The data type of the collection elements
+	 * @param  sJsonArray   The JSON array string
+	 * @param  rElementType The data type of the collection elements
 	 *
 	 * @return The input collection containing the parsed array values
 	 */
-	public <T, C extends Collection<T>> C parseArray(String   sJsonArray,
-													 C		  rTargetCollection,
-													 Class<T> rElementType)
+	public <T> List<T> parseArray(String sJsonArray, Class<T> rElementType)
 	{
+		List<T> aResultList = new ArrayList<>();
+
 		parseStructure(sJsonArray,
 					   JsonStructure.ARRAY,
 					   sArrayElement ->
-					   rTargetCollection.add(parseValue(sArrayElement,
-														rElementType)));
+					   aResultList.add(parseValue(sArrayElement, rElementType)));
 
-		return rTargetCollection;
+		return aResultList;
 	}
 
 	/***************************************
@@ -428,7 +440,7 @@ public class JsonParser
 		}
 		else if (rDatatype.isArray())
 		{
-			rValue = parseArray(sJsonValue, rDatatype);
+			rValue = parseIntoArray(sJsonValue, rDatatype);
 		}
 		else if (Collection.class.isAssignableFrom(rDatatype))
 		{
@@ -490,33 +502,6 @@ public class JsonParser
 	}
 
 	/***************************************
-	 * Parses a JSON array into a Java array. The target datatype can also be an
-	 * array of primitive values.
-	 *
-	 * @param  sJsonArray The JSON array string
-	 * @param  rArrayType The target datatype
-	 *
-	 * @return A new array of the given target type
-	 */
-	private Object parseArray(String sJsonArray, Class<?> rArrayType)
-	{
-		Class<?> rComponentType = rArrayType.getComponentType();
-
-		List<?> rArrayValues =
-			parseArray(sJsonArray, new ArrayList<>(), rComponentType);
-
-		int    nCount = rArrayValues.size();
-		Object rValue = Array.newInstance(rComponentType, nCount);
-
-		for (int i = 0; i < nCount; i++)
-		{
-			Array.set(rValue, i, rArrayValues.get(i));
-		}
-
-		return rValue;
-	}
-
-	/***************************************
 	 * Parses a JSON date value that must be formatted in the standard JSON date
 	 * format defined by {@link Json#JSON_DATE_FORMAT}.
 	 *
@@ -539,6 +524,32 @@ public class JsonParser
 		{
 			throw new IllegalArgumentException("Invalid JSON date", e);
 		}
+	}
+
+	/***************************************
+	 * Parses a JSON array into a Java array. The target datatype can also be an
+	 * array of primitive values.
+	 *
+	 * @param  sJsonArray The JSON array string
+	 * @param  rArrayType The target datatype
+	 *
+	 * @return A new array of the given target type
+	 */
+	private Object parseIntoArray(String sJsonArray, Class<?> rArrayType)
+	{
+		Class<?> rComponentType = rArrayType.getComponentType();
+
+		List<?> rArrayValues = parseArray(sJsonArray, rComponentType);
+
+		int    nCount = rArrayValues.size();
+		Object rValue = Array.newInstance(rComponentType, nCount);
+
+		for (int i = 0; i < nCount; i++)
+		{
+			Array.set(rValue, i, rArrayValues.get(i));
+		}
+
+		return rValue;
 	}
 
 	/***************************************
