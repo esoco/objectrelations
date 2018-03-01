@@ -21,7 +21,9 @@ import de.esoco.lib.datatype.Pair;
 
 import java.math.BigDecimal;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import org.obrel.core.RelatedObject;
 
@@ -203,6 +205,26 @@ public class JsonObject extends RelatedObject
 	}
 
 	/***************************************
+	 * Returns the names of the properties in this instance.
+	 *
+	 * @return A set of property names
+	 */
+	public final Set<String> getPropertyNames()
+	{
+		return getProperties().keySet();
+	}
+
+	/***************************************
+	 * Returns the values of the properties in this instance.
+	 *
+	 * @return A set of property values
+	 */
+	public final Collection<Object> getPropertyValues()
+	{
+		return getProperties().values();
+	}
+
+	/***************************************
 	 * Returns a raw property value without cast or conversion.
 	 *
 	 * @param  sName The property name
@@ -265,6 +287,16 @@ public class JsonObject extends RelatedObject
 	public boolean hasPropertyValue(String sName)
 	{
 		return getRawProperty(sName) != null;
+	}
+
+	/***************************************
+	 * Checks whether this object has any properties set.
+	 *
+	 * @return TRUE if no properties are set
+	 */
+	public boolean isEmpty()
+	{
+		return getProperties().isEmpty();
 	}
 
 	/***************************************
