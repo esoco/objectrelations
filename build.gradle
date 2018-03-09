@@ -6,12 +6,6 @@ project.group   = 'org.obrel'
 
 sourceCompatibility = 1.8
 
-// disable Java 8 doclint for Javadoc
-if (JavaVersion.current().isJava8Compatible()) {
-    tasks.withType(Javadoc) {
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
-}
 repositories
 {
     jcenter()
@@ -44,6 +38,15 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 artifacts {
     archives sourceJar
     archives javadocJar
+}
+
+tasks.withType(Javadoc) {
+    failOnError = false
+    options.addBooleanOption('quiet', true)
+    
+    if (JavaVersion.current().isJava8Compatible()) {
+        options.addBooleanOption('Xdoclint:none', true) 
+    }
 }
 
 // ----------- Bintray Release -----------
