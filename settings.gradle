@@ -7,6 +7,8 @@ buildscript {
     dependencies { classpath 'gradle.plugin.net.vivin:gradle-semantic-build-versioning:4.0.0' }
 }
 
+apply plugin: 'net.vivin.gradle-semantic-build-versioning'
+
 def baseProjects = [':esoco-common']
 
 baseProjects.each { projectName ->
