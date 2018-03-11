@@ -1,7 +1,5 @@
 rootProject.name = "objectrelations"
 
-rootProject.name = "esoco-common"
-
 buildscript {
     repositories { jcenter()
     			   maven { url 'https://plugins.gradle.org/m2/' }
