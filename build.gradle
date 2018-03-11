@@ -19,7 +19,7 @@ dependencies
 	}
 	else
 	{
-		compile 'de.esoco:esoco-common:1.0.+'
+		compile 'de.esoco:esoco-common:1.1.+'
 	}
 
     testCompile 'junit:junit:4.+'
