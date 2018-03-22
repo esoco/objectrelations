@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import de.esoco.lib.expression.Predicate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 
 /********************************************************************
@@ -403,6 +404,16 @@ public interface Relatable
 	public <T, I> Relation<T> set(RelationType<T> rType,
 								  Function<I, T>  fTargetResolver,
 								  I				  rIntermediateTarget);
+
+	/***************************************
+	 * Returns a stream of all relations in this object.
+	 *
+	 * @return The stream of relations
+	 */
+	default public Stream<Relation<?>> streamRelations()
+	{
+		return getRelations(null).stream();
+	}
 
 	/***************************************
 	 * Creates a relation that stores the target value in a transformed format.

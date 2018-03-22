@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.obrel.space;
 import org.obrel.core.ObjectRelations;
 import org.obrel.core.RelatedObject;
 import org.obrel.space.ObjectSpaceResolver.PutResolver;
+import org.obrel.type.StandardTypes;
 
 import static org.obrel.space.ObjectSpaceResolver.URL_DELETE;
 import static org.obrel.space.ObjectSpaceResolver.URL_GET;
@@ -104,5 +105,17 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T>
 		{
 			throw new UnsupportedOperationException("Modification not allowed");
 		}
+	}
+
+	/***************************************
+	 * Overridden to return the value of the {@link StandardTypes#NAME}
+	 * relation.
+	 *
+	 * @see Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return get(StandardTypes.NAME);
 	}
 }

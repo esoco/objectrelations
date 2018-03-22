@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -519,8 +519,7 @@ public class ObjectRelations
 					String sType = sElement;
 
 					Relation<?> rElementRelation =
-						rCurrentElement.getRelations(null)
-									   .stream()
+						rCurrentElement.streamRelations()
 									   .filter(r ->
 											   r.getType()
 											   .getName()

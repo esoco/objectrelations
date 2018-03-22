@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.util.List;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.TransformedRelation;
+import org.obrel.type.StandardTypes;
 
 
 /********************************************************************
@@ -184,6 +185,18 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 								  V				  rIntermediateTarget)
 	{
 		return rWrappedSpace.set(rType, fTargetResolver, rIntermediateTarget);
+	}
+
+	/***************************************
+	 * Overridden to return the value of the {@link StandardTypes#NAME}
+	 * relation.
+	 *
+	 * @see Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return getWrappedSpace().toString();
 	}
 
 	/***************************************
