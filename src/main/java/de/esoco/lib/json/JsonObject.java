@@ -67,16 +67,13 @@ public class JsonObject extends RelatedObject
 	 */
 	public JsonObject(Map<String, Object> rObjectProperties)
 	{
-		if (!rObjectProperties.isEmpty())
-		{
-			get(Json.JSON_OBJECT_DATA).putAll(rObjectProperties);
-		}
+		setProperties(rObjectProperties);
 	}
 
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance from a JSON string.
+	 * Creates a new generic JSON object from a JSON string.
 	 *
 	 * @param  sJson The JSON object declaration
 	 *
@@ -123,15 +120,21 @@ public class JsonObject extends RelatedObject
 	@Override
 	public JsonObject fromJson(String sJson)
 	{
-		Map<String, Object> rProperties =
-			new JsonParser().parseObjectMap(sJson);
-
-		if (!rProperties.isEmpty())
-		{
-			set(Json.JSON_OBJECT_DATA, rProperties);
-		}
+		setProperties(new JsonParser().parseObjectMap(sJson));
 
 		return this;
+	}
+
+	/***************************************
+	 * Returns a certain property.
+	 *
+	 * @param  sName The property name
+	 *
+	 * @return The property value (may be NULL)
+	 */
+	public <T> T get(String sName)
+	{
+		return get(sName, null);
 	}
 
 	/***************************************
@@ -308,6 +311,19 @@ public class JsonObject extends RelatedObject
 	public void set(String sName, Object rValue)
 	{
 		getProperties().put(sName, rValue);
+	}
+
+	/***************************************
+	 * Sets multiple properties of this object.
+	 *
+	 * @param rProperties The new properties
+	 */
+	public void setProperties(Map<String, Object> rProperties)
+	{
+		if (!rProperties.isEmpty())
+		{
+			get(Json.JSON_OBJECT_DATA).putAll(rProperties);
+		}
 	}
 
 	/***************************************
