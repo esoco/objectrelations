@@ -31,8 +31,8 @@ import org.obrel.type.MetaTypes;
  *
  * @author eso
  */
-public class JsonRelatedObject<T extends JsonRelatedObject<T>>
-	extends RelatedObject implements JsonSerializable<T>
+public class JsonRelatedObject<J extends JsonRelatedObject<J>>
+	extends RelatedObject implements JsonSerializable<J>
 {
 	//~ Constructors -----------------------------------------------------------
 
@@ -93,11 +93,11 @@ public class JsonRelatedObject<T extends JsonRelatedObject<T>>
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public T fromJson(String sJson)
+	public J fromJson(String sJson)
 	{
 		new JsonParser().parseRelatable(sJson, this);
 
-		return (T) this;
+		return (J) this;
 	}
 
 	/***************************************

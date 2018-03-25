@@ -47,20 +47,49 @@ import static de.esoco.lib.json.Json.JSON_DATE_FORMAT;
 
 
 /********************************************************************
- * Contains static parse methods for the creation of {@link Relatable} objects
- * from JSON data.
+ * A parser for the JSON data that can also be used to parse the relations of
+ * {@link Relatable} objects.
  *
  * @author eso
  */
 public class JsonParser
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private int nDepth;
+
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance that parses the full hierarchy of a JSON string
+	 * (limited to {@link Short#MAX_VALUE}).
 	 */
 	public JsonParser()
 	{
+		this(Short.MAX_VALUE);
+	}
+
+	/***************************************
+	 * Creates a new instance that parses only a certain number of hierarchy
+	 * levels. If the depth reaches zero all properties will be left as the
+	 * original JSON strings. This can only be for parsing untyped data through
+	 * methods like {@link #parse(String)} or for providing typed objects (like
+	 * relatables) with the correct string datatypes at the levels where the
+	 * parsing is terminated if the maximum depth is reached.
+	 *
+	 * <p>Limiting the depth allows to prevent unnecessary parsing if only
+	 * sub-structures of JSON data need to be evaluated. For example, in JSON
+	 * RPC requests and responses only the params and result properties are of
+	 * interest and should be parsed. By parsing such a record with {@link
+	 * #parseObject(String)} or {@link #parseObjectMap(String)} and a depth of 1
+	 * these properties can then be queried from the returned object as strings
+	 * and parsed into a typed object.</p>
+	 *
+	 * @param nDepth The maximum depth of properties to parse
+	 */
+	public JsonParser(int nDepth)
+	{
+		this.nDepth = nDepth;
 	}
 
 	//~ Static methods ---------------------------------------------------------
@@ -78,7 +107,7 @@ public class JsonParser
 
 	/***************************************
 	 * Returns a binary function that parses a JSON string into an Object with a
-	 * certain datatype by invoking {@link #parseValue(String, Class)}.
+	 * certain datatype by invoking {@link #parse(String, Class)}.
 	 *
 	 * @param  rDatatype The preset datatype for unary function invocation
 	 *
@@ -86,7 +115,7 @@ public class JsonParser
 	 */
 	public static <T> Function<String, T> parseJson(Class<T> rDatatype)
 	{
-		return sJson -> new JsonParser().parseValue(sJson, rDatatype);
+		return sJson -> new JsonParser().parse(sJson, rDatatype);
 	}
 
 	/***************************************
@@ -119,11 +148,13 @@ public class JsonParser
 
 	/***************************************
 	 * Parses a JSON string value according to it's JSON datatype. For more
-	 * enhanced datatype parsing see {@link #parseValue(String, Class)}.
+	 * enhanced datatype parsing see {@link #parse(String, Class)}.
 	 *
 	 * @param  sJson The JSON value string
 	 *
 	 * @return The parsed value (NULL if input is NULL or empty)
+	 *
+	 * @throws RuntimeException If the input string is not valid JSON
 	 */
 	public Object parse(String sJson)
 	{
@@ -132,6 +163,10 @@ public class JsonParser
 		if (sJson == null || sJson.isEmpty())
 		{
 			aValue = null;
+		}
+		else if (nDepth <= 0)
+		{
+			aValue = sJson;
 		}
 		else if (sJson.charAt(0) == JsonStructure.STRING.cOpen)
 		{
@@ -162,10 +197,88 @@ public class JsonParser
 	}
 
 	/***************************************
-	 * Parses a JSON array into a collection. The collection elements will be
-	 * parsed by {@link #parse(String)}. For better control of the element
-	 * datatype the method {@link #parseArray(String, Collection, Class)} can be
-	 * used.
+	 * Parses a JSON string value into a certain datatype.
+	 *
+	 * @param  sJsonValue The JSON value string
+	 * @param  rDatatype  The target datatype
+	 *
+	 * @return The parsed value
+	 *
+	 * @throws RuntimeException If the input string is not valid JSON or doesn't
+	 *                          match the given datatype
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T parse(String sJsonValue, Class<? extends T> rDatatype)
+	{
+		Object rValue;
+
+		if ("null".equals(sJsonValue))
+		{
+			rValue = null;
+		}
+		else if (JsonSerializable.class.isAssignableFrom(rDatatype))
+		{
+			rValue = ReflectUtil.newInstance(rDatatype);
+
+			((JsonSerializable<?>) rValue).fromJson(sJsonValue);
+		}
+		else if (rDatatype == Boolean.class || rDatatype == boolean.class)
+		{
+			rValue = Boolean.valueOf(sJsonValue);
+		}
+		else if (rDatatype.isPrimitive())
+		{
+			// all non-boolean primitives must be numbers as character values
+			// are not supported in JSON
+			rValue =
+				parseNumber(sJsonValue,
+							(Class<? extends Number>) ReflectUtil
+							.getWrapperType(rDatatype));
+		}
+		else if (Number.class.isAssignableFrom(rDatatype))
+		{
+			rValue =
+				parseNumber(sJsonValue, (Class<? extends Number>) rDatatype);
+		}
+		else if (rDatatype.isArray())
+		{
+			rValue = parseIntoArray(sJsonValue, rDatatype);
+		}
+		else if (Collection.class.isAssignableFrom(rDatatype))
+		{
+			Collection<Object> aCollection =
+				Set.class.isAssignableFrom(rDatatype) ? new HashSet<>()
+													  : new ArrayList<>();
+
+			rValue = parseArray(sJsonValue, aCollection);
+		}
+		else if (Map.class.isAssignableFrom(rDatatype))
+		{
+			rValue = parseObject(sJsonValue);
+		}
+		else if (Date.class.isAssignableFrom(rDatatype))
+		{
+			rValue = parseDate(sJsonValue);
+		}
+		else if (Relatable.class.isAssignableFrom(rDatatype))
+		{
+			rValue = parseRelatable(sJsonValue, rDatatype);
+		}
+		else
+		{
+			sJsonValue = getContent(sJsonValue, JsonStructure.STRING);
+			sJsonValue = Json.restore(sJsonValue);
+			rValue     = Conversions.parseValue(sJsonValue, rDatatype);
+		}
+
+		return (T) rValue;
+	}
+
+	/***************************************
+	 * Parses a JSON array into an existing collection. The collection elements
+	 * will be parsed by {@link #parse(String)}. For better control of the
+	 * element datatype the method {@link #parseArray(String, Collection,
+	 * Class)} can be used.
 	 *
 	 * @param  sJsonArray        The JSON array string
 	 * @param  rTargetCollection The target collection
@@ -200,9 +313,32 @@ public class JsonParser
 		parseStructure(sJsonArray,
 					   JsonStructure.ARRAY,
 					   sArrayElement ->
-					   aResultList.add(parseValue(sArrayElement, rElementType)));
+					   aResultList.add(parse(sArrayElement, rElementType)));
 
 		return aResultList;
+	}
+
+	/***************************************
+	 * Parses a JSON array into an existing collection of a certain datatype.
+	 * The collection elements will be parsed by {@link #parse(String, Class)}.
+	 *
+	 * @param  sJsonArray        The JSON array string
+	 * @param  rTargetCollection The target collection
+	 * @param  rElementType      The data type of the collection elements
+	 *
+	 * @return The input collection containing the parsed array values
+	 */
+	public <T, C extends Collection<T>> C parseArray(String   sJsonArray,
+													 C		  rTargetCollection,
+													 Class<T> rElementType)
+	{
+		parseStructure(sJsonArray,
+					   JsonStructure.ARRAY,
+					   sArrayElement ->
+					   rTargetCollection.add(parse(sArrayElement,
+												   rElementType)));
+
+		return rTargetCollection;
 	}
 
 	/***************************************
@@ -303,7 +439,7 @@ public class JsonParser
 	 */
 	public JsonObject parseObject(String sJsonObject)
 	{
-		return new JsonObject().fromJson(sJsonObject);
+		return new JsonObject(parseObjectMap(sJsonObject));
 	}
 
 	/***************************************
@@ -391,85 +527,9 @@ public class JsonParser
 											   sTypeName);
 		}
 
-		Object rValue = parseValue(sJsonValue, rRelationType.getValueType());
+		Object rValue = parse(sJsonValue, rRelationType.getValueType());
 
 		rTarget.set((RelationType<Object>) rRelationType, rValue);
-	}
-
-	/***************************************
-	 * Parses a JSON string value into a certain datatype. The value must be in
-	 * a format as generated by {@link JsonBuilder#append(Object)}.
-	 *
-	 * @param  sJsonValue The JSON value string
-	 * @param  rDatatype  The target datatype
-	 *
-	 * @return The parsed value
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> T parseValue(String sJsonValue, Class<? extends T> rDatatype)
-	{
-		Object rValue;
-
-		if ("null".equals(sJsonValue))
-		{
-			rValue = null;
-		}
-		else if (JsonSerializable.class.isAssignableFrom(rDatatype))
-		{
-			rValue = ReflectUtil.newInstance(rDatatype);
-
-			((JsonSerializable<?>) rValue).fromJson(sJsonValue);
-		}
-		else if (rDatatype == Boolean.class || rDatatype == boolean.class)
-		{
-			rValue = Boolean.valueOf(sJsonValue);
-		}
-		else if (rDatatype.isPrimitive())
-		{
-			// all non-boolean primitives must be numbers as character values
-			// are not supported in JSON
-			rValue =
-				parseNumber(sJsonValue,
-							(Class<? extends Number>) ReflectUtil
-							.getWrapperType(rDatatype));
-		}
-		else if (Number.class.isAssignableFrom(rDatatype))
-		{
-			rValue =
-				parseNumber(sJsonValue, (Class<? extends Number>) rDatatype);
-		}
-		else if (rDatatype.isArray())
-		{
-			rValue = parseIntoArray(sJsonValue, rDatatype);
-		}
-		else if (Collection.class.isAssignableFrom(rDatatype))
-		{
-			Collection<Object> aCollection =
-				Set.class.isAssignableFrom(rDatatype) ? new HashSet<>()
-													  : new ArrayList<>();
-
-			rValue = parseArray(sJsonValue, aCollection);
-		}
-		else if (Map.class.isAssignableFrom(rDatatype))
-		{
-			rValue = parseObject(sJsonValue);
-		}
-		else if (Date.class.isAssignableFrom(rDatatype))
-		{
-			rValue = parseDate(sJsonValue);
-		}
-		else if (Relatable.class.isAssignableFrom(rDatatype))
-		{
-			rValue = parseRelatable(sJsonValue, rDatatype);
-		}
-		else
-		{
-			sJsonValue = getContent(sJsonValue, JsonStructure.STRING);
-			sJsonValue = Json.restore(sJsonValue);
-			rValue     = Conversions.parseValue(sJsonValue, rDatatype);
-		}
-
-		return (T) rValue;
 	}
 
 	/***************************************
@@ -489,6 +549,8 @@ public class JsonParser
 	 */
 	private String getContent(String sJsonStructure, JsonStructure eStructure)
 	{
+		sJsonStructure = sJsonStructure.trim();
+
 		if (sJsonStructure.charAt(0) != eStructure.cOpen ||
 			sJsonStructure.charAt(sJsonStructure.length() - 1) !=
 			eStructure.cClose)
@@ -621,6 +683,8 @@ public class JsonParser
 		int    nElementStart = 0;
 		int    nElementEnd   = 0;
 
+		nDepth--;
+
 		while (nElementEnd <= nMax)
 		{
 			JsonStructure eSkippedStructure = null;
@@ -709,5 +773,7 @@ public class JsonParser
 
 			nElementStart = ++nElementEnd;
 		}
+
+		nDepth++;
 	}
 }

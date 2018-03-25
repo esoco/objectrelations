@@ -47,6 +47,23 @@ public class JsonParserTest
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Test parsing with limited depth.
+	 */
+	@Test
+	public void testLimitedDepth()
+	{
+		JsonObject jo =
+			new JsonParser(1).parseObject("{\"PARENT\": {\"NAME\": \"PARENT\"," +
+										  " \"INFO\": \"JSON_OBJECT\"}," +
+										  " \"NAME\": \"TEST\"," +
+										  " \"INFO\": \"JSON\"," +
+										  " \"PORT\": 12345}");
+
+		assertEquals("{\"NAME\": \"PARENT\", \"INFO\": \"JSON_OBJECT\"}",
+					 jo.get("PARENT"));
+	}
+
+	/***************************************
 	 * Test method
 	 */
 	@Test

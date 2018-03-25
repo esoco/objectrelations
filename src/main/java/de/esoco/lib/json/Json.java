@@ -174,6 +174,72 @@ public class Json
 	}
 
 	/***************************************
+	 * Parses a JSON string with a new {@link JsonParser} instance by invoking
+	 * {@link JsonParser#parse(String)}.
+	 *
+	 * @param  sJson The input string
+	 *
+	 * @return The parsed result
+	 *
+	 * @throws RuntimeException If the input string is not valid JSON
+	 */
+	public static Object parse(String sJson)
+	{
+		return new JsonParser().parse(sJson);
+	}
+
+	/***************************************
+	 * Parses a JSON string of a certain datatype with a new {@link JsonParser}
+	 * instance by invoking {@link JsonParser#parse(String, Class)}.
+	 *
+	 * @param  sJson     The input string
+	 * @param  rDatatype The target datatype
+	 *
+	 * @return The parsed result
+	 *
+	 * @throws RuntimeException If the input string is not valid JSON or doesn't
+	 *                          match the given datatype
+	 */
+	public static <T> T parse(String sJson, Class<T> rDatatype)
+	{
+		return new JsonParser().parse(sJson, rDatatype);
+	}
+
+	/***************************************
+	 * Parses a JSON string into a {@link JsonObject}with a new instance of
+	 * {@link JsonParser} by invoking {@link JsonParser#parseObject(String)}.
+	 *
+	 * @param  sJson The input string
+	 *
+	 * @return The parsed object
+	 *
+	 * @throws RuntimeException If the input string is not a valid JSON object
+	 */
+	public static JsonObject parseObject(String sJson)
+	{
+		return new JsonParser().parseObject(sJson);
+	}
+
+	/***************************************
+	 * Parses a JSON string up to a certain depth into a {@link JsonObject}.
+	 * Creates a new instance of {@link JsonParser} with the given depth and
+	 * then invokes {@link JsonParser#parseObject(String)}. Limiting the depth
+	 * will leave deeper levels as raw JSON strings, allowing to parse them into
+	 * specific datatypes after inspection.
+	 *
+	 * @param  sJson  The input string
+	 * @param  nDepth The depth up to which parse the JSON hierarchy
+	 *
+	 * @return The parsed result
+	 *
+	 * @throws RuntimeException If the input string is not a valid JSON object
+	 */
+	public static JsonObject parseObject(String sJson, int nDepth)
+	{
+		return new JsonParser(nDepth).parseObject(sJson);
+	}
+
+	/***************************************
 	 * Restores a string from an escaped JSON string.
 	 *
 	 * @param  sEscaped The escaped string to restore
@@ -264,5 +330,19 @@ public class Json
 		}
 
 		return aResult.toString();
+	}
+
+	/***************************************
+	 * Converts a value into a JSON string.
+	 *
+	 * @param  rValue The value to convert
+	 *
+	 * @return The JSON string
+	 *
+	 * @see    JsonBuilder#toJson(Object)
+	 */
+	public static String toJson(Object rValue)
+	{
+		return JsonBuilder.toJson(rValue);
 	}
 }

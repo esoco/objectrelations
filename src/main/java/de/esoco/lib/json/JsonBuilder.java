@@ -190,6 +190,7 @@ public class JsonBuilder
 				{
 					aWrappedValues[i] = Array.get(rValue, i);
 				}
+
 				rValue = aWrappedValues;
 			}
 
@@ -503,14 +504,17 @@ public class JsonBuilder
 	}
 
 	/***************************************
-	 * Switches this builder to generate compact output by invoking the methods
-	 * {@link #noWhitespace()} and {@link #noLinefeeds()}.
+	 * Disables the addition of whitespace and linefeeds to create compact
+	 * output.
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
+	 *
+	 * @see    #noWhitespace()
+	 * @see    #noLinefeeds()
 	 */
 	public JsonBuilder compact()
 	{
-		return noLinefeeds().noWhitespace();
+		return noWhitespace().noLinefeeds();
 	}
 
 	/***************************************
@@ -582,7 +586,7 @@ public class JsonBuilder
 	/***************************************
 	 * Disables the adding of linefeeds to the generated JSON.
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
 	public JsonBuilder noLinefeeds()
 	{
@@ -594,7 +598,7 @@ public class JsonBuilder
 	/***************************************
 	 * Disables the adding of whitespace to the generated JSON.
 	 *
-	 * @return This instance for concatenation
+	 * @return This instance for fluent invocation
 	 */
 	public JsonBuilder noWhitespace()
 	{

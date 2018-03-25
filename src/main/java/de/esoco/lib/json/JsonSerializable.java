@@ -23,7 +23,7 @@ package de.esoco.lib.json;
  *
  * @author eso
  */
-public interface JsonSerializable<T extends JsonSerializable<T>>
+public interface JsonSerializable<J extends JsonSerializable<J>>
 {
 	//~ Methods ----------------------------------------------------------------
 
@@ -45,15 +45,26 @@ public interface JsonSerializable<T extends JsonSerializable<T>>
 	 * @return This instance so that it can be directly used after
 	 *         de-serialization
 	 */
-	public T fromJson(String sJson);
+	public J fromJson(String sJson);
+
+	/***************************************
+	 * Converts this instance into a compact JSON representation that can be
+	 * de-serialized by invoking {@link #fromJson(String)}.
+	 *
+	 * @return The resulting JSON string
+	 */
+	default public String toCompactJson()
+	{
+		return new JsonBuilder().compact().append(this).toString();
+	}
 
 	/***************************************
 	 * Converts this instance into a JSON representation that can be
 	 * de-serialized by invoking {@link #fromJson(String)}. This default
-	 * implementation creates a multi-line JSON string where hierarchy levels
-	 * are indented by tabulator characters. To use a custom format the method
-	 * {@link #appendTo(JsonBuilder)} should be invoked with a correspondingly
-	 * initialized {@link JsonBuilder}.
+	 * implementation creates a human-readable, multi-line JSON string where
+	 * hierarchy levels are indented by tabulator characters. The method {@link
+	 * #toCompactJson()} creates a single-line JSON string that doesn't contain
+	 * fill characters.
 	 *
 	 * @return The resulting JSON string
 	 */
