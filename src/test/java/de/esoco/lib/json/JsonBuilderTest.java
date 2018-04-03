@@ -17,6 +17,7 @@
 package de.esoco.lib.json;
 
 import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.text.TextConvert.IdentifierStyle;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -135,6 +136,7 @@ public class JsonBuilderTest
 
 		Relatable aTestObj = createTestRelatable();
 
+		aTestObj.set(Json.JSON_PROPERTY_NAMING, IdentifierStyle.UPPERCASE);
 		aTestObj.set(Json.JSON_SERIALIZED_TYPES,
 					 Arrays.asList(NAME, INFO, PORT, CHILDREN));
 
@@ -158,27 +160,37 @@ public class JsonBuilderTest
 
 		JsonBuilder jb = new JsonBuilder();
 
-		assertTrue(jb.append(r.getRelation(TEST_RELATION), true, true));
+		assertTrue(jb.append(r.getRelation(TEST_RELATION),
+							 IdentifierStyle.UPPERCASE,
+							 false));
 		assertEquals(String.format("\"%s\": \"Test\"", TEST_RELATION.getName()),
 					 jb.toString());
 
 		jb = new JsonBuilder();
-		assertTrue(jb.append(r.getRelation(TEST_RELATION), false, true));
-		assertEquals(String.format("\"%s\": \"Test\"",
-								   TEST_RELATION.getSimpleName()),
-					 jb.toString());
+		assertTrue(jb.append(r.getRelation(TEST_RELATION),
+							 IdentifierStyle.CAMELCASE,
+							 false));
+		assertEquals("\"TestRelation\": \"Test\"", jb.toString());
+
+		jb = new JsonBuilder();
+		assertTrue(jb.append(r.getRelation(TEST_RELATION),
+							 IdentifierStyle.LOWER_CAMELCASE,
+							 false));
+		assertEquals("\"testRelation\": \"Test\"", jb.toString());
 
 		r.set(TEST_RELATION, null);
 		jb = new JsonBuilder();
-		assertTrue(jb.append(r.getRelation(TEST_RELATION), false, true));
-		assertEquals(String.format("\"%s\": null",
-								   TEST_RELATION.getSimpleName()),
+		assertTrue(jb.append(r.getRelation(TEST_RELATION),
+							 IdentifierStyle.UPPERCASE,
+							 true));
+		assertEquals(String.format("\"%s\": null", TEST_RELATION.getName()),
 					 jb.toString());
 
 		jb = new JsonBuilder();
-		assertFalse(jb.append(r.getRelation(TEST_RELATION), false, false));
-		assertEquals(String.format("", TEST_RELATION.getSimpleName()),
-					 jb.toString());
+		assertFalse(jb.append(r.getRelation(TEST_RELATION),
+							  IdentifierStyle.UPPERCASE,
+							  false));
+		assertEquals("", jb.toString());
 	}
 
 	/***************************************

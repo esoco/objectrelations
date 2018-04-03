@@ -17,6 +17,7 @@
 package de.esoco.lib.json;
 
 import de.esoco.lib.text.TextConvert;
+import de.esoco.lib.text.TextConvert.IdentifierStyle;
 import de.esoco.lib.text.TextUtil;
 
 import java.text.DateFormat;
@@ -28,6 +29,10 @@ import java.util.Map;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
+
+import static org.obrel.core.RelationTypes.newDefaultValueType;
+import static org.obrel.core.RelationTypes.newMapType;
+import static org.obrel.core.RelationTypes.newType;
 
 
 /********************************************************************
@@ -66,6 +71,11 @@ public class Json
 		}
 	}
 
+	/********************************************************************
+	 * Enumeration of the error handling options when parsing JSON data.
+	 */
+	public enum JsonErrorHandling { THROW, LOG, IGNORE }
+
 	//~ Static fields/initializers ---------------------------------------------
 
 	/**
@@ -75,19 +85,26 @@ public class Json
 	public static final DateFormat JSON_DATE_FORMAT =
 		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
+	/** The style for the naming of properties when building or parsing JSON. */
+	public static final RelationType<IdentifierStyle> JSON_PROPERTY_NAMING = newType();
+
+	/** The handling mode for parsing errors. */
+	public static final RelationType<JsonErrorHandling> JSON_ERROR_HANDLING =
+		newDefaultValueType(JsonErrorHandling.THROW);
+
 	/**
 	 * The relation types of a {@link Relatable} object that should be
 	 * considered for JSON serialization.
 	 */
 	public static final RelationType<Collection<RelationType<?>>> JSON_SERIALIZED_TYPES =
-		RelationTypes.newType();
+		newType();
 
 	/**
 	 * A map containing the data of a JSON object structure. Auto-initialized to
 	 * an empty ordered map.
 	 */
 	public static final RelationType<Map<String, Object>> JSON_OBJECT_DATA =
-		RelationTypes.newMapType(true);
+		newMapType(true);
 
 	static
 	{

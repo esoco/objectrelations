@@ -22,6 +22,8 @@ import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.json.Json.JsonStructure;
+import de.esoco.lib.text.TextConvert;
+import de.esoco.lib.text.TextConvert.IdentifierStyle;
 
 import java.lang.reflect.Array;
 
@@ -237,8 +239,8 @@ public class JsonBuilder
 	 * builder.
 	 *
 	 * @param  rRelation         The relation to append
-	 * @param  bWithNamespace    TRUE to include the relation type namespace,
-	 *                           FALSE to only use it's simple name
+	 * @param  eNamingStyle      The style for converting relation type names to
+	 *                           JSON properties
 	 * @param  bAppendNullValues TRUE if NULL values should be appended, FALSE
 	 *                           if they should be omitted
 	 *
@@ -246,7 +248,7 @@ public class JsonBuilder
 	 *         bAppendNullValues is FALSE)
 	 */
 	public boolean append(Relation<?> rRelation,
-						  boolean	  bWithNamespace,
+						  IdentifierStyle eNamingStyle,
 						  boolean	  bAppendNullValues)
 	{
 		Object  rValue    = rRelation.getTarget();
@@ -255,10 +257,18 @@ public class JsonBuilder
 		if (bHasValue)
 		{
 			RelationType<?> rRelationType = rRelation.getType();
+			String		    sName;
 
-			String sName =
-				bWithNamespace ? rRelationType.getName()
-							   : rRelationType.getSimpleName();
+			if (eNamingStyle == IdentifierStyle.UPPERCASE)
+			{
+				sName = rRelationType.getName();
+			}
+			else
+			{
+				sName =
+					TextConvert.convertTo(eNamingStyle,
+										  rRelationType.getSimpleName());
+			}
 
 			appendName(sName);
 			append(rValue);
@@ -425,15 +435,24 @@ public class JsonBuilder
 		Relatable					rObject,
 		Collection<RelationType<?>> rRelationTypes)
 	{
-		Predicate<Relation<?>> pMatchesType;
-		boolean				   bWithNamespace = true;
+		IdentifierStyle eNamingStyle = rObject.get(Json.JSON_PROPERTY_NAMING);
 
 		if (rRelationTypes == null &&
 			rObject.hasRelation(Json.JSON_SERIALIZED_TYPES))
 		{
 			rRelationTypes = rObject.get(Json.JSON_SERIALIZED_TYPES);
-			bWithNamespace = false;
+
+			if (eNamingStyle == null)
+			{
+				eNamingStyle = IdentifierStyle.LOWER_CAMELCASE;
+			}
 		}
+		else if (eNamingStyle == null)
+		{
+			eNamingStyle = IdentifierStyle.UPPERCASE;
+		}
+
+		Predicate<Relation<?>> pMatchesType;
 
 		if (rRelationTypes != null)
 		{
@@ -447,7 +466,7 @@ public class JsonBuilder
 		}
 
 		appendRelations(rObject.getRelations(IS_NOT_TRANSIENT.and(pMatchesType)),
-						bWithNamespace,
+						eNamingStyle,
 						true);
 
 		return this;
@@ -622,8 +641,8 @@ public class JsonBuilder
 	 * Appends a collection of relations to this JSON string.
 	 *
 	 * @param  rRelations        The relations to append
-	 * @param  bWithNamespace    TRUE to include the relation type namespace,
-	 *                           FALSE to only use it's simple name
+	 * @param  eNamingStyle      The style for converting relation type names to
+	 *                           JSON properties
 	 * @param  bAppendNullValues TRUE if NULL values should be appended, FALSE
 	 *                           if they should be omitted
 	 *
@@ -631,14 +650,14 @@ public class JsonBuilder
 	 */
 	private JsonBuilder appendRelations(
 		Collection<Relation<?>> rRelations,
-		boolean					bWithNamespace,
+		IdentifierStyle				eNamingStyle,
 		boolean					bAppendNullValues)
 	{
 		int nCount = rRelations.size();
 
 		for (Relation<?> rRelation : rRelations)
 		{
-			append(rRelation, bWithNamespace, bAppendNullValues);
+			append(rRelation, eNamingStyle, bAppendNullValues);
 
 			if (--nCount > 0)
 			{

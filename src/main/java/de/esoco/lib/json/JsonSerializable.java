@@ -38,7 +38,14 @@ public interface JsonSerializable<J extends JsonSerializable<J>>
 	public void appendTo(JsonBuilder rBuilder);
 
 	/***************************************
-	 * Parses the contents of this instance from a JSON string.
+	 * Parses data from a JSON string and returns the resulting instance.
+	 * Invocations should always work with the returned instance as immutable
+	 * implementations will return a new instance.
+	 *
+	 * <p>All implementing types should provide a no-argument constructor that
+	 * does as few initialization as possible. This applies especially to
+	 * immutable types that will only be created to invoke this method, which
+	 * will then create and fill a new instance.</p>
 	 *
 	 * @param  sJson The JSON string to parse
 	 *

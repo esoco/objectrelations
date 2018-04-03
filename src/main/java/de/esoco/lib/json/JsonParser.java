@@ -19,6 +19,7 @@ package de.esoco.lib.json;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Function;
+import de.esoco.lib.json.Json.JsonErrorHandling;
 import de.esoco.lib.json.Json.JsonStructure;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
@@ -513,6 +514,8 @@ public class JsonParser
 				if (rType.getSimpleName().equalsIgnoreCase(sTypeName))
 				{
 					rRelationType = rType;
+
+					break;
 				}
 			}
 		}
@@ -521,15 +524,28 @@ public class JsonParser
 			rRelationType = RelationType.valueOf(sTypeName);
 		}
 
-		if (rRelationType == null)
+		if (rRelationType != null)
 		{
-			throw new IllegalArgumentException("Unknown RelationType: " +
-											   sTypeName);
+			Object rValue = parse(sJsonValue, rRelationType.getValueType());
+
+			rTarget.set((RelationType<Object>) rRelationType, rValue);
 		}
+		else
+		{
+			JsonErrorHandling eErrorHandling =
+				rTarget.get(Json.JSON_ERROR_HANDLING);
 
-		Object rValue = parse(sJsonValue, rRelationType.getValueType());
-
-		rTarget.set((RelationType<Object>) rRelationType, rValue);
+			if (eErrorHandling == JsonErrorHandling.THROW)
+			{
+				throw new IllegalArgumentException("Unknown RelationType: " +
+												   sTypeName);
+			}
+			else if (eErrorHandling == JsonErrorHandling.LOG)
+			{
+				System.out.printf("Warning: unknown RelationType %s\n",
+								  sTypeName);
+			}
+		}
 	}
 
 	/***************************************

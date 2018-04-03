@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+
+import java.math.BigDecimal;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -238,6 +240,19 @@ public class RelationTypes
 	}
 
 	/***************************************
+	 * Creates a new partially initialized relation type with a {@link
+	 * BigDecimal} datatype and an initial value of zero.
+	 *
+	 * @see #newType(RelationTypeModifier...)
+	 */
+	@SuppressWarnings("boxing")
+	public static RelationType<BigDecimal> newDecimalType(
+		RelationTypeModifier... rModifiers)
+	{
+		return newInitialValueType(BigDecimal.ZERO, rModifiers);
+	}
+
+	/***************************************
 	 * Creates a new relation type with a certain default value. The default
 	 * value will be returned on the first get of an unset relation of this type
 	 * but it will not bet set, i.e. the relation will remain unset.
@@ -340,7 +355,7 @@ public class RelationTypes
 
 	/***************************************
 	 * Creates a new partially initialized relation type with an integer
-	 * datatype and an initial value of of zero.
+	 * datatype and an initial value of zero.
 	 *
 	 * @see #newType(RelationTypeModifier...)
 	 */
@@ -418,6 +433,19 @@ public class RelationTypes
 		}
 
 		return aType;
+	}
+
+	/***************************************
+	 * Creates a new partially initialized relation type with a long datatype
+	 * and an initial value of zero.
+	 *
+	 * @see #newType(RelationTypeModifier...)
+	 */
+	@SuppressWarnings("boxing")
+	public static RelationType<Long> newLongType(
+		RelationTypeModifier... rModifiers)
+	{
+		return newInitialValueType(0L, rModifiers);
 	}
 
 	/***************************************

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -352,13 +352,20 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	/***************************************
-	 * A convenience method to set boolean annotations to TRUE.
+	 * A convenience method to set one or more boolean annotations to TRUE.
 	 *
 	 * @see #annotate(RelationType, Object)
 	 */
-	public final RelationType<T> annotate(RelationType<Boolean> rAnnotationType)
+	@SafeVarargs
+	public final RelationType<T> annotate(
+		RelationType<Boolean>... rAdditionalFlags)
 	{
-		return annotate(rAnnotationType, Boolean.TRUE);
+		for (RelationType<Boolean> rFlag : rAdditionalFlags)
+		{
+			annotate(rFlag, Boolean.TRUE);
+		}
+
+		return this;
 	}
 
 	/***************************************
@@ -465,7 +472,8 @@ public class RelationType<T> extends RelatedObject
 	 *
 	 * @return The initial value function or NULL for none
 	 */
-	public final Function<? super Relatable, ? super T> getInitialValueFunction()
+	public final Function<? super Relatable, ? super T>
+	getInitialValueFunction()
 	{
 		return fInitialValue;
 	}
