@@ -19,8 +19,8 @@ package de.esoco.lib.json;
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.Function;
-import de.esoco.lib.json.Json.JsonErrorHandling;
 import de.esoco.lib.json.Json.JsonStructure;
+import de.esoco.lib.property.ErrorHandling;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
 
@@ -43,6 +43,7 @@ import java.util.Set;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
+import org.obrel.type.MetaTypes;
 
 import static de.esoco.lib.json.Json.JSON_DATE_FORMAT;
 
@@ -276,6 +277,18 @@ public class JsonParser
 	}
 
 	/***************************************
+	 * Parses the values from a JSON array into a list.
+	 *
+	 * @param  sJsonArray The JSON array string
+	 *
+	 * @return A new list containing the parsed array values
+	 */
+	public List<Object> parseArray(String sJsonArray)
+	{
+		return parseArray(sJsonArray, new ArrayList<>());
+	}
+
+	/***************************************
 	 * Parses a JSON array into an existing collection. The collection elements
 	 * will be parsed by {@link #parse(String)}. For better control of the
 	 * element datatype the method {@link #parseArray(String, Collection,
@@ -309,14 +322,7 @@ public class JsonParser
 	 */
 	public <T> List<T> parseArray(String sJsonArray, Class<T> rElementType)
 	{
-		List<T> aResultList = new ArrayList<>();
-
-		parseStructure(sJsonArray,
-					   JsonStructure.ARRAY,
-					   sArrayElement ->
-					   aResultList.add(parse(sArrayElement, rElementType)));
-
-		return aResultList;
+		return parseArray(sJsonArray, new ArrayList<>(), rElementType);
 	}
 
 	/***************************************
@@ -532,15 +538,15 @@ public class JsonParser
 		}
 		else
 		{
-			JsonErrorHandling eErrorHandling =
-				rTarget.get(Json.JSON_ERROR_HANDLING);
+			ErrorHandling eErrorHandling =
+				rTarget.get(MetaTypes.ERROR_HANDLING);
 
-			if (eErrorHandling == JsonErrorHandling.THROW)
+			if (eErrorHandling == ErrorHandling.THROW)
 			{
 				throw new IllegalArgumentException("Unknown RelationType: " +
 												   sTypeName);
 			}
-			else if (eErrorHandling == JsonErrorHandling.LOG)
+			else if (eErrorHandling == ErrorHandling.LOG)
 			{
 				System.out.printf("Warning: unknown RelationType %s\n",
 								  sTypeName);

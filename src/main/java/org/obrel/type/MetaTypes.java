@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.obrel.type;
 import de.esoco.lib.event.EventDispatcher;
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Action;
+import de.esoco.lib.property.ErrorHandling;
 import de.esoco.lib.property.Immutability;
 import de.esoco.lib.property.SortDirection;
 
@@ -273,6 +274,10 @@ public class MetaTypes
 	 */
 	public static final RelationType<Action<RelationType<?>>> RELATION_TYPE_INIT_ACTION =
 		RelationTypes.RELATION_TYPE_INIT_ACTION;
+
+	/** A generic error handling mode. */
+	public static final RelationType<ErrorHandling> ERROR_HANDLING =
+		RelationTypes.newDefaultValueType(ErrorHandling.THROW);
 
 	static
 	{

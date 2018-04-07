@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
+import de.esoco.lib.text.TextConvert.IdentifierStyle;
+
 import java.math.BigDecimal;
 
 import java.util.Arrays;
@@ -96,11 +98,15 @@ public class JsonRelatedObjectTest
 		TestObject aTestObject = new TestObject();
 
 		aTestObject.setTestValues();
+		aTestObject.set(Json.JSON_PROPERTY_NAMING, IdentifierStyle.UPPERCASE);
 
 		assertEquals(String.format(TEST_OBJECT_JSON, TEST_OBJECT_NULL_CHILD),
 					 aTestObject.toJson());
 
-		aTestObject.set(TestObject.CHILD, new ChildObject(42, "CHILD"));
+		ChildObject aChild = new ChildObject(42, "CHILD");
+
+		aChild.set(Json.JSON_PROPERTY_NAMING, IdentifierStyle.UPPERCASE);
+		aTestObject.set(TestObject.CHILD, aChild);
 
 		assertEquals(String.format(TEST_OBJECT_JSON, TEST_OBJECT_ONE_CHILD),
 					 aTestObject.toJson());

@@ -86,6 +86,7 @@ public class JsonBuilder
 	private boolean bWhitespace		    = true;
 	private boolean bMultiLine		    = true;
 	private boolean bRecursiveRelations = false;
+	private boolean bNamespaces		    = false;
 
 	private Collection<RelationType<?>> aExcludedRelationTypes =
 		new HashSet<>(DEFAULT_EXCLUDED_RELATION_TYPES);
@@ -247,9 +248,9 @@ public class JsonBuilder
 	 * @return TRUE if a relation has been appended (can only be FALSE if
 	 *         bAppendNullValues is FALSE)
 	 */
-	public boolean append(Relation<?> rRelation,
+	public boolean append(Relation<?>	  rRelation,
 						  IdentifierStyle eNamingStyle,
-						  boolean	  bAppendNullValues)
+						  boolean		  bAppendNullValues)
 	{
 		Object  rValue    = rRelation.getTarget();
 		boolean bHasValue = (rValue != null || bAppendNullValues);
@@ -257,17 +258,21 @@ public class JsonBuilder
 		if (bHasValue)
 		{
 			RelationType<?> rRelationType = rRelation.getType();
-			String		    sName;
+			String		    sName		  = rRelationType.getSimpleName();
 
-			if (eNamingStyle == IdentifierStyle.UPPERCASE)
+			if (eNamingStyle != IdentifierStyle.UPPERCASE)
 			{
-				sName = rRelationType.getName();
+				sName = TextConvert.convertTo(eNamingStyle, sName);
 			}
-			else
+
+			if (bNamespaces)
 			{
-				sName =
-					TextConvert.convertTo(eNamingStyle,
-										  rRelationType.getSimpleName());
+				String sNamespace = rRelationType.getNamespace();
+
+				if (!sNamespace.isEmpty())
+				{
+					sName = sNamespace + '.' + sName;
+				}
 			}
 
 			appendName(sName);
@@ -638,6 +643,23 @@ public class JsonBuilder
 	}
 
 	/***************************************
+	 * Enables the addition of namespaces to the names of properties created
+	 * from relation types. The namespace will always be lower case names
+	 * separated by dots, independent of the {@link IdentifierStyle} used for
+	 * the actual property name.
+	 *
+	 * <p>By default this option is disabled.</p>
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	public JsonBuilder withNamespaces()
+	{
+		this.bNamespaces = true;
+
+		return this;
+	}
+
+	/***************************************
 	 * Appends a collection of relations to this JSON string.
 	 *
 	 * @param  rRelations        The relations to append
@@ -650,7 +672,7 @@ public class JsonBuilder
 	 */
 	private JsonBuilder appendRelations(
 		Collection<Relation<?>> rRelations,
-		IdentifierStyle				eNamingStyle,
+		IdentifierStyle			eNamingStyle,
 		boolean					bAppendNullValues)
 	{
 		int nCount = rRelations.size();

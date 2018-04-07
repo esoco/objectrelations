@@ -159,9 +159,11 @@ public class JsonObject extends RelatedObject
 
 	/***************************************
 	 * Returns a property value as an integer or a default value if the property
-	 * is not set or NULL. If the property value cannot be cast to {@link
-	 * Number} an exception will be thrown. If the value range of the number
-	 * exceed that of an integer truncation may occur.
+	 * is not set or NULL. If the property value is a {@link Number} it's int
+	 * value will be returned. If it is a string it will be tried to parse it
+	 * into an int which will throw an exception on parsing errors. Else the
+	 * default value will be returned. If the number exceeds the value range of
+	 * an int truncation or exceptions may occur.
 	 *
 	 * @param  sName    The property name
 	 * @param  nDefault The default value if the property is NULL
@@ -172,16 +174,23 @@ public class JsonObject extends RelatedObject
 	 */
 	public int getInt(String sName, int nDefault)
 	{
-		Number rValue = (Number) getRawProperty(sName);
+		Object rRawProperty = getRawProperty(sName);
+		Number rValue	    =
+			rRawProperty instanceof Number ? (Number) rRawProperty : null;
 
-		return rValue != null ? rValue.intValue() : nDefault;
+		return rValue != null
+			   ? rValue.intValue()
+			   : rRawProperty instanceof String
+			   ? Integer.parseInt((String) rRawProperty) : nDefault;
 	}
 
 	/***************************************
 	 * Returns a property value as a long or a default value if the property is
-	 * not set or NULL. If the property value cannot be cast to {@link Number}
-	 * an exception will be thrown. If the value range of the number exceed that
-	 * of a long truncation may occur.
+	 * not set or NULL. If the property value is a {@link Number} it's long
+	 * value will be returned. If it is a string it will be tried to parse it
+	 * into a long which will throw an exception on parsing errors. Else the
+	 * default value will be returned. If the number exceeds the value range of
+	 * a long truncation or exceptions may occur.
 	 *
 	 * @param  sName    The property name
 	 * @param  nDefault The default value if the property is NULL
@@ -192,9 +201,14 @@ public class JsonObject extends RelatedObject
 	 */
 	public long getLong(String sName, long nDefault)
 	{
-		Number rValue = (Number) getRawProperty(sName);
+		Object rRawProperty = getRawProperty(sName);
+		Number rValue	    =
+			rRawProperty instanceof Number ? (Number) rRawProperty : null;
 
-		return rValue != null ? rValue.longValue() : nDefault;
+		return rValue != null
+			   ? rValue.longValue()
+			   : rRawProperty instanceof String
+			   ? Long.parseLong((String) rRawProperty) : nDefault;
 	}
 
 	/***************************************

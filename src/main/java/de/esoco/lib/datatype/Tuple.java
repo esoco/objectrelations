@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,12 +17,11 @@
 package de.esoco.lib.datatype;
 
 import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.json.Json;
 import de.esoco.lib.json.JsonBuilder;
-import de.esoco.lib.json.JsonParser;
 
 import java.io.Serializable;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -84,9 +83,7 @@ public class Tuple implements Iterable<Object>, Serializable
 	 */
 	public static Tuple valueOf(String sTuple)
 	{
-		List<Object> aValues = new ArrayList<>();
-
-		new JsonParser().parseArray(sTuple, aValues);
+		List<Object> aValues = Json.parseArray(sTuple);
 
 		return new Tuple(aValues.toArray());
 	}

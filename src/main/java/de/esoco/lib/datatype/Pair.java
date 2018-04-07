@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.datatype;
 
-import de.esoco.lib.json.JsonParser;
+import de.esoco.lib.json.Json;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -88,9 +87,7 @@ public class Pair<F, S> extends Tuple
 	 */
 	public static Pair<Object, Object> valueOf(String sPair)
 	{
-		List<Object> aValues = new ArrayList<>(2);
-
-		new JsonParser().parseArray(sPair, aValues);
+		List<Object> aValues = Json.parseArray(sPair);
 
 		if (aValues.size() != 2)
 		{

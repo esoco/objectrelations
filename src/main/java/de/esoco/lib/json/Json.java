@@ -24,13 +24,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
-import static org.obrel.core.RelationTypes.newDefaultValueType;
 import static org.obrel.core.RelationTypes.newMapType;
 import static org.obrel.core.RelationTypes.newType;
 
@@ -71,11 +71,6 @@ public class Json
 		}
 	}
 
-	/********************************************************************
-	 * Enumeration of the error handling options when parsing JSON data.
-	 */
-	public enum JsonErrorHandling { THROW, LOG, IGNORE }
-
 	//~ Static fields/initializers ---------------------------------------------
 
 	/**
@@ -86,11 +81,8 @@ public class Json
 		new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
 	/** The style for the naming of properties when building or parsing JSON. */
-	public static final RelationType<IdentifierStyle> JSON_PROPERTY_NAMING = newType();
-
-	/** The handling mode for parsing errors. */
-	public static final RelationType<JsonErrorHandling> JSON_ERROR_HANDLING =
-		newDefaultValueType(JsonErrorHandling.THROW);
+	public static final RelationType<IdentifierStyle> JSON_PROPERTY_NAMING =
+		newType();
 
 	/**
 	 * The relation types of a {@link Relatable} object that should be
@@ -220,6 +212,58 @@ public class Json
 	public static <T> T parse(String sJson, Class<T> rDatatype)
 	{
 		return new JsonParser().parse(sJson, rDatatype);
+	}
+
+	/***************************************
+	 * Parses a JSON array into a list.
+	 *
+	 * @param  sJsonArray The JSON array to parse
+	 *
+	 * @return The resulting list of parsed elements
+	 *
+	 * @throws RuntimeException If the input string is not valid JSON
+	 */
+	public static List<Object> parseArray(String sJsonArray)
+	{
+		return new JsonParser().parseArray(sJsonArray);
+	}
+
+	/***************************************
+	 * Parses a JSON array into a list with limited depth. Limiting the depth
+	 * will leave deeper levels as raw JSON strings, allowing to parse them into
+	 * specific datatypes after inspection. For example, using a depth of 1 will
+	 * return a list of raw JSON strings (unless the JSON array is not empty, in
+	 * which case the list will be empty too).
+	 *
+	 * @param  sJsonArray The JSON array to parse
+	 * @param  nDepth     The depth up to which parse values into objects
+	 *
+	 * @return The resulting list of parsed elements
+	 *
+	 * @throws RuntimeException If the input string is not valid JSON
+	 */
+	public static List<Object> parseArray(String sJsonArray, int nDepth)
+	{
+		return new JsonParser(nDepth).parseArray(sJsonArray);
+	}
+
+	/***************************************
+	 * Parses a JSON array into a list with the given element datatype.
+	 *
+	 * @param  sJsonArray   The JSON array to parse
+	 * @param  rElementType The datatype to parse the array elements with
+	 *
+	 * @return The resulting list of parsed elements
+	 *
+	 * @throws RuntimeException If the input string is not valid JSON or cannot
+	 *                          be parsed into a list of elements of the given
+	 *                          type
+	 */
+	public static <T> List<T> parseArray(
+		String   sJsonArray,
+		Class<T> rElementType)
+	{
+		return new JsonParser().parseArray(sJsonArray, rElementType);
 	}
 
 	/***************************************

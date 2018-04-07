@@ -163,6 +163,15 @@ public class JsonBuilderTest
 		assertTrue(jb.append(r.getRelation(TEST_RELATION),
 							 IdentifierStyle.UPPERCASE,
 							 false));
+		assertEquals(String.format("\"%s\": \"Test\"",
+								   TEST_RELATION.getSimpleName()),
+					 jb.toString());
+
+		jb = new JsonBuilder().withNamespaces();
+
+		assertTrue(jb.append(r.getRelation(TEST_RELATION),
+							 IdentifierStyle.UPPERCASE,
+							 false));
 		assertEquals(String.format("\"%s\": \"Test\"", TEST_RELATION.getName()),
 					 jb.toString());
 
@@ -183,7 +192,8 @@ public class JsonBuilderTest
 		assertTrue(jb.append(r.getRelation(TEST_RELATION),
 							 IdentifierStyle.UPPERCASE,
 							 true));
-		assertEquals(String.format("\"%s\": null", TEST_RELATION.getName()),
+		assertEquals(String.format("\"%s\": null",
+								   TEST_RELATION.getSimpleName()),
 					 jb.toString());
 
 		jb = new JsonBuilder();
