@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -126,8 +126,8 @@ public class CollectionFunctions
 	 * @return A new function instance
 	 */
 	public static <T, C extends Collection<? super T>> BinaryFunction<C, T,
-																	  Boolean> add(
-		T rValue)
+																	  Boolean>
+	add(T rValue)
 	{
 		return new AbstractBinaryFunction<C, T, Boolean>(rValue,
 														 "AddToCollection")
@@ -161,7 +161,8 @@ public class CollectionFunctions
 	 * @return A function instance
 	 */
 	@SuppressWarnings("unchecked")
-	public static <C extends Collection<?>> Function<C, Object> clearCollection()
+	public static <C extends Collection<?>> Function<C, Object>
+	clearCollection()
 	{
 		return (Function<C, Object>) CLEAR_COLLECTION;
 	}
@@ -175,8 +176,8 @@ public class CollectionFunctions
 	 *
 	 * @return A new function instance
 	 */
-	public static <T, C extends Collection<T>> BinaryFunction<C, Predicate<? super T>, C> collect(
-		Predicate<? super T> pCollect)
+	public static <T, C extends Collection<T>> BinaryFunction<C, Predicate<? super T>, C>
+	collect(Predicate<? super T> pCollect)
 	{
 		return new AbstractBinaryFunction<C, Predicate<? super T>, C>(pCollect,
 																	  "Collect")
@@ -209,8 +210,8 @@ public class CollectionFunctions
 	 *
 	 * @return A new function instance
 	 */
-	public static <E, T extends Collection<E>, C extends Collection<E>> Action<C> collectAllInto(
-		final T rTargetCollection)
+	public static <E, T extends Collection<E>, C extends Collection<E>> Action<C>
+	collectAllInto(final T rTargetCollection)
 	{
 		return new AbstractAction<C>("CollectAllInto")
 		{
@@ -249,7 +250,8 @@ public class CollectionFunctions
 	 * @return A function constant
 	 */
 	@SuppressWarnings("unchecked")
-	public static <C extends Collection<?>> Function<C, Integer> collectionSize()
+	public static <C extends Collection<?>> Function<C, Integer>
+	collectionSize()
 	{
 		return (Function<C, Integer>) COLLECTION_SIZE;
 	}
@@ -274,7 +276,11 @@ public class CollectionFunctions
 	public static <I, O> Function<I, List<O>> createList(
 		final Function<? super I, O>... rFunctions)
 	{
-		return createList(Arrays.asList(rFunctions));
+		// separate variable needed to prevent Java compiler error
+		Collection<Function<? super I, O>> aFunctions =
+			Arrays.asList(rFunctions);
+
+		return createList(aFunctions);
 	}
 
 	/***************************************
@@ -316,8 +322,8 @@ public class CollectionFunctions
 	 * @return A new binary function instance
 	 */
 	public static <K, V> BinaryFunction<Collection<V>,
-										Function<? super V, K>, Map<K, V>> createMap(
-		Function<? super V, K> fKey)
+										Function<? super V, K>, Map<K, V>>
+	createMap(Function<? super V, K> fKey)
 	{
 		return new AbstractBinaryFunction<Collection<V>,
 										  Function<? super V, K>, Map<K, V>>(fKey,
@@ -349,7 +355,11 @@ public class CollectionFunctions
 		boolean					  bMapNull,
 		Function<? super I, ?>... rFunctions)
 	{
-		return createStringList(bMapNull, Arrays.asList(rFunctions));
+		// separate variable needed to prevent Java compiler error
+		Collection<Function<? super I, ?>> aFunctions =
+			Arrays.asList(rFunctions);
+
+		return createStringList(bMapNull, aFunctions);
 	}
 
 	/***************************************
@@ -451,8 +461,8 @@ public class CollectionFunctions
 	 *
 	 * @return A new function instance
 	 */
-	public static <T, C extends Collection<T>> BinaryFunction<C, Predicate<? super T>, T> find(
-		Predicate<? super T> rPredicate)
+	public static <T, C extends Collection<T>> BinaryFunction<C, Predicate<? super T>, T>
+	find(Predicate<? super T> rPredicate)
 	{
 		return new AbstractBinaryFunction<C, Predicate<? super T>, T>(rPredicate,
 																	  "Find")
@@ -485,8 +495,8 @@ public class CollectionFunctions
 	 * @return A new function instance
 	 */
 	public static <T, C extends Collection<T>> BinaryFunction<C, Function<? super T,
-																		  ?>, C> forEach(
-		Function<T, ?> rFunction)
+																		  ?>, C>
+	forEach(Function<T, ?> rFunction)
 	{
 		return new AbstractBinaryFunction<C, Function<? super T, ?>, C>(rFunction,
 																		"ForEach")
@@ -627,8 +637,8 @@ public class CollectionFunctions
 	 * @return A new function instance
 	 */
 	public static <I, O, C extends Collection<I>> BinaryFunction<C, Function<? super I, O>,
-																 Collection<O>> map(
-		Function<? super I, O> fMap)
+																 Collection<O>>
+	map(Function<? super I, O> fMap)
 	{
 		return new AbstractBinaryFunction<C, Function<? super I, O>,
 										  Collection<O>>(fMap, "MapCollection")
@@ -672,8 +682,8 @@ public class CollectionFunctions
 	 *
 	 * @return A new function instance
 	 */
-	public static <T, C extends Collection<T>> BinaryFunction<C, BinaryFunction<T, T, T>, T> reduce(
-		BinaryFunction<T, T, T> fReduce)
+	public static <T, C extends Collection<T>> BinaryFunction<C, BinaryFunction<T, T, T>, T>
+	reduce(BinaryFunction<T, T, T> fReduce)
 	{
 		return new AbstractBinaryFunction<C, BinaryFunction<T, T, T>, T>(fReduce,
 																		 "Reduce")
