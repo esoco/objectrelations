@@ -19,6 +19,8 @@ package de.esoco.lib.expression;
 import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.expression.function.FunctionChain;
 
+import java.util.function.Consumer;
+
 
 /********************************************************************
  * Interface for functions that return a value that will be derived from an
@@ -73,6 +75,19 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 	 * @return The resulting (output) value (may be NULL)
 	 */
 	public O evaluate(I rValue);
+
+	/***************************************
+	 * Creates an action that consumes the result of evaluating an input value.
+	 *
+	 * @param  fAction The action that consumes the function result
+	 *
+	 * @return A new action (and {@link Consumer}) for input values of this
+	 *         function
+	 */
+	default Action<I> andFinally(Action<O> fAction)
+	{
+		return i -> fAction.accept(this.evaluate(i));
+	}
 
 	/***************************************
 	 * Invokes {@link #evaluate(Object)}.
