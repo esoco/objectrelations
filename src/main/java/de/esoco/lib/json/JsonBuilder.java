@@ -142,7 +142,11 @@ public class JsonBuilder
 	{
 		JsonBuilder aJsonBuilder = new JsonBuilder();
 
-		if (rValue instanceof Relatable)
+		if (rValue instanceof JsonSerializable)
+		{
+			((JsonSerializable<?>) rValue).appendTo(aJsonBuilder);
+		}
+		else if (rValue instanceof Relatable)
 		{
 			aJsonBuilder.appendRelatable((Relatable) rValue, null, false);
 		}
