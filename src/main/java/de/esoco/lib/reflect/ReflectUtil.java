@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2016 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -202,13 +202,17 @@ public final class ReflectUtil
 
 			for (Field rField : rFields)
 			{
-				int nModifiers = rField.getModifiers();
+				int     nModifiers = rField.getModifiers();
+				boolean bIsPublic  = Modifier.isPublic(nModifiers);
 
 				if (Modifier.isStatic(nModifiers) &&
-					(bAllAccessModifiers || Modifier.isPublic(nModifiers)) &&
+					(bAllAccessModifiers || bIsPublic) &&
 					rConstantClass.isAssignableFrom(rField.getType()))
 				{
-					rField.setAccessible(true);
+					if (!bIsPublic)
+					{
+						rField.setAccessible(true);
+					}
 
 					String sFieldName  = rField.getName();
 					Object rFieldValue = rField.get(null);
@@ -685,7 +689,7 @@ public final class ReflectUtil
 
 	/***************************************
 	 * Returns the value of a particular field in an object. This method tries
-	 * to make the field accessible even if it or it's class is not public by
+	 * to make the field accessible if it or it's class is not public by
 	 * invoking {@link AccessibleObject#setAccessible(boolean)} on it. This
 	 * requires that the caller's context has sufficient rights to do so, else a
 	 * SecurityException will be thrown.
@@ -704,7 +708,10 @@ public final class ReflectUtil
 		{
 			try
 			{
-				rField.setAccessible(true);
+				if (!Modifier.isPublic(rField.getModifiers()))
+				{
+					rField.setAccessible(true);
+				}
 
 				return rField.get(rObject);
 			}
@@ -963,10 +970,10 @@ public final class ReflectUtil
 	/***************************************
 	 * Invokes a particular method on a target object. If the invocation fails
 	 * an IllegalArgumentException will be thrown. This method tries to make the
-	 * method accessible even if it or it's class is not public by invoking
-	 * {@link AccessibleObject#setAccessible(boolean)} on it. This requires that
-	 * the caller's context has sufficient rights to do so, else a
-	 * SecurityException will be thrown.
+	 * method accessible if it or it's class is not public by invoking {@link
+	 * AccessibleObject#setAccessible(boolean)} on it. This requires that the
+	 * caller's context has sufficient rights to do so, else a SecurityException
+	 * will be thrown.
 	 *
 	 * @param  rTarget The target object to invoke the method on
 	 * @param  rMethod The method instance to invoke
@@ -980,7 +987,10 @@ public final class ReflectUtil
 	{
 		try
 		{
-			rMethod.setAccessible(true);
+			if (!Modifier.isPublic(rMethod.getModifiers()))
+			{
+				rMethod.setAccessible(true);
+			}
 
 			return rMethod.invoke(rTarget, rArgs);
 		}
@@ -1041,7 +1051,10 @@ public final class ReflectUtil
 			throw new IllegalArgumentException("Method not found: " + sMethod);
 		}
 
-		rMethod.setAccessible(true);
+		if (!Modifier.isPublic(rMethod.getModifiers()))
+		{
+			rMethod.setAccessible(true);
+		}
 
 		return invoke(rTarget, rMethod, rArgs);
 	}
