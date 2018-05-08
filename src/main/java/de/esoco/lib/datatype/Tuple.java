@@ -127,7 +127,7 @@ public class Tuple implements Iterable<Object>, Serializable
 	/***************************************
 	 * Returns a certain value from this tuple.
 	 *
-	 * @param  i The index of the value (0 <= i < {@link #size()})
+	 * @param  i The index of the value (0 &lt;= i &lt; {@link #size()})
 	 *
 	 * @return The value at the given index
 	 */

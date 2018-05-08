@@ -53,8 +53,8 @@ import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
  * objects. If such an object is appended by invoking the method {@link
  * #appendRelatable(Relatable, Collection, boolean)} all given relations of that
  * object will be appended to the JSON string by invoking {@link
- * #append(Relation, boolean, boolean)}. This includes the recursive evaluation
- * for other relatable objects that are referenced from relations.
+ * #append(Relation, IdentifierStyle, boolean)}. This includes the recursive
+ * evaluation for other relatable objects that are referenced from relations.
  *
  * @author eso
  * @see    JsonParser
@@ -422,8 +422,8 @@ public class JsonBuilder
 	 * indicating them through {@link #exclude(RelationType)}.
 	 *
 	 * <p>Alternatively the object can specify the relation types to serialize
-	 * with the annotation {@link #JSON_SERIALIZED_TYPES}. If that is present
-	 * only the relation types stored therein will be serialized.</p>
+	 * with the annotation {@link Json#JSON_SERIALIZED_TYPES}. If that is
+	 * present only the relation types stored therein will be serialized.</p>
 	 *
 	 * <p>Furthermore all relation values in the source object must be
 	 * compatible with JSON. That means they must either have a datatype that
@@ -572,8 +572,8 @@ public class JsonBuilder
 	 * without an explicit list of relation types. This class already contains a
 	 * default list of relation types that either have no meaningful JSON
 	 * representation or would prevent the JSON generation. The single-relation
-	 * method {@link #append(Relation, boolean, boolean)} is not affected by
-	 * this setting.
+	 * method {@link #append(Relation, IdentifierStyle, boolean)} is not
+	 * affected by this setting.
 	 *
 	 * @param  rExcludedType The relation type to be excluded from the JSON
 	 *                       generation
