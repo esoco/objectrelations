@@ -642,15 +642,6 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public T result()
-	{
-		return evaluate(null);
-	}
-
-	/***************************************
 	 * @see Function#then(Function)
 	 */
 	@Override

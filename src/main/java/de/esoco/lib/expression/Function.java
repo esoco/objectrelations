@@ -138,19 +138,6 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 	}
 
 	/***************************************
-	 * A convenience method to get the result of a function that doesn't need a
-	 * specific argument. The argument to the {@link #evaluate(Object)} method
-	 * will be NULL. This allows to call functions that don't expect an input
-	 * value without the necessity to explicitly provide a NULL input value.
-	 *
-	 * @return The function result for a NULL input value
-	 */
-	default O result()
-	{
-		return evaluate(null);
-	}
-
-	/***************************************
 	 * Returns a new function object that evaluates the result of this function
 	 * with another function and returns the result.
 	 *
