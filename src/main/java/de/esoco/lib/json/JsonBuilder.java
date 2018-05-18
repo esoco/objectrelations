@@ -50,10 +50,8 @@ import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 /********************************************************************
  * A builder for JSON strings that can append arbitrary data objects to a JSON
  * string. This includes support for {@link Relatable} and {@link Relation}
- * objects. If such an object is appended by invoking the method {@link
- * #appendRelatable(Relatable, Collection, boolean)} all given relations of that
- * object will be appended to the JSON string by invoking {@link
- * #append(Relation, IdentifierStyle, boolean)}. This includes the recursive
+ * objects. If such an object is appended either all or the given relations of
+ * that object will be appended to the JSON string. This includes the recursive
  * evaluation for other relatable objects that are referenced from relations.
  *
  * @author eso
@@ -568,12 +566,11 @@ public class JsonBuilder
 	/***************************************
 	 * Excludes a certain relation type from the relation-based conversions in
 	 * this class. A relation type added through this method will be ignored by
-	 * {@link #appendRelations(Relatable, Collection)} if this method is invoked
-	 * without an explicit list of relation types. This class already contains a
-	 * default list of relation types that either have no meaningful JSON
-	 * representation or would prevent the JSON generation. The single-relation
-	 * method {@link #append(Relation, IdentifierStyle, boolean)} is not
-	 * affected by this setting.
+	 * {@link JsonBuilder#appendRelations(Relatable, Collection)} if this method
+	 * is invoked without an explicit list of relation types. This class already
+	 * contains a default list of relation types that either have no meaningful
+	 * JSON representation or would prevent the JSON generation. Appending a
+	 * single single relation explicitly is not affected by this setting.
 	 *
 	 * @param  rExcludedType The relation type to be excluded from the JSON
 	 *                       generation
