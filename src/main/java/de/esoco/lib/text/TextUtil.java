@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -197,6 +197,62 @@ public final class TextUtil extends TextConvert
 	}
 
 	/***************************************
+	 * Formats a duration including milliseconds.
+	 *
+	 * @see #formatDuration(long, boolean)
+	 */
+	public static String formatDuration(long nDuration)
+	{
+		return formatDuration(nDuration, true);
+	}
+
+	/***************************************
+	 * Formats a duration in milliseconds into the minimal string necessary in
+	 * the format [[hh:]mm:]ss.mmm. The leading time fragment will only contain
+	 * the digits necessary. All subsequent fragments will have leading zeros
+	 * for their maximum amount of digits.
+	 *
+	 * @param  nDuration         The duration in milliseconds
+	 * @param  bWithMilliseconds TRUE to include fractional milliseconds
+	 *
+	 * @return The formatted string
+	 */
+	public static String formatDuration(
+		long    nDuration,
+		boolean bWithMilliseconds)
+	{
+		StringBuilder aFormattedTime = new StringBuilder();
+		String		  sFormat		 = "%d:";
+
+		if (nDuration > 3_600_000)
+		{
+			aFormattedTime.append(String.format(sFormat,
+												nDuration / 3_600_000));
+			sFormat = "%02d:";
+		}
+
+		if (nDuration > 60_000)
+		{
+			aFormattedTime.append(String.format(sFormat,
+												nDuration / 60_000 % 60));
+			sFormat = "%02d";
+		}
+		else
+		{
+			sFormat = "%d";
+		}
+
+		aFormattedTime.append(String.format(sFormat, nDuration / 1_000 % 60));
+
+		if (bWithMilliseconds)
+		{
+			aFormattedTime.append(String.format(".%03d", nDuration % 1_000));
+		}
+
+		return aFormattedTime.toString();
+	}
+
+	/***************************************
 	 * Formats a certain milliseconds duration into a string. The string format
 	 * is [[[_+d ]__h ]__m ]__.000s where elements in brackets are displayed
 	 * only if the corresponding value is greater than zero. Underscores stand
@@ -209,7 +265,7 @@ public final class TextUtil extends TextConvert
 	 * @return The formatted string
 	 */
 	@SuppressWarnings("boxing")
-	public static String formatDuration(
+	public static String formatLongDuration(
 		long    nDuration,
 		boolean bWithMilliseconds)
 	{

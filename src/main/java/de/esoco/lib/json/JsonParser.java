@@ -43,9 +43,11 @@ import java.util.Set;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
-import org.obrel.type.MetaTypes;
 
 import static de.esoco.lib.json.Json.JSON_DATE_FORMAT;
+
+import static org.obrel.type.MetaTypes.ELEMENT_DATATYPE;
+import static org.obrel.type.MetaTypes.ERROR_HANDLING;
 
 
 /********************************************************************
@@ -532,14 +534,32 @@ public class JsonParser
 
 		if (rRelationType != null)
 		{
-			Object rValue = parse(sJsonValue, rRelationType.getValueType());
+			Class<?> rValueType = rRelationType.getValueType();
+			Object   rValue;
+
+			if (List.class.isAssignableFrom(rValueType))
+			{
+				Class<?> rElementType = rRelationType.get(ELEMENT_DATATYPE);
+
+				if (rElementType != null)
+				{
+					rValue = parseArray(sJsonValue, rElementType);
+				}
+				else
+				{
+					rValue = parseArray(sJsonValue);
+				}
+			}
+			else
+			{
+				rValue = parse(sJsonValue, rValueType);
+			}
 
 			rTarget.set((RelationType<Object>) rRelationType, rValue);
 		}
 		else
 		{
-			ErrorHandling eErrorHandling =
-				rTarget.get(MetaTypes.ERROR_HANDLING);
+			ErrorHandling eErrorHandling = rTarget.get(ERROR_HANDLING);
 
 			if (eErrorHandling == ErrorHandling.THROW)
 			{

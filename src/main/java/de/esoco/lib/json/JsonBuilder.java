@@ -128,34 +128,6 @@ public class JsonBuilder
 		return CONVERT_JSON;
 	}
 
-	/***************************************
-	 * Converts a value into a JSON string. If the value is a relatable object
-	 * it's relations will also be converted but not recursively.
-	 *
-	 * @param  rValue The value to convert
-	 *
-	 * @return The JSON string
-	 */
-	public static String toJson(Object rValue)
-	{
-		JsonBuilder aJsonBuilder = new JsonBuilder();
-
-		if (rValue instanceof JsonSerializable)
-		{
-			((JsonSerializable<?>) rValue).appendTo(aJsonBuilder);
-		}
-		else if (rValue instanceof Relatable)
-		{
-			aJsonBuilder.appendRelatable((Relatable) rValue, null, false);
-		}
-		else
-		{
-			aJsonBuilder.append(rValue);
-		}
-
-		return aJsonBuilder.toString();
-	}
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -630,6 +602,33 @@ public class JsonBuilder
 		this.bWhitespace = false;
 
 		return this;
+	}
+
+	/***************************************
+	 * Converts a value into a JSON string.
+	 *
+	 * @param  rValue The value to convert
+	 *
+	 * @return The JSON string
+	 */
+	public String toJson(Object rValue)
+	{
+		JsonBuilder aJsonBuilder = new JsonBuilder();
+
+		if (rValue instanceof JsonSerializable)
+		{
+			((JsonSerializable<?>) rValue).appendTo(aJsonBuilder);
+		}
+		else if (rValue instanceof Relatable)
+		{
+			aJsonBuilder.appendRelatable((Relatable) rValue, null, false);
+		}
+		else
+		{
+			aJsonBuilder.append(rValue);
+		}
+
+		return aJsonBuilder.toString();
 	}
 
 	/***************************************

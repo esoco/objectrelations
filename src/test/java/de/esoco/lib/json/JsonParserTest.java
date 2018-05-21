@@ -21,10 +21,14 @@ import java.math.BigInteger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Test;
 
+import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.RelatedObject;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 import org.obrel.type.StandardTypes;
 
 import static de.esoco.lib.datatype.Pair.t;
@@ -38,8 +42,19 @@ import static org.junit.Assert.assertTrue;
  *
  * @author eso
  */
+@RelationTypeNamespace("")
 public class JsonParserTest
 {
+	//~ Static fields/initializers ---------------------------------------------
+
+	private static final RelationType<List<Long>> TEST_LIST =
+		RelationTypes.newListType();
+
+	static
+	{
+		RelationTypes.init(JsonParserTest.class);
+	}
+
 	//~ Instance fields --------------------------------------------------------
 
 	private JsonParser aParser = new JsonParser();
@@ -79,12 +94,15 @@ public class JsonParserTest
 		aCompare.set(StandardTypes.NAME, "TEST");
 		aCompare.set(StandardTypes.INFO, "JSON");
 		aCompare.set(StandardTypes.PORT, 12345);
+		aCompare.set(TEST_LIST, Arrays.asList(1L, 2L, 3L));
 
 		new JsonParser().parseRelatable("{\"NAME\": \"TEST\"," +
 										" \"INFO\": \"JSON\"," +
-										" \"PORT\": 12345}",
+										" \"PORT\": 12345," +
+										" \"TEST_LIST\": [1,2,3]}",
 										aTest);
 		assertTrue(aTest.relationsEqual(aCompare));
+		assertEquals(Long.class, aTest.get(TEST_LIST).get(0).getClass());
 
 		aCompare.set(StandardTypes.PARENT, aParent);
 

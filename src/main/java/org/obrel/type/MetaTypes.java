@@ -275,9 +275,11 @@ public class MetaTypes
 	public static final RelationType<Action<RelationType<?>>> RELATION_TYPE_INIT_ACTION =
 		RelationTypes.RELATION_TYPE_INIT_ACTION;
 
-	/** A generic error handling mode. */
+	/**
+	 * A generic error handling mode that can be set on objects supporting it.
+	 */
 	public static final RelationType<ErrorHandling> ERROR_HANDLING =
-		RelationTypes.newDefaultValueType(ErrorHandling.THROW);
+		RelationTypes.newType();
 
 	static
 	{

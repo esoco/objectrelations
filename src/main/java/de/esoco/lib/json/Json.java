@@ -394,7 +394,26 @@ public class Json
 	}
 
 	/***************************************
-	 * Converts a value into a JSON string.
+	 * Converts a value into a compact JSON string without linefeeds and
+	 * unnecessary whitespace. To get a more readable formatted string use
+	 * {@link #toJson(Object)} instead.
+	 *
+	 * @param  rValue The value to convert
+	 *
+	 * @return The JSON string
+	 *
+	 * @see    JsonBuilder#toJson(Object)
+	 */
+	public static String toCompactJson(Object rValue)
+	{
+		return new JsonBuilder().noLinefeeds().noWhitespace().toJson(rValue);
+	}
+
+	/***************************************
+	 * Converts a value into a JSON string with the default settings of the
+	 * {@link JsonBuilder} class. The returned string contains linefeeds and
+	 * whitespace for better readability. To get a more compact formatted string
+	 * use {@link #toCompactJson(Object)} instead.
 	 *
 	 * @param  rValue The value to convert
 	 *
@@ -404,6 +423,6 @@ public class Json
 	 */
 	public static String toJson(Object rValue)
 	{
-		return JsonBuilder.toJson(rValue);
+		return new JsonBuilder().toJson(rValue);
 	}
 }
