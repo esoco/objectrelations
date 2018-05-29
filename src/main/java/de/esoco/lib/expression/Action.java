@@ -29,6 +29,7 @@ import java.util.function.Consumer;
  *
  * @author eso
  */
+@FunctionalInterface
 public interface Action<T> extends Function<T, Void>, Consumer<T>
 {
 	//~ Static methods ---------------------------------------------------------
