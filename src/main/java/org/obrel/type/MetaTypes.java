@@ -182,8 +182,14 @@ public class MetaTypes
 	public static final RelationType<Boolean> MANAGED = newFlagType(FINAL);
 
 	/**
-	 * Marks an object to be unique in a certain context; the definition of this
-	 * context is up to the application code using this type.
+	 * Marks a relation target to being indexed in some way; the exact
+	 * definition of the indexing is up to the application code using this flag.
+	 */
+	public static final RelationType<Boolean> INDEXED = newFlagType();
+
+	/**
+	 * Marks a relation target to be unique in a certain context; the definition
+	 * of this context is up to the application code using this flag.
 	 */
 	public static final RelationType<Boolean> UNIQUE = newFlagType();
 
