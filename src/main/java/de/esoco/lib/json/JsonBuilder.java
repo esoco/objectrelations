@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -173,9 +174,9 @@ public class JsonBuilder
 
 			appendArray(Arrays.asList((Object[]) rValue));
 		}
-		else if (rValue instanceof Collection)
+		else if (rValue instanceof Iterable)
 		{
-			appendArray((Collection<?>) rValue);
+			appendArray((Iterable<?>) rValue);
 		}
 		else if (rValue instanceof Map)
 		{
@@ -257,25 +258,27 @@ public class JsonBuilder
 	}
 
 	/***************************************
-	 * Appends a collection of values to a string builder as a JSON array.
+	 * Appends values from an iterable object as a JSON array.
 	 *
-	 * @param  rCollection The collection to append (may be empty or NULL)
+	 * @param  rElements The iterable object to append (may be empty or NULL)
 	 *
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder appendArray(Collection<?> rCollection)
+	public JsonBuilder appendArray(Iterable<?> rElements)
 	{
 		aJson.append(JsonStructure.ARRAY.cOpen);
 
-		if (rCollection != null && !rCollection.isEmpty())
+		if (rElements != null)
 		{
-			int nCount = rCollection.size();
+			Iterator<?> rIterator = rElements.iterator();
+			boolean     bHasNext  = rIterator.hasNext();
 
-			for (Object rElement : rCollection)
+			while (bHasNext)
 			{
-				append(rElement);
+				append(rIterator.next());
+				bHasNext = rIterator.hasNext();
 
-				if (--nCount > 0)
+				if (bHasNext)
 				{
 					aJson.append(',');
 
