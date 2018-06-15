@@ -104,6 +104,18 @@ public class MetaTypes
 	public static final RelationType<Class<?>> VALUE_DATATYPE =
 		RelationTypes.VALUE_DATATYPE;
 
+	/**
+	 * The precision of a decimal value. Typically used in conjunction with
+	 * {@link #DECIMAL_SCALE}.
+	 */
+	public static final RelationType<Integer> DECIMAL_PRECISION = newType();
+
+	/**
+	 * The scale of a decimal value. Typically used in conjunction with {@link
+	 * #DECIMAL_PRECISION}.
+	 */
+	public static final RelationType<Integer> DECIMAL_SCALE = newType();
+
 	// Boolean marker types that indicate certain object properties; some are
 	// final to indicate a condition that never changes
 
