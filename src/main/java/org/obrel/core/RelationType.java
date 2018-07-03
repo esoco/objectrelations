@@ -602,6 +602,16 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	/***************************************
+	 * Checks whether this type has been fully initialized.
+	 *
+	 * @return TRUE if the type is fully initialized
+	 */
+	public final boolean isInitialized()
+	{
+		return sName != INIT_TYPE;
+	}
+
+	/***************************************
 	 * Checks the {@link RelationTypeModifier#PRIVATE} modifier of this type. If
 	 * this modifier is set relations of this type will not be listed when
 	 * relations are queried through the methods in the {@link Relatable}
@@ -829,7 +839,7 @@ public class RelationType<T> extends RelatedObject
 	 */
 	void checkReadonly()
 	{
-		assert sName != INIT_TYPE : "Uninitialized relation type";
+		assert isInitialized() : "Uninitialized relation type";
 
 		if (isReadonly())
 		{
