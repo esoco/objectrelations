@@ -1,0 +1,64 @@
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// This file is a part of the 'objectrelations' project.
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//	  http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+package org.obrel.core;
+
+/********************************************************************
+ * An interface that can be implemented by relatable objects that provide a
+ * fluent interface. The default method {@link #with(RelationType, Object)} sets
+ * a relation type and then returns the current instance so that the next method
+ * can be invoked immediately (and with the corresponding syntax fluently).
+ *
+ * @author eso
+ */
+public interface FluentRelatable<T extends FluentRelatable<T>> extends Relatable
+{
+	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Sets a flag relation type and returns this instance.
+	 *
+	 * @param  rType The relation type
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	@SuppressWarnings("unchecked")
+	default public T with(RelationType<Boolean> rType)
+	{
+		set(rType);
+
+		return (T) this;
+	}
+
+	/***************************************
+	 * Sets a relation type and returns this instance for fluent invocation of
+	 * additional methods. Although this method can be invoked directly it is
+	 * recommended that implementing classes call this method from methods with
+	 * names that provide a more concise fluent syntax.
+	 *
+	 * @param  rType  The relation type
+	 * @param  rValue The value
+	 *
+	 * @return This instance for fluent invocation
+	 */
+	@SuppressWarnings("unchecked")
+	default <V> T with(RelationType<V> rType, V rValue)
+	{
+		set(rType, rValue);
+
+		return (T) this;
+	}
+}

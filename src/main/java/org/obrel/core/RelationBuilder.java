@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@ import de.esoco.lib.expression.InvertibleFunction;
  *
  * @author eso
  */
-public interface RelationBuilder<R extends RelationBuilder<R>> extends Relatable
+public interface RelationBuilder<R extends RelationBuilder<R>>
+	extends FluentRelatable<R>
 {
 	//~ Methods ----------------------------------------------------------------
 
@@ -82,21 +83,6 @@ public interface RelationBuilder<R extends RelationBuilder<R>> extends Relatable
 	}
 
 	/***************************************
-	 * Invokes {@link Relatable#set(RelationType)} and returns this instance.
-	 *
-	 * @param  rType The relation type
-	 *
-	 * @return This instance for concatenation
-	 */
-	@SuppressWarnings("unchecked")
-	default public R with(RelationType<Boolean> rType)
-	{
-		set(rType);
-
-		return (R) this;
-	}
-
-	/***************************************
 	 * Builder method for transformed relations.
 	 *
 	 * @see #transform(RelationType, InvertibleFunction)
@@ -107,23 +93,6 @@ public interface RelationBuilder<R extends RelationBuilder<R>> extends Relatable
 		InvertibleFunction<T, D> fTransformation)
 	{
 		transform(rType, fTransformation);
-
-		return (R) this;
-	}
-
-	/***************************************
-	 * Invokes {@link Relatable#set(RelationType, Object)} and returns this
-	 * instance.
-	 *
-	 * @param  rType  The relation type
-	 * @param  rValue rTarget The unresolved target object of the relation
-	 *
-	 * @return This instance for concatenation
-	 */
-	@SuppressWarnings("unchecked")
-	default public <T> R with(RelationType<T> rType, T rValue)
-	{
-		set(rType, rValue);
 
 		return (R) this;
 	}
