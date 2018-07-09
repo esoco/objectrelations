@@ -18,7 +18,6 @@ package de.esoco.lib.datatype;
 
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.json.Json;
-import de.esoco.lib.json.JsonBuilder;
 
 import java.io.Serializable;
 
@@ -188,6 +187,6 @@ public class Tuple implements Iterable<Object>, Serializable
 	@Override
 	public String toString()
 	{
-		return new JsonBuilder().appendArray(aValues).toString();
+		return aValues.toString();
 	}
 }
