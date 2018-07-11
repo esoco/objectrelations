@@ -218,7 +218,7 @@ public class JsonObject extends RelatedObject
 	 */
 	public final Map<String, Object> getProperties()
 	{
-		return get(Json.JSON_OBJECT_DATA);
+		return get(Json.JSON_PROPERTIES);
 	}
 
 	/***************************************
@@ -250,7 +250,7 @@ public class JsonObject extends RelatedObject
 	 */
 	public Object getRawProperty(String sName)
 	{
-		return hasRelation(Json.JSON_OBJECT_DATA) ? getProperties().get(sName)
+		return hasRelation(Json.JSON_PROPERTIES) ? getProperties().get(sName)
 												  : null;
 	}
 
@@ -289,7 +289,7 @@ public class JsonObject extends RelatedObject
 	 */
 	public boolean hasProperty(String sName)
 	{
-		return hasRelation(Json.JSON_OBJECT_DATA) &&
+		return hasRelation(Json.JSON_PROPERTIES) &&
 			   getProperties().containsKey(sName);
 	}
 
@@ -336,7 +336,7 @@ public class JsonObject extends RelatedObject
 	{
 		if (!rProperties.isEmpty())
 		{
-			get(Json.JSON_OBJECT_DATA).putAll(rProperties);
+			get(Json.JSON_PROPERTIES).putAll(rProperties);
 		}
 	}
 

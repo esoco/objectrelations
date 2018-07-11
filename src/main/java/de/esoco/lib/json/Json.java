@@ -92,10 +92,10 @@ public class Json
 		newType();
 
 	/**
-	 * A map containing the data of a JSON object structure. Auto-initialized to
-	 * an empty ordered map.
+	 * A map containing the properties of a JSON object structure.
+	 * Auto-initialized to an empty ordered map.
 	 */
-	public static final RelationType<Map<String, Object>> JSON_OBJECT_DATA =
+	public static final RelationType<Map<String, Object>> JSON_PROPERTIES =
 		newMapType(true);
 
 	static
