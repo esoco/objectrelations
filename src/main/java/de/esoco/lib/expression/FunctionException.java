@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,18 +36,19 @@ public class FunctionException extends RuntimeException
 
 	//~ Instance fields --------------------------------------------------------
 
-	private final Function<?, ?> fCausingFunction;
+	private final Object fCausingFunction;
 
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
-	 * Creates a new instance.
+	 * Creates a new instance. The function argument is of type object so that
+	 * it can contain the different function types of Java 8.
 	 *
 	 * @param fCausingFunction The function that caused this exception
 	 * @param eCause           The checked exception that caused this function
 	 *                         exception
 	 */
-	public FunctionException(Function<?, ?> fCausingFunction, Exception eCause)
+	public FunctionException(Object fCausingFunction, Exception eCause)
 	{
 		super(eCause);
 
@@ -61,7 +62,7 @@ public class FunctionException extends RuntimeException
 	 *
 	 * @return The causing function
 	 */
-	public final Function<?, ?> getCausingFunction()
+	public final Object getCausingFunction()
 	{
 		return fCausingFunction;
 	}

@@ -16,7 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-import de.esoco.lib.expression.Function.ThrowingFunction;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.AbstractFunction;
 import de.esoco.lib.expression.function.AbstractInvertibleFunction;
@@ -34,6 +33,9 @@ import de.esoco.lib.expression.function.GetElement.ReadField;
 import de.esoco.lib.expression.function.Invert;
 import de.esoco.lib.expression.function.Print;
 import de.esoco.lib.expression.function.SetElement.SetRelationValue;
+import de.esoco.lib.expression.function.ThrowingConsumer;
+import de.esoco.lib.expression.function.ThrowingFunction;
+import de.esoco.lib.expression.function.ThrowingSupplier;
 import de.esoco.lib.reflect.ReflectUtil;
 
 import java.io.PrintWriter;
@@ -44,6 +46,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
@@ -540,7 +544,8 @@ public class Functions
 	 *
 	 * @return A static function instance
 	 */
-	public static final Function<RelationType<?>, String> getRelationTypeSimpleName()
+	public static final Function<RelationType<?>, String>
+	getRelationTypeSimpleName()
 	{
 		return GET_RELATION_TYPE_SIMPLE_NAME;
 	}
@@ -719,9 +724,8 @@ public class Functions
 	 *
 	 * @return A new function instance
 	 */
-	public static <T extends Relatable, V> BinaryFunction<T, V, T> setRelationValue(
-		RelationType<V> rType,
-		V				rValue)
+	public static <T extends Relatable, V> BinaryFunction<T, V, T>
+	setRelationValue(RelationType<V> rType, V rValue)
 	{
 		return new SetRelationValue<T, V>(rType, rValue);
 	}
@@ -787,17 +791,59 @@ public class Functions
 	 * @return A new unchecked function instance
 	 */
 	public static <I, R extends AutoCloseable, O> Function<I, O> tryWith(
-		ThrowingFunction<I, R, Exception> fOpenResource,
-		ThrowingFunction<R, O, Exception> fProduceResult)
+		ThrowingFunction<I, R> fOpenResource,
+		ThrowingFunction<R, O> fProduceResult)
 	{
-		return Function.unchecked(i ->
-					  			{
-					  				try (R rResource =
-					  					 fOpenResource.evaluate(i))
-					  				{
-					  					return fProduceResult.evaluate(rResource);
-					  				}
-								  });
+		return unchecked(i ->
+			 			{
+			 				try (R rResource = fOpenResource.evaluate(i))
+			 				{
+			 					return fProduceResult.evaluate(rResource);
+			 				}
+						 });
+	}
+
+	/***************************************
+	 * Takes a consumer that throws an exception and returns it as a consumer
+	 * that can be executed without a checked exception. This method is mainly
+	 * intended to be used for lambdas that throw exceptions.
+	 *
+	 * @param  fChecked The checked function to wrap as unchecked
+	 *
+	 * @return The unchecked function
+	 */
+	public static <T> Consumer<T> unchecked(ThrowingConsumer<T> fChecked)
+	{
+		return fChecked;
+	}
+
+	/***************************************
+	 * Takes a supplier that throws an exception and returns it as a supplier
+	 * that can be executed without a checked exception. This method is mainly
+	 * intended to be used for lambdas that throw exceptions.
+	 *
+	 * @param  fChecked The checked function to wrap as unchecked
+	 *
+	 * @return The unchecked function
+	 */
+	public static <T> Supplier<T> unchecked(ThrowingSupplier<T> fChecked)
+	{
+		return fChecked;
+	}
+
+	/***************************************
+	 * Takes a function that throws an exception and returns it as a function
+	 * that can be executed without a checked exception. This method is mainly
+	 * intended to be used for lambdas that throw exceptions.
+	 *
+	 * @param  fChecked The checked function to wrap as unchecked
+	 *
+	 * @return The unchecked function
+	 */
+	public static <I, O> Function<I, O> unchecked(
+		ThrowingFunction<I, O> fChecked)
+	{
+		return fChecked;
 	}
 
 	/***************************************
