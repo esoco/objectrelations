@@ -105,8 +105,9 @@ public class RelationType<T> extends RelatedObject
 	private transient Class<? super T>		    rValueType;
 	private transient Set<RelationTypeModifier> aModifiers;
 
-	private transient T rDefaultValue = null;
-
+	// ? super T necessary to support nested generic types
+	private transient Function<? super Relatable, ? super T> fDefaultValue =
+		null;
 	private transient Function<? super Relatable, ? super T> fInitialValue =
 		null;
 
@@ -153,7 +154,7 @@ public class RelationType<T> extends RelatedObject
 	 *                       name initialization by {@link
 	 *                       RelationTypes#init(Class)}
 	 * @param  rTargetType   The class of the target value datatype
-	 * @param  rDefaultValue The default value
+	 * @param  fDefaultValue The default value
 	 * @param  fInitialValue A function that returns the initial value for
 	 *                       relations of this type
 	 * @param  rModifiers    The modifiers to be set on this instance
@@ -163,13 +164,13 @@ public class RelationType<T> extends RelatedObject
 	 */
 	public RelationType(String								   sName,
 						Class<? super T>					   rTargetType,
-						T									   rDefaultValue,
+						Function<? super Relatable, ? super T> fDefaultValue,
 						Function<? super Relatable, ? super T> fInitialValue,
 						RelationTypeModifier... 			   rModifiers)
 	{
 		init(sName != null ? sName : INIT_TYPE, rTargetType, null);
 
-		this.rDefaultValue = rDefaultValue;
+		this.fDefaultValue = fDefaultValue;
 		this.fInitialValue = fInitialValue;
 
 		if (rModifiers.length > 0)
@@ -225,7 +226,7 @@ public class RelationType<T> extends RelatedObject
 	 * responsibility of the application code to declare relation types with the
 	 * most specific type possible.</p>
 	 *
-	 * @param  rDefaultValue The default value
+	 * @param  fDefaultValue The default value
 	 * @param  fInitialValue A function that returns the initial value for
 	 *                       relations of this type
 	 * @param  rModifiers    The modifiers to be set on this instance
@@ -233,13 +234,13 @@ public class RelationType<T> extends RelatedObject
 	 * @throws IllegalArgumentException If the type name is invalid or if a type
 	 *                                  with the given name exists already
 	 */
-	protected RelationType(T									  rDefaultValue,
+	protected RelationType(Function<? super Relatable, ? super T> fDefaultValue,
 						   Function<? super Relatable, ? super T> fInitialValue,
 						   RelationTypeModifier... 				  rModifiers)
 	{
 		this(rModifiers);
 
-		this.rDefaultValue = rDefaultValue;
+		this.fDefaultValue = fDefaultValue;
 		this.fInitialValue = fInitialValue;
 	}
 
@@ -411,9 +412,10 @@ public class RelationType<T> extends RelatedObject
 	 *
 	 * @return The default value for non-existing relations of this type
 	 */
+	@SuppressWarnings("unchecked")
 	public T defaultValue(Relatable rParent)
 	{
-		return rDefaultValue;
+		return fDefaultValue != null ? (T) fDefaultValue.apply(rParent) : null;
 	}
 
 	/***************************************
@@ -438,20 +440,15 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	/***************************************
-	 * Returns the default value of this relation type. Attention: this will
-	 * only return the default value that has been set through the constructor.
-	 * The actual default value of a subclassed type can be different because it
-	 * may be generated depending on the relation's target object by the method
-	 * {@link #defaultValue(Relatable)}. Therefore if possible that method
-	 * should be used to query the actual default value. This method should only
-	 * be used to query the default value used for the creation of the relation
-	 * type.
+	 * Returns the function that provides the default value of relations with
+	 * this type.
 	 *
-	 * @return The default value or NULL for none
+	 * @return The initial value function or NULL for none
 	 */
-	public final T getDefaultValue()
+	public final Function<? super Relatable, ? super T>
+	getDefaultValueFunction()
 	{
-		return rDefaultValue;
+		return fDefaultValue;
 	}
 
 	/***************************************
@@ -572,8 +569,7 @@ public class RelationType<T> extends RelatedObject
 	@SuppressWarnings("unchecked")
 	public T initialValue(Relatable rParent)
 	{
-		return fInitialValue != null ? (T) fInitialValue.evaluate(rParent)
-									 : null;
+		return fInitialValue != null ? (T) fInitialValue.apply(rParent) : null;
 	}
 
 	/***************************************

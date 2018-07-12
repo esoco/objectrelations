@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,13 +73,14 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	}
 
 	/***************************************
-	 * @see RelationType#RelationType(Object, Function, RelationTypeModifier...)
+	 * @see RelationType#RelationType(Function, Function,
+	 *      RelationTypeModifier...)
 	 */
-	public AutomaticType(T										rDefaultValue,
+	public AutomaticType(Function<? super Relatable, ? super T> fDefaultValue,
 						 Function<? super Relatable, ? super T> fInitialValue,
 						 RelationTypeModifier... 				rModifiers)
 	{
-		super(rDefaultValue, fInitialValue, rModifiers);
+		super(fDefaultValue, fInitialValue, rModifiers);
 	}
 
 	/***************************************
@@ -95,16 +96,16 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	}
 
 	/***************************************
-	 * @see RelationType#RelationType(String, Class, Object, Function,
+	 * @see RelationType#RelationType(String, Class, Function, Function,
 	 *      RelationTypeModifier...)
 	 */
 	public AutomaticType(String									sName,
 						 Class<? super T>						rTargetType,
-						 T										rDefaultValue,
+						 Function<? super Relatable, ? super T> fDefaultValue,
 						 Function<? super Relatable, ? super T> fInitialValue,
 						 RelationTypeModifier... 				rModifiers)
 	{
-		super(sName, rTargetType, rDefaultValue, fInitialValue, rModifiers);
+		super(sName, rTargetType, fDefaultValue, fInitialValue, rModifiers);
 	}
 
 	//~ Methods ----------------------------------------------------------------

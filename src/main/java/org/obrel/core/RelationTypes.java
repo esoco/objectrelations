@@ -263,7 +263,21 @@ public class RelationTypes
 		T						rDefaultValue,
 		RelationTypeModifier... rModifiers)
 	{
-		return newType(rDefaultValue, null, rModifiers);
+		return newDefaultValueType(r -> rDefaultValue, rModifiers);
+	}
+
+	/***************************************
+	 * Creates a new relation type with a certain default value function. The
+	 * default value will be returned on the first get of an unset relation of
+	 * this type but it will not bet set, i.e. the relation will remain unset.
+	 *
+	 * @see #newRelationType(String, Class, Function, RelationTypeModifier...)
+	 */
+	public static <T> RelationType<T> newDefaultValueType(
+		Function<? super Relatable, ? super T> fDefaultValue,
+		RelationTypeModifier... 			   rModifiers)
+	{
+		return newType(fDefaultValue, null, rModifiers);
 	}
 
 	/***************************************
@@ -626,9 +640,8 @@ public class RelationTypes
 	 *
 	 * @param  sName         The name of the new relation type
 	 * @param  rDatatype     The datatype of relation targets with the type
-	 * @param  rDefaultValue The default value
-	 * @param  fInitialValue A function that will create the initial value for
-	 *                       relations with the type
+	 * @param  fDefaultValue The default value function
+	 * @param  fInitialValue The initial value function
 	 * @param  rModifiers    The optional relation type modifiers
 	 *
 	 * @return A new relation type instance
@@ -636,13 +649,13 @@ public class RelationTypes
 	public static <T> RelationType<T> newRelationType(
 		String								   sName,
 		Class<? super T>					   rDatatype,
-		T									   rDefaultValue,
+		Function<? super Relatable, ? super T> fDefaultValue,
 		Function<? super Relatable, ? super T> fInitialValue,
 		RelationTypeModifier... 			   rModifiers)
 	{
 		return new RelationType<T>(sName,
 								   rDatatype,
-								   rDefaultValue,
+								   fDefaultValue,
 								   fInitialValue,
 								   rModifiers);
 	}
@@ -807,7 +820,7 @@ public class RelationTypes
 	 * after a call to {@link #init(Class)} from the static initializer of the
 	 * defining class.
 	 *
-	 * @param  rDefaultValue The default value
+	 * @param  fDefaultValue The default value
 	 * @param  fInitialValue A function that returns the initial value for
 	 *                       relations of this type
 	 * @param  rModifiers    The relation type modifiers
@@ -815,13 +828,13 @@ public class RelationTypes
 	 * @return The new uninitialized relation type
 	 */
 	public static <T> RelationType<T> newType(
-		T									   rDefaultValue,
+		Function<? super Relatable, ? super T> fDefaultValue,
 		Function<? super Relatable, ? super T> fInitialValue,
 		RelationTypeModifier... 			   rModifiers)
 	{
 		return new RelationType<T>(RelationType.INIT_TYPE,
 								   null,
-								   rDefaultValue,
+								   fDefaultValue,
 								   fInitialValue,
 								   rModifiers);
 	}
