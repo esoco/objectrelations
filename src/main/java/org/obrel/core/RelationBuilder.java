@@ -54,17 +54,18 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 								  RelationType<T> rAnnotationType,
 								  T				  rValue)
 	{
-		Relation<?> rRelation = getRelation(rType);
+		return _with(() ->
+		 			{
+		 				Relation<?> rRelation = getRelation(rType);
 
-		if (rRelation == null)
-		{
-			throw new IllegalArgumentException("No relation with type " +
-											   rType);
-		}
+		 				if (rRelation == null)
+		 				{
+		 					throw new IllegalArgumentException("No relation with type " +
+		 													   rType);
+		 				}
 
-		rRelation.annotate(rAnnotationType, rValue);
-
-		return (R) this;
+		 				rRelation.annotate(rAnnotationType, rValue);
+					 });
 	}
 
 	/***************************************
@@ -77,9 +78,7 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 	@SuppressWarnings("unchecked")
 	default public R with(RelationData<?>... rRelations)
 	{
-		set(rRelations);
-
-		return (R) this;
+		return _with(() -> set(rRelations));
 	}
 
 	/***************************************
@@ -92,23 +91,7 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 		RelationType<T>			 rType,
 		InvertibleFunction<T, D> fTransformation)
 	{
-		transform(rType, fTransformation);
-
-		return (R) this;
-	}
-
-	/***************************************
-	 * A convenience method to set integer relations without auto-boxing
-	 * warnings.
-	 *
-	 * @see #set(RelationType, Object)
-	 */
-	@SuppressWarnings("unchecked")
-	default public R with(RelationType<Integer> rType, int nValue)
-	{
-		set(rType, Integer.valueOf(nValue));
-
-		return (R) this;
+		return _with(() -> transform(rType, fTransformation));
 	}
 
 	/***************************************
@@ -121,8 +104,6 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 								 Function<I, T>  fTargetResolver,
 								 I				 rIntermediateTarget)
 	{
-		set(rType, fTargetResolver, rIntermediateTarget);
-
-		return (R) this;
+		return _with(() -> set(rType, fTargetResolver, rIntermediateTarget));
 	}
 }

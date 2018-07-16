@@ -16,6 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
+import de.esoco.lib.property.Fluent;
+
+
 /********************************************************************
  * An interface that can be implemented by relatable objects that provide a
  * fluent interface. The default method {@link #with(RelationType, Object)} sets
@@ -24,7 +27,8 @@ package org.obrel.core;
  *
  * @author eso
  */
-public interface FluentRelatable<T extends FluentRelatable<T>> extends Relatable
+public interface FluentRelatable<T extends FluentRelatable<T>>
+	extends Relatable, Fluent<T>
 {
 	//~ Methods ----------------------------------------------------------------
 
@@ -35,12 +39,20 @@ public interface FluentRelatable<T extends FluentRelatable<T>> extends Relatable
 	 *
 	 * @return This instance for fluent invocation
 	 */
-	@SuppressWarnings("unchecked")
 	default public T with(RelationType<Boolean> rType)
 	{
-		set(rType);
+		return _with(() -> set(rType));
+	}
 
-		return (T) this;
+	/***************************************
+	 * Sets an integer relation type from an int value and returns this
+	 * instance.
+	 *
+	 * @see #with(RelationType, Object)
+	 */
+	default public T with(RelationType<Integer> rType, int nValue)
+	{
+		return _with(() -> set(rType, Integer.valueOf(nValue)));
 	}
 
 	/***************************************
@@ -54,11 +66,8 @@ public interface FluentRelatable<T extends FluentRelatable<T>> extends Relatable
 	 *
 	 * @return This instance for fluent invocation
 	 */
-	@SuppressWarnings("unchecked")
 	default <V> T with(RelationType<V> rType, V rValue)
 	{
-		set(rType, rValue);
-
-		return (T) this;
+		return _with(() -> set(rType, rValue));
 	}
 }
