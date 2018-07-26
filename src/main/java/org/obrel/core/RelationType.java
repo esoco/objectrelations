@@ -126,7 +126,7 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	/***************************************
-	 * @see #RelationType(String, Class, Object, Function,
+	 * @see #RelationType(String, Class, Function, Function,
 	 *      RelationTypeModifier...)
 	 */
 	public RelationType(String								   sName,

@@ -606,7 +606,7 @@ public class RelationTypes
 	 * Creates a new relation type instance with default and initial values of
 	 * NULL.
 	 *
-	 * @see #newRelationType(String, Class, Object, Function,
+	 * @see #newRelationType(String, Class, Function, Function,
 	 *      RelationTypeModifier...)
 	 */
 	public static <T> RelationType<T> newRelationType(

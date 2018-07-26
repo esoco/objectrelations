@@ -64,7 +64,7 @@ public abstract class AbstractBinaryFunction<L, R, O>
 
 	/***************************************
 	 * Implemented as final to delegate the evaluation of this function to the
-	 * binary method {@link #evaluate(Object, Object)}.
+	 * binary method {@link BinaryFunction#evaluate(Object, Object)}.
 	 *
 	 * @param  rLeftValue The left input value
 	 *
