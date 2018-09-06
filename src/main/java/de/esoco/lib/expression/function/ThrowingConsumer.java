@@ -47,7 +47,7 @@ public interface ThrowingConsumer<T> extends Consumer<T>
 		{
 			acceptWithException(rValue);
 		}
-		catch (Exception e)
+		catch (Throwable e)
 		{
 			if (e instanceof RuntimeException)
 			{
@@ -66,7 +66,7 @@ public interface ThrowingConsumer<T> extends Consumer<T>
 	 *
 	 * @param  rValue The value to consume
 	 *
-	 * @throws Exception If the invocation fails
+	 * @throws Throwable If the invocation fails
 	 */
-	public void acceptWithException(T rValue) throws Exception;
+	public void acceptWithException(T rValue) throws Throwable;
 }

@@ -46,7 +46,7 @@ public interface ThrowingFunction<I, O> extends Function<I, O>
 		{
 			return evaluateWithException(rInput);
 		}
-		catch (Exception e)
+		catch (Throwable e)
 		{
 			if (e instanceof RuntimeException)
 			{
@@ -67,7 +67,7 @@ public interface ThrowingFunction<I, O> extends Function<I, O>
 	 *
 	 * @return The function result
 	 *
-	 * @throws Exception An exception in the case of errors
+	 * @throws Throwable An exception in the case of errors
 	 */
-	public O evaluateWithException(I rInput) throws Exception;
+	public O evaluateWithException(I rInput) throws Throwable;
 }

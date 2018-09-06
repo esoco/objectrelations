@@ -46,7 +46,7 @@ public interface ThrowingSupplier<T> extends Supplier<T>
 		{
 			return getWithException();
 		}
-		catch (Exception e)
+		catch (Throwable e)
 		{
 			if (e instanceof RuntimeException)
 			{
@@ -64,7 +64,7 @@ public interface ThrowingSupplier<T> extends Supplier<T>
 	 *
 	 * @return The function result
 	 *
-	 * @throws Exception If the invocation fails
+	 * @throws Throwable If the invocation fails
 	 */
-	public T getWithException() throws Exception;
+	public T getWithException() throws Throwable;
 }

@@ -48,7 +48,7 @@ public class FunctionException extends RuntimeException
 	 * @param eCause           The checked exception that caused this function
 	 *                         exception
 	 */
-	public FunctionException(Object fCausingFunction, Exception eCause)
+	public FunctionException(Object fCausingFunction, Throwable eCause)
 	{
 		super(eCause);
 
