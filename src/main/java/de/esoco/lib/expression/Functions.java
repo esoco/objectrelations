@@ -316,6 +316,27 @@ public class Functions
 	}
 
 	/***************************************
+	 * Wraps an instance of {@link Consumer} in to a generically typed instance
+	 * of {@link java.util.function.Function} that returns a Void result. This
+	 * allows to use existing consumers where a function implementation is
+	 * expected.
+	 *
+	 * @param  fConsumer The consumer to wrap
+	 *
+	 * @return The resulting function
+	 */
+	public static <T> java.util.function.Function<T, Void> consume(
+		Consumer<T> fConsumer)
+	{
+		return v ->
+	   		{
+	   			fConsumer.accept(v);
+
+	   			return null;
+			   };
+	}
+
+	/***************************************
 	 * Returns a function that returns the current system time as returned by
 	 * {@link System#currentTimeMillis()}.
 	 *
@@ -463,9 +484,10 @@ public class Functions
 				}
 				catch (Exception e)
 				{
-					throw new IllegalStateException("Could not create " +
-													rExceptionClass,
-													e);
+					throw new IllegalStateException(
+						"Could not create " +
+						rExceptionClass,
+						e);
 				}
 
 				if (eError instanceof RuntimeException)
@@ -650,10 +672,11 @@ public class Functions
 		rProfiledCode.run();
 
 		t = System.currentTimeMillis() - t;
-		System.out.printf("[TIME] %s: %d.%03ds\n",
-						  sDescription,
-						  t / 1000,
-						  t % 1000);
+		System.out.printf(
+			"[TIME] %s: %d.%03ds\n",
+			sDescription,
+			t / 1000,
+			t % 1000);
 	}
 
 	/***************************************
@@ -717,6 +740,27 @@ public class Functions
 	}
 
 	/***************************************
+	 * Wraps an instance of {@link Runnable} in to a generically typed instance
+	 * of {@link java.util.function.Function} that ignores it's input and
+	 * returns a Void result. This allows to use existing instances of {@link
+	 * Runnable} where a function implementation is expected.
+	 *
+	 * @param  fRunnable The {@link Runnable} to wrap
+	 *
+	 * @return The resulting function
+	 */
+	public static <T> java.util.function.Function<T, Void> run(
+		Runnable fRunnable)
+	{
+		return v ->
+	   		{
+	   			fRunnable.run();
+
+	   			return null;
+			   };
+	}
+
+	/***************************************
 	 * Returns a new instance of {@link SetRelationValue}.
 	 *
 	 * @param  rType  The type of the relation to read the value from
@@ -744,6 +788,22 @@ public class Functions
 	}
 
 	/***************************************
+	 * Wrapos an instance of {@link Supplier} into a generically typed instance
+	 * of {@link java.util.function.Function} that ignores it's input. This
+	 * allows to use existing suppliers where a function implementation is
+	 * expected.
+	 *
+	 * @param  fSupplier The supplier
+	 *
+	 * @return The resulting function
+	 */
+	public static <I, O> java.util.function.Function<I, O> supply(
+		Supplier<O> fSupplier)
+	{
+		return i -> fSupplier.get();
+	}
+
+	/***************************************
 	 * Returns a new binary function that swaps the left and right parameters of
 	 * another binary function. This allows to use such functions as unary
 	 * functions with a fixed left parameter instead of the right parameter
@@ -760,8 +820,9 @@ public class Functions
 		final BinaryFunction<L, R, O> rFunction,
 		L							  rNewRightValue)
 	{
-		return new AbstractBinaryFunction<R, L, O>(rNewRightValue,
-												   rFunction.getToken())
+		return new AbstractBinaryFunction<R, L, O>(
+			rNewRightValue,
+			rFunction.getToken())
 		{
 			@Override
 			public O evaluate(R rLeftValue, L rRightValue)
@@ -794,13 +855,14 @@ public class Functions
 		ThrowingFunction<I, R> fOpenResource,
 		ThrowingFunction<R, O> fProduceResult)
 	{
-		return unchecked(i ->
-			 			{
-			 				try (R rResource = fOpenResource.evaluate(i))
-			 				{
-			 					return fProduceResult.evaluate(rResource);
-			 				}
-						 });
+		return unchecked(
+			i ->
+			{
+				try (R rResource = fOpenResource.evaluate(i))
+				{
+					return fProduceResult.evaluate(rResource);
+				}
+			});
 	}
 
 	/***************************************
