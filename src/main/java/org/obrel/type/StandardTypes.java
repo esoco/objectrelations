@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import de.esoco.lib.datatype.Period;
 import de.esoco.lib.datatype.Priority;
 import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.event.EventDispatcher;
-import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.ReflectionFuntions;
 
 import java.net.InetAddress;
@@ -39,6 +38,7 @@ import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 
 import static org.obrel.core.RelationTypeModifier.FINAL;
+import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.core.RelationTypes.newIntType;
 import static org.obrel.core.RelationTypes.newListType;
 import static org.obrel.core.RelationTypes.newType;
@@ -143,18 +143,18 @@ public class StandardTypes
 
 	//- Integer values ---------------------------------------------------------
 
-	/** A size value (default: 0). */
+	/** A size value with an initial value of 0. */
 	public static final RelationType<Integer> SIZE = newIntType();
 
-	/** A count value (default: 0). */
+	/** A count value with an initial value of 0. */
 	public static final RelationType<Integer> COUNT = newIntType();
 
 	/**
 	 * An automatic types that counts the relation updates of a target object
 	 * after it has been set on it. Depending on the target it counts the
-	 * updates of a the relations in a relatable object, of a relation type, or
-	 * of a single relation. More specific counters can be created by using
-	 * other instances of {@link CounterType}.
+	 * updates of the relations in a relatable object, of a relation type, or of
+	 * a single relation. More specific counters can be created by using other
+	 * instances of {@link CounterType}.
 	 */
 	@SuppressWarnings("boxing")
 	public static final RelationType<Integer> UPDATE_COUNTER =
@@ -171,9 +171,9 @@ public class StandardTypes
 
 	//- Enumeration properties -------------------------------------------------
 
-	/** A priority value with the default value {@link Priority#NORMAL}. */
+	/** A priority value with the initial value {@link Priority#NORMAL}. */
 	public static final RelationType<Priority> PRIORITY =
-		newType(Functions.value(Priority.NORMAL));
+		newInitialValueType(Priority.NORMAL);
 
 	//- Date and time properties -----------------------------------------------
 
