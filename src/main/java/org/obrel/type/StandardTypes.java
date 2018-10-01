@@ -17,6 +17,7 @@
 package org.obrel.type;
 
 import de.esoco.lib.datatype.ObjectId;
+import de.esoco.lib.datatype.Pair;
 import de.esoco.lib.datatype.Period;
 import de.esoco.lib.datatype.Priority;
 import de.esoco.lib.event.ElementEvent.EventType;
@@ -29,6 +30,7 @@ import java.net.URL;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.Relatable;
@@ -183,6 +185,9 @@ public class StandardTypes
 	/** A generic time value (of type {@link java.util.Date}). */
 	public static final RelationType<Date> TIME = newType();
 
+	/** A time duration as a pair of a value and time unit. */
+	public static final RelationType<Pair<Long, TimeUnit>> DURATION = newType();
+
 	/**
 	 * An active type that always returns the number of milliseconds since it's
 	 * creation.
@@ -203,9 +208,6 @@ public class StandardTypes
 
 	/** The next date on which an element should be processed in some way */
 	public static final RelationType<Date> NEXT_DATE = newType();
-
-	/** An integer value containing the duration of an event in seconds */
-	public static final RelationType<Integer> DURATION = newType();
 
 	/** The period between the occurrence of date-based objects */
 	public static final RelationType<Period> PERIOD = newType();
