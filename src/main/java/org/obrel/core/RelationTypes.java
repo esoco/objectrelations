@@ -89,9 +89,10 @@ public class RelationTypes
 	// needs to be declared last as List type references ELEMENT_DATATYPE
 	/** @see MetaTypes#DECLARED_RELATION_TYPES */
 	public static final RelationType<List<RelationType<?>>> DECLARED_RELATION_TYPES =
-		newRelationType("DECLARED_RELATION_TYPES",
-						List.class,
-						RelationTypeModifier.FINAL);
+		newRelationType(
+			"DECLARED_RELATION_TYPES",
+			List.class,
+			RelationTypeModifier.FINAL);
 
 	//~ Static methods ---------------------------------------------------------
 
@@ -156,11 +157,13 @@ public class RelationTypes
 
 						if (Modifier.isFinal(nModifiers))
 						{
-							initRelationTypeField(rField,
-												  rRelationType,
-												  sClassNamespace);
+							initRelationTypeField(
+								rField,
+								rRelationType,
+								sClassNamespace);
 
-							if (!rRelationType.hasModifier(RelationTypeModifier.PRIVATE))
+							if (!rRelationType.hasModifier(
+									RelationTypeModifier.PRIVATE))
 							{
 								aDeclaredTypes.add(rRelationType);
 							}
@@ -177,9 +180,10 @@ public class RelationTypes
 			catch (Exception e)
 			{
 				String sMessage =
-					String.format("Access to %s.%s failed",
-								  rField.getDeclaringClass().getSimpleName(),
-								  rField.getName());
+					String.format(
+						"Access to %s.%s failed",
+						rField.getDeclaringClass().getSimpleName(),
+						rField.getName());
 
 				throw new IllegalArgumentException(sMessage, e);
 			}
@@ -191,8 +195,9 @@ public class RelationTypes
 
 			if (!rClassRelatable.hasRelation(DECLARED_RELATION_TYPES))
 			{
-				rClassRelatable.set(DECLARED_RELATION_TYPES,
-									Collections.unmodifiableList(aDeclaredTypes));
+				rClassRelatable.set(
+					DECLARED_RELATION_TYPES,
+					Collections.unmodifiableList(aDeclaredTypes));
 			}
 		}
 	}
@@ -207,10 +212,11 @@ public class RelationTypes
 		String					sName,
 		RelationTypeModifier... rModifiers)
 	{
-		return newRelationType(sName,
-							   Boolean.class,
-							   value(Boolean.FALSE),
-							   rModifiers);
+		return newRelationType(
+			sName,
+			Boolean.class,
+			value(Boolean.FALSE),
+			rModifiers);
 	}
 
 	/***************************************
@@ -253,11 +259,14 @@ public class RelationTypes
 	}
 
 	/***************************************
-	 * Creates a new relation type with a certain default value. The default
-	 * value will be returned on the first get of an unset relation of this type
-	 * but it will not bet set, i.e. the relation will remain unset.
+	 * Creates a new relation type with a certain default value. See the generic
+	 * variant #newDefaultValueType(Function, RelationTypeModifier...) for more
+	 * information.
 	 *
-	 * @see #newRelationType(String, Class, Function, RelationTypeModifier...)
+	 * @param rDefaultValue The default value of relations of this type
+	 * @param rModifiers    The type modifiers
+	 *
+	 * @see   #newDefaultValueType(Function, RelationTypeModifier...)
 	 */
 	public static <T> RelationType<T> newDefaultValueType(
 		T						rDefaultValue,
@@ -267,9 +276,12 @@ public class RelationTypes
 	}
 
 	/***************************************
-	 * Creates a new relation type with a certain default value function. The
-	 * default value will be returned on the first get of an unset relation of
-	 * this type but it will not bet set, i.e. the relation will remain unset.
+	 * Creates a new relation type with a default value function. <b>
+	 * IMPORTANT</b>: default values are returned if no relation with the type
+	 * exists, but querying them will not create a new relation. That means that
+	 * checks for relation existence will yield FALSE. To make sure a relation
+	 * exists use {@link #newInitialValueType(Object, RelationTypeModifier...)}
+	 * instead.
 	 *
 	 * @see #newRelationType(String, Class, Function, RelationTypeModifier...)
 	 */
@@ -305,10 +317,11 @@ public class RelationTypes
 		E						rDefaultValue,
 		RelationTypeModifier... rModifiers)
 	{
-		return newRelationType(sName,
-							   (Class<E>) rDefaultValue.getClass(),
-							   value(rDefaultValue),
-							   rModifiers);
+		return newRelationType(
+			sName,
+			(Class<E>) rDefaultValue.getClass(),
+			value(rDefaultValue),
+			rModifiers);
 	}
 
 	/***************************************
@@ -361,10 +374,11 @@ public class RelationTypes
 		int						nDefault,
 		RelationTypeModifier... rModifiers)
 	{
-		return newRelationType(sName,
-							   Integer.class,
-							   value(nDefault),
-							   rModifiers);
+		return newRelationType(
+			sName,
+			Integer.class,
+			value(nDefault),
+			rModifiers);
 	}
 
 	/***************************************
@@ -436,10 +450,11 @@ public class RelationTypes
 		Class<List<T>> rListClass = (Class<List<T>>) (Class<?>) ArrayList.class;
 
 		RelationType<List<T>> aType =
-			newRelationType(sName,
-							List.class,
-							newInstanceOf(rListClass),
-							rModifiers);
+			newRelationType(
+				sName,
+				List.class,
+				newInstanceOf(rListClass),
+				rModifiers);
 
 		if (rElementType != null)
 		{
@@ -535,10 +550,11 @@ public class RelationTypes
 		}
 
 		RelationType<Map<K, V>> aType =
-			newRelationType(sName,
-							(Class<? super Map<K, V>>) Map.class,
-							fInitialValue,
-							rModifiers);
+			newRelationType(
+				sName,
+				(Class<? super Map<K, V>>) Map.class,
+				fInitialValue,
+				rModifiers);
 
 		aType.set(KEY_DATATYPE, rKeyType);
 		aType.set(VALUE_DATATYPE, rValueType);
@@ -573,7 +589,8 @@ public class RelationTypes
 		Class<E>				rEnumType,
 		RelationTypeModifier... rModifiers)
 	{
-		return newEnumType(sName, rEnumType, rModifiers).annotate(OBJECT_TYPE_ATTRIBUTE);
+		return newEnumType(sName, rEnumType, rModifiers).annotate(
+			OBJECT_TYPE_ATTRIBUTE);
 	}
 
 	/***************************************
@@ -653,11 +670,12 @@ public class RelationTypes
 		Function<? super Relatable, ? super T> fInitialValue,
 		RelationTypeModifier... 			   rModifiers)
 	{
-		return new RelationType<T>(sName,
-								   rDatatype,
-								   fDefaultValue,
-								   fInitialValue,
-								   rModifiers);
+		return new RelationType<T>(
+			sName,
+			rDatatype,
+			fDefaultValue,
+			fInitialValue,
+			rModifiers);
 	}
 
 	/***************************************
@@ -729,10 +747,11 @@ public class RelationTypes
 		}
 
 		RelationType<Set<T>> aType =
-			newRelationType(sName,
-							(Class<? super Set<T>>) Set.class,
-							fInitialValue,
-							rModifiers);
+			newRelationType(
+				sName,
+				(Class<? super Set<T>>) Set.class,
+				fInitialValue,
+				rModifiers);
 
 		aType.set(ELEMENT_DATATYPE, rElementType);
 		aType.set(ORDERED, bOrdered);
@@ -832,11 +851,12 @@ public class RelationTypes
 		Function<? super Relatable, ? super T> fInitialValue,
 		RelationTypeModifier... 			   rModifiers)
 	{
-		return new RelationType<T>(RelationType.INIT_TYPE,
-								   null,
-								   fDefaultValue,
-								   fInitialValue,
-								   rModifiers);
+		return new RelationType<T>(
+			RelationType.INIT_TYPE,
+			null,
+			fDefaultValue,
+			fInitialValue,
+			rModifiers);
 	}
 
 	/***************************************
@@ -861,15 +881,18 @@ public class RelationTypes
 
 			if (Collection.class.isAssignableFrom(rDatatype))
 			{
-				rRelationType.set(ELEMENT_DATATYPE,
-								  ReflectUtil.getRawType(rElemTypes[0]));
+				rRelationType.set(
+					ELEMENT_DATATYPE,
+					ReflectUtil.getRawType(rElemTypes[0]));
 			}
 			else if (Map.class.isAssignableFrom(rDatatype))
 			{
-				rRelationType.set(KEY_DATATYPE,
-								  ReflectUtil.getRawType(rElemTypes[0]));
-				rRelationType.set(VALUE_DATATYPE,
-								  ReflectUtil.getRawType(rElemTypes[1]));
+				rRelationType.set(
+					KEY_DATATYPE,
+					ReflectUtil.getRawType(rElemTypes[0]));
+				rRelationType.set(
+					VALUE_DATATYPE,
+					ReflectUtil.getRawType(rElemTypes[1]));
 			}
 		}
 
@@ -896,8 +919,9 @@ public class RelationTypes
 
 		if (rRelationType == null)
 		{
-			throw new IllegalArgumentException("Unitialized relation type " +
-											   sFieldName);
+			throw new IllegalArgumentException(
+				"Unitialized relation type " +
+				sFieldName);
 		}
 
 		Class<?> rDeclaringClass = rField.getDeclaringClass();
@@ -926,28 +950,29 @@ public class RelationTypes
 		else
 		{
 			assert ReflectUtil.getRawType(rTargetType) ==
-				   rRelationType.getValueType() : String.format("Invalid target type for RelationType %s: %s (expected: %s)",
-																sTypeName,
-																rRelationType
-																.getValueType(),
-																rField
-																.getType());
+				   rRelationType.getValueType() : String.format(
+				"Invalid target type for RelationType %s: %s (expected: %s)",
+				sTypeName,
+				rRelationType.getValueType(),
+				rField.getType());
 
 			if (!rField.isAnnotationPresent(NoRelationNameCheck.class))
 			{
 				// check if field and type names match
 				assert sFieldName.equals(rRelationType.getSimpleName()) : String
-					   .format("RelationType name mismatch for %s.%s: %s",
-							   rDeclaringClass.getName(),
-							   sFieldName,
-							   sTypeName);
+					   .format(
+					"RelationType name mismatch for %s.%s: %s",
+					rDeclaringClass.getName(),
+					sFieldName,
+					sTypeName);
 			}
 
 			if (sTypeNamespace != null && !sTypeName.startsWith(sTypeNamespace))
 			{
-				initRelationType(rRelationType,
-								 sTypeNamespace + "." + sFieldName,
-								 rTargetType);
+				initRelationType(
+					rRelationType,
+					sTypeNamespace + "." + sFieldName,
+					rTargetType);
 			}
 		}
 
