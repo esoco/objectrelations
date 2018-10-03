@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,8 +24,6 @@ import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
-
-import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
 
 
 /********************************************************************
@@ -95,7 +93,7 @@ public class ConstraintType<T> extends RelationType<T>
 	{
 		super.addRelation(rParent, rRelation);
 
-		rParent.get(RELATION_LISTENERS).add(this);
+		rParent.get(ListenerTypes.RELATION_LISTENERS).add(this);
 
 		return rRelation;
 	}
@@ -109,7 +107,7 @@ public class ConstraintType<T> extends RelationType<T>
 	@Override
 	protected void deleteRelation(Relatable rParent, Relation<?> rRelation)
 	{
-		rParent.get(RELATION_LISTENERS).remove(this);
+		rParent.get(ListenerTypes.RELATION_LISTENERS).remove(this);
 		super.deleteRelation(rParent, rRelation);
 	}
 }

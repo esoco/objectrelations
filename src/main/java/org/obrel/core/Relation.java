@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,11 +35,10 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.obrel.type.ListenerTypes;
 import org.obrel.type.MetaTypes;
-import org.obrel.type.StandardTypes;
 
 import static org.obrel.type.MetaTypes.IMMUTABLE;
-import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 
 
 /********************************************************************
@@ -87,13 +86,13 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	{
 		if (!isValidTargetForType(rType, rTarget))
 		{
-			throw new IllegalArgumentException(String.format("Invalid target for type '%s': %s (is %s - expected %s)",
-															 rType,
-															 rTarget,
-															 rTarget.getClass()
-															 .getName(),
-															 rType
-															 .getValueType()));
+			throw new IllegalArgumentException(
+				String.format(
+					"Invalid target for type '%s': %s (is %s - expected %s)",
+					rType,
+					rTarget,
+					rTarget.getClass().getName(),
+					rType.getValueType()));
 		}
 	}
 
@@ -126,7 +125,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	/***************************************
 	 * Adds a listener to update events of this particular relation. This method
 	 * provides a type-safe interface for adding relation event listeners to the
-	 * relation with the type {@link StandardTypes#RELATION_UPDATE_LISTENERS}.
+	 * relation with the type {@link ListenerTypes#RELATION_UPDATE_LISTENERS}.
 	 * To remove a listener that relation can be modified directly because type
 	 * safety is not needed then.
 	 *
@@ -134,7 +133,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 */
 	public void addUpdateListener(EventHandler<RelationEvent<T>> rListener)
 	{
-		get(RELATION_UPDATE_LISTENERS).add(rListener);
+		get(ListenerTypes.RELATION_UPDATE_LISTENERS).add(rListener);
 	}
 
 	/***************************************
@@ -180,11 +179,13 @@ public abstract class Relation<T> extends SerializableRelatedObject
 								  RelatedObject			   rInParent,
 								  InvertibleFunction<T, A> fAliasConversion)
 	{
-		addAlias(new RelationAlias<A, T>(rInParent,
-										 rAliasType,
-										 this,
-										 fAliasConversion),
-				 rInParent);
+		addAlias(
+			new RelationAlias<A, T>(
+				rInParent,
+				rAliasType,
+				this,
+				fAliasConversion),
+			rInParent);
 	}
 
 	/***************************************
@@ -382,8 +383,9 @@ public abstract class Relation<T> extends SerializableRelatedObject
 		}
 		else if (rTargetType == Collection.class)
 		{
-			setTarget((T) Collections.unmodifiableCollection((Collection<?>)
-															 rTarget));
+			setTarget(
+				(T) Collections.unmodifiableCollection(
+					(Collection<?>) rTarget));
 		}
 		else if (rTargetType == Map.class)
 		{
@@ -415,8 +417,9 @@ public abstract class Relation<T> extends SerializableRelatedObject
 			e ->
 			{
 				if (e.getType() == EventType.UPDATE &&
-					!Objects.equals(e.getUpdateValue(),
-									e.getElement().getTarget()))
+					!Objects.equals(
+						e.getUpdateValue(),
+						e.getElement().getTarget()))
 				{
 					fChangeHandler.accept(e.getUpdateValue());
 				}
@@ -505,11 +508,9 @@ public abstract class Relation<T> extends SerializableRelatedObject
 								 RelatedObject   rInParent,
 								 Function<T, V>  fViewConversion)
 	{
-		addAlias(new RelationView<V, T>(rInParent,
-										rViewType,
-										this,
-										fViewConversion),
-				 rInParent);
+		addAlias(
+			new RelationView<V, T>(rInParent, rViewType, this, fViewConversion),
+			rInParent);
 	}
 
 	/***************************************
@@ -610,8 +611,9 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	{
 		if (hasFlag(IMMUTABLE))
 		{
-			throw new UnsupportedOperationException("Relation is immutable: " +
-													rType);
+			throw new UnsupportedOperationException(
+				"Relation is immutable: " +
+				rType);
 		}
 
 		checkValidTargetForType(rType, rNewTarget);

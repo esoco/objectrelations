@@ -19,7 +19,7 @@ package org.obrel.core;
 import de.esoco.lib.event.ElementEvent;
 import de.esoco.lib.event.EventHandler;
 
-import org.obrel.type.StandardTypes;
+import org.obrel.type.ListenerTypes;
 
 
 /********************************************************************
@@ -31,10 +31,10 @@ import org.obrel.type.StandardTypes;
  * special cases which should be well documented.
  *
  * <p>To register a relation event listener for events it must be added as a
- * relation with the relation type {@link StandardTypes#RELATION_LISTENERS} to
+ * relation with the relation type {@link ListenerTypes#RELATION_LISTENERS} to
  * an arbitrary related object or a relation type. It may also be registered on
- * a relation with {@link StandardTypes#RELATION_UPDATE_LISTENERS} or a relation
- * type with {@link StandardTypes#RELATION_TYPE_LISTENERS} in which cases the
+ * a relation with {@link ListenerTypes#RELATION_UPDATE_LISTENERS} or a relation
+ * type with {@link ListenerTypes#RELATION_TYPE_LISTENERS} in which cases the
  * listener will be informed of changes to the particular relation or relation
  * type.</p>
  *
@@ -86,8 +86,8 @@ public class RelationEvent<T> extends ElementEvent<Relatable, Relation<T>, T>
 	/***************************************
 	 * Returns the relatable that defines the event scope. Depending on the
 	 * affected event listener this is either the same as the source or in the
-	 * case of {@link StandardTypes#RELATION_UPDATE_LISTENERS} the corresponding
-	 * relation or for {@link StandardTypes#RELATION_TYPE_LISTENERS} the
+	 * case of {@link ListenerTypes#RELATION_UPDATE_LISTENERS} the corresponding
+	 * relation or for {@link ListenerTypes#RELATION_TYPE_LISTENERS} the
 	 * relation type.
 	 *
 	 * @return The eventScope value

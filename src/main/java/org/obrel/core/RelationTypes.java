@@ -340,13 +340,27 @@ public class RelationTypes
 	 * Creates a new relation type with a certain initial value. The value will
 	 * be set and returned on the first get of an unset relation of this type.
 	 *
-	 * @see #newRelationType(String, Class, Function, RelationTypeModifier...)
+	 * @see #newInitialValueType(Function, RelationTypeModifier...)
 	 */
 	public static <T> RelationType<T> newInitialValueType(
 		T						rInitialValue,
 		RelationTypeModifier... rModifiers)
 	{
-		return newType(value(rInitialValue), rModifiers);
+		return newInitialValueType(value(rInitialValue), rModifiers);
+	}
+
+	/***************************************
+	 * Creates a new relation type with an initial value function. The value
+	 * will be set and returned on the first get of an unset relation of this
+	 * type.
+	 *
+	 * @see #newRelationType(String, Class, Function, RelationTypeModifier...)
+	 */
+	public static <T> RelationType<T> newInitialValueType(
+		Function<? super Relatable, ? super T> fInitialValue,
+		RelationTypeModifier... 			   rModifiers)
+	{
+		return newType(fInitialValue, rModifiers);
 	}
 
 	/***************************************

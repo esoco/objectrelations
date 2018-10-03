@@ -29,9 +29,6 @@ import org.obrel.core.RelationWrapper;
 
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypeModifier.READONLY;
-import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
-import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
-import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 
 
 /********************************************************************
@@ -189,15 +186,15 @@ public abstract class AutomaticType<T> extends RelationType<T>
 		Relatable rParent)
 	{
 		RelationType<EventDispatcher<RelationEvent<?>>> rListenerType =
-			RELATION_LISTENERS;
+			ListenerTypes.RELATION_LISTENERS;
 
 		if (rParent instanceof RelationType)
 		{
-			rListenerType = RELATION_TYPE_LISTENERS;
+			rListenerType = ListenerTypes.RELATION_TYPE_LISTENERS;
 		}
 		else if (rParent instanceof Relation)
 		{
-			rListenerType = RELATION_UPDATE_LISTENERS;
+			rListenerType = ListenerTypes.RELATION_UPDATE_LISTENERS;
 		}
 
 		return rListenerType;

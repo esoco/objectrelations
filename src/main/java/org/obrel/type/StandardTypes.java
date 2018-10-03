@@ -21,8 +21,6 @@ import de.esoco.lib.datatype.Pair;
 import de.esoco.lib.datatype.Period;
 import de.esoco.lib.datatype.Priority;
 import de.esoco.lib.event.ElementEvent.EventType;
-import de.esoco.lib.event.EventDispatcher;
-import de.esoco.lib.expression.ReflectionFuntions;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -34,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.Relatable;
-import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
@@ -105,43 +102,7 @@ public class StandardTypes
 	/** A generic filename relation. */
 	public static final RelationType<String> FILENAME = newType();
 
-	/**
-	 * A relation type for the registration of relation listeners on relatable
-	 * objects. A relation listener is notified of all changes to relations of
-	 * the parent object it is set on. Will be initialized automatically so it
-	 * is not necessary to check for existence before accessing the relation.
-	 */
-	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_LISTENERS =
-		newType(ReflectionFuntions.newInstanceOf(EventDispatcher.class));
-
-	/**
-	 * A relation type for the registration of update listeners on relations. A
-	 * relation update listener is notified of all changes to the relation it is
-	 * set on. Setting a relation update listener on any other type of object
-	 * than a relation will have no effect. A {@link #RELATION_LISTENERS} on a
-	 * relation will have the same function as on any other object, i.e will be
-	 * notified of changes to the (meta-relations) of the relation.
-	 *
-	 * <p>Will be initialized automatically so it is not necessary to check for
-	 * existence before accessing the relation.</p>
-	 */
-	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_UPDATE_LISTENERS =
-		newType(ReflectionFuntions.newInstanceOf(EventDispatcher.class));
-
-	/**
-	 * A relation type for the registration of event listeners on relation
-	 * types. A relation type listener is notified of all changes to relations
-	 * with the type it is set on. Setting a relation type listener on any other
-	 * type of object than a relation type will have no effect. A {@link
-	 * #RELATION_LISTENERS} on a relation type will have the same function as on
-	 * any other object, i.e will be notified of changes to the (meta-relations)
-	 * of the relation type.
-	 *
-	 * <p>Will be initialized automatically so it is not necessary to check for
-	 * existence before accessing the relation.</p>
-	 */
-	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_TYPE_LISTENERS =
-		newType(ReflectionFuntions.newInstanceOf(EventDispatcher.class));
+	
 
 	//- Integer values ---------------------------------------------------------
 

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Function;
 
-import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
+import org.obrel.type.ListenerTypes;
 
 
 /********************************************************************
@@ -115,13 +115,15 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 				fTargetConversion.evaluate(rEvent.getUpdateValue());
 
 			RelationEvent<T> rConvertedEvent =
-				new RelationEvent<>(EventType.UPDATE,
-									rParent,
-									this,
-									rUpdateValue,
-									this);
+				new RelationEvent<>(
+					EventType.UPDATE,
+					rParent,
+					this,
+					rUpdateValue,
+					this);
 
-			get(RELATION_UPDATE_LISTENERS).dispatch(rConvertedEvent);
+			get(ListenerTypes.RELATION_UPDATE_LISTENERS).dispatch(
+				rConvertedEvent);
 		}
 	}
 
@@ -143,7 +145,8 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	@Override
 	protected void removed()
 	{
-		rWrappedRelation.get(RELATION_UPDATE_LISTENERS).remove(this);
+		rWrappedRelation.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
+						.remove(this);
 	}
 
 	/***************************************
@@ -173,7 +176,8 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	@Override
 	void setTarget(T rNewTarget)
 	{
-		throw new UnsupportedOperationException("View relation is readonly: " +
-												this);
+		throw new UnsupportedOperationException(
+			"View relation is readonly: " +
+			this);
 	}
 }

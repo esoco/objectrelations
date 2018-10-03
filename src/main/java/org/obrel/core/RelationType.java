@@ -41,9 +41,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.obrel.type.ListenerTypes;
 import org.obrel.type.StandardTypes;
-
-import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
 
 
 /********************************************************************
@@ -92,7 +91,8 @@ public class RelationType<T> extends RelatedObject
 
 	/** A regular expression describing the allowed type names. */
 	public static final Pattern NAME_PATTERN =
-		Pattern.compile("([\\p{L}_$][\\p{L}\\p{N}_$]*\\.)*[\\p{L}_$][\\p{L}\\p{N}_$]*");
+		Pattern.compile(
+			"([\\p{L}_$][\\p{L}\\p{N}_$]*\\.)*[\\p{L}_$][\\p{L}\\p{N}_$]*");
 
 	private static Map<String, RelationType<?>> aTypeRegistry =
 		new HashMap<String, RelationType<?>>();
@@ -341,7 +341,7 @@ public class RelationType<T> extends RelatedObject
 	/***************************************
 	 * Adds a listener to relation events in this relation type. This method
 	 * provides a type-safe interface for adding relation event listeners to the
-	 * relation with the type {@link StandardTypes#RELATION_TYPE_LISTENERS}. To
+	 * relation with the type {@link ListenerTypes#RELATION_TYPE_LISTENERS}. To
 	 * remove a listener that relation can be modified directly because type
 	 * safety is not needed then.
 	 *
@@ -349,7 +349,7 @@ public class RelationType<T> extends RelatedObject
 	 */
 	public void addTypeListener(EventHandler<RelationEvent<T>> rListener)
 	{
-		get(RELATION_TYPE_LISTENERS).add(rListener);
+		get(ListenerTypes.RELATION_TYPE_LISTENERS).add(rListener);
 	}
 
 	/***************************************
@@ -726,9 +726,10 @@ public class RelationType<T> extends RelatedObject
 		Function<I, T> fTargetResolver,
 		I			   rIntermediateTarget)
 	{
-		return new IntermediateRelation<T, I>(this,
-											  fTargetResolver,
-											  rIntermediateTarget);
+		return new IntermediateRelation<T, I>(
+			this,
+			fTargetResolver,
+			rIntermediateTarget);
 	}
 
 	/***************************************
@@ -801,8 +802,9 @@ public class RelationType<T> extends RelatedObject
 
 		if (rType == null)
 		{
-			throw new InvalidObjectException("Undefined relation type: " +
-											 sName);
+			throw new InvalidObjectException(
+				"Undefined relation type: " +
+				sName);
 		}
 
 		return rType;
@@ -822,8 +824,9 @@ public class RelationType<T> extends RelatedObject
 	{
 		if (rRelation.getType() != this)
 		{
-			throw new IllegalArgumentException("Relation must be for type " +
-											   this);
+			throw new IllegalArgumentException(
+				"Relation must be for type " +
+				this);
 		}
 
 		rRelation.setTarget(rValue);
@@ -839,8 +842,9 @@ public class RelationType<T> extends RelatedObject
 
 		if (isReadonly())
 		{
-			throw new UnsupportedOperationException("Relation is readonly: " +
-													this);
+			throw new UnsupportedOperationException(
+				"Relation is readonly: " +
+				this);
 		}
 	}
 
@@ -854,8 +858,9 @@ public class RelationType<T> extends RelatedObject
 
 		if (isFinal())
 		{
-			throw new UnsupportedOperationException("Relation is final: " +
-													this);
+			throw new UnsupportedOperationException(
+				"Relation is final: " +
+				this);
 		}
 	}
 
@@ -881,17 +886,19 @@ public class RelationType<T> extends RelatedObject
 		{
 			if (!NAME_PATTERN.matcher(sName).matches())
 			{
-				throw new IllegalArgumentException("Invalid relation type name: " +
-												   sName);
+				throw new IllegalArgumentException(
+					"Invalid relation type name: " +
+					sName);
 			}
 
 			if (aTypeRegistry.containsKey(sName))
 			{
-				throw new IllegalArgumentException(String.format("Duplicate relation type name %s; " +
-																 "already defined in %s",
-																 sName,
-																 aTypeRegistry
-																 .get(sName)));
+				throw new IllegalArgumentException(
+					String.format(
+						"Duplicate relation type name %s; " +
+						"already defined in %s",
+						sName,
+						aTypeRegistry.get(sName)));
 			}
 
 			if (fInitAction != null)

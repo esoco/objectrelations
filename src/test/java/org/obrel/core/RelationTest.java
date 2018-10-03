@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.obrel.core.Annotations.NoRelationNameCheck;
 import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.filter.RelationFilters;
+import org.obrel.type.ListenerTypes;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
@@ -63,7 +64,6 @@ import static org.obrel.type.StandardTypes.DESCRIPTION;
 import static org.obrel.type.StandardTypes.INFO;
 import static org.obrel.type.StandardTypes.NAME;
 import static org.obrel.type.StandardTypes.ORDINAL;
-import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
 
 
 /********************************************************************
@@ -146,10 +146,12 @@ public class RelationTest
 			int nAddIndex = nHalf + i;
 			int nSubIndex = nHalf - i;
 
-			assertEquals(TEST_VALUE + nAddIndex,
-						 aTestObj.get(aTypes[nAddIndex]));
-			assertEquals(TEST_VALUE + nSubIndex,
-						 aTestObj.get(aTypes[nSubIndex]));
+			assertEquals(
+				TEST_VALUE + nAddIndex,
+				aTestObj.get(aTypes[nAddIndex]));
+			assertEquals(
+				TEST_VALUE + nSubIndex,
+				aTestObj.get(aTypes[nSubIndex]));
 		}
 
 		assertEquals(nTestCount, aTestObj.getRelationCount(ALL_RELATIONS));
@@ -319,8 +321,9 @@ public class RelationTest
 		assertFalse(o1.getRelation(NAME).equals(o2.getRelation(DESCRIPTION)));
 
 		assertEquals(o1.relationsHashCode(), o2.relationsHashCode());
-		assertEquals(o1.getRelation(NAME).hashCode(),
-					 o2.getRelation(NAME).hashCode());
+		assertEquals(
+			o1.getRelation(NAME).hashCode(),
+			o2.getRelation(NAME).hashCode());
 	}
 
 	/***************************************
@@ -413,22 +416,24 @@ public class RelationTest
 		}
 		catch (Exception e)
 		{
-			assertTrue(o.get(ELEMENTS).size() == 1 &&
-					   o.get(ELEMENTS).get(0).equals("E1"));
+			assertTrue(
+				o.get(ELEMENTS).size() == 1 &&
+				o.get(ELEMENTS).get(0).equals("E1"));
 		}
 
 		try
 		{
-			o.get(RELATION_LISTENERS)
-			 .add(new EventHandler<RelationEvent<?>>()
-				{
-					@Override
-					public void handleEvent(RelationEvent<?> rEvent)
-					{
-						// should never be invoked
-						fail();
-					}
-				});
+			o.get(ListenerTypes.RELATION_LISTENERS)
+			 .add(
+ 				new EventHandler<RelationEvent<?>>()
+ 				{
+ 					@Override
+ 					public void handleEvent(RelationEvent<?> rEvent)
+ 					{
+ 						// should never be invoked
+ 						fail();
+ 					}
+ 				});
 			fail();
 		}
 		catch (Exception e)
@@ -473,8 +478,9 @@ public class RelationTest
 		Object it = r.get(IntermediateRelation.INTERMEDIATE_TARGET);
 
 		assertTrue(it instanceof byte[]);
-		assertEquals(Invert.class,
-					 r.get(IntermediateRelation.TARGET_CONVERSION).getClass());
+		assertEquals(
+			Invert.class,
+			r.get(IntermediateRelation.TARGET_CONVERSION).getClass());
 		assertEquals("TEST", o.get(NAME));
 
 		o = new RelatedObject();
@@ -573,8 +579,9 @@ public class RelationTest
 		assertTrue(TEST_FLAGGED.hasFlag(MetaTypes.MANDATORY));
 		assertTrue(TEST_ANNOTATED.hasFlag(MetaTypes.ORDERED));
 
-		assertTrue(StandardTypes.NAME.get(MetaTypes.DECLARING_CLASS) ==
-				   StandardTypes.class);
+		assertTrue(
+			StandardTypes.NAME.get(MetaTypes.DECLARING_CLASS) ==
+			StandardTypes.class);
 
 		List<RelationType<?>> rStandardTypes =
 			ObjectRelations.getRelatable(StandardTypes.class)
@@ -698,8 +705,9 @@ public class RelationTest
 		assertEquals("TEST3", urlGet(o1, "test-ref/test-ref/name"));
 		assertEquals("TEST3", urlGet(o1, "test-ref//test-ref///name"));
 		assertEquals(true, urlGet(o1, "test-ref/test-ref/test-flag"));
-		assertEquals(true,
-					 urlGet(o1, "test-ref/test-ref/org.obrel.test.test-flag"));
+		assertEquals(
+			true,
+			urlGet(o1, "test-ref/test-ref/org.obrel.test.test-flag"));
 
 		try
 		{

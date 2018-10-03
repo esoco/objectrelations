@@ -39,13 +39,11 @@ import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
+import org.obrel.type.ListenerTypes;
 
 import static de.esoco.lib.json.Json.JSON_DATE_FORMAT;
 
 import static org.obrel.type.MetaTypes.IMMUTABLE;
-import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
-import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
-import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 
 
 /********************************************************************
@@ -70,10 +68,11 @@ public class JsonBuilder
 		r -> !r.getType().hasModifier(RelationTypeModifier.TRANSIENT);
 
 	private static final Collection<RelationType<?>> DEFAULT_EXCLUDED_RELATION_TYPES =
-		CollectionUtil.<RelationType<?>>setOf(RELATION_LISTENERS,
-											  RELATION_TYPE_LISTENERS,
-											  RELATION_UPDATE_LISTENERS,
-											  IMMUTABLE);
+		CollectionUtil.<RelationType<?>>setOf(
+			ListenerTypes.RELATION_LISTENERS,
+			ListenerTypes.RELATION_TYPE_LISTENERS,
+			ListenerTypes.RELATION_UPDATE_LISTENERS,
+			IMMUTABLE);
 
 	//~ Instance fields --------------------------------------------------------
 
@@ -447,9 +446,10 @@ public class JsonBuilder
 			pMatchesType = r -> !aExcludedRelationTypes.contains(r.getType());
 		}
 
-		appendRelations(rObject.getRelations(IS_NOT_TRANSIENT.and(pMatchesType)),
-						eNamingStyle,
-						true);
+		appendRelations(
+			rObject.getRelations(IS_NOT_TRANSIENT.and(pMatchesType)),
+			eNamingStyle,
+			true);
 
 		return this;
 	}
@@ -529,9 +529,9 @@ public class JsonBuilder
 	public JsonBuilder endObject()
 	{
 		sCurrentIndent =
-			sCurrentIndent.substring(0,
-									 sCurrentIndent.length() -
-									 sIndent.length());
+			sCurrentIndent.substring(
+				0,
+				sCurrentIndent.length() - sIndent.length());
 		newLine();
 		aJson.append(JsonStructure.OBJECT.cClose);
 

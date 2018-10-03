@@ -41,7 +41,6 @@ import org.obrel.core.RelationTypes;
 import static org.obrel.core.RelationTypeModifier.FINAL;
 import static org.obrel.core.RelationTypes.newFlagType;
 import static org.obrel.core.RelationTypes.newType;
-import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
 
 
 /********************************************************************
@@ -355,15 +354,17 @@ public class MetaTypes
 		{
 			if (rNewRelation.getTarget() != Boolean.TRUE)
 			{
-				throw new IllegalArgumentException(getName() +
-												   " must always be set to TRUE");
+				throw new IllegalArgumentException(
+					getName() +
+					" must always be set to TRUE");
 			}
 
 			super.addRelation(rParent, rNewRelation);
 
 			// first make all relations of the parent immutable
 			for (Relation<?> rRelation :
-				 rParent.getRelations(r -> r.getType() != RELATION_LISTENERS))
+				 rParent.getRelations(
+					r -> r.getType() != ListenerTypes.RELATION_LISTENERS))
 			{
 				rRelation.immutable();
 			}
@@ -375,7 +376,7 @@ public class MetaTypes
 
 			// activate by adding listener after all changes have been made
 			EventDispatcher<RelationEvent<?>> rListeners =
-				rParent.get(RELATION_LISTENERS);
+				rParent.get(ListenerTypes.RELATION_LISTENERS);
 
 			rListeners.add(this);
 			rListeners.setImmutable();
@@ -398,11 +399,12 @@ public class MetaTypes
 			if (rEvent.getSource().hasRelation(this))
 			{
 				String sMessage =
-					String.format("Could not %s %s; " +
-								  "object is immutable: %s",
-								  rEvent.getType(),
-								  rEvent.getElement(),
-								  rEvent.getSource());
+					String.format(
+						"Could not %s %s; " +
+						"object is immutable: %s",
+						rEvent.getType(),
+						rEvent.getElement(),
+						rEvent.getSource());
 
 				throw new UnsupportedOperationException(sMessage);
 			}

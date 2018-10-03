@@ -33,10 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.obrel.type.ListenerTypes;
+
 import static org.obrel.type.MetaTypes.IMMUTABLE;
-import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
-import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
-import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 
 
 /********************************************************************
@@ -177,10 +176,11 @@ public class RelatedObject implements Relatable
 	 */
 	public String relationsString(String sJoin, String sSeparator, int nIndent)
 	{
-		return relationsString(sJoin,
-							   sSeparator,
-							   nIndent,
-							   new HashSet<Object>());
+		return relationsString(
+			sJoin,
+			sSeparator,
+			nIndent,
+			new HashSet<Object>());
 	}
 
 	/***************************************
@@ -228,17 +228,19 @@ public class RelatedObject implements Relatable
 		if (rRelation == null)
 		{
 			rRelation =
-				rType.newIntermediateRelation(this,
-											  fTargetResolver,
-											  rIntermediateTarget);
+				rType.newIntermediateRelation(
+					this,
+					fTargetResolver,
+					rIntermediateTarget);
 
 			// addRelation() will replace an existing relation with the given type
 			addRelation(rRelation, true);
 		}
 		else
 		{
-			throw new IllegalStateException("Relation already exists: " +
-											rRelation);
+			throw new IllegalStateException(
+				"Relation already exists: " +
+				rRelation);
 		}
 
 		return rRelation;
@@ -281,8 +283,9 @@ public class RelatedObject implements Relatable
 
 		if (rRelation instanceof RelationWrapper<?, ?, ?>)
 		{
-			throw new IllegalStateException("Cannot transform alias relation " +
-											rType);
+			throw new IllegalStateException(
+				"Cannot transform alias relation " +
+				rType);
 		}
 		else if (rRelation != null)
 		{
@@ -318,33 +321,39 @@ public class RelatedObject implements Relatable
 
 		if (!rType.isPrivate())
 		{
-			if (hasRelation(RELATION_LISTENERS))
+			if (hasRelation(ListenerTypes.RELATION_LISTENERS))
 			{
-				get(RELATION_LISTENERS).dispatch(new RelationEvent<T>(rEventType,
-																	  this,
-																	  rRelation,
-																	  rUpdateValue,
-																	  this));
+				get(ListenerTypes.RELATION_LISTENERS).dispatch(
+					new RelationEvent<T>(
+						rEventType,
+						this,
+						rRelation,
+						rUpdateValue,
+						this));
 			}
 
-			if (rRelation.hasRelation(RELATION_UPDATE_LISTENERS))
+			if (rRelation.hasRelation(ListenerTypes.RELATION_UPDATE_LISTENERS))
 			{
-				rRelation.get(RELATION_UPDATE_LISTENERS)
-						 .dispatch(new RelationEvent<T>(rEventType,
-														this,
-														rRelation,
-														rUpdateValue,
-														rRelation));
+				rRelation.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
+						 .dispatch(
+		 					new RelationEvent<T>(
+		 						rEventType,
+		 						this,
+		 						rRelation,
+		 						rUpdateValue,
+		 						rRelation));
 			}
 
-			if (rType.hasRelation(RELATION_TYPE_LISTENERS))
+			if (rType.hasRelation(ListenerTypes.RELATION_TYPE_LISTENERS))
 			{
-				rType.get(RELATION_TYPE_LISTENERS)
-					 .dispatch(new RelationEvent<T>(rEventType,
-													this,
-													rRelation,
-													rUpdateValue,
-													rType));
+				rType.get(ListenerTypes.RELATION_TYPE_LISTENERS)
+					 .dispatch(
+	 					new RelationEvent<T>(
+	 						rEventType,
+	 						this,
+	 						rRelation,
+	 						rUpdateValue,
+	 						rType));
 			}
 		}
 	}
@@ -508,10 +517,11 @@ public class RelatedObject implements Relatable
 					int nLevel = nIndent >= 0 ? nIndent + 1 : -1;
 
 					String sTargetRelations =
-						((RelatedObject) rTarget).relationsString(sJoin,
-																  sSeparator,
-																  nLevel,
-																  rExcludedObjects);
+						((RelatedObject) rTarget).relationsString(
+							sJoin,
+							sSeparator,
+							nLevel,
+							rExcludedObjects);
 
 					if (nLevel >= 0)
 					{
@@ -541,8 +551,8 @@ public class RelatedObject implements Relatable
 
 		if (aRelations.size() > 0)
 		{
-			aStringBuilder.setLength(aStringBuilder.length() -
-									 sSeparator.length());
+			aStringBuilder.setLength(
+				aStringBuilder.length() - sSeparator.length());
 		}
 
 		return aStringBuilder.toString();

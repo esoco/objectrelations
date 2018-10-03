@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import de.esoco.lib.event.EventHandler;
 
 import org.junit.Test;
 
+import org.obrel.type.ListenerTypes;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -29,9 +31,6 @@ import static org.junit.Assert.assertTrue;
 import static org.obrel.type.StandardTypes.COUNT;
 import static org.obrel.type.StandardTypes.NAME;
 import static org.obrel.type.StandardTypes.ORDINAL;
-import static org.obrel.type.StandardTypes.RELATION_LISTENERS;
-import static org.obrel.type.StandardTypes.RELATION_TYPE_LISTENERS;
-import static org.obrel.type.StandardTypes.RELATION_UPDATE_LISTENERS;
 import static org.obrel.type.StandardTypes.SIZE;
 
 
@@ -59,7 +58,7 @@ public class RelationListenerTest
 
 		TestListener<?> aListener = new TestListener<>();
 
-		aTest1.get(RELATION_LISTENERS).add(aListener);
+		aTest1.get(ListenerTypes.RELATION_LISTENERS).add(aListener);
 
 		aTest1.set(NAME, "TEST1");
 		aTest2.set(NAME, "TEST2");
@@ -72,8 +71,10 @@ public class RelationListenerTest
 		aTest1.deleteRelation(NAME);
 		assertNull(rRelationTarget);
 
-		aTest1.get(RELATION_LISTENERS).remove(aListener);
-		assertTrue(aTest1.get(RELATION_LISTENERS).getEventHandlerCount() == 0);
+		aTest1.get(ListenerTypes.RELATION_LISTENERS).remove(aListener);
+		assertTrue(
+			aTest1.get(ListenerTypes.RELATION_LISTENERS).getEventHandlerCount() ==
+			0);
 	}
 
 	/***************************************
@@ -117,7 +118,8 @@ public class RelationListenerTest
 		aTest1.set(NAME, null).addUpdateListener(aListener);
 		aTest1.set(NAME, "TEST1");
 		assertEquals("TEST1", rRelationTarget);
-		aTest1.getRelation(NAME).get(RELATION_UPDATE_LISTENERS)
+		aTest1.getRelation(NAME)
+			  .get(ListenerTypes.RELATION_UPDATE_LISTENERS)
 			  .remove(aListener);
 		aTest1.set(NAME, "TEST1X");
 		assertEquals("TEST1", rRelationTarget);
@@ -160,7 +162,7 @@ public class RelationListenerTest
 		assertNull(rRelationTarget);
 
 		EventDispatcher<RelationEvent<?>> rTypeEventDispatcher =
-			NAME.get(RELATION_TYPE_LISTENERS);
+			NAME.get(ListenerTypes.RELATION_TYPE_LISTENERS);
 
 		rTypeEventDispatcher.remove(aListener);
 
