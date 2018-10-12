@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,6 +49,18 @@ public class Params extends RelatedObject implements RelationBuilder<Params>,
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Copies the relations of this instance to another relatable.
+	 *
+	 * @param rTarget          The target relatable
+	 * @param bReplaceExisting TRUE to overwrite existing relations in the
+	 *                         target, FALSE to keep them
+	 */
+	public void applyTo(Relatable rTarget, boolean bReplaceExisting)
+	{
+		ObjectRelations.copyRelations(this, rTarget, bReplaceExisting);
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -68,8 +80,8 @@ public class Params extends RelatedObject implements RelationBuilder<Params>,
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> void setConfigValue(RelationType<T> rType, T rDefaultValue)
+	public <T> void setConfigValue(RelationType<T> rType, T rValue)
 	{
-		set(rType, rDefaultValue);
+		set(rType, rValue);
 	}
 }
