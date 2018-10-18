@@ -48,20 +48,6 @@ public class ListenerTypes
 		newType(r -> new EventDispatcher<>());
 
 	/**
-	 * A relation type for the registration of update listeners on relations. A
-	 * relation update listener is notified of all changes to the relation it is
-	 * set on. Setting a relation update listener on any other type of object
-	 * than a relation will have no effect. A {@link #RELATION_LISTENERS} on a
-	 * relation will have the same function as on any other object, i.e will be
-	 * notified of changes to the (meta-relations) of the relation.
-	 *
-	 * <p>Will be initialized automatically so it is not necessary to check for
-	 * existence before accessing the relation.</p>
-	 */
-	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_UPDATE_LISTENERS =
-		newType(r -> new EventDispatcher<>());
-
-	/**
 	 * A relation type for the registration of event listeners on relation
 	 * types. A relation type listener is notified of all changes to relations
 	 * with the type it is set on. Setting a relation type listener on any other
@@ -74,6 +60,20 @@ public class ListenerTypes
 	 * existence before accessing the relation.</p>
 	 */
 	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_TYPE_LISTENERS =
+		newType(r -> new EventDispatcher<>());
+
+	/**
+	 * A relation type for the registration of update listeners on relations. A
+	 * relation update listener is notified of all changes to the relation it is
+	 * set on. Setting a relation update listener on any other type of object
+	 * than a relation will have no effect. A {@link #RELATION_LISTENERS} on a
+	 * relation will have the same function as on any other object, i.e will be
+	 * notified of changes to the (meta-relations) of the relation.
+	 *
+	 * <p>Will be initialized automatically so it is not necessary to check for
+	 * existence before accessing the relation.</p>
+	 */
+	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_UPDATE_LISTENERS =
 		newType(r -> new EventDispatcher<>());
 
 	static
