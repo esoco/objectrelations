@@ -517,6 +517,16 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	/***************************************
+	 * Returns the datatype of the target objects of relations of this type.
+	 *
+	 * @return The datatype of target objects
+	 */
+	public final Class<? super T> getTargetType()
+	{
+		return rTargetType;
+	}
+
+	/***************************************
 	 * Returns the relation type name.
 	 *
 	 * @see RelatedObject#toString()
@@ -525,16 +535,6 @@ public class RelationType<T> extends RelatedObject
 	public String getToken()
 	{
 		return getName();
-	}
-
-	/***************************************
-	 * Returns the value datatype of relations of this type.
-	 *
-	 * @return The datatype of the values returned by relations of this type
-	 */
-	public final Class<? super T> getValueType()
-	{
-		return rTargetType;
 	}
 
 	/***************************************
@@ -892,7 +892,7 @@ public class RelationType<T> extends RelatedObject
 					Class<? super T>		rTargetType,
 					Action<RelationType<?>> fInitAction)
 	{
-		this.sName	    = sName;
+		this.sName		 = sName;
 		this.rTargetType = rTargetType;
 
 		if (sName != INIT_TYPE)

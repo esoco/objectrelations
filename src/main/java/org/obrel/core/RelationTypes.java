@@ -964,10 +964,10 @@ public class RelationTypes
 		else
 		{
 			assert ReflectUtil.getRawType(rTargetType) ==
-				   rRelationType.getValueType() : String.format(
+				   rRelationType.getTargetType() : String.format(
 				"Invalid target type for RelationType %s: %s (expected: %s)",
 				sTypeName,
-				rRelationType.getValueType(),
+				rRelationType.getTargetType(),
 				rField.getType());
 
 			if (!rField.isAnnotationPresent(NoRelationNameCheck.class))

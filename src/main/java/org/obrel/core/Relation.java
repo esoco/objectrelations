@@ -317,7 +317,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	@SuppressWarnings("unchecked")
 	public void immutable()
 	{
-		Class<?> rTargetType = rType.getValueType();
+		Class<?> rTargetType = rType.getTargetType();
 		Object   rTarget     = getTarget();
 
 		if (rTarget instanceof Immutability)
@@ -584,7 +584,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 					rType,
 					rNewTarget,
 					rNewTarget.getClass().getName(),
-					rType.getValueType()));
+					rType.getTargetType()));
 		}
 
 		setTarget(rNewTarget);

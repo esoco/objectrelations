@@ -571,8 +571,8 @@ public class RelationTest
 		assertTrue(m.getClass() == HashMap.class);
 		assertTrue(om.getClass() == LinkedHashMap.class);
 
-		assertTrue(TEST_ARRAY.getValueType() == String[].class);
-		assertTrue(TEST_GENERIC_ARRAY.getValueType() == List[].class);
+		assertTrue(TEST_ARRAY.getTargetType() == String[].class);
+		assertTrue(TEST_GENERIC_ARRAY.getTargetType() == List[].class);
 
 		assertEquals("org.obrel.test", TEST_ID.getNamespace());
 

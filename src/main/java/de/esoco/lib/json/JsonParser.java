@@ -534,7 +534,7 @@ public class JsonParser
 
 		if (rRelationType != null)
 		{
-			Class<?> rValueType = rRelationType.getValueType();
+			Class<?> rValueType = rRelationType.getTargetType();
 			Object   rValue;
 
 			if (List.class.isAssignableFrom(rValueType))
