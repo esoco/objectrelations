@@ -73,46 +73,6 @@ public abstract class Relation<T> extends SerializableRelatedObject
 		this.rType = rType;
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
-	 * Internal method to throw an exception if a certain target value is not
-	 * valid for the given relation type.
-	 *
-	 * @param rType   The relation type
-	 * @param rTarget The target candidate
-	 */
-	static void checkValidTargetForType(RelationType<?> rType, Object rTarget)
-	{
-		if (!isValidTargetForType(rType, rTarget))
-		{
-			throw new IllegalArgumentException(
-				String.format(
-					"Invalid target for type '%s': %s (is %s - expected %s)",
-					rType,
-					rTarget,
-					rTarget.getClass().getName(),
-					rType.getValueType()));
-		}
-	}
-
-	/***************************************
-	 * Internal method to check whether a certain target value is valid for the
-	 * given relation type.
-	 *
-	 * @param  rType   The relation type
-	 * @param  rTarget The target candidate
-	 *
-	 * @return TRUE if the given object is a valid target
-	 */
-	static boolean isValidTargetForType(RelationType<?> rType, Object rTarget)
-	{
-		assert rType != null;
-
-		return rTarget == null ||
-			   rType.getValueType().isAssignableFrom(rTarget.getClass());
-	}
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -616,7 +576,17 @@ public abstract class Relation<T> extends SerializableRelatedObject
 				rType);
 		}
 
-		checkValidTargetForType(rType, rNewTarget);
+		if (!rType.isValidTarget(rNewTarget))
+		{
+			throw new IllegalArgumentException(
+				String.format(
+					"Invalid target for type '%s': %s (is %s - expected %s)",
+					rType,
+					rNewTarget,
+					rNewTarget.getClass().getName(),
+					rType.getValueType()));
+		}
+
 		setTarget(rNewTarget);
 	}
 

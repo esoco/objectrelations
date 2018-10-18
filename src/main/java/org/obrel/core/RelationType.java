@@ -102,7 +102,7 @@ public class RelationType<T> extends RelatedObject
 	/** @serial The type name, including the namespace (if set). */
 	private String sName = INIT_TYPE;
 
-	private transient Class<? super T>		    rValueType;
+	private transient Class<? super T>		    rTargetType;
 	private transient Set<RelationTypeModifier> aModifiers;
 
 	// ? super T necessary to support nested generic types
@@ -534,7 +534,7 @@ public class RelationType<T> extends RelatedObject
 	 */
 	public final Class<? super T> getValueType()
 	{
-		return rValueType;
+		return rTargetType;
 	}
 
 	/***************************************
@@ -645,6 +645,19 @@ public class RelationType<T> extends RelatedObject
 	public final boolean isTransient()
 	{
 		return hasModifier(RelationTypeModifier.TRANSIENT);
+	}
+
+	/***************************************
+	 * Check whether a certain object is a valid target for this relation type.
+	 *
+	 * @param  rTarget The object to check
+	 *
+	 * @return TRUE if the given object is a valid target
+	 */
+	public boolean isValidTarget(Object rTarget)
+	{
+		return rTarget == null ||
+			   rTargetType.isAssignableFrom(rTarget.getClass());
 	}
 
 	/***************************************
@@ -880,7 +893,7 @@ public class RelationType<T> extends RelatedObject
 					Action<RelationType<?>> fInitAction)
 	{
 		this.sName	    = sName;
-		this.rValueType = rTargetType;
+		this.rTargetType = rTargetType;
 
 		if (sName != INIT_TYPE)
 		{
