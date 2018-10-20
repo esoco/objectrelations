@@ -1,0 +1,16 @@
+de.esoco.lib.collection
+de.esoco.lib.concurrent
+de.esoco.lib.datatype
+de.esoco.lib.event
+de.esoco.lib.expression
+de.esoco.lib.expression.function
+de.esoco.lib.expression.predicate
+de.esoco.lib.json
+de.esoco.lib.logging
+de.esoco.lib.reflect
+de.esoco.lib.text
+de.esoco.lib.xml
+org.obrel.core
+org.obrel.filter
+org.obrel.space
+org.obrel.type
