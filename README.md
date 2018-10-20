@@ -1,6 +1,8 @@
 # The ObjectRelations project
 
-This project contains the ObjectRelations library. ObjectRelations is a new development concept that is can be seen as an extension and enhancement of object-oriented software development. The main idea behind it is to model the relations between objects similar to the way object-orientation models the elements of a software development project. The ObjectRelations project also contains a framework for functional programming that is used throughout all dependent frameworks. It is recommended to study the ObjectRelations documentation before other frameworks that are based on it to get an understanding of the underlying principles.
+This project contains the ObjectRelations framework. ObjectRelations is a new development concept that can be seen as an extension and enhancement of object-oriented software development. The main idea behind it is to model the relations between  objects similar to the way the objects themselves are modeled in object-orientation. It is recommended to study the ObjectRelations documentation before other [SDACK](https://github.com/esoco/sdack) frameworks that are built upon it to get an understanding of the underlying principles.
+
+The project documentation can be found in the [SDACK documentation project](https://github.com/esoco/sdack-docs). The documentation is also [available on Gitbooks](https://esoco.gitbook.io/sdack/frameworks/objectrelations).
 
 # License
 
