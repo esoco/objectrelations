@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.function;
 
-import de.esoco.lib.expression.Function;
-import de.esoco.lib.expression.Predicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 
 /********************************************************************
@@ -87,9 +87,10 @@ public class ConditionalFunction<I, O> extends AbstractFunction<I, O>
 	 */
 	public Function<I, O> elseDo(Function<? super I, ? extends O> rFunction)
 	{
-		return new ConditionalFunction<I, O>(rPredicate,
-											 rTrueFunction,
-											 rFunction);
+		return new ConditionalFunction<I, O>(
+			rPredicate,
+			rTrueFunction,
+			rFunction);
 	}
 
 	/***************************************
@@ -104,13 +105,13 @@ public class ConditionalFunction<I, O> extends AbstractFunction<I, O>
 	{
 		O rResult = null;
 
-		if (rPredicate.evaluate(rInput))
+		if (rPredicate.test(rInput))
 		{
-			rResult = rTrueFunction.evaluate(rInput);
+			rResult = rTrueFunction.apply(rInput);
 		}
 		else if (rFalseFunction != null)
 		{
-			rResult = rFalseFunction.evaluate(rInput);
+			rResult = rFalseFunction.apply(rInput);
 		}
 
 		return rResult;

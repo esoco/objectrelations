@@ -25,11 +25,11 @@ import de.esoco.lib.expression.function.BinaryFunctionGroup;
 import de.esoco.lib.expression.function.ConditionalFunction;
 import de.esoco.lib.expression.function.DualFunctionChain;
 import de.esoco.lib.expression.function.FunctionChain;
-import de.esoco.lib.expression.function.FunctionGroup;
 import de.esoco.lib.expression.function.GetElement.GetField;
 import de.esoco.lib.expression.function.GetElement.GetRelation;
 import de.esoco.lib.expression.function.GetElement.GetRelationValue;
 import de.esoco.lib.expression.function.GetElement.ReadField;
+import de.esoco.lib.expression.function.Group;
 import de.esoco.lib.expression.function.Invert;
 import de.esoco.lib.expression.function.Print;
 import de.esoco.lib.expression.function.SetElement.SetRelationValue;
@@ -172,7 +172,8 @@ public class Functions
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Converts a function into an action that ignores the return value.
+	 * Converts a {@link Function} into an {@link Action} that ignores the
+	 * result value.
 	 *
 	 * @param  rFunction The function to convert
 	 *
@@ -180,7 +181,72 @@ public class Functions
 	 */
 	public static <T> Action<T> asAction(Function<T, ?> rFunction)
 	{
-		return v -> rFunction.evaluate(v);
+		return rFunction::evaluate;
+	}
+
+	/***************************************
+	 * Converts a {@link java.util.function.Function} into a {@link Consumer}.
+	 *
+	 * @param  fFunction The function to convert
+	 *
+	 * @return The resulting consumer
+	 */
+	public static <T> Consumer<T> asConsumer(
+		java.util.function.Function<T, ?> fFunction)
+	{
+		return fFunction::apply;
+	}
+
+	/***************************************
+	 * Converts a {@link Consumer} into a of {@link java.util.function.Function}
+	 * that returns a Void result.
+	 *
+	 * @param  fConsumer The consumer to convert
+	 *
+	 * @return The resulting function
+	 */
+	public static <T> java.util.function.Function<T, Void> asFunction(
+		Consumer<T> fConsumer)
+	{
+		return v ->
+	   		{
+	   			fConsumer.accept(v);
+
+	   			return null;
+			   };
+	}
+
+	/***************************************
+	 * Converts a {@link Supplier} into a of {@link java.util.function.Function}
+	 * that ignores input values.
+	 *
+	 * @param  fSupplier The suppler to convert
+	 *
+	 * @return The resulting function
+	 */
+	public static <I, O> java.util.function.Function<I, O> asFunction(
+		Supplier<O> fSupplier)
+	{
+		return i -> fSupplier.get();
+	}
+
+	/***************************************
+	 * Converts a {@link Runnable} into a of {@link java.util.function.Function}
+	 * that ignores input values and returns a Void result.
+	 *
+	 * @param  fRunnable The runnable to convert
+	 *
+	 * @return The resulting function
+	 */
+	public static <T> java.util.function.Function<T, Void> asFunction(
+		Runnable fRunnable)
+	{
+		return v ->
+	   		{
+	   			fRunnable.run();
+
+	   			return null;
+			   };
 	}
 
 	/***************************************
@@ -316,27 +382,6 @@ public class Functions
 	}
 
 	/***************************************
-	 * Wraps an instance of {@link Consumer} in to a generically typed instance
-	 * of {@link java.util.function.Function} that returns a Void result. This
-	 * allows to use existing consumers where a function implementation is
-	 * expected.
-	 *
-	 * @param  fConsumer The consumer to wrap
-	 *
-	 * @return The resulting function
-	 */
-	public static <T> java.util.function.Function<T, Void> consume(
-		Consumer<T> fConsumer)
-	{
-		return v ->
-	   		{
-	   			fConsumer.accept(v);
-
-	   			return null;
-			   };
-	}
-
-	/***************************************
 	 * Returns a function that returns the current system time as returned by
 	 * {@link System#currentTimeMillis()}.
 	 *
@@ -349,23 +394,22 @@ public class Functions
 	}
 
 	/***************************************
-	 * Returns a single function that will apply several functions successively
-	 * to input values in the order in which they appear in the argument
-	 * function list. The return value of the resulting function will be the
-	 * input value to support function chaining.
+	 * Returns a single function that applies several consumers successively to
+	 * input values in the order in which they appear in the argument list. The
+	 * return value of the resulting function will be the input value to support
+	 * function chaining.
 	 *
-	 * @param  fFirst               The first function to apply to input values
-	 * @param  rAdditionalFunctions Additional functions to apply to input
-	 *                              values
+	 * @param  fFirst               The first consumer to apply to input values
+	 * @param  rAdditionalFunctions Additional consumer to apply to input values
 	 *
 	 * @return A new function that evaluates all argument functions
 	 */
 	@SafeVarargs
 	public static <I> Function<I, I> doAll(
-		Function<? super I, ?>    fFirst,
-		Function<? super I, ?>... rAdditionalFunctions)
+		Consumer<? super I>    fFirst,
+		Consumer<? super I>... rAdditionalFunctions)
 	{
-		return FunctionGroup.of(fFirst, rAdditionalFunctions);
+		return Group.of(fFirst, rAdditionalFunctions);
 	}
 
 	/***************************************
@@ -423,7 +467,22 @@ public class Functions
 		Predicate<? super I>   rPredicate,
 		Function<? super I, O> rFunction)
 	{
-		return new ConditionalFunction<I, O>(rPredicate, rFunction);
+		return new ConditionalFunction<>(rPredicate, rFunction);
+	}
+
+	/***************************************
+	 * A variant of {@link #doIf(Predicate, Function)} for consumers.
+	 *
+	 * @see #doIf(Predicate, Function)
+	 */
+	public static <I> Consumer<I> doIf(
+		Predicate<? super I> rPredicate,
+		Consumer<? super I>  fConsumer)
+	{
+		return asConsumer(
+			new ConditionalFunction<I, Void>(
+				rPredicate,
+				asFunction(fConsumer)));
 	}
 
 	/***************************************
@@ -433,19 +492,36 @@ public class Functions
 	 * more readable way to create instances of {@link ConditionalFunction}.
 	 *
 	 * @param  rPredicate The predicate to evaluate
-	 * @param  rIf        The function to evaluate input values with if the
+	 * @param  fIf        The function to evaluate input values with if the
 	 *                    predicate yields TRUE
-	 * @param  rElse      The function to evaluate input values with if the
+	 * @param  fElse      The function to evaluate input values with if the
 	 *                    predicate yields FALSE
 	 *
 	 * @return A new function for the conditional evaluation of functions
 	 */
 	public static <I, O> Function<I, O> doIfElse(
 		Predicate<? super I>			 rPredicate,
-		Function<? super I, ? extends O> rIf,
-		Function<? super I, ? extends O> rElse)
+		Function<? super I, ? extends O> fIf,
+		Function<? super I, ? extends O> fElse)
 	{
-		return new ConditionalFunction<I, O>(rPredicate, rIf, rElse);
+		return new ConditionalFunction<>(rPredicate, fIf, fElse);
+	}
+
+	/***************************************
+	 * A variant of {@link #doIfElse(Predicate, Function, Function)} for
+	 * consumers.
+	 *
+	 * @see #doIfElse(Predicate, Function, Function)
+	 */
+	public static <I> Consumer<I> doIfElse(Predicate<? super I> rPredicate,
+										   Consumer<? super I>  fIf,
+										   Consumer<? super I>  fElse)
+	{
+		return asConsumer(
+			new ConditionalFunction<I, Void>(
+				rPredicate,
+				asFunction(fIf),
+				asFunction(fElse)));
 	}
 
 	/***************************************
@@ -740,27 +816,6 @@ public class Functions
 	}
 
 	/***************************************
-	 * Wraps an instance of {@link Runnable} in to a generically typed instance
-	 * of {@link java.util.function.Function} that ignores it's input and
-	 * returns a Void result. This allows to use existing instances of {@link
-	 * Runnable} where a function implementation is expected.
-	 *
-	 * @param  fRunnable The {@link Runnable} to wrap
-	 *
-	 * @return The resulting function
-	 */
-	public static <T> java.util.function.Function<T, Void> run(
-		Runnable fRunnable)
-	{
-		return v ->
-	   		{
-	   			fRunnable.run();
-
-	   			return null;
-			   };
-	}
-
-	/***************************************
 	 * Returns a new instance of {@link SetRelationValue}.
 	 *
 	 * @param  rType  The type of the relation to read the value from
@@ -785,22 +840,6 @@ public class Functions
 	public static <T extends Number> Function<T, T> sleep()
 	{
 		return (Function<T, T>) THREAD_SLEEP;
-	}
-
-	/***************************************
-	 * Wrapos an instance of {@link Supplier} into a generically typed instance
-	 * of {@link java.util.function.Function} that ignores it's input. This
-	 * allows to use existing suppliers where a function implementation is
-	 * expected.
-	 *
-	 * @param  fSupplier The supplier
-	 *
-	 * @return The resulting function
-	 */
-	public static <I, O> java.util.function.Function<I, O> supply(
-		Supplier<O> fSupplier)
-	{
-		return i -> fSupplier.get();
 	}
 
 	/***************************************
@@ -857,12 +896,12 @@ public class Functions
 	{
 		return unchecked(
 			i ->
+		{
+			try (R rResource = fOpenResource.evaluate(i))
 			{
-				try (R rResource = fOpenResource.evaluate(i))
-				{
-					return fProduceResult.evaluate(rResource);
-				}
-			});
+				return fProduceResult.evaluate(rResource);
+			}
+		});
 	}
 
 	/***************************************
