@@ -1,5 +1,5 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'esoco-lib' project.
+// This file is a part of the 'objectrelations' project.
 // Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,10 +43,10 @@ import static de.esoco.lib.datatype.Pair.t;
  * Double, BigInteger, BigDecimal) as well as {@link Character} values.
  *
  * <p>Ranges are defined with a simple builder pattern: a new instance is
- * created by the static factory method {@link #from(Comparable)} from a start
- * value which also defines the range datatype. Before the range can be used an
- * end value must be defined by invoking either {@link #to(Comparable)} or
- * {@link #toBefore(Comparable)} for inclusive or exclusive end values,
+ * created with the static factory methods called <code>from(value)</code> with
+ * a start value which also defines the range datatype. Before the range can be
+ * used an end value must be defined by invoking either {@link #to(Comparable)}
+ * or {@link #toBefore(Comparable)} for inclusive or exclusive end values,
  * respectively. The default step size is 1 (one) but a different step size can
  * be set through {@link #step(Comparable)}. Trying to use a range that has no
  * end value will cause a runtime exception to be thrown.</p>
@@ -75,28 +75,28 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 	private static final long END_EXCLUSIVE = Long.MIN_VALUE + 1;
 
 	private static final Map<Class<?>, Comparable<?>> DEFAULT_STEPS =
-		CollectionUtil.fixedMapOf(t(Long.class, Long.valueOf(1)),
-								  t(Integer.class, Integer.valueOf(1)),
-								  t(Short.class, Short.valueOf((short) 1)),
-								  t(Byte.class, Byte.valueOf((byte) 1)),
-								  t(BigInteger.class, BigInteger.ONE),
-								  t(BigDecimal.class, BigDecimal.ONE),
-								  t(Double.class, Double.valueOf(1)),
-								  t(Float.class, Float.valueOf(1)),
-								  t(Character.class,
-									Character.valueOf('\u0001')));
+		CollectionUtil.fixedMapOf(
+			t(Long.class, Long.valueOf(1)),
+			t(Integer.class, Integer.valueOf(1)),
+			t(Short.class, Short.valueOf((short) 1)),
+			t(Byte.class, Byte.valueOf((byte) 1)),
+			t(BigInteger.class, BigInteger.ONE),
+			t(BigDecimal.class, BigDecimal.ONE),
+			t(Double.class, Double.valueOf(1)),
+			t(Float.class, Float.valueOf(1)),
+			t(Character.class, Character.valueOf('\u0001')));
 
 	private static final Map<Class<?>, Comparable<?>> ZERO_VALUES =
-		CollectionUtil.fixedMapOf(t(Long.class, Long.valueOf(0)),
-								  t(Integer.class, Integer.valueOf(0)),
-								  t(Short.class, Short.valueOf((short) 0)),
-								  t(Byte.class, Byte.valueOf((byte) 0)),
-								  t(BigInteger.class, BigInteger.ZERO),
-								  t(BigDecimal.class, BigDecimal.ZERO),
-								  t(Double.class, Double.valueOf(0)),
-								  t(Float.class, Float.valueOf(0)),
-								  t(Character.class,
-									Character.valueOf('\u0000')));
+		CollectionUtil.fixedMapOf(
+			t(Long.class, Long.valueOf(0)),
+			t(Integer.class, Integer.valueOf(0)),
+			t(Short.class, Short.valueOf((short) 0)),
+			t(Byte.class, Byte.valueOf((byte) 0)),
+			t(BigInteger.class, BigInteger.ZERO),
+			t(BigDecimal.class, BigDecimal.ZERO),
+			t(Double.class, Double.valueOf(0)),
+			t(Float.class, Float.valueOf(0)),
+			t(Character.class, Character.valueOf('\u0000')));
 
 	//~ Instance fields --------------------------------------------------------
 
@@ -137,9 +137,10 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 	 */
 	public static Range<Long> from(long nStart)
 	{
-		return new Range<>(nStart,
-						   i -> Long.valueOf(i.aNext.longValue() +
-											 i.range().aStep.longValue()));
+		return new Range<>(
+			nStart,
+			i -> Long.valueOf(
+					i.aNext.longValue() + i.range().aStep.longValue()));
 	}
 
 	/***************************************
@@ -151,9 +152,10 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 	 */
 	public static Range<Integer> from(int nStart)
 	{
-		return new Range<>(nStart,
-						   i -> Integer.valueOf(i.aNext.intValue() +
-												i.range().aStep.intValue()));
+		return new Range<>(
+			nStart,
+			i -> Integer.valueOf(
+					i.aNext.intValue() + i.range().aStep.intValue()));
 	}
 
 	/***************************************
@@ -165,9 +167,10 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 	 */
 	public static Range<Float> from(float fStart)
 	{
-		return new Range<>(fStart,
-						   i -> Float.valueOf(i.aNext.floatValue() +
-											  i.range().aStep.floatValue()));
+		return new Range<>(
+			fStart,
+			i -> Float.valueOf(
+					i.aNext.floatValue() + i.range().aStep.floatValue()));
 	}
 
 	/***************************************
@@ -179,9 +182,10 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 	 */
 	public static Range<Double> from(double fStart)
 	{
-		return new Range<>(fStart,
-						   i -> Double.valueOf(i.aNext.doubleValue() +
-											   i.range().aStep.doubleValue()));
+		return new Range<>(
+			fStart,
+			i -> Double.valueOf(
+					i.aNext.doubleValue() + i.range().aStep.doubleValue()));
 	}
 
 	/***************************************
@@ -193,10 +197,11 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 	 */
 	public static Range<Short> from(short nStart)
 	{
-		return new Range<>(nStart,
-						   i -> Short.valueOf((short) (i.aNext.shortValue() +
-													   i.range().aStep
-													   .shortValue())));
+		return new Range<>(
+			nStart,
+			i -> Short.valueOf(
+					(short) (i.aNext.shortValue() +
+						i.range().aStep.shortValue())));
 	}
 
 	/***************************************
@@ -208,10 +213,10 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 	 */
 	public static Range<Byte> from(byte nStart)
 	{
-		return new Range<>(nStart,
-						   i -> Byte.valueOf((byte) (i.aNext.byteValue() +
-													 i.range().aStep
-													 .byteValue())));
+		return new Range<>(
+			nStart,
+			i -> Byte.valueOf(
+					(byte) (i.aNext.byteValue() + i.range().aStep.byteValue())));
 	}
 
 	/***************************************
@@ -248,13 +253,12 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 	@SuppressWarnings("unchecked")
 	public static Range<Character> from(char cStart)
 	{
-		return new Range<>(cStart,
-						   i -> Character.valueOf((char) (i.aNext.charValue() +
-														  (i.range().bAscending
-														   ? i.range().aStep
-														   .charValue()
-														   : -i.range().aStep
-														   .charValue()))));
+		return new Range<>(
+			cStart,
+			i -> Character.valueOf(
+					(char) (i.aNext.charValue() +
+						(i.range().bAscending ? i.range().aStep.charValue()
+											  : -i.range().aStep.charValue()))));
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -305,8 +309,8 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 
 	/***************************************
 	 * Returns the last value of this range. If the range has been defined with
-	 * {@link #toBefore(Comparable)} the value returned by this method will be last
-	 * value before the exclusive end based on the step size.
+	 * {@link #toBefore(Comparable)} the value returned by this method will be
+	 * last value before the exclusive end based on the step size.
 	 *
 	 * @return The last value
 	 */
@@ -399,14 +403,12 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 	@Override
 	public Spliterator<T> spliterator()
 	{
-		return Spliterators.spliterator(iterator(),
-										size(),
-										Spliterator.DISTINCT |
-										Spliterator.IMMUTABLE |
-										Spliterator.NONNULL |
-										Spliterator.ORDERED |
-										Spliterator.SORTED | Spliterator.SIZED |
-										Spliterator.SUBSIZED);
+		return Spliterators.spliterator(
+			iterator(),
+			size(),
+			Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL |
+			Spliterator.ORDERED | Spliterator.SORTED | Spliterator.SIZED |
+			Spliterator.SUBSIZED);
 	}
 
 	/***************************************
@@ -432,13 +434,15 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 
 		if (this.aStep != null)
 		{
-			throw new IllegalArgumentException("Range step already set to " +
-											   this.aStep);
+			throw new IllegalArgumentException(
+				"Range step already set to " +
+				this.aStep);
 		}
 
 		if (rStep.compareTo((T) ZERO_VALUES.get(aStart.getClass())) <= 0)
 		{
-			throw new IllegalArgumentException("Step must be a positive number");
+			throw new IllegalArgumentException(
+				"Step must be a positive number");
 		}
 
 		this.aStep = rStep;
@@ -472,8 +476,9 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 
 		if (this.aEnd != null)
 		{
-			throw new IllegalArgumentException("Range end already set to " +
-											   this.aEnd);
+			throw new IllegalArgumentException(
+				"Range end already set to " +
+				this.aEnd);
 		}
 
 		this.aEnd = rEnd;
@@ -481,6 +486,29 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 		bAscending = aStart.compareTo(aEnd) <= 0;
 
 		return this;
+	}
+
+	/***************************************
+	 * Sets the exclusive end value of this range. This method can only be
+	 * invoked once and afterwards this range is effectively immutable. The
+	 * value returned by {@link #getEnd()} will be the argument of this method
+	 * incremented or decremented by the range step depending on the range
+	 * direction.
+	 *
+	 * @param  rBefore The end value (exclusive)
+	 *
+	 * @return This instance for fluent invocations
+	 *
+	 * @throws IllegalArgumentException If the end value has already been set
+	 */
+	public Range<T> toBefore(T rBefore)
+	{
+		Range<T> rThis = to(rBefore);
+
+		// internal signal for an exclusive end value
+		nSize = END_EXCLUSIVE;
+
+		return rThis;
 	}
 
 	/***************************************
@@ -512,29 +540,6 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 		}
 
 		return aResult.toString();
-	}
-
-	/***************************************
-	 * Sets the exclusive end value of this range. This method can only be
-	 * invoked once and afterwards this range is effectively immutable. The
-	 * value returned by {@link #getEnd()} will be the argument of this method
-	 * incremented or decremented by the range step depending on the range
-	 * direction.
-	 *
-	 * @param  rBefore The end value (exclusive)
-	 *
-	 * @return This instance for fluent invocations
-	 *
-	 * @throws IllegalArgumentException If the end value has already been set
-	 */
-	public Range<T> toBefore(T rBefore)
-	{
-		Range<T> rThis = to(rBefore);
-
-		// internal signal for an exclusive end value
-		nSize = END_EXCLUSIVE;
-
-		return rThis;
 	}
 
 	/***************************************
@@ -632,8 +637,9 @@ public class Range<T extends Comparable<T>> implements Iterable<T>
 
 			if (aStep == null)
 			{
-				throw new IllegalArgumentException("No range mapping for type " +
-												   aStart.getClass());
+				throw new IllegalArgumentException(
+					"No range mapping for type " +
+					aStart.getClass());
 			}
 		}
 

@@ -97,7 +97,7 @@ public class ConditionalFunction<I, O> extends AbstractFunction<I, O>
 	 * Evaluates this instance's function on the input value if the predicate
 	 * yields TRUE for that value. Else NULL will be returned.
 	 *
-	 * @see Function#evaluate(Object)
+	 * @see de.esoco.lib.expression.Function#evaluate(Object)
 	 */
 	@Override
 	@SuppressWarnings("boxing")

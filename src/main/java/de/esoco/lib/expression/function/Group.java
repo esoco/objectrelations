@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 
 /********************************************************************
@@ -87,7 +86,7 @@ public class Group<I> extends AbstractFunction<I, I>
 	 * Applies all consumers to the input value and returns the input value
 	 * unchanged to support function chaining.
 	 *
-	 * @see Function#evaluate(Object)
+	 * @see de.esoco.lib.expression.Function#evaluate(Object)
 	 */
 	@Override
 	public I evaluate(I rInput)
