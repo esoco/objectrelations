@@ -71,10 +71,13 @@ public class StandardTypes
 	 */
 	public static final RelationType<String> FIRST_NAME = newType();
 
-	/** Information string */
+	/** An information string */
 	public static final RelationType<String> INFO = newType();
 
-	/** Description string */
+	/** An arbitrary text. */
+	public static final RelationType<String> TEXT = newType();
+
+	/** A description string. */
 	public static final RelationType<String> DESCRIPTION = newType();
 
 	/**
@@ -101,8 +104,6 @@ public class StandardTypes
 
 	/** A generic filename relation. */
 	public static final RelationType<String> FILENAME = newType();
-
-	
 
 	//- Integer values ---------------------------------------------------------
 

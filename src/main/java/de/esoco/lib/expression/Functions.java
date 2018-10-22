@@ -46,6 +46,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -211,6 +213,25 @@ public class Functions
 		return v ->
 	   		{
 	   			fConsumer.accept(v);
+
+	   			return null;
+			   };
+	}
+
+	/***************************************
+	 * Converts a {@link BiConsumer} into a of {@link BiFunction} that returns a
+	 * Void result.
+	 *
+	 * @param  fConsumer The consumer to convert
+	 *
+	 * @return The resulting function
+	 */
+	public static <T, U> java.util.function.BiFunction<T, U, Void> asFunction(
+		BiConsumer<T, U> fConsumer)
+	{
+		return (t, u) ->
+	   		{
+	   			fConsumer.accept(t, u);
 
 	   			return null;
 			   };
