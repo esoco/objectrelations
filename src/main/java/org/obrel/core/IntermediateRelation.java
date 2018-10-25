@@ -33,7 +33,7 @@ import static org.obrel.core.RelationTypes.newType;
  * superclass {@link DirectRelation} and then used for all further target
  * queries.
  *
- * <p>Copies of this class will be created by the {@link #copy(Relatable)}
+ * <p>Copies of this class will be created by the {@link #copyTo(Relatable)}
  * method of the base class {@link DirectRelation} that will convert the
  * intermediate value by invoking the method {@link #getTarget()} and then
  * return a new instance of the base class. Therefore the copy of an

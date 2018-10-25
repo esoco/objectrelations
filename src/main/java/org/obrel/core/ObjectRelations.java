@@ -37,6 +37,8 @@ import org.obrel.space.ObjectSpaceResolver.PutResolver;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
+import static de.esoco.lib.expression.Predicates.alwaysTrue;
+
 
 /********************************************************************
  * A class containing static methods for the handling of object relations. This
@@ -69,23 +71,40 @@ public class ObjectRelations
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Copies all relations from a certain object to another object. The
-	 * relations will be copied recursively so that the relations of the source
-	 * object's relations (also known as annotations) will be copied too. But
-	 * the relation targets are only copied by reference. The invoking code is
-	 * responsible to make sure that the duplication of target references won't
-	 * cause problems.
+	 * Copies all relations from a certain object to another object.
 	 *
-	 * @param rSource  The source object to copy the relations from
-	 * @param rTarget  The target object to copy the relations to
-	 * @param bReplace TRUE to replace existing relations, FALSE to keep them
+	 * @see #copyRelations(Relatable, Relatable, boolean, Predicate)
 	 */
 	public static void copyRelations(Relatable rSource,
 									 Relatable rTarget,
 									 boolean   bReplace)
 	{
-		((RelatedObject) rTarget).copyRelations((RelatedObject) rSource,
-												bReplace);
+		copyRelations(rSource, rTarget, bReplace, alwaysTrue());
+	}
+
+	/***************************************
+	 * Copies certain relations from a certain object to another object. The
+	 * relations will be copied recursively so that the meta-relations on the
+	 * source object's relations (also known as annotations) will be copied too.
+	 * But the relation targets are only copied by reference. The invoking code
+	 * is responsible to make sure that the duplication of target references
+	 * won't cause problems.
+	 *
+	 * @param rSource  The source object to copy the relations from
+	 * @param rTarget  The target object to copy the relations to
+	 * @param bReplace TRUE to replace existing relations in the target object,
+	 *                 FALSE to keep them
+	 * @param pFilter  A predicate that filters the relations to copy
+	 */
+	public static void copyRelations(Relatable				rSource,
+									 Relatable				rTarget,
+									 boolean				bReplace,
+									 Predicate<Relation<?>> pFilter)
+	{
+		for (Relation<?> rSourceRelation : rSource.getRelations(pFilter))
+		{
+			rSourceRelation.copyTo(rTarget, bReplace);
+		}
 	}
 
 	/***************************************
@@ -131,9 +150,10 @@ public class ObjectRelations
 	 */
 	public static void init()
 	{
-		registerRelationTypes(RelationTypes.class,
-							  MetaTypes.class,
-							  StandardTypes.class);
+		registerRelationTypes(
+			RelationTypes.class,
+			MetaTypes.class,
+			StandardTypes.class);
 	}
 
 	/***************************************
@@ -236,8 +256,9 @@ public class ObjectRelations
 
 		if (!aMissingTypes.isEmpty())
 		{
-			throw new IllegalArgumentException("Relations missing: " +
-											   aMissingTypes);
+			throw new IllegalArgumentException(
+				"Relations missing: " +
+				aMissingTypes);
 		}
 	}
 
@@ -482,9 +503,9 @@ public class ObjectRelations
 					rNextElement instanceof ObjectSpace)
 				{
 					// let child-spaces perform the lookup by themselves
-					return fTargetHandler.resolve((ObjectSpace<?>)
-												  rNextElement,
-												  sUrl.substring(nChildUrlIndex));
+					return fTargetHandler.resolve(
+						(ObjectSpace<?>) rNextElement,
+						sUrl.substring(nChildUrlIndex));
 				}
 				else if (rNextElement instanceof Relatable)
 				{
@@ -520,10 +541,11 @@ public class ObjectRelations
 
 					Relation<?> rElementRelation =
 						rCurrentElement.streamRelations()
-									   .filter(r ->
-											   r.getType()
-											   .getName()
-											   .endsWith(sType))
+									   .filter(
+			   							r ->
+			   								r.getType()
+			   								.getName()
+			   								.endsWith(sType))
 									   .findFirst()
 									   .orElse(null);
 
@@ -607,9 +629,10 @@ public class ObjectRelations
 	private static void urlLookupError(String sUrl, String sElement)
 	{
 		String sMessage =
-			String.format("Could not resolve element '%s' in URL '%s'",
-						  sElement,
-						  sUrl);
+			String.format(
+				"Could not resolve element '%s' in URL '%s'",
+				sElement,
+				sUrl);
 
 		throw new NoSuchElementException(sMessage);
 	}

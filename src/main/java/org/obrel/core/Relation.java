@@ -103,11 +103,11 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *
 	 * @see #viewAs(RelationType, RelatedObject)
 	 */
-	public final void aliasAs(
+	public final Relation<T> aliasAs(
 		RelationType<T> rAliasType,
-		RelatedObject   rInParent)
+		Relatable		rInParent)
 	{
-		aliasAs(rAliasType, rInParent, Functions.identity());
+		return aliasAs(rAliasType, rInParent, Functions.identity());
 	}
 
 	/***************************************
@@ -129,17 +129,20 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * <p>To create a read-only alias the method {@link #viewAs(RelationType,
 	 * RelatedObject)} can be used instead.</p>
 	 *
-	 * @param rAliasType       The relation type of the relation alias
-	 * @param rInParent        The parent object to add the relation alias to
-	 * @param fAliasConversion A conversion function that produces the target
-	 *                         value of the alias and can be inverted for the
-	 *                         setting of new targets
+	 * @param  rAliasType       The relation type of the relation alias
+	 * @param  rInParent        The parent object to add the relation alias to
+	 * @param  fAliasConversion A conversion function that produces the target
+	 *                          value of the alias and can be inverted for the
+	 *                          setting of new targets
+	 *
+	 * @return The alias relation
 	 */
-	public final <A> void aliasAs(RelationType<A>		   rAliasType,
-								  RelatedObject			   rInParent,
-								  InvertibleFunction<T, A> fAliasConversion)
+	public final <A> Relation<A> aliasAs(
+		RelationType<A>			 rAliasType,
+		Relatable				 rInParent,
+		InvertibleFunction<T, A> fAliasConversion)
 	{
-		addAlias(
+		return addAlias(
 			new RelationAlias<A, T>(
 				rInParent,
 				rAliasType,
@@ -439,11 +442,14 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @see #viewAs(RelationType, RelatedObject)
 	 */
 	@SuppressWarnings({ "unchecked" })
-	public final void viewAs(
+	public final Relation<T> viewAs(
 		RelationType<? super T> rViewType,
-		RelatedObject			rInParent)
+		Relatable				rInParent)
 	{
-		viewAs((RelationType<T>) rViewType, rInParent, Functions.identity());
+		return viewAs(
+			(RelationType<T>) rViewType,
+			rInParent,
+			Functions.identity());
 	}
 
 	/***************************************
@@ -459,16 +465,18 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * value to the datatype of the view relation type. This conversion will be
 	 * performed on each read access to the relation.</p>
 	 *
-	 * @param rViewType       The relation type of the relation view
-	 * @param rInParent       The parent object to add the relation view to
-	 * @param fViewConversion A conversion function that produces the target
-	 *                        value of the view
+	 * @param  rViewType       The relation type of the relation view
+	 * @param  rInParent       The parent object to add the relation view to
+	 * @param  fViewConversion A conversion function that produces the target
+	 *                         value of the view
+	 *
+	 * @return The view relation
 	 */
-	public final <V> void viewAs(RelationType<V> rViewType,
-								 RelatedObject   rInParent,
-								 Function<T, V>  fViewConversion)
+	public final <V> Relation<V> viewAs(RelationType<V> rViewType,
+										Relatable		rInParent,
+										Function<T, V>  fViewConversion)
 	{
-		addAlias(
+		return addAlias(
 			new RelationView<V, T>(rInParent, rViewType, this, fViewConversion),
 			rInParent);
 	}
@@ -492,7 +500,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *
 	 * @return A new relation instance or NULL if copying is not possible
 	 */
-	abstract Relation<T> copy(Relatable rTarget);
+	abstract Relation<T> copyTo(Relatable rTarget);
 
 	/***************************************
 	 * Must be implemented by a subclass to compare the subclass-specific data
@@ -527,14 +535,18 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * Adds a new relation wrapper as an alias or view to this relation and it's
 	 * parent.
 	 *
-	 * @param rAlias    The relation wrapper to add
-	 * @param rInParent The parent to add the wrapper to
+	 * @param  rAlias    The relation wrapper to add
+	 * @param  rInParent The parent to add the wrapper to
+	 *
+	 * @return The alias relation
 	 */
-	final void addAlias(
-		RelationWrapper<?, ?, ?> rAlias,
-		RelatedObject			 rInParent)
+	final <A> Relation<A> addAlias(
+		RelationWrapper<A, ?, ?> rAlias,
+		Relatable				 rInParent)
 	{
-		rInParent.addRelation(rAlias, true);
+		((RelatedObject) rInParent).addRelation(rAlias, true);
+
+		return rAlias;
 	}
 
 	/***************************************
@@ -544,19 +556,18 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @param rTarget  The target object to copy this relation to
 	 * @param bReplace TRUE to replace an existing relation, FALSE to keep it
 	 */
-	void copyTo(RelatedObject rTarget, boolean bReplace)
+	void copyTo(Relatable rTarget, boolean bReplace)
 	{
 		boolean bExists = rTarget.hasRelation(rType);
 
 		// The alias list will be rebuilt separately, therefore ignore here
 		if (!bExists || (bReplace && !rType.isFinal()))
 		{
-			Relation<T> aCopy = copy(rTarget);
+			Relation<T> aCopy = copyTo(rTarget);
 
 			if (aCopy != null)
 			{
-				aCopy.copyRelations(this, bReplace);
-				rTarget.addRelation(aCopy, true);
+				ObjectRelations.copyRelations(this, aCopy, bReplace);
 			}
 		}
 	}

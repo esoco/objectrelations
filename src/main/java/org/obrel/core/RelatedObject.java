@@ -138,7 +138,7 @@ public class RelatedObject implements Relatable
 		for (Relation<?> rRelation : aRelations.values())
 		{
 			if (!rRelation.getType().isPrivate() &&
-				(rFilter == null || rFilter.evaluate(rRelation)))
+				(rFilter == null || rFilter.test(rRelation)))
 			{
 				aResult.add(rRelation);
 			}
@@ -457,22 +457,6 @@ public class RelatedObject implements Relatable
 		}
 
 		aRelations.put(rType, rRelation);
-	}
-
-	/***************************************
-	 * Copies all relations from a source object to this one. This is an
-	 * internal helper method for {@link
-	 * ObjectRelations#copyRelations(Relatable, Relatable, boolean)}.
-	 *
-	 * @param rSource  The source object to copy the relations from
-	 * @param bReplace TRUE to replace existing relations, FALSE to keep them
-	 */
-	void copyRelations(RelatedObject rSource, boolean bReplace)
-	{
-		for (Relation<?> rSourceRelation : rSource.aRelations.values())
-		{
-			rSourceRelation.copyTo(this, bReplace);
-		}
 	}
 
 	/***************************************

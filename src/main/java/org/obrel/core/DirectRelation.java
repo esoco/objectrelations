@@ -64,9 +64,9 @@ public class DirectRelation<T> extends Relation<T>
 	 * {@inheritDoc}
 	 */
 	@Override
-	Relation<T> copy(Relatable rCopyParent)
+	Relation<T> copyTo(Relatable rTarget)
 	{
-		return new DirectRelation<T>(getType(), getTarget());
+		return rTarget.set(getType(), getTarget());
 	}
 
 	/***************************************

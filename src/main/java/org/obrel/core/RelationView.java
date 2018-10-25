@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,17 +51,14 @@ public class RelationView<T, V> extends RelationWrapper<T, V, Function<V, T>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Returns a copy of this view. The copy will still refer to the original
-	 * wrapped relation.
+	 * Copies this view to another object. The copy will still refer to the
+	 * original wrapped relation.
 	 *
-	 * @see RelationWrapper#copy(Relatable)
+	 * @see RelationWrapper#copyTo(Relatable)
 	 */
 	@Override
-	Relation<T> copy(Relatable rCopyParent)
+	Relation<T> copyTo(Relatable rTarget)
 	{
-		return new RelationView<>(rCopyParent,
-								  getType(),
-								  getWrappedRelation(),
-								  getConversion());
+		return getWrappedRelation().viewAs(getType(), rTarget, getConversion());
 	}
 }
