@@ -101,7 +101,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * relation. This is achieved by using an identity function as the
 	 * conversion.
 	 *
-	 * @see #viewAs(RelationType, RelatedObject)
+	 * @see #aliasAs(RelationType, Relatable, InvertibleFunction)
 	 */
 	public final Relation<T> aliasAs(
 		RelationType<T> rAliasType,
@@ -127,7 +127,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * relation.</p>
 	 *
 	 * <p>To create a read-only alias the method {@link #viewAs(RelationType,
-	 * RelatedObject)} can be used instead.</p>
+	 * Relatable, Function)} can be used instead.</p>
 	 *
 	 * @param  rAliasType       The relation type of the relation alias
 	 * @param  rInParent        The parent object to add the relation alias to
@@ -439,7 +439,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * relation. This is achieved by using an identity function as the
 	 * conversion.
 	 *
-	 * @see #viewAs(RelationType, RelatedObject)
+	 * @see #viewAs(RelationType, Relatable, Function)
 	 */
 	@SuppressWarnings({ "unchecked" })
 	public final Relation<T> viewAs(
@@ -454,11 +454,12 @@ public abstract class Relation<T> extends SerializableRelatedObject
 
 	/***************************************
 	 * Creates a view for this relation with another relation type. Like aliases
-	 * created with {@link #aliasAs(RelationType, RelatedObject)} views refer
-	 * directly to the original relation's target but are always readonly so
-	 * that modifications of the relation can only be performed through the
-	 * original relation. The parent of the view can be any related object, it
-	 * doesn't need to be the same parent object of the original relation.
+	 * created with {@link #aliasAs(RelationType, Relatable,
+	 * InvertibleFunction)} views refer directly to the original relation's
+	 * target but are always readonly so that modifications of the relation can
+	 * only be performed through the original relation. The parent of the view
+	 * can be any related object, it doesn't need to be the same parent object
+	 * of the original relation.
 	 *
 	 * <p>The view relation type can be different from the type of this
 	 * relation. The given conversion function must convert the original target

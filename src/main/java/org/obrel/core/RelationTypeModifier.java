@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,8 +45,9 @@ package org.obrel.core;
  *     access to the relations with a private type. This modifier can also be
  *     used to prevent write access to certain relations: by internally using a
  *     writable relation type that is non-public and another public type as a
- *     view with {@link Relation#viewAs(RelationType, RelatedObject)} (because
- *     views are always readonly).</li>
+ *     view with {@link Relation#viewAs(RelationType, Relatable,
+ *     de.esoco.lib.expression.Function)} (because views are always
+ *     readonly).</li>
  * </ul>
  */
 public enum RelationTypeModifier
