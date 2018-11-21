@@ -1,3 +1,8 @@
+buildscript {
+    repositories { jcenter() }
+    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+' }
+}
+
 apply plugin: 'java'
 apply plugin: 'osgi'
 apply plugin: 'eclipse'
@@ -49,30 +54,4 @@ tasks.withType(Javadoc) {
     }
 }
 
-// ----------- Bintray Release -----------
-
-buildscript {
-    repositories { jcenter() }
-    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7' }
-}
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'maven'
-
-bintray {
-	user = project.hasProperty('bintrayUser') ?
-				project.property('bintrayUser') :
-				System.getenv('BINTRAY_USER')
-	key = project.hasProperty('bintrayApiKey') ?
-				project.property('bintrayApiKey') :
-				System.getenv('BINTRAY_API_KEY')
-    configurations = ['archives']
-    publish = true
-
-	pkg {
-		repo = 'sdack'
-		name = project.name
-		version {
-			name = project.version
-	    }
-    }
-}
+apply from: 'publish.gradle'
