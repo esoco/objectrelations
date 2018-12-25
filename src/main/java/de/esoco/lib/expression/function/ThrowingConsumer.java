@@ -35,7 +35,7 @@ public interface ThrowingConsumer<T> extends Consumer<T>
 
 	/***************************************
 	 * Overridden to forward the invocation to the actual function
-	 * implementation in {@link #acceptWithException(Object)} and to convert
+	 * implementation in {@link #tryAccept(Object)} and to convert
 	 * occurring exceptions into {@link FunctionException}.
 	 *
 	 * @see Consumer#accept(Object)
@@ -45,7 +45,7 @@ public interface ThrowingConsumer<T> extends Consumer<T>
 	{
 		try
 		{
-			acceptWithException(rValue);
+			tryAccept(rValue);
 		}
 		catch (Throwable e)
 		{
@@ -68,5 +68,5 @@ public interface ThrowingConsumer<T> extends Consumer<T>
 	 *
 	 * @throws Throwable If the invocation fails
 	 */
-	public void acceptWithException(T rValue) throws Throwable;
+	public void tryAccept(T rValue) throws Throwable;
 }

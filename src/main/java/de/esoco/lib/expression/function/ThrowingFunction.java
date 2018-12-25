@@ -34,7 +34,7 @@ public interface ThrowingFunction<I, O> extends Function<I, O>
 
 	/***************************************
 	 * Overridden to forward the invocation to the actual function
-	 * implementation in {@link #evaluateWithException(Object)} and to convert
+	 * implementation in {@link #tryApply(Object)} and to convert
 	 * occurring exceptions into {@link FunctionException}.
 	 *
 	 * @see Function#evaluate(Object)
@@ -44,7 +44,7 @@ public interface ThrowingFunction<I, O> extends Function<I, O>
 	{
 		try
 		{
-			return evaluateWithException(rInput);
+			return tryApply(rInput);
 		}
 		catch (Throwable e)
 		{
@@ -69,5 +69,5 @@ public interface ThrowingFunction<I, O> extends Function<I, O>
 	 *
 	 * @throws Throwable An exception in the case of errors
 	 */
-	public O evaluateWithException(I rInput) throws Throwable;
+	public O tryApply(I rInput) throws Throwable;
 }

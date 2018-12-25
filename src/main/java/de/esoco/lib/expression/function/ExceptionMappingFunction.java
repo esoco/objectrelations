@@ -21,7 +21,7 @@ package de.esoco.lib.expression.function;
  * from their evaluation. Any such exception will be mapped to a runtime
  * exception and then re-thrown from the {@link #evaluate(Object)} method. This
  * method is overridden to be final, subclasses must implement the abstract
- * method {@link #evaluateWithException(Object)} instead.
+ * method {@link #tryApply(Object)} instead.
  *
  * @author eso
  */

@@ -34,7 +34,7 @@ public interface ThrowingSupplier<T> extends Supplier<T>
 
 	/***************************************
 	 * Overridden to forward the invocation to the actual function
-	 * implementation in {@link #getWithException()} and to convert occurring
+	 * implementation in {@link #tryGet()} and to convert occurring
 	 * exceptions into {@link FunctionException}.
 	 *
 	 * @see Supplier#get()
@@ -44,7 +44,7 @@ public interface ThrowingSupplier<T> extends Supplier<T>
 	{
 		try
 		{
-			return getWithException();
+			return tryGet();
 		}
 		catch (Throwable e)
 		{
@@ -66,5 +66,5 @@ public interface ThrowingSupplier<T> extends Supplier<T>
 	 *
 	 * @throws Throwable If the invocation fails
 	 */
-	public T getWithException() throws Throwable;
+	public T tryGet() throws Throwable;
 }

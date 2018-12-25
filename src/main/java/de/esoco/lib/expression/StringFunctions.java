@@ -266,7 +266,7 @@ public class StringFunctions
 		return new ExceptionMappingFunction<byte[], String>("createString")
 		{
 			@Override
-			public String evaluateWithException(byte[] rBytes) throws Exception
+			public String tryApply(byte[] rBytes) throws Exception
 			{
 				return new String(rBytes);
 			}
