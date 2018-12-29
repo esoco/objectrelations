@@ -73,6 +73,11 @@ public interface JsonSerializable<J extends JsonSerializable<J>>
 	 * #toCompactJson()} creates a single-line JSON string that doesn't contain
 	 * fill characters.
 	 *
+	 * <p>The default implementation creates a new {@link JsonBuilder} instance
+	 * and invokes {@link JsonBuilder#append(Object)}. This will in turn invoke
+	 * the abstract method {@link #appendTo(JsonBuilder)} which must be
+	 * implemented to perform the actual JSON conversion.</p>
+	 *
 	 * @return The resulting JSON string
 	 */
 	default public String toJson()
