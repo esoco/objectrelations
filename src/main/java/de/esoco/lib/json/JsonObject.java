@@ -50,12 +50,12 @@ public class JsonObject extends RelatedObject
 	 * checked) that the given properties only contains valid JSON datatypes.
 	 * Otherwise subsequent property queries will probably fail.
 	 *
-	 * @param rObjectProperties The JSON object properties of this instance
+	 * @param rProperties The key-value pairs of the object properties
 	 */
 	@SafeVarargs
-	public JsonObject(Pair<String, Object>... rObjectProperties)
+	public JsonObject(Pair<String, Object>... rProperties)
 	{
-		this(CollectionUtil.orderedMapOf(rObjectProperties));
+		this(CollectionUtil.orderedMapOf(rProperties));
 	}
 
 	/***************************************
@@ -63,14 +63,27 @@ public class JsonObject extends RelatedObject
 	 * checked) that the given properties map only contains valid JSON
 	 * datatypes. Otherwise subsequent property queries will probably fail.
 	 *
-	 * @param rObjectProperties The JSON object properties of this instance
+	 * @param rProperties A map containing the properties of this instance
 	 */
-	public JsonObject(Map<String, Object> rObjectProperties)
+	public JsonObject(Map<String, Object> rProperties)
 	{
-		setProperties(rObjectProperties);
+		setProperties(rProperties);
 	}
 
 	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Creates a new instance from certain properties.
+	 *
+	 * @param  rProperties The key-value pairs of the object properties
+	 *
+	 * @return The new JSON object
+	 */
+	@SafeVarargs
+	public static JsonObject of(Pair<String, Object>... rProperties)
+	{
+		return new JsonObject(rProperties);
+	}
 
 	/***************************************
 	 * Creates a new generic JSON object from a JSON string.
@@ -251,7 +264,7 @@ public class JsonObject extends RelatedObject
 	public Object getRawProperty(String sName)
 	{
 		return hasRelation(Json.JSON_PROPERTIES) ? getProperties().get(sName)
-												  : null;
+												 : null;
 	}
 
 	/***************************************
