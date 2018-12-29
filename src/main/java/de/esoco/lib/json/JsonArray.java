@@ -53,6 +53,7 @@ public class JsonArray extends ArrayList<Object>
 	 */
 	public JsonArray(int nInitialCapacity)
 	{
+		super(nInitialCapacity);
 	}
 
 	/***************************************
