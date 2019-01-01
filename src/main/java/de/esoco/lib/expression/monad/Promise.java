@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -221,8 +221,8 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	}
 
 	/***************************************
-	 * Checks whether this promise is already resolved. If TRUE querying the
-	 * value with {@link #resolve()} will not block.
+	 * Checks whether this promise is already resolved. If TRUE retrieving the
+	 * value with {@link #await()} will not block.
 	 *
 	 * @return The resolved
 	 */
