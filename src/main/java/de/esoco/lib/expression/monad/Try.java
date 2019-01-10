@@ -142,24 +142,21 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	/***************************************
 	 * Returns the result of a successful execution or throws the occurred
 	 * exception if the execution failed. Success can be tested in advance with
-	 * {@link #isSuccess()}. In general, calls to the monadic chaining functions
-	 * {@link #map(Function)}, {@link #flatMap(Function)}, or {@link
-	 * #then(Consumer)} should be preferred as they prevent accidental access to
-	 * a failed execution.
+	 * {@link #isSuccess()}.
 	 *
-	 * @return The result of the execution
-	 *
-	 * @throws Throwable The exception that occurred in the case of a failure
+	 * @see #orThrow(Throwable)
 	 */
 	public abstract T orThrow() throws Throwable;
 
 	/***************************************
 	 * Returns the result of a successful execution or throws the given
 	 * exception if the execution failed. Success can be tested in advance with
-	 * {@link #isSuccess()}. In general, calls to the monadic chaining functions
-	 * {@link #map(Function)}, {@link #flatMap(Function)}, or {@link
-	 * #then(Consumer)} should be preferred as they prevent accidental access to
-	 * a failed execution.
+	 * {@link #isSuccess()}.
+	 *
+	 * <p>In general, calls to the monadic chaining functions {@link
+	 * #map(Function)}, {@link #flatMap(Function)}, or {@link #then(Consumer)}
+	 * should be preferred as they prevent accidental access to a failed
+	 * execution.</p>
 	 *
 	 * @param  eException The exception to throw
 	 *
@@ -172,10 +169,12 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	/***************************************
 	 * Returns the result of a successful execution or returns the given default
 	 * value if the execution failed. If necessary, success can be tested before
-	 * with {@link #isSuccess()}. In general, calls to the monadic chaining
-	 * functions {@link #map(Function)}, {@link #flatMap(Function)}, or {@link
-	 * #then(Consumer)} should be preferred as they prevent accidental access to
-	 * a failed execution.
+	 * with {@link #isSuccess()}.
+	 *
+	 * <p>In general, calls to the monadic chaining functions {@link
+	 * #map(Function)}, {@link #flatMap(Function)}, or {@link #then(Consumer)}
+	 * should be preferred as they prevent accidental access to a failed
+	 * execution.</p>
 	 *
 	 * @param  rFailureResult The value to return if the execution failed
 	 *

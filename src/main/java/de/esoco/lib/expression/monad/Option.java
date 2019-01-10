@@ -201,6 +201,74 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
+	 * Executes some code if this option doesn't exist.
+	 *
+	 * @param fAction The code to execute
+	 */
+	public void orElse(Runnable fAction)
+	{
+		if (!exists())
+		{
+			fAction.run();
+		}
+	}
+
+	/***************************************
+	 * Returns the value of this option or throws a {@link
+	 * NullPointerException}.
+	 *
+	 * @see #orThrow(Throwable)
+	 */
+	public <E extends Throwable> T orThrow()
+	{
+		return orThrow(new NullPointerException());
+	}
+
+	/***************************************
+	 * Returns the value of this option or throws the given exception if the
+	 * option doesn't exist. The presence of a value can be tested in advance
+	 * with {@link #exists()}.
+	 *
+	 * <p>In general, calls to the monadic chaining functions {@link
+	 * #map(Function)}, {@link #flatMap(Function)}, or {@link #then(Consumer)}
+	 * should be preferred as they prevent accidental access to a failed
+	 * execution.</p>
+	 *
+	 * @param  eException The exception to throw
+	 *
+	 * @return The result of the execution
+	 *
+	 * @throws E The argument exception in the case of a failure
+	 */
+	public <E extends Throwable> T orThrow(E eException) throws E
+	{
+		if (!exists())
+		{
+			throw eException;
+		}
+
+		return rValue;
+	}
+
+	/***************************************
+	 * Returns the result of a successful execution or returns the given default
+	 * value if the execution failed. If necessary, success can be tested before
+	 * with {@link #isSuccess()}. In general, calls to the monadic chaining
+	 * functions {@link #map(Function)}, {@link #flatMap(Function)}, or {@link
+	 * #then(Consumer)} should be preferred as they prevent accidental access to
+	 * a failed execution.
+	 *
+	 * @param  rDefault rFailureResult The value to return if the execution
+	 *                  failed
+	 *
+	 * @return The result value
+	 */
+	public T orUse(T rDefault)
+	{
+		return exists() ? rValue : rDefault;
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override

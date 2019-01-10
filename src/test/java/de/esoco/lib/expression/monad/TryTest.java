@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -77,10 +77,14 @@ public class TryTest
 	@Test
 	public void testFailure()
 	{
-		Try.failure(new Exception()).then(v -> fail());
-		assertEquals(
-			"FAILED",
-			Try.failure(new Exception()).orUse("FAILED"));
+		assertEquals("FAILED", Try.failure(new Exception()).orUse("FAILED"));
+
+		String[] message = new String[1];
+
+		Try.failure(new Exception("FAILED"))
+		   .then(v -> fail())
+		   .orElse(e -> message[0] = e.getMessage());
+		assertEquals("FAILED", message[0]);
 
 		try
 		{
@@ -88,6 +92,16 @@ public class TryTest
 			fail();
 		}
 		catch (Throwable e)
+		{
+			// expected
+		}
+
+		try
+		{
+			Try.failure(new Exception()).orThrow(new RuntimeException());
+			fail();
+		}
+		catch (RuntimeException e)
 		{
 			// expected
 		}

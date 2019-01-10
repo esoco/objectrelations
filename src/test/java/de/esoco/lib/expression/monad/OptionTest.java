@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -184,6 +184,41 @@ public class OptionTest
 	  				assertEquals(
 	  					Arrays.asList(1, 2, 3),
 	  					stream.collect(Collectors.toList())));
+	}
+
+	/***************************************
+	 * Test of {@link Option#orElse(Runnable)}, {@link Option#orUse(Object)},
+	 * {@link Option#orThrow()}.
+	 */
+	@Test
+	public void testOr()
+	{
+		boolean[] result = new boolean[1];
+
+		Option.none().then(v -> fail()).orElse(() -> result[0] = true);
+		assertTrue(result[0]);
+		assertEquals("DEFAULT", Option.none().orUse("DEFAULT"));
+
+		try
+		{
+			Option.none().orThrow(new Exception("THROW"));
+			fail();
+		}
+		catch (Throwable e)
+		{
+			assertEquals(Exception.class, e.getClass());
+			assertEquals("THROW", e.getMessage());
+		}
+
+		try
+		{
+			Option.none().orThrow();
+			fail();
+		}
+		catch (Throwable e)
+		{
+			assertEquals(NullPointerException.class, e.getClass());
+		}
 	}
 
 	/***************************************
