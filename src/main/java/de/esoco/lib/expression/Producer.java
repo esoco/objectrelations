@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,15 +23,17 @@ import java.util.function.Supplier;
 
 
 /********************************************************************
- * An interface for objects that produce values of a certain type that will be
- * handled by consumers that are registered through {@link
- * #registerReceiver(Consumer)}. This is similar to the Supplier interface, but
- * mainly intended for asynchronous use. In cases where a value is already
- * available the factory method {@link #of(Object)} can be used to wrap the
- * value in a producer and notify receivers immediately.
+ * An interface for objects that produce(d) values of a certain type at some
+ * unspecified time (which may be in the future). Produced values can be handled
+ * by consumers that are registered with {@link #onProduced(Consumer)}.
+ * Producers are like indirect {@link Supplier} instances and are mainly
+ * intended for asynchronous use through the factory method {@link
+ * #of(CompletionStage)}. In cases where a value is already available the
+ * factory methods {@link #of(Object)} or {@link #of(Supplier)} can be used to
+ * wrap values or suppliers in a producer and notify receivers immediately.
  *
- * <p>The most common producer implementations notify a single receiver of a
- * single value when it becomes available. But it is also possible to implement
+ * <p>The most simple producer implementations notify one receiver of a single
+ * value when it becomes available. But it is also possible to implement
  * producers that produce multiple values (or even an endless stream of such)
  * and/or allow the registration of multiple receivers. In such cases the
  * extended functionality should be documented accordingly.</p>
@@ -86,12 +88,13 @@ public interface Producer<T>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Registers a consumer that will receive a produced value when it becomes
-	 * available. Whether multiple registrations are possible or not is not part
-	 * of the method specification and only depends on the implementation.
-	 * Callers should not assume so until it is documented otherwise.
+	 * Registers a consumer that will notified of a produced value when it
+	 * becomes available. Whether multiple registrations are possible or not is
+	 * not part of the method specification and only depends on the
+	 * implementation. Callers should not assume so until it is documented
+	 * otherwise.
 	 *
 	 * @param fReceiver The receiving consumer
 	 */
-	public void registerReceiver(Consumer<T> fReceiver);
+	public void onProduced(Consumer<T> fReceiver);
 }

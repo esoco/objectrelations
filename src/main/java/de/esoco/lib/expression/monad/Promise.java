@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.monad;
 
+import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.Producer;
 
 import java.util.ArrayList;
@@ -42,8 +43,8 @@ public class Promise<T> implements Monad<T, Promise<?>>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private Option<T>		    aResult			    = Option.none();
-	private Option<Consumer<T>> aCompletionListener = Option.none();
+	private Option<T>		    aResult			 = Option.none();
+	private Option<Consumer<T>> aResolveListener = Option.none();
 
 	private final CountDownLatch aCompletionSignal = new CountDownLatch(1);
 
@@ -97,7 +98,7 @@ public class Promise<T> implements Monad<T, Promise<?>>
 
 		Promise<T> aPromise = new Promise<>();
 
-		fProducer.registerReceiver(aPromise::resolve);
+		fProducer.onProduced(aPromise::resolve);
 
 		return aPromise;
 	}
@@ -187,7 +188,7 @@ public class Promise<T> implements Monad<T, Promise<?>>
 
 		Promise<?> rOther = (Promise<?>) rObject;
 
-		return Objects.equals(aCompletionListener, rOther.aCompletionListener) &&
+		return Objects.equals(aResolveListener, rOther.aResolveListener) &&
 			   Objects.equals(aResult, rOther.aResult);
 	}
 
@@ -205,7 +206,7 @@ public class Promise<T> implements Monad<T, Promise<?>>
 
 		// must be resolved indirectly because this.then() may be executed
 		// asynchronously and is therefore not available at this point
-		aProducer.registerReceiver(
+		aProducer.onProduced(
 			rPromise -> rPromise.then(aFlattenedPromise::resolve));
 
 		return aFlattenedPromise;
@@ -217,7 +218,7 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	@Override
 	public int hashCode()
 	{
-		return 17 * aCompletionListener.hashCode() + aResult.hashCode();
+		return 17 * aResolveListener.hashCode() + aResult.hashCode();
 	}
 
 	/***************************************
@@ -249,23 +250,18 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	public <R> Promise<R> map(Function<T, R> fMap)
 	{
 		return Promise.of(
-			receiver -> this.then(t -> receiver.accept(fMap.apply(t))));
+			receiver -> onResolve(t -> receiver.accept(fMap.apply(t))));
 	}
 
 	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void then(Consumer<T> fConsumer)
+	public Promise<Void> then(Consumer<T> fConsumer)
 	{
-		if (isResolved())
-		{
-			fConsumer.accept(aResult.get());
-		}
-		else
-		{
-			aCompletionListener = Option.of(fConsumer);
-		}
+		aResolveListener = Option.of(fConsumer);
+
+		return map(Functions.asFunction(fConsumer));
 	}
 
 	/***************************************
@@ -274,8 +270,23 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	@Override
 	public String toString()
 	{
-		return aResult.exists() ? aResult.get().toString()
-								: getClass().getSimpleName();
+		return isResolved() ? aResult.get().toString()
+							: getClass().getSimpleName();
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	private void onResolve(Consumer<T> fConsumer)
+	{
+		if (isResolved())
+		{
+			fConsumer.accept(aResult.get());
+		}
+		else
+		{
+			aResolveListener = Option.of(fConsumer);
+		}
 	}
 
 	/***************************************
@@ -289,7 +300,7 @@ public class Promise<T> implements Monad<T, Promise<?>>
 		{
 			aResult = Option.of(rValue);
 			aCompletionSignal.countDown();
-			aCompletionListener.then(f -> f.accept(rValue));
+			aResolveListener.then(f -> f.accept(rValue));
 		}
 	}
 }

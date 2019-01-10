@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.monad;
+
+import de.esoco.lib.expression.Functions;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -202,12 +204,9 @@ public class Option<T> implements Monad<T, Option<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void then(Consumer<T> fConsumer)
+	public Option<Void> then(Consumer<T> fConsumer)
 	{
-		if (exists())
-		{
-			fConsumer.accept(rValue);
-		}
+		return exists() ? map(Functions.asFunction(fConsumer)) : none();
 	}
 
 	/***************************************

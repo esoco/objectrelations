@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,9 +51,9 @@ public interface Monad<T, M extends Monad<?, M>> extends Functor<T>
 	 * called "lift" or "liftM2".
 	 *
 	 * <p>Implementations can simply implement this as <code>flatMap(t -&gt;
-	 * rOther.map(v -&gt; fJoin.apply(t, v)))</code>. An explicit implementation
-	 * is only necessary to override the return type because of the limitations
-	 * of Java's generic type system.</p>
+	 * rOther.map(v -&gt; fJoin.apply(t, v)))</code>. The explicit
+	 * implementation in subclasses is only necessary to allow them override the
+	 * return type because of the limitations of Java's generic type system.</p>
 	 *
 	 * @param  rOther The other monad to join with
 	 * @param  fJoin  The binary function that performs the value join

@@ -80,11 +80,11 @@ public class TryTest
 		Try.failure(new Exception()).then(v -> fail());
 		assertEquals(
 			"FAILED",
-			Try.failure(new Exception()).getOrReturn("FAILED"));
+			Try.failure(new Exception()).orUse("FAILED"));
 
 		try
 		{
-			Try.failure(new Exception()).getOrThrow();
+			Try.failure(new Exception()).orThrow();
 			fail();
 		}
 		catch (Throwable e)
@@ -208,11 +208,11 @@ public class TryTest
 	public void testSuccess()
 	{
 		Try.success("TEST").then(s -> assertEquals("TEST", s));
-		assertEquals("SUCCESS", Try.success("SUCCESS").getOrReturn("FAILED"));
+		assertEquals("SUCCESS", Try.success("SUCCESS").orUse("FAILED"));
 
 		try
 		{
-			assertEquals("SUCCESS", Try.success("SUCCESS").getOrThrow());
+			assertEquals("SUCCESS", Try.success("SUCCESS").orThrow());
 		}
 		catch (Throwable e)
 		{

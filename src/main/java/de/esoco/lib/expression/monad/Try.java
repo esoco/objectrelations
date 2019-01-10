@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.monad;
 
+import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.function.ThrowingSupplier;
 
 import java.util.Objects;
@@ -90,7 +91,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	public static <T> Try<Stream<T>> ofSuccessful(Stream<Try<T>> rTries)
 	{
 		return Try.of(
-			() -> rTries.filter(Try::isSuccess).map(t -> t.getOrReturn(null)));
+			() -> rTries.filter(Try::isSuccess).map(t -> t.orUse(null)));
 	}
 
 	/***************************************
@@ -116,34 +117,6 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		Function<T, N> fMap);
 
 	/***************************************
-	 * Returns the result of a successful execution or returns a default if the
-	 * execution failed. Success can be tested before with {@link #isSuccess()}.
-	 * In general calls to the monadic chaining functions {@link
-	 * #map(Function)}, {@link #flatMap(Function)}, or {@link #then(Consumer)}
-	 * should be preferred as they prevent accidental access to a failed
-	 * execution.
-	 *
-	 * @param  rFailureResult The value to return if the execution failed
-	 *
-	 * @return The result value
-	 */
-	public abstract T getOrReturn(T rFailureResult);
-
-	/***************************************
-	 * Returns the result of a successful execution or throws an exception if
-	 * the execution failed. To prevent the exception success should be tested
-	 * first with {@link #isSuccess()}. In general calls to the monadic chaining
-	 * functions {@link #map(Function)}, {@link #flatMap(Function)}, or {@link
-	 * #then(Consumer)} should be preferred as they prevent accidental access to
-	 * a failed execution.
-	 *
-	 * @return The result of the execution
-	 *
-	 * @throws Throwable The exception that occurred in the case of a failure
-	 */
-	public abstract T getOrThrow() throws Throwable;
-
-	/***************************************
 	 * Checks whether the execution was successful.
 	 *
 	 * @return TRUE if this try was executed successfully, FALSE if an exception
@@ -157,6 +130,64 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	@Override
 	@SuppressWarnings("unchecked")
 	public abstract <R> Try<R> map(Function<T, R> fMap);
+
+	/***************************************
+	 * Consumes the error with the given function in the case of an unsuccessful
+	 * execution.
+	 *
+	 * @param fHandler The consumer of the the error that occurred
+	 */
+	public abstract void orElse(Consumer<Throwable> fHandler);
+
+	/***************************************
+	 * Returns the result of a successful execution or throws the occurred
+	 * exception if the execution failed. Success can be tested in advance with
+	 * {@link #isSuccess()}. In general, calls to the monadic chaining functions
+	 * {@link #map(Function)}, {@link #flatMap(Function)}, or {@link
+	 * #then(Consumer)} should be preferred as they prevent accidental access to
+	 * a failed execution.
+	 *
+	 * @return The result of the execution
+	 *
+	 * @throws Throwable The exception that occurred in the case of a failure
+	 */
+	public abstract T orThrow() throws Throwable;
+
+	/***************************************
+	 * Returns the result of a successful execution or throws the given
+	 * exception if the execution failed. Success can be tested in advance with
+	 * {@link #isSuccess()}. In general, calls to the monadic chaining functions
+	 * {@link #map(Function)}, {@link #flatMap(Function)}, or {@link
+	 * #then(Consumer)} should be preferred as they prevent accidental access to
+	 * a failed execution.
+	 *
+	 * @param  eException The exception to throw
+	 *
+	 * @return The result of the execution
+	 *
+	 * @throws E The argument exception in the case of a failure
+	 */
+	public abstract <E extends Throwable> T orThrow(E eException) throws E;
+
+	/***************************************
+	 * Returns the result of a successful execution or returns the given default
+	 * value if the execution failed. If necessary, success can be tested before
+	 * with {@link #isSuccess()}. In general, calls to the monadic chaining
+	 * functions {@link #map(Function)}, {@link #flatMap(Function)}, or {@link
+	 * #then(Consumer)} should be preferred as they prevent accidental access to
+	 * a failed execution.
+	 *
+	 * @param  rFailureResult The value to return if the execution failed
+	 *
+	 * @return The result value
+	 */
+	public abstract T orUse(T rFailureResult);
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public abstract Try<Void> then(Consumer<T> fConsumer);
 
 	/***************************************
 	 * Filter this try according to the given criteria by returning a try that
@@ -239,24 +270,6 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public T getOrReturn(T rFailureResult)
-		{
-			return rFailureResult;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		public final T getOrThrow() throws Throwable
-		{
-			throw eError;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
 		public int hashCode()
 		{
 			return Objects.hashCode(eError);
@@ -285,9 +298,46 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void then(Consumer<T> fConsumer)
+		public void orElse(Consumer<Throwable> fHandler)
 		{
-			// ignored for errors
+			fHandler.accept(eError);
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final T orThrow() throws Throwable
+		{
+			throw eError;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public <E extends Throwable> T orThrow(E eException) throws E
+		{
+			throw eException;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T orUse(T rFailureResult)
+		{
+			return rFailureResult;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		@SuppressWarnings("unchecked")
+		public Try<Void> then(Consumer<T> fConsumer)
+		{
+			return (Try<Void>) this;
 		}
 
 		/***************************************
@@ -350,24 +400,6 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public T getOrReturn(T rFailureResult)
-		{
-			return rValue;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		public final T getOrThrow()
-		{
-			return rValue;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
 		public int hashCode()
 		{
 			return Objects.hashCode(rValue);
@@ -396,9 +428,45 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public void then(Consumer<T> fConsumer)
+		public void orElse(Consumer<Throwable> fHandler)
 		{
-			fConsumer.accept(rValue);
+			// ignored on success
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public final T orThrow()
+		{
+			return rValue;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public <E extends Throwable> T orThrow(E eException) throws E
+		{
+			return rValue;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T orUse(T rFailureResult)
+		{
+			return rValue;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Try<Void> then(Consumer<T> fConsumer)
+		{
+			return map(Functions.asFunction(fConsumer));
 		}
 
 		/***************************************
