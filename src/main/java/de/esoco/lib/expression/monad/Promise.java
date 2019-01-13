@@ -29,6 +29,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -72,12 +73,26 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	}
 
 	/***************************************
+	 * Returns a new asynchronous promise for an value provided by an instance
+	 * of {@link Supplier}. This is just a shortcut to invoke {@link
+	 * CompletableFuture#supplyAsync(Supplier)} with the given supplier.
+	 *
+	 * @param  fSupplier The supplier of the value
+	 *
+	 * @return The new asynchronous promise
+	 */
+	public static <T> Promise<T> of(Supplier<T> fSupplier)
+	{
+		return Promise.of(CompletableFuture.supplyAsync(fSupplier));
+	}
+
+	/***************************************
 	 * Returns a new asynchronous promise for an value provided by a {@link
 	 * CompletionStage} (e.g. a {@link CompletableFuture}).
 	 *
 	 * @param  rStage The completion stage that provides the value
 	 *
-	 * @return The new promise
+	 * @return The new asynchronous promise
 	 */
 	public static <T> Promise<T> of(CompletionStage<T> rStage)
 	{
