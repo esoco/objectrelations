@@ -82,6 +82,18 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
+	 * Returns a new instance with the same state as a Java {@link Optional}.
+	 *
+	 * @param  rOptional The input value
+	 *
+	 * @return The new instance
+	 */
+	public static <T> Option<T> of(Optional<T> rOptional)
+	{
+		return rOptional.isPresent() ? new Option<>(rOptional.get()) : none();
+	}
+
+	/***************************************
 	 * Converts a stream of options into an option of a stream of existing
 	 * values.
 	 *
@@ -197,7 +209,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	@SuppressWarnings("unchecked")
 	public <R> Option<R> map(Function<T, R> fMap)
 	{
-		return exists() ? new Option<>(fMap.apply(rValue)) : none();
+		return flatMap(t -> Option.of(fMap.apply(t)));
 	}
 
 	/***************************************

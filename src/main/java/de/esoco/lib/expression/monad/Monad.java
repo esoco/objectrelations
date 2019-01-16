@@ -66,7 +66,11 @@ public interface Monad<T, M extends Monad<?, M>> extends Functor<T>
 		BiFunction<T, V, R> fJoin);
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Redefined here to change the return type to Monad. Subclasses can
+	 * typically implement this by invoking their {@link #flatMap(Function)} and
+	 * declare their own type as the return type.
+	 *
+	 * @see Functor#map(Function)
 	 */
 	@Override
 	public <R> Monad<R, M> map(Function<T, R> fMap);

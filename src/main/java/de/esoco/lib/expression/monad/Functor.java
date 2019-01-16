@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.monad;
 
+import de.esoco.lib.expression.Functions;
+
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -42,14 +44,17 @@ public interface Functor<T>
 	/***************************************
 	 * Consumes the value of this functor. This method is typically used at the
 	 * end of a mapping chain for the final processing of the resulting value.
-	 * This can be implemented as a variant of {@link #map(Function)} (by
-	 * wrapping the consumer in a function). Some subclasses may be able to
-	 * provide an optimized version. Furthermore subclasses should override the
-	 * return type to their own type.
+	 * The default implementation invokes {@link #map(Function)} with the
+	 * argument consumer wrapped into a function. Some subclasses may be able to
+	 * provide an optimized version. Furthermore subclasses should typically
+	 * override this method with their own type as the return type.
 	 *
 	 * @param  fConsumer The consumer of the value
 	 *
 	 * @return The resulting functor for final chained invocations
 	 */
-	public Functor<Void> then(Consumer<T> fConsumer);
+	default public Functor<Void> then(Consumer<T> fConsumer)
+	{
+		return map(Functions.asFunction(fConsumer));
+	}
 }

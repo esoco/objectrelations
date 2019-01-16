@@ -17,15 +17,12 @@
 package de.esoco.lib.expression.monad;
 
 import de.esoco.lib.expression.Functions;
-import de.esoco.lib.expression.Producer;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.CountDownLatch;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -35,29 +32,13 @@ import java.util.stream.Stream;
 
 
 /********************************************************************
- * A monad that promises to provide a value, typically in the future after some
+ * A monad that promises to provide a value, typically asynchronously after some
  * background computation.
  *
  * @author eso
  */
-public class Promise<T> implements Monad<T, Promise<?>>
+public abstract class Promise<T> implements Monad<T, Promise<?>>
 {
-	//~ Instance fields --------------------------------------------------------
-
-	private Option<T>		    aResult			 = Option.none();
-	private Option<Consumer<T>> aResolveListener = Option.none();
-
-	private final CountDownLatch aCompletionSignal = new CountDownLatch(1);
-
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance.
-	 */
-	private Promise()
-	{
-	}
-
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
@@ -69,21 +50,7 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	 */
 	public static <T> Promise<T> of(T rValue)
 	{
-		return Promise.of(Producer.of(rValue));
-	}
-
-	/***************************************
-	 * Returns a new asynchronous promise for an value provided by an instance
-	 * of {@link Supplier}. This is just a shortcut to invoke {@link
-	 * CompletableFuture#supplyAsync(Supplier)} with the given supplier.
-	 *
-	 * @param  fSupplier The supplier of the value
-	 *
-	 * @return The new asynchronous promise
-	 */
-	public static <T> Promise<T> of(Supplier<T> fSupplier)
-	{
-		return Promise.of(CompletableFuture.supplyAsync(fSupplier));
+		return new ResolvedPromise<T>(rValue);
 	}
 
 	/***************************************
@@ -96,26 +63,7 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	 */
 	public static <T> Promise<T> of(CompletionStage<T> rStage)
 	{
-		return Promise.of(Producer.of(rStage));
-	}
-
-	/***************************************
-	 * Returns a new (typically asynchronous) promise that will yield the value
-	 * provided by a certain producer.
-	 *
-	 * @param  fProducer A producer that resolves the promise
-	 *
-	 * @return The new promise
-	 */
-	public static <T> Promise<T> of(Producer<T> fProducer)
-	{
-		Objects.requireNonNull(fProducer);
-
-		Promise<T> aPromise = new Promise<>();
-
-		fProducer.onProduced(aPromise::resolve);
-
-		return aPromise;
+		return new CompletionStagePromise<T>(rStage.thenApply(Promise::of));
 	}
 
 	/***************************************
@@ -130,7 +78,7 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	public static <T> Promise<Stream<T>> ofAll(
 		Stream<Promise<T>> rPromiseStream)
 	{
-		// list is needed to get the count which is needed to create a fully
+		// collect necessary to get the count which is needed to create a fully
 		// asynchronous result promise
 		List<Promise<T>> aPromises =
 			rPromiseStream.collect(Collectors.toList());
@@ -140,23 +88,36 @@ public class Promise<T> implements Monad<T, Promise<?>>
 		int     nCount  = aPromises.size();
 		List<T> aResult = Collections.synchronizedList(new ArrayList<>(nCount));
 
-		Producer<Stream<T>> aProducer =
-			fReceiver ->
-			{
-				aPromises.forEach(
-					p -> p.then(
-							t ->
-							{
-								aResult.add(t);
+		CompletableFuture<Stream<T>> aStage = new CompletableFuture<>();
 
-								if (aResult.size() == nCount)
-								{
-									fReceiver.accept(aResult.stream());
-								}
-							}));
-			};
+		aPromises.forEach(
+			rPromise ->
+				rPromise.then(
+					v ->
+					{
+						aResult.add(v);
 
-		return Promise.of(aProducer);
+						if (aResult.size() == nCount)
+						{
+							aStage.complete(aResult.stream());
+						}
+					}));
+
+		return Promise.of(aStage);
+	}
+
+	/***************************************
+	 * Returns a new asynchronous promise for an value provided by an instance
+	 * of {@link Supplier}. This is just a shortcut to invoke {@link
+	 * CompletableFuture#supplyAsync(Supplier)} with the given supplier.
+	 *
+	 * @param  fSupplier The supplier of the value
+	 *
+	 * @return The new asynchronous promise
+	 */
+	public static <T> Promise<T> ofAsync(Supplier<T> fSupplier)
+	{
+		return Promise.of(CompletableFuture.supplyAsync(fSupplier));
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -171,70 +132,14 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	 *
 	 * @throws RuntimeException If the waiting is interrupted
 	 */
-	public T await()
-	{
-		try
-		{
-			aCompletionSignal.await();
-
-			return aResult.get();
-		}
-		catch (InterruptedException e)
-		{
-			throw new RuntimeException(e);
-		}
-	}
+	public abstract T await();
 
 	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObject)
-	{
-		if (this == rObject)
-		{
-			return true;
-		}
-
-		if (!(rObject instanceof Promise))
-		{
-			return false;
-		}
-
-		Promise<?> rOther = (Promise<?>) rObject;
-
-		return Objects.equals(aResolveListener, rOther.aResolveListener) &&
-			   Objects.equals(aResult, rOther.aResult);
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public <R, N extends Monad<R, Promise<?>>> Promise<R> flatMap(
-		Function<T, N> fMap)
-	{
-		Promise<R> aFlattenedPromise = new Promise<>();
-
-		Producer<N> aProducer =
-			receiver -> this.then(t -> receiver.accept(fMap.apply(t)));
-
-		// must be resolved indirectly because this.then() may be executed
-		// asynchronously and is therefore not available at this point
-		aProducer.onProduced(
-			rPromise -> rPromise.then(aFlattenedPromise::resolve));
-
-		return aFlattenedPromise;
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int hashCode()
-	{
-		return 17 * aResolveListener.hashCode() + aResult.hashCode();
-	}
+	public abstract <R, N extends Monad<R, Promise<?>>> Promise<R> flatMap(
+		Function<T, N> fMap);
 
 	/***************************************
 	 * Checks whether this promise is already resolved. If TRUE retrieving the
@@ -242,10 +147,7 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	 *
 	 * @return The resolved
 	 */
-	public boolean isResolved()
-	{
-		return aResult.exists();
-	}
+	public abstract boolean isResolved();
 
 	/***************************************
 	 * {@inheritDoc}
@@ -264,8 +166,7 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	@Override
 	public <R> Promise<R> map(Function<T, R> fMap)
 	{
-		return Promise.of(
-			receiver -> onResolve(t -> receiver.accept(fMap.apply(t))));
+		return flatMap(t -> Promise.of(fMap.apply(t)));
 	}
 
 	/***************************************
@@ -274,8 +175,6 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	@Override
 	public Promise<Void> then(Consumer<T> fConsumer)
 	{
-		aResolveListener = Option.of(fConsumer);
-
 		return map(Functions.asFunction(fConsumer));
 	}
 
@@ -285,37 +184,120 @@ public class Promise<T> implements Monad<T, Promise<?>>
 	@Override
 	public String toString()
 	{
-		return isResolved() ? aResult.get().toString()
-							: getClass().getSimpleName();
+		return String.format(
+			"Promise[%s]",
+			isResolved() ? await() : "unresolved");
 	}
 
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	private void onResolve(Consumer<T> fConsumer)
-	{
-		if (isResolved())
-		{
-			fConsumer.accept(aResult.get());
-		}
-		else
-		{
-			aResolveListener = Option.of(fConsumer);
-		}
-	}
+	//~ Inner Classes ----------------------------------------------------------
 
-	/***************************************
-	 * Resolves this promise with the given value.
+	/********************************************************************
+	 * A promise implementation based on {@link CompletionStage}.
 	 *
-	 * @param rValue The resolved value
+	 * @author eso
 	 */
-	private void resolve(T rValue)
+	static class CompletionStagePromise<T> extends Promise<T>
 	{
-		if (!aResult.exists())
+		//~ Instance fields ----------------------------------------------------
+
+		// wraps another promise to simplify the implementation of flatMap
+		private CompletionStage<Promise<T>> rStage;
+
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance.
+		 *
+		 * @param rStage The completion stage to wrap
+		 */
+		CompletionStagePromise(CompletionStage<Promise<T>> rStage)
 		{
-			aResult = Option.of(rValue);
-			aCompletionSignal.countDown();
-			aResolveListener.then(f -> f.accept(rValue));
+			this.rStage = rStage;
+		}
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T await()
+		{
+			return rStage.toCompletableFuture().join().await();
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public <R, N extends Monad<R, Promise<?>>> Promise<R> flatMap(
+			Function<T, N> fMap)
+		{
+			return new CompletionStagePromise<>(
+				rStage.thenApply(p -> p.flatMap(fMap)));
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isResolved()
+		{
+			return rStage.toCompletableFuture().isDone();
+		}
+	}
+
+	/********************************************************************
+	 * A simple wrapper for an already resolved value.
+	 *
+	 * @author eso
+	 */
+	static class ResolvedPromise<T> extends Promise<T>
+	{
+		//~ Instance fields ----------------------------------------------------
+
+		private T rValue;
+
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates an instance that is already resolved with a certain value.
+		 *
+		 * @param rValue The resolved value
+		 */
+		public ResolvedPromise(T rValue)
+		{
+			this.rValue = rValue;
+		}
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T await()
+		{
+			return rValue;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public <R, N extends Monad<R, Promise<?>>> Promise<R> flatMap(
+			Function<T, N> fMap)
+		{
+			return (Promise<R>) fMap.apply(rValue);
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isResolved()
+		{
+			return true;
 		}
 	}
 }

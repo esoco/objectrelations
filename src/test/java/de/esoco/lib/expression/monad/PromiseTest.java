@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import de.esoco.lib.datatype.Pair;
 import java.time.LocalDate;
 
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 
 /********************************************************************
@@ -40,13 +41,29 @@ public class PromiseTest
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Test of {@link Promise#equals(Object)}.
+	 * Test of {@link Promise#await()}.
 	 */
 	@Test
-	public void testEqualsObject()
+	public void testAwait()
 	{
-		assertEquals(Promise.of("TEST"), Promise.of("TEST"));
-		assertNotEquals(Promise.of("TEST1"), Promise.of("TEST2"));
+		Promise<String> p = Promise.of(42).map(i -> Integer.toString(i));
+
+		assertEquals("42", p.await());
+		assertTrue(p.isResolved());
+
+		p = Promise.of(42).flatMap(i -> Promise.of(Integer.toString(i)));
+
+		assertEquals("42", p.await());
+		assertTrue(p.isResolved());
+
+		p = Promise.ofAsync(() -> 42).map(i -> Integer.toString(i));
+		assertEquals("42", p.await());
+		assertTrue(p.isResolved());
+
+		p = Promise.of(CompletableFuture.completedFuture(42))
+				   .map(i -> Integer.toString(i));
+		assertEquals("42", p.await());
+		assertTrue(p.isResolved());
 	}
 
 	/***************************************
@@ -111,6 +128,6 @@ public class PromiseTest
 	public void testThen()
 	{
 		Promise.of("TEST").then(s -> assertEquals("TEST", s));
-		Promise.of(r -> r.accept(null)).then(s -> assertNull(s));
+		Promise.ofAsync(() -> null).then(s -> assertNull(s));
 	}
 }

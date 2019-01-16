@@ -125,13 +125,6 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	public abstract boolean isSuccess();
 
 	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	@SuppressWarnings("unchecked")
-	public abstract <R> Try<R> map(Function<T, R> fMap);
-
-	/***************************************
 	 * Consumes the error with the given function in the case of an unsuccessful
 	 * execution.
 	 *
@@ -190,8 +183,8 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 
 	/***************************************
 	 * Filter this try according to the given criteria by returning a try that
-	 * is successful depending on whether the wrapped value fulfills the
-	 * criteria.
+	 * is successful if this try is successful and the wrapped value fulfills
+	 * the criteria, or a failure otherwise.
 	 *
 	 * @param  pCriteria A predicate defining the filter criteria
 	 *
@@ -201,8 +194,9 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	public Try<T> filter(Predicate<T> pCriteria)
 	{
 		return flatMap(
-			v -> pCriteria.test(v) ? success(v)
-								   : failure(new Exception("Criteria not met")));
+			v -> pCriteria.test(v)
+				? success(v)
+				: failure(new Exception("Criteria not met by " + v)));
 	}
 
 	/***************************************
@@ -214,6 +208,16 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		BiFunction<T, V, R> fJoin)
 	{
 		return flatMap(t -> rOther.map(v -> fJoin.apply(t, v)));
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public <R> Try<R> map(Function<T, R> fMap)
+	{
+		return flatMap(t -> Try.of(() -> fMap.apply(t)));
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -281,16 +285,6 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		public final boolean isSuccess()
 		{
 			return false;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		@SuppressWarnings("unchecked")
-		public <R> Try<R> map(Function<T, R> fMap)
-		{
-			return (Try<R>) this;
 		}
 
 		/***************************************
@@ -411,16 +405,6 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		public final boolean isSuccess()
 		{
 			return true;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		@SuppressWarnings("unchecked")
-		public <R> Try<R> map(Function<T, R> fMap)
-		{
-			return Try.of(() -> fMap.apply(rValue));
 		}
 
 		/***************************************
