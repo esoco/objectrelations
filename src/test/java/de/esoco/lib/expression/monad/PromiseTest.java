@@ -22,6 +22,9 @@ import java.time.LocalDate;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -78,7 +81,7 @@ public class PromiseTest
 	}
 
 	/***************************************
-	 * Test of {@link Promise#join(Monad, java.util.function.BiFunction)}.
+	 * Test of {@link Promise#join(Monad, BiFunction)}.
 	 */
 	@Test
 	public void testJoin()
@@ -95,7 +98,7 @@ public class PromiseTest
 	}
 
 	/***************************************
-	 * Test of {@link Promise#map(java.util.function.Function)}.
+	 * Test of {@link Promise#map(Function)}.
 	 */
 	@Test
 	public void testMap()
@@ -122,7 +125,7 @@ public class PromiseTest
 	}
 
 	/***************************************
-	 * Test of {@link Promise#then(java.util.function.Consumer)}.
+	 * Test of {@link Promise#then(Consumer)}.
 	 */
 	@Test
 	public void testThen()

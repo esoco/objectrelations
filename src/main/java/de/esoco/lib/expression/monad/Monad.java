@@ -62,8 +62,8 @@ public interface Monad<T, M extends Monad<?, M>> extends Functor<T>
 	 */
 	@SuppressWarnings("unchecked")
 	public <V, R, N extends Monad<V, M>> Monad<R, M> join(
-		N					rOther,
-		BiFunction<T, V, R> fJoin);
+		N											  rOther,
+		BiFunction<? super T, ? super V, ? extends R> fJoin);
 
 	/***************************************
 	 * Redefined here to change the return type to Monad. Subclasses can
@@ -73,5 +73,5 @@ public interface Monad<T, M extends Monad<?, M>> extends Functor<T>
 	 * @see Functor#map(Function)
 	 */
 	@Override
-	public <R> Monad<R, M> map(Function<T, R> fMap);
+	public <R> Monad<R, M> map(Function<? super T, ? extends R> fMap);
 }

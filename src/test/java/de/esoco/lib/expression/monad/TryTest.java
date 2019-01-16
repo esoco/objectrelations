@@ -21,6 +21,8 @@ import de.esoco.lib.datatype.Pair;
 import java.time.LocalDate;
 
 import java.util.Arrays;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -157,7 +159,7 @@ public class TryTest
 	}
 
 	/***************************************
-	 * Test of {@link Try#join(Monad, java.util.function.BiFunction)}.
+	 * Test of {@link Try#join(Monad, BiFunction)}.
 	 */
 	@Test
 	public void testJoin()
@@ -173,7 +175,7 @@ public class TryTest
 	}
 
 	/***************************************
-	 * Test of {@link Try#map(java.util.function.Function)}.
+	 * Test of {@link Try#map(Function)}.
 	 */
 	@Test
 	public void testMap()

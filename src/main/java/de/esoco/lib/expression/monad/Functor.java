@@ -39,7 +39,7 @@ public interface Functor<T>
 	 *
 	 * @return A mapped functor
 	 */
-	public <R> Functor<R> map(Function<T, R> fMap);
+	public <R> Functor<R> map(Function<? super T, ? extends R> fMap);
 
 	/***************************************
 	 * Consumes the value of this functor. This method is typically used at the
@@ -53,7 +53,7 @@ public interface Functor<T>
 	 *
 	 * @return The resulting functor for final chained invocations
 	 */
-	default public Functor<Void> then(Consumer<T> fConsumer)
+	default public Functor<Void> then(Consumer<? super T> fConsumer)
 	{
 		return map(Functions.asFunction(fConsumer));
 	}

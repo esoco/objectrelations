@@ -196,8 +196,8 @@ public class Option<T> implements Monad<T, Option<?>>
 	 */
 	@Override
 	public <V, R, N extends Monad<V, Option<?>>> Option<R> join(
-		N					rOther,
-		BiFunction<T, V, R> fJoin)
+		N											  rOther,
+		BiFunction<? super T, ? super V, ? extends R> fJoin)
 	{
 		return flatMap(t -> rOther.map(v -> fJoin.apply(t, v)));
 	}
@@ -207,7 +207,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public <R> Option<R> map(Function<T, R> fMap)
+	public <R> Option<R> map(Function<? super T, ? extends R> fMap)
 	{
 		return flatMap(t -> Option.of(fMap.apply(t)));
 	}
@@ -284,7 +284,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Option<Void> then(Consumer<T> fConsumer)
+	public Option<Void> then(Consumer<? super T> fConsumer)
 	{
 		return exists() ? map(Functions.asFunction(fConsumer)) : none();
 	}

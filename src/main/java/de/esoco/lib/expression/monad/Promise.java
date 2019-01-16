@@ -154,8 +154,8 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 */
 	@Override
 	public <V, R, N extends Monad<V, Promise<?>>> Promise<R> join(
-		N					rOther,
-		BiFunction<T, V, R> fJoin)
+		N											  rOther,
+		BiFunction<? super T, ? super V, ? extends R> fJoin)
 	{
 		return flatMap(t -> rOther.map(v -> fJoin.apply(t, v)));
 	}
@@ -164,7 +164,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <R> Promise<R> map(Function<T, R> fMap)
+	public <R> Promise<R> map(Function<? super T, ? extends R> fMap)
 	{
 		return flatMap(t -> Promise.of(fMap.apply(t)));
 	}
@@ -173,7 +173,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Promise<Void> then(Consumer<T> fConsumer)
+	public Promise<Void> then(Consumer<? super T> fConsumer)
 	{
 		return map(Functions.asFunction(fConsumer));
 	}

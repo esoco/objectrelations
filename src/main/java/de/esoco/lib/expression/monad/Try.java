@@ -179,7 +179,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public abstract Try<Void> then(Consumer<T> fConsumer);
+	public abstract Try<Void> then(Consumer<? super T> fConsumer);
 
 	/***************************************
 	 * Filter this try according to the given criteria by returning a try that
@@ -204,8 +204,8 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	 */
 	@Override
 	public <V, R, N extends Monad<V, Try<?>>> Try<R> join(
-		N					rOther,
-		BiFunction<T, V, R> fJoin)
+		N											  rOther,
+		BiFunction<? super T, ? super V, ? extends R> fJoin)
 	{
 		return flatMap(t -> rOther.map(v -> fJoin.apply(t, v)));
 	}
@@ -215,7 +215,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public <R> Try<R> map(Function<T, R> fMap)
+	public <R> Try<R> map(Function<? super T, ? extends R> fMap)
 	{
 		return flatMap(t -> Try.of(() -> fMap.apply(t)));
 	}
@@ -328,7 +328,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		public Try<Void> then(Consumer<T> fConsumer)
+		public Try<Void> then(Consumer<? super T> fConsumer)
 		{
 			return (Try<Void>) this;
 		}
@@ -447,7 +447,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Try<Void> then(Consumer<T> fConsumer)
+		public Try<Void> then(Consumer<? super T> fConsumer)
 		{
 			return map(Functions.asFunction(fConsumer));
 		}
