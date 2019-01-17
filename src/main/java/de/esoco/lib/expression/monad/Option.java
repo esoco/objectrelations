@@ -82,18 +82,6 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * Returns a new instance with the same state as a Java {@link Optional}.
-	 *
-	 * @param  rOptional The input value
-	 *
-	 * @return The new instance
-	 */
-	public static <T> Option<T> of(Optional<T> rOptional)
-	{
-		return rOptional.isPresent() ? new Option<>(rOptional.get()) : none();
-	}
-
-	/***************************************
 	 * Converts a stream of options into an option of a stream of existing
 	 * values.
 	 *
@@ -104,6 +92,18 @@ public class Option<T> implements Monad<T, Option<?>>
 	public static <T> Option<Stream<T>> ofExisting(Stream<Option<T>> rOptions)
 	{
 		return Option.of(rOptions.filter(Option::exists).map(o -> o.rValue));
+	}
+
+	/***************************************
+	 * Returns a new instance with the same state as a Java {@link Optional}.
+	 *
+	 * @param  rOptional The input value
+	 *
+	 * @return The new instance
+	 */
+	public static <T> Option<T> ofOptional(Optional<T> rOptional)
+	{
+		return rOptional.isPresent() ? new Option<>(rOptional.get()) : none();
 	}
 
 	/***************************************
@@ -231,7 +231,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	 *
 	 * @see #orThrow(Throwable)
 	 */
-	public <E extends Throwable> T orThrow()
+	public <E extends Throwable> T orFail()
 	{
 		return orThrow(new NullPointerException());
 	}
