@@ -19,6 +19,7 @@ package de.esoco.lib.expression.monad;
 import de.esoco.lib.expression.Functions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -31,8 +32,6 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /********************************************************************
@@ -53,6 +52,22 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	public enum State { ACTIVE, RESOLVED, CANCELLED, FAILED }
 
 	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Returns a promise that is completed in the FAILED state.
+	 *
+	 * @param  eError The error exception of the failure
+	 *
+	 * @return The failed promise
+	 */
+	public static <T> Promise<T> failure(Throwable eError)
+	{
+		CompletableFuture<T> aStage = new CompletableFuture<>();
+
+		aStage.completeExceptionally(eError);
+
+		return Promise.of(aStage);
+	}
 
 	/***************************************
 	 * Returns a new promise with an already resolved value.
@@ -94,41 +109,75 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	}
 
 	/***************************************
-	 * Converts a stream of promises into a promise of a stream of resolved
-	 * values. The returned promise will only complete after all promises in the
-	 * input stream have been resolved.
+	 * Converts a collection of promises into a promise of a collection of
+	 * resolved values. The returned promise will only complete when all
+	 * promises have completed successfully. If one or more promise in the
+	 * collection fails the resulting promise will also fail.
 	 *
-	 * @param  rPromiseStream The stream to convert
+	 * @param  rPromises The collection to convert
 	 *
-	 * @return A new promise containing a stream of resolved values
+	 * @return A new promise containing a collection of resolved values or with
+	 *         FAILED state if an input promise failed
 	 */
-	public static <T> Promise<Stream<T>> ofAll(
-		Stream<Promise<T>> rPromiseStream)
+	public static <T> Promise<Collection<T>> ofAll(
+		Collection<Promise<T>> rPromises)
 	{
-		// collect necessary to get the count which is needed to create a fully
-		// asynchronous result promise
-		List<Promise<T>> aPromises =
-			rPromiseStream.collect(Collectors.toList());
-
 		// list needs to be synchronized because the promises may run in
 		// parallel in which aResult.add(t) will be invoked concurrently
-		int     nCount  = aPromises.size();
+		int     nCount  = rPromises.size();
 		List<T> aResult = Collections.synchronizedList(new ArrayList<>(nCount));
 
-		CompletableFuture<Stream<T>> aStage = new CompletableFuture<>();
+		CompletableFuture<Collection<T>> aStage = new CompletableFuture<>();
 
-		aPromises.forEach(
-			rPromise ->
-				rPromise.then(
-					v ->
-					{
-						aResult.add(v);
-
-						if (aResult.size() == nCount)
+		if (rPromises.isEmpty())
+		{
+			aStage.complete(aResult);
+		}
+		else
+		{
+			rPromises.forEach(
+				rPromise ->
+					rPromise.then(
+						v ->
 						{
-							aStage.complete(aResult.stream());
-						}
-					}));
+							aResult.add(v);
+
+							if (aResult.size() == nCount)
+							{
+								aStage.complete(aResult);
+							}
+						})
+					.onError(e -> aStage.completeExceptionally(e)));
+		}
+
+		return Promise.of(aStage);
+	}
+
+	/***************************************
+	 * Returns a promise of the first resolved value or failure in a collection
+	 * of promises. The returned promise will complete either successfully or
+	 * with a failure as soon as the first promise in the collection either
+	 * completes successfully or fails with an exception.
+	 *
+	 * @param  rPromises The stream to convert
+	 *
+	 * @return A new promise containing a stream of resolved values
+	 *
+	 * @throws IllegalArgumentException If the argument collection is empty
+	 */
+	public static <T> Promise<T> ofAny(Collection<Promise<T>> rPromises)
+	{
+		if (rPromises.isEmpty())
+		{
+			throw new IllegalArgumentException("At least one promise needed");
+		}
+
+		CompletableFuture<T> aStage = new CompletableFuture<>();
+
+		rPromises.forEach(
+			rPromise ->
+				rPromise.then(v -> aStage.complete(v))
+				.onError(e -> aStage.completeExceptionally(e)));
 
 		return Promise.of(aStage);
 	}
@@ -136,11 +185,12 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Cancels the asynchronous execution of this promise.
+	 * Cancels the asynchronous execution of this promise if it hasn't
+	 * terminated yet.
 	 *
 	 * @return TRUE if this promise has been cancelled by the call, FALSE if it
-	 *         had already been resolved or cancelled before or if the execution
-	 *         has failed
+	 *         had already terminated (by being resolved or cancelled or if the
+	 *         execution has failed)
 	 */
 	public abstract boolean cancel();
 
@@ -161,17 +211,6 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 * @return The current state of this promise
 	 */
 	public abstract State getState();
-
-	/***************************************
-	 * Defines the maximum time this promise may run before failing as
-	 * unresolved.
-	 *
-	 * @param  nTime The time value
-	 * @param  eUnit The time unit
-	 *
-	 * @return The resulting promise
-	 */
-	public abstract Promise<T> maxTime(long nTime, TimeUnit eUnit);
 
 	/***************************************
 	 * Returns a new promise that consumes the error of a failed promise. This
@@ -243,6 +282,19 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 * @return The result value
 	 */
 	public abstract T orUse(T rFailureResult);
+
+	/***************************************
+	 * Defines the maximum time this promise may run before failing as
+	 * unresolved. Although it depends on the actual implementation, the timeout
+	 * is typically only respected by the terminal, blocking methods like {@link
+	 * #orUse(Object)}.
+	 *
+	 * @param  nTime The timeout value
+	 * @param  eUnit The time unit
+	 *
+	 * @return The resulting promise
+	 */
+	public abstract Promise<T> withTimeout(long nTime, TimeUnit eUnit);
 
 	/***************************************
 	 * {@inheritDoc}
@@ -364,7 +416,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 														   ExecutionException,
 														   TimeoutException
 		{
-			return getImpl(rPromise.maxTime(nTimeout, eUnit));
+			return getImpl(rPromise.withTimeout(nTimeout, eUnit));
 		}
 
 		/***************************************
@@ -425,7 +477,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 
 		// wraps another promise to simplify the implementation of flatMap
 		private CompletionStage<Promise<T>> rStage;
-		private long					    nMaxTime;
+		private long					    nTimeout;
 		private TimeUnit				    eTimeUnit;
 
 		//~ Constructors -------------------------------------------------------
@@ -444,15 +496,15 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 * Creates a new instance with a timeout.
 		 *
 		 * @param rStage    The completion stage to wrap
-		 * @param nMaxTime  The maximum time to wait for resolving
+		 * @param nTimeout  The maximum time to wait for resolving
 		 * @param eTimeUnit The unit of the timeout value
 		 */
 		CompletionStagePromise(CompletionStage<Promise<T>> rStage,
-							   long						   nMaxTime,
+							   long						   nTimeout,
 							   TimeUnit					   eTimeUnit)
 		{
 			this.rStage    = rStage;
-			this.nMaxTime  = nMaxTime;
+			this.nTimeout  = nTimeout;
 			this.eTimeUnit = eTimeUnit;
 		}
 
@@ -515,15 +567,6 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Promise<T> maxTime(long nTime, TimeUnit eUnit)
-		{
-			return new CompletionStagePromise<>(rStage, nTime, eUnit);
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
 		public Promise<T> onError(Consumer<Throwable> fHandler)
 		{
 			return new CompletionStagePromise<>(
@@ -545,7 +588,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		{
 			try
 			{
-				resolveWithTimeout();
+				getValue();
 			}
 			catch (Exception e)
 			{
@@ -561,7 +604,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		{
 			try
 			{
-				return resolveWithTimeout().orFail();
+				return getValue().orFail();
 			}
 			catch (Exception e)
 			{
@@ -578,7 +621,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		{
 			try
 			{
-				return resolveWithTimeout().orThrow(fCreateException);
+				return getValue().orThrow(fCreateException);
 			}
 			catch (Exception e)
 			{
@@ -594,12 +637,21 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		{
 			try
 			{
-				return resolveWithTimeout().orUse(rFailureResult);
+				return getValue().orUse(rFailureResult);
 			}
 			catch (Exception e)
 			{
 				return rFailureResult;
 			}
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Promise<T> withTimeout(long nTime, TimeUnit eUnit)
+		{
+			return new CompletionStagePromise<>(rStage, nTime, eUnit);
 		}
 
 		/***************************************
@@ -610,11 +662,11 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 * @throws Exception If the promise execution failed or a timeout has
 		 *                   been reached
 		 */
-		private Promise<T> resolveWithTimeout() throws Exception
+		private Promise<T> getValue() throws Exception
 		{
-			return nMaxTime == -1
+			return nTimeout == -1
 				   ? rStage.toCompletableFuture().get()
-				   : rStage.toCompletableFuture().get(nMaxTime, eTimeUnit);
+				   : rStage.toCompletableFuture().get(nTimeout, eTimeUnit);
 		}
 	}
 
@@ -675,15 +727,6 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Promise<T> maxTime(long nTime, TimeUnit eUnit)
-		{
-			return this;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
 		public Promise<T> onError(Consumer<Throwable> fHandler)
 		{
 			return this;
@@ -723,6 +766,15 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		public T orUse(T rFailureResult)
 		{
 			return rValue;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Promise<T> withTimeout(long nTime, TimeUnit eUnit)
+		{
+			return this;
 		}
 	}
 }
