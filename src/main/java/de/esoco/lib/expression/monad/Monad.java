@@ -31,6 +31,32 @@ public interface Monad<T, M extends Monad<?, M>> extends Functor<T>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Combines this monad with another monad into a new monad of the same type.
+	 * This is done by invoking {@link #flatMap(Function)} on this instance and
+	 * "lifting" the other monad by invoking it's {@link #map(Function)} method.
+	 * Therefore this type of method is sometimes also called "lift" or
+	 * "liftM2".
+	 *
+	 * <p>Implementations should override this method to return their own type
+	 * but they can simply invoke the default implementation (<code>
+	 * Monad.super.and(rOther, fJoin)</code>) and cast the result to their own
+	 * type. The explicit declaration in subclasses is necessary because of the
+	 * limitations of Java's generic type system.</p>
+	 *
+	 * @param  rOther The other monad to combine with
+	 * @param  fJoin  A binary function that joins the values of both monads
+	 *
+	 * @return The new joined monad
+	 */
+	@SuppressWarnings("unchecked")
+	default public <V, R, N extends Monad<V, M>> Monad<R, M> and(
+		N											  rOther,
+		BiFunction<? super T, ? super V, ? extends R> fJoin)
+	{
+		return flatMap(t -> rOther.map(v -> fJoin.apply(t, v)));
+	}
+
+	/***************************************
 	 * Maps this instance into another monad by applying a mapping function to
 	 * the enclosed value that produces the new monad. Implementations should
 	 * override the return type to their specific type because the Java type
@@ -42,28 +68,6 @@ public interface Monad<T, M extends Monad<?, M>> extends Functor<T>
 	 * @return The mapped and flattened monad
 	 */
 	public <R, N extends Monad<R, M>> Monad<R, M> flatMap(Function<T, N> fMap);
-
-	/***************************************
-	 * Combines this monad with another monad into a new monad of the same type.
-	 * This is done by invoking {@link #flatMap(Function)} on this instance and
-	 * "lifting" the other monad by invoking it's {@link #map(Function)} method.
-	 * Therefore this type of method is sometimes also called "lift" or
-	 * "liftM2".
-	 *
-	 * <p>Implementations can simply implement this as <code>flatMap(t -&gt;
-	 * rOther.map(v -&gt; fJoin.apply(t, v)))</code>. The explicit
-	 * implementation in subclasses is only necessary to allow them override the
-	 * return type because of the limitations of Java's generic type system.</p>
-	 *
-	 * @param  rOther The other monad to join with
-	 * @param  fJoin  The binary function that performs the value join
-	 *
-	 * @return The new joined monad
-	 */
-	@SuppressWarnings("unchecked")
-	public <V, R, N extends Monad<V, M>> Monad<R, M> join(
-		N											  rOther,
-		BiFunction<? super T, ? super V, ? extends R> fJoin);
 
 	/***************************************
 	 * Redefined here to change the return type to Monad. Subclasses can

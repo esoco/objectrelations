@@ -245,6 +245,18 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	public abstract T orUse(T rFailureResult);
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public <V, R, N extends Monad<V, Promise<?>>> Promise<R> and(
+		N											  rOther,
+		BiFunction<? super T, ? super V, ? extends R> fJoin)
+	{
+		return (Promise<R>) Monad.super.and(rOther, fJoin);
+	}
+
+	/***************************************
 	 * Checks whether this promise has been successfully resolved. If it returns
 	 * TRUE accessing the resolved value with the terminal methods like {@link
 	 * #orUse()}, {@link #orFail()}, {@link #orThrow(Function)}, or {@link
@@ -257,17 +269,6 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	public final boolean isResolved()
 	{
 		return getState() == State.RESOLVED;
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public <V, R, N extends Monad<V, Promise<?>>> Promise<R> join(
-		N											  rOther,
-		BiFunction<? super T, ? super V, ? extends R> fJoin)
-	{
-		return flatMap(t -> rOther.map(v -> fJoin.apply(t, v)));
 	}
 
 	/***************************************

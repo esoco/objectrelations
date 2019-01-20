@@ -21,8 +21,6 @@ import de.esoco.lib.datatype.Pair;
 import java.time.LocalDate;
 
 import java.util.Arrays;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -42,6 +40,25 @@ import static org.junit.Assert.fail;
 public class OptionTest
 {
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * Test of {@link Option#and(Monad, java.util.function.BiFunction)}.
+	 */
+	@Test
+	public void testAnd()
+	{
+		LocalDate today = LocalDate.now();
+
+		Option<LocalDate> aLocalDateOption =
+			Option.of(today.getYear())
+				  .and(Option.of(today.getMonth()), (y, m) ->
+	  					Pair.of(y, m))
+				  .and(
+	  				Option.of(today.getDayOfMonth()),
+	  				(ym, d) -> LocalDate.of(ym.first(), ym.second(), d));
+
+		aLocalDateOption.then(d -> assertEquals(today, d));
+	}
 
 	/***************************************
 	 * Test of {@link Option#equals(Object)}.
@@ -118,22 +135,6 @@ public class OptionTest
 		assertFalse(Option.of("TEST").hashCode() == Option.none()
 			.hashCode());
 		assertFalse(Option.none().hashCode() == Option.of("TEST").hashCode());
-	}
-
-	/***************************************
-	 * Test of {@link Option#join(Monad, BiFunction)}.
-	 */
-	@Test
-	public void testJoin()
-	{
-		LocalDate today = LocalDate.now();
-
-		Option.of(today.getYear())
-			  .join(Option.of(today.getMonth()), (y, m) -> Pair.of(y, m))
-			  .join(
-	  			Option.of(today.getDayOfMonth()),
-	  			(ym, d) -> LocalDate.of(ym.first(), ym.second(), d))
-			  .then(d -> assertEquals(today, d));
 	}
 
 	/***************************************

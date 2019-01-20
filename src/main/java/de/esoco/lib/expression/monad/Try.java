@@ -185,6 +185,18 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	public abstract Try<Void> then(Consumer<? super T> fConsumer);
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public <V, R, N extends Monad<V, Try<?>>> Try<R> and(
+		N											  rOther,
+		BiFunction<? super T, ? super V, ? extends R> fJoin)
+	{
+		return (Try<R>) Monad.super.and(rOther, fJoin);
+	}
+
+	/***************************************
 	 * Filter this try according to the given criteria by returning a try that
 	 * is successful if this try is successful and the wrapped value fulfills
 	 * the criteria, or a failure otherwise.
@@ -200,17 +212,6 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 			v -> pCriteria.test(v)
 				? success(v)
 				: failure(new Exception("Criteria not met by " + v)));
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public <V, R, N extends Monad<V, Try<?>>> Try<R> join(
-		N											  rOther,
-		BiFunction<? super T, ? super V, ? extends R> fJoin)
-	{
-		return flatMap(t -> rOther.map(v -> fJoin.apply(t, v)));
 	}
 
 	/***************************************

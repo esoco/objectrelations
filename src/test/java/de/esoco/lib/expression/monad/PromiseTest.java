@@ -40,6 +40,27 @@ public class PromiseTest
 {
 	//~ Methods ----------------------------------------------------------------
 
+	/***************************************
+	 * Test of {@link Promise#and(Monad, java.util.function.BiFunction)}.
+	 */
+	@Test
+	public void testAnd()
+	{
+		LocalDate today = LocalDate.now();
+
+		Promise<LocalDate> aLocalDatePromise =
+			Promise.of(() -> today.getYear())
+				   .and(
+	   				Promise.of(() -> today.getMonth()),
+	   				(y, m) -> Pair.of(y, m))
+				   .and(
+	   				Promise.of(() -> today.getDayOfMonth()),
+	   				(ym, d) ->
+	   					LocalDate.of(ym.first(), ym.second(), d));
+
+		aLocalDatePromise.then(d -> assertEquals(today, d));
+	}
+
 	// ~ Methods
 	// ----------------------------------------------------------------
 
@@ -52,24 +73,6 @@ public class PromiseTest
 		Promise.of("42")
 			   .flatMap(s -> Promise.of(() -> Integer.parseInt(s)))
 			   .then(i -> assertEquals(Integer.valueOf(42), i));
-	}
-
-	/***************************************
-	 * Test of {@link Promise#join(Monad, BiFunction)}.
-	 */
-	@Test
-	public void testJoin()
-	{
-		LocalDate today = LocalDate.now();
-
-		Promise.of(() -> today.getYear())
-			   .join(
-	   			Promise.of(() -> today.getMonth()),
-	   			(y, m) -> Pair.of(y, m))
-			   .join(
-	   			Promise.of(() -> today.getDayOfMonth()),
-	   			(ym, d) -> LocalDate.of(ym.first(), ym.second(), d))
-			   .then(d -> assertEquals(today, d));
 	}
 
 	/***************************************

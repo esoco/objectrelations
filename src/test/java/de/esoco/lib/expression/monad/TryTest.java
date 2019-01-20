@@ -42,6 +42,24 @@ public class TryTest
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
+	 * Test of {@link Try#and(Monad, java.util.function.BiFunction)}.
+	 */
+	@Test
+	public void testAnd()
+	{
+		LocalDate today = LocalDate.now();
+
+		Try<LocalDate> aLocalDateTry =
+			Try.of(() -> today.getYear())
+			   .and(Try.of(() -> today.getMonth()), (y, m) -> Pair.of(y, m))
+			   .and(
+   				Try.of(() -> today.getDayOfMonth()),
+   				(ym, d) -> LocalDate.of(ym.first(), ym.second(), d));
+
+		aLocalDateTry.then(d -> assertEquals(today, d));
+	}
+
+	/***************************************
 	 * Test of {@link Try#equals(Object)}.
 	 */
 	@Test
@@ -154,22 +172,6 @@ public class TryTest
 		assertFalse(
 			Try.of(() -> "TEST1").hashCode() ==
 			Try.of(() -> "TEST2").hashCode());
-	}
-
-	/***************************************
-	 * Test of {@link Try#join(Monad, BiFunction)}.
-	 */
-	@Test
-	public void testJoin()
-	{
-		LocalDate today = LocalDate.now();
-
-		Try.of(() -> today.getYear())
-		   .join(Try.of(() -> today.getMonth()), (y, m) -> Pair.of(y, m))
-		   .join(
-   			Try.of(() -> today.getDayOfMonth()),
-   			(ym, d) -> LocalDate.of(ym.first(), ym.second(), d))
-		   .then(d -> assertEquals(today, d));
 	}
 
 	/***************************************

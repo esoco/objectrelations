@@ -126,6 +126,18 @@ public class Option<T> implements Monad<T, Option<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
+	public <V, R, N extends Monad<V, Option<?>>> Option<R> and(
+		N											  rOther,
+		BiFunction<? super T, ? super V, ? extends R> fJoin)
+	{
+		return (Option<R>) Monad.super.and(rOther, fJoin);
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean equals(Object rObject)
 	{
 		return this == rObject ||
@@ -175,17 +187,6 @@ public class Option<T> implements Monad<T, Option<?>>
 	public int hashCode()
 	{
 		return Objects.hashCode(rValue);
-	}
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public <V, R, N extends Monad<V, Option<?>>> Option<R> join(
-		N											  rOther,
-		BiFunction<? super T, ? super V, ? extends R> fJoin)
-	{
-		return flatMap(t -> rOther.map(v -> fJoin.apply(t, v)));
 	}
 
 	/***************************************
