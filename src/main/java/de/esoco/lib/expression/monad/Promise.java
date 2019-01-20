@@ -23,6 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -39,6 +43,15 @@ import java.util.stream.Stream;
  */
 public abstract class Promise<T> implements Monad<T, Promise<?>>
 {
+	//~ Enums ------------------------------------------------------------------
+
+	/********************************************************************
+	 * Enumeration of the possible states a promise can have. The state ACTIVE
+	 * designates a promise that still performs an asynchronous operation, while
+	 * all other states are set on completed promises.
+	 */
+	public enum State { ACTIVE, RESOLVED, CANCELLED, FAILED }
+
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
@@ -64,6 +77,20 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	public static <T> Promise<T> of(CompletionStage<T> rStage)
 	{
 		return new CompletionStagePromise<T>(rStage.thenApply(Promise::of));
+	}
+
+	/***************************************
+	 * Returns a new <b>asynchronous</b> promise for an value provided by an
+	 * instance of {@link Supplier}. This is just a shortcut to invoke {@link
+	 * CompletableFuture#supplyAsync(Supplier)} with the given supplier.
+	 *
+	 * @param  fSupplier The supplier of the value
+	 *
+	 * @return The new asynchronous promise
+	 */
+	public static <T> Promise<T> of(Supplier<T> fSupplier)
+	{
+		return Promise.of(CompletableFuture.supplyAsync(fSupplier));
 	}
 
 	/***************************************
@@ -106,33 +133,16 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		return Promise.of(aStage);
 	}
 
-	/***************************************
-	 * Returns a new asynchronous promise for an value provided by an instance
-	 * of {@link Supplier}. This is just a shortcut to invoke {@link
-	 * CompletableFuture#supplyAsync(Supplier)} with the given supplier.
-	 *
-	 * @param  fSupplier The supplier of the value
-	 *
-	 * @return The new asynchronous promise
-	 */
-	public static <T> Promise<T> ofAsync(Supplier<T> fSupplier)
-	{
-		return Promise.of(CompletableFuture.supplyAsync(fSupplier));
-	}
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Awaits for this promise to be resolved. This will block the current
-	 * thread until the promised value becomes available. For a non-blocking use
-	 * it is recommended to used the monadic mapping functions or {@link
-	 * #then(Consumer)}.
+	 * Cancels the asynchronous execution of this promise.
 	 *
-	 * @return The promised value
-	 *
-	 * @throws RuntimeException If the waiting is interrupted
+	 * @return TRUE if this promise has been cancelled by the call, FALSE if it
+	 *         had already been resolved or cancelled before or if the execution
+	 *         has failed
 	 */
-	public abstract T await();
+	public abstract boolean cancel();
 
 	/***************************************
 	 * {@inheritDoc}
@@ -142,12 +152,112 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		Function<T, N> fMap);
 
 	/***************************************
-	 * Checks whether this promise is already resolved. If TRUE retrieving the
-	 * value with {@link #await()} will not block.
+	 * Returns the current state of this promise. Due to the asynchronous nature
+	 * of promises a returned state of {@link State#ACTIVE} is only a momentary
+	 * value that may not be valid anymore after this method returns. In
+	 * general, it is recommended to prefer the monadic functions to operate on
+	 * the completion of promises.
 	 *
-	 * @return The resolved
+	 * @return The current state of this promise
 	 */
-	public abstract boolean isResolved();
+	public abstract State getState();
+
+	/***************************************
+	 * Defines the maximum time this promise may run before failing as
+	 * unresolved.
+	 *
+	 * @param  nTime The time value
+	 * @param  eUnit The time unit
+	 *
+	 * @return The resulting promise
+	 */
+	public abstract Promise<T> maxTime(long nTime, TimeUnit eUnit);
+
+	/***************************************
+	 * Returns a new promise that consumes the error of a failed promise. This
+	 * method is non-blocking and will typically execute the given function
+	 * asynchronously when the promise terminates because of an exception.
+	 *
+	 * <p>In general, calls to the monadic functions {@link #map(Function)},
+	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
+	 * preferred to process values but a call to a terminal operation should
+	 * typically appear at the end of a chain.</p>
+	 *
+	 * @param  fHandler The consumer of the the error that occurred
+	 *
+	 * @return The resulting promise
+	 */
+	public abstract Promise<T> onError(Consumer<Throwable> fHandler);
+
+	/***************************************
+	 * A terminal, blocking operation that consumes an error if the execution
+	 * failed. This can be used to define the alternative of a call to a monadic
+	 * function like {@link #map(Function)}, {@link #flatMap(Function)}, and
+	 * especially {@link #then(Consumer)} to handle the case of a failed try.
+	 *
+	 * @param fHandler The consumer of the the error that occurred
+	 */
+	public abstract void orElse(Consumer<Throwable> fHandler);
+
+	/***************************************
+	 * A terminal, blocking operation that either returns the value of a
+	 * resolved promise execution or throws the occurred exception if the
+	 * promise failed.
+	 *
+	 * @see #orThrow(Throwable)
+	 */
+	public abstract T orFail() throws Throwable;
+
+	/***************************************
+	 * A terminal, blocking operation that either returns the value of a
+	 * resolved execution or throws an exception if the promise failed. Success
+	 * can be tested in advance with {@link #isSuccess()}.
+	 *
+	 * <p>In general, calls to the monadic functions {@link #map(Function)},
+	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
+	 * preferred to process results but a call to a terminal operation should
+	 * typically appear at the end of a chain.</p>
+	 *
+	 * @param  fCreateException A function that creates the exception to throw
+	 *
+	 * @return The result of the execution
+	 *
+	 * @throws E The argument exception in the case of a failure
+	 */
+	public abstract <E extends Throwable> T orThrow(
+		Function<Throwable, E> fCreateException) throws E;
+
+	/***************************************
+	 * A terminal, blocking operation that either returns the result of a
+	 * successful execution or returns the given default value if the execution
+	 * failed. If necessary, success can be tested before with {@link
+	 * #isSuccess()}.
+	 *
+	 * <p>In general, calls to the monadic functions {@link #map(Function)},
+	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
+	 * preferred to process results but a call to a terminal operation should
+	 * typically appear at the end of a chain.</p>
+	 *
+	 * @param  rFailureResult The value to return if the execution failed
+	 *
+	 * @return The result value
+	 */
+	public abstract T orUse(T rFailureResult);
+
+	/***************************************
+	 * Checks whether this promise has been successfully resolved. If it returns
+	 * TRUE accessing the resolved value with the terminal methods like {@link
+	 * #orUse()}, {@link #orFail()}, {@link #orThrow(Function)}, or {@link
+	 * #orElse(Consumer)} will not block and yield a valid result. This is just
+	 * a shortcut for testing the state with <code>getState() ==
+	 * RESOLVED</code>.
+	 *
+	 * @return TRUE if this promise
+	 */
+	public final boolean isResolved()
+	{
+		return getState() == State.RESOLVED;
+	}
 
 	/***************************************
 	 * {@inheritDoc}
@@ -179,6 +289,17 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	}
 
 	/***************************************
+	 * Returns an implementation of {@link Future} that is based on this
+	 * promise.
+	 *
+	 * @return A future representing this promise
+	 */
+	public Future<T> toFuture()
+	{
+		return new PromiseFuture<>(this);
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -186,13 +307,114 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	{
 		return String.format(
 			"Promise[%s]",
-			isResolved() ? await() : "unresolved");
+			isResolved() ? orUse(null) : "unresolved");
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
 
 	/********************************************************************
-	 * A promise implementation based on {@link CompletionStage}.
+	 * A future implementation that wraps a promise.
+	 *
+	 * @author eso
+	 */
+	public static class PromiseFuture<T> implements Future<T>
+	{
+		//~ Instance fields ----------------------------------------------------
+
+		private final Promise<T> rPromise;
+
+		//~ Constructors -------------------------------------------------------
+
+		/***************************************
+		 * Creates a new instance that wraps a certain promise.
+		 *
+		 * @param rPromise The promise to wrap
+		 */
+		public PromiseFuture(Promise<T> rPromise)
+		{
+			this.rPromise = rPromise;
+		}
+
+		//~ Methods ------------------------------------------------------------
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean cancel(boolean bMayInterruptIfRunning)
+		{
+			return rPromise.cancel();
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T get() throws InterruptedException, ExecutionException
+		{
+			return getImpl(rPromise);
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T get(long nTimeout, TimeUnit eUnit) throws InterruptedException,
+														   ExecutionException,
+														   TimeoutException
+		{
+			return getImpl(rPromise.maxTime(nTimeout, eUnit));
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isCancelled()
+		{
+			return rPromise.getState() == State.CANCELLED;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public boolean isDone()
+		{
+			return rPromise.getState() != State.ACTIVE;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		private T getImpl(Promise<T> rPromise) throws InterruptedException,
+													  ExecutionException
+		{
+			try
+			{
+				return rPromise.orFail();
+			}
+			catch (RuntimeException |
+				   InterruptedException |
+				   ExecutionException e)
+			{
+				throw e;
+			}
+			catch (Throwable e)
+			{
+				throw new ExecutionException(e);
+			}
+		}
+	}
+
+	/********************************************************************
+	 * A promise implementation that wraps a {@link CompletionStage}. Final
+	 * operations like {@link #await()} or {@link #isResolved()} will invoke the
+	 * {@link CompletionStage#toCompletableFuture()} method and are therefore
+	 * only compatible with the corresponding implementations (like {@link
+	 * CompletableFuture} itself). But the monadic methods {@link
+	 * #flatMap(Function)}, {@link #map(Function)}, and {@link #then(Consumer)}
+	 * can be applied to any {@link CompletionStage} implementation.
 	 *
 	 * @author eso
 	 */
@@ -202,6 +424,8 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 
 		// wraps another promise to simplify the implementation of flatMap
 		private CompletionStage<Promise<T>> rStage;
+		private long					    nMaxTime;
+		private TimeUnit				    eTimeUnit;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -212,7 +436,23 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 */
 		CompletionStagePromise(CompletionStage<Promise<T>> rStage)
 		{
-			this.rStage = rStage;
+			this(rStage, -1, null);
+		}
+
+		/***************************************
+		 * Creates a new instance with a timeout.
+		 *
+		 * @param rStage    The completion stage to wrap
+		 * @param nMaxTime  The maximum time to wait for resolving
+		 * @param eTimeUnit The unit of the timeout value
+		 */
+		CompletionStagePromise(CompletionStage<Promise<T>> rStage,
+							   long						   nMaxTime,
+							   TimeUnit					   eTimeUnit)
+		{
+			this.rStage    = rStage;
+			this.nMaxTime  = nMaxTime;
+			this.eTimeUnit = eTimeUnit;
 		}
 
 		//~ Methods ------------------------------------------------------------
@@ -221,9 +461,9 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public T await()
+		public boolean cancel()
 		{
-			return rStage.toCompletableFuture().join().await();
+			return rStage.toCompletableFuture().cancel(false);
 		}
 
 		/***************************************
@@ -234,16 +474,146 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 			Function<T, N> fMap)
 		{
 			return new CompletionStagePromise<>(
-				rStage.thenApply(p -> p.flatMap(fMap)));
+				rStage.thenApplyAsync(p -> p.flatMap(fMap)));
 		}
 
 		/***************************************
 		 * {@inheritDoc}
 		 */
 		@Override
-		public boolean isResolved()
+		public State getState()
 		{
-			return rStage.toCompletableFuture().isDone();
+			CompletableFuture<Promise<T>> rFuture =
+				rStage.toCompletableFuture();
+
+			if (rFuture.isDone())
+			{
+				if (rFuture.isCompletedExceptionally())
+				{
+					if (rFuture.isCancelled())
+					{
+						return State.CANCELLED;
+					}
+					else
+					{
+						return State.FAILED;
+					}
+				}
+				else
+				{
+					return State.RESOLVED;
+				}
+			}
+			else
+			{
+				return State.ACTIVE;
+			}
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Promise<T> maxTime(long nTime, TimeUnit eUnit)
+		{
+			return new CompletionStagePromise<>(rStage, nTime, eUnit);
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Promise<T> onError(Consumer<Throwable> fHandler)
+		{
+			return new CompletionStagePromise<>(
+				rStage.whenCompleteAsync(
+					(t, e) ->
+				{
+					if (e != null)
+					{
+						fHandler.accept(e);
+					}
+				}));
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void orElse(Consumer<Throwable> fHandler)
+		{
+			try
+			{
+				resolveWithTimeout();
+			}
+			catch (Exception e)
+			{
+				fHandler.accept(e);
+			}
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T orFail() throws Throwable
+		{
+			try
+			{
+				return resolveWithTimeout().orFail();
+			}
+			catch (Exception e)
+			{
+				throw e;
+			}
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public <E extends Throwable> T orThrow(
+			Function<Throwable, E> fCreateException) throws E
+		{
+			try
+			{
+				return resolveWithTimeout().orThrow(fCreateException);
+			}
+			catch (Exception e)
+			{
+				throw fCreateException.apply(e);
+			}
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T orUse(T rFailureResult)
+		{
+			try
+			{
+				return resolveWithTimeout().orUse(rFailureResult);
+			}
+			catch (Exception e)
+			{
+				return rFailureResult;
+			}
+		}
+
+		/***************************************
+		 * Blocks until this promise is resolved, respecting a possible timeout.
+		 *
+		 * @return The resolved value
+		 *
+		 * @throws Exception If the promise execution failed or a timeout has
+		 *                   been reached
+		 */
+		private Promise<T> resolveWithTimeout() throws Exception
+		{
+			return nMaxTime == -1
+				   ? rStage.toCompletableFuture().get()
+				   : rStage.toCompletableFuture().get(nMaxTime, eTimeUnit);
 		}
 	}
 
@@ -276,9 +646,9 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public T await()
+		public boolean cancel()
 		{
-			return rValue;
+			return false;
 		}
 
 		/***************************************
@@ -295,9 +665,63 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public boolean isResolved()
+		public State getState()
 		{
-			return true;
+			return State.RESOLVED;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Promise<T> maxTime(long nTime, TimeUnit eUnit)
+		{
+			return this;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Promise<T> onError(Consumer<Throwable> fHandler)
+		{
+			return this;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void orElse(Consumer<Throwable> fHandler)
+		{
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T orFail() throws Throwable
+		{
+			return rValue;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public <E extends Throwable> T orThrow(
+			Function<Throwable, E> fCreateException) throws E
+		{
+			return rValue;
+		}
+
+		/***************************************
+		 * {@inheritDoc}
+		 */
+		@Override
+		public T orUse(T rFailureResult)
+		{
+			return rValue;
 		}
 	}
 }

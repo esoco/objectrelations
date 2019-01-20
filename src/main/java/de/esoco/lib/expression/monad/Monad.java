@@ -44,11 +44,11 @@ public interface Monad<T, M extends Monad<?, M>> extends Functor<T>
 	public <R, N extends Monad<R, M>> Monad<R, M> flatMap(Function<T, N> fMap);
 
 	/***************************************
-	 * Joins the value of this monad with that of another monad into a new monad
-	 * of the same type. This is done by invoking {@link #flatMap(Function)} on
-	 * this instance and "lifting" the other monad by invoking it's {@link
-	 * #map(Function)} method. Therefore this type of method is sometimes also
-	 * called "lift" or "liftM2".
+	 * Combines this monad with another monad into a new monad of the same type.
+	 * This is done by invoking {@link #flatMap(Function)} on this instance and
+	 * "lifting" the other monad by invoking it's {@link #map(Function)} method.
+	 * Therefore this type of method is sometimes also called "lift" or
+	 * "liftM2".
 	 *
 	 * <p>Implementations can simply implement this as <code>flatMap(t -&gt;
 	 * rOther.map(v -&gt; fJoin.apply(t, v)))</code>. The explicit

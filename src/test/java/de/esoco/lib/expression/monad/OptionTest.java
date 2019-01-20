@@ -190,7 +190,7 @@ public class OptionTest
 
 	/***************************************
 	 * Test of {@link Option#orElse(Runnable)}, {@link Option#orUse(Object)},
-	 * {@link Option#orThrow()}.
+	 * {@link Option#orFail()}.
 	 */
 	@Test
 	public void testOr()
@@ -214,7 +214,7 @@ public class OptionTest
 
 		try
 		{
-			Option.none().orThrow();
+			Option.none().orFail();
 			fail();
 		}
 		catch (Throwable e)

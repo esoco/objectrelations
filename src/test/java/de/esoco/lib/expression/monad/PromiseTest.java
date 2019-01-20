@@ -22,9 +22,6 @@ import java.time.LocalDate;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -43,31 +40,8 @@ public class PromiseTest
 {
 	//~ Methods ----------------------------------------------------------------
 
-	/***************************************
-	 * Test of {@link Promise#await()}.
-	 */
-	@Test
-	public void testAwait()
-	{
-		Promise<String> p = Promise.of(42).map(i -> Integer.toString(i));
-
-		assertEquals("42", p.await());
-		assertTrue(p.isResolved());
-
-		p = Promise.of(42).flatMap(i -> Promise.of(Integer.toString(i)));
-
-		assertEquals("42", p.await());
-		assertTrue(p.isResolved());
-
-		p = Promise.ofAsync(() -> 42).map(i -> Integer.toString(i));
-		assertEquals("42", p.await());
-		assertTrue(p.isResolved());
-
-		p = Promise.of(CompletableFuture.completedFuture(42))
-				   .map(i -> Integer.toString(i));
-		assertEquals("42", p.await());
-		assertTrue(p.isResolved());
-	}
+	// ~ Methods
+	// ----------------------------------------------------------------
 
 	/***************************************
 	 * Test of {@link Promise#flatMap(java.util.function.Function)}.
@@ -76,7 +50,7 @@ public class PromiseTest
 	public void testFlatMap()
 	{
 		Promise.of("42")
-			   .flatMap(s -> Promise.of(Integer.parseInt(s)))
+			   .flatMap(s -> Promise.of(() -> Integer.parseInt(s)))
 			   .then(i -> assertEquals(Integer.valueOf(42), i));
 	}
 
@@ -88,11 +62,12 @@ public class PromiseTest
 	{
 		LocalDate today = LocalDate.now();
 
-		Promise.of(today.getYear())
-			   .join(Promise.of(today.getMonth()), (y, m) ->
-	   				Pair.of(y, m))
+		Promise.of(() -> today.getYear())
 			   .join(
-	   			Promise.of(today.getDayOfMonth()),
+	   			Promise.of(() -> today.getMonth()),
+	   			(y, m) -> Pair.of(y, m))
+			   .join(
+	   			Promise.of(() -> today.getDayOfMonth()),
 	   			(ym, d) -> LocalDate.of(ym.first(), ym.second(), d))
 			   .then(d -> assertEquals(today, d));
 	}
@@ -103,7 +78,7 @@ public class PromiseTest
 	@Test
 	public void testMap()
 	{
-		Promise.of("42")
+		Promise.of(() -> "42")
 			   .map(Integer::parseInt)
 			   .then(i -> assertEquals(Integer.valueOf(42), i));
 	}
@@ -115,7 +90,10 @@ public class PromiseTest
 	public void testOfAll()
 	{
 		Promise.ofAll(
-	   			Arrays.asList(Promise.of(1), Promise.of(2), Promise.of(3))
+	   			Arrays.asList(
+	   				Promise.of(() -> 1),
+	   				Promise.of(() -> 2),
+	   				Promise.of(() -> 3))
 	   			.stream())
 			   .then(
 	   			stream ->
@@ -125,12 +103,38 @@ public class PromiseTest
 	}
 
 	/***************************************
+	 * Test of {@link Promise#await()}.
+	 */
+	@Test
+	public void testOrUse()
+	{
+		Promise<String> p = Promise.of(() -> 42).map(i -> Integer.toString(i));
+
+		assertEquals("42", p.orUse(null));
+		assertTrue(p.isResolved());
+
+		p = Promise.of(() -> 42).flatMap(i -> Promise.of(Integer.toString(i)));
+
+		assertEquals("42", p.orUse(null));
+		assertTrue(p.isResolved());
+
+		p = Promise.of(() -> 42).map(i -> Integer.toString(i));
+		assertEquals("42", p.orUse(null));
+		assertTrue(p.isResolved());
+
+		p = Promise.of(CompletableFuture.supplyAsync(() -> 42))
+				   .map(i -> Integer.toString(i));
+		assertEquals("42", p.orUse(null));
+		assertTrue(p.isResolved());
+	}
+
+	/***************************************
 	 * Test of {@link Promise#then(Consumer)}.
 	 */
 	@Test
 	public void testThen()
 	{
-		Promise.of("TEST").then(s -> assertEquals("TEST", s));
-		Promise.ofAsync(() -> null).then(s -> assertNull(s));
+		Promise.of(() -> "TEST").then(s -> assertEquals("TEST", s));
+		Promise.of(() -> null).then(s -> assertNull(s));
 	}
 }

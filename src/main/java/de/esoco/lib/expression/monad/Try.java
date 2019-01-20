@@ -125,49 +125,52 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	public abstract boolean isSuccess();
 
 	/***************************************
-	 * Consumes the error with the given function in the case of an unsuccessful
-	 * execution.
+	 * A terminal operation that consumes an error if the execution failed. This
+	 * can be used to define the alternative of a call to a monadic function
+	 * like {@link #map(Function)}, {@link #flatMap(Function)}, and especially
+	 * {@link #then(Consumer)} to handle the case of a failed try.
 	 *
 	 * @param fHandler The consumer of the the error that occurred
 	 */
 	public abstract void orElse(Consumer<Throwable> fHandler);
 
 	/***************************************
-	 * Returns the result of a successful execution or throws the occurred
-	 * exception if the execution failed. Success can be tested in advance with
-	 * {@link #isSuccess()}.
+	 * A terminal operation that either returns the result of a successful
+	 * execution or throws the occurred exception if the execution failed.
 	 *
 	 * @see #orThrow(Throwable)
 	 */
-	public abstract T orThrow() throws Throwable;
+	public abstract T orFail() throws Throwable;
 
 	/***************************************
-	 * Returns the result of a successful execution or throws the given
-	 * exception if the execution failed. Success can be tested in advance with
-	 * {@link #isSuccess()}.
+	 * A terminal operation that either returns the result of a successful
+	 * execution or throws an exception if the execution failed. Success can be
+	 * tested in advance with {@link #isSuccess()}.
 	 *
-	 * <p>In general, calls to the monadic chaining functions {@link
-	 * #map(Function)}, {@link #flatMap(Function)}, or {@link #then(Consumer)}
-	 * should be preferred as they prevent accidental access to a failed
-	 * execution.</p>
+	 * <p>In general, calls to the monadic functions {@link #map(Function)},
+	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
+	 * preferred to process results but a call to a terminal operation should
+	 * typically appear at the end of a chain.</p>
 	 *
-	 * @param  eException The exception to throw
+	 * @param  fCreateException The a function that creates the exception to
+	 *                          throw
 	 *
 	 * @return The result of the execution
 	 *
 	 * @throws E The argument exception in the case of a failure
 	 */
-	public abstract <E extends Throwable> T orThrow(E eException) throws E;
+	public abstract <E extends Throwable> T orThrow(
+		Function<Throwable, E> fCreateException) throws E;
 
 	/***************************************
-	 * Returns the result of a successful execution or returns the given default
-	 * value if the execution failed. If necessary, success can be tested before
-	 * with {@link #isSuccess()}.
+	 * A terminal operation that either returns the result of a successful
+	 * execution or returns the given default value if the execution failed. If
+	 * necessary, success can be tested before with {@link #isSuccess()}.
 	 *
-	 * <p>In general, calls to the monadic chaining functions {@link
-	 * #map(Function)}, {@link #flatMap(Function)}, or {@link #then(Consumer)}
-	 * should be preferred as they prevent accidental access to a failed
-	 * execution.</p>
+	 * <p>In general, calls to the monadic functions {@link #map(Function)},
+	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
+	 * preferred to process results but a call to a terminal operation should
+	 * typically appear at the end of a chain.</p>
 	 *
 	 * @param  rFailureResult The value to return if the execution failed
 	 *
@@ -300,7 +303,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public final T orThrow() throws Throwable
+		public final T orFail() throws Throwable
 		{
 			throw eError;
 		}
@@ -309,9 +312,10 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public <E extends Throwable> T orThrow(E eException) throws E
+		public <E extends Throwable> T orThrow(
+			Function<Throwable, E> fCreateException) throws E
 		{
-			throw eException;
+			throw fCreateException.apply(eError);
 		}
 
 		/***************************************
@@ -420,7 +424,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public final T orThrow()
+		public final T orFail()
 		{
 			return rValue;
 		}
@@ -429,7 +433,8 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
-		public <E extends Throwable> T orThrow(E eException) throws E
+		public <E extends Throwable> T orThrow(
+			Function<Throwable, E> fCreateException) throws E
 		{
 			return rValue;
 		}

@@ -169,20 +169,6 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * Returns the value of this option. This will yield NULL for an empty
-	 * option which can be tested before with a call to {@link #exists()}. In
-	 * general calls to the monadic chaining functions {@link #map(Function)},
-	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred as they prevent accidental access to non-existing values.
-	 *
-	 * @return The value or NULL if it doesn't exist
-	 */
-	public final T get()
-	{
-		return rValue;
-	}
-
-	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -213,7 +199,10 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * Executes some code if this option doesn't exist.
+	 * A terminal operation that executes some code if this option doesn't
+	 * exist. This can be used to define the alternative of a call to a monadic
+	 * function like {@link #map(Function)}, {@link #flatMap(Function)}, and
+	 * especially {@link #then(Consumer)} to handle the case of an empty oütion.
 	 *
 	 * @param fAction The code to execute
 	 */
@@ -226,8 +215,8 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * Returns the value of this option or throws a {@link
-	 * NullPointerException}.
+	 * A terminal operation that either returns the value of this option if it
+	 * exists or throws a {@link NullPointerException}.
 	 *
 	 * @see #orThrow(Throwable)
 	 */
@@ -237,14 +226,14 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * Returns the value of this option or throws the given exception if the
-	 * option doesn't exist. The presence of a value can be tested in advance
-	 * with {@link #exists()}.
+	 * A terminal operation that either returns the value of this option or
+	 * throws the given exception if the option doesn't exist. The presence of a
+	 * value can be tested in advance with {@link #exists()}.
 	 *
-	 * <p>In general, calls to the monadic chaining functions {@link
-	 * #map(Function)}, {@link #flatMap(Function)}, or {@link #then(Consumer)}
-	 * should be preferred as they prevent accidental access to a failed
-	 * execution.</p>
+	 * <p>In general, calls to the monadic functions {@link #map(Function)},
+	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
+	 * preferred to process values but a call to a terminal operation should
+	 * typically appear at the end of a chain.</p>
 	 *
 	 * @param  eException The exception to throw
 	 *
@@ -263,15 +252,16 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * Returns the result of a successful execution or returns the given default
-	 * value if the execution failed. If necessary, success can be tested before
-	 * with {@link #isSuccess()}. In general, calls to the monadic chaining
-	 * functions {@link #map(Function)}, {@link #flatMap(Function)}, or {@link
-	 * #then(Consumer)} should be preferred as they prevent accidental access to
-	 * a failed execution.
+	 * A terminal operation that either returns an existing value or the given
+	 * default value if the execution failed. If necessary, existence can be
+	 * tested before with {@link #exists()}.
 	 *
-	 * @param  rDefault rFailureResult The value to return if the execution
-	 *                  failed
+	 * <p>In general, calls to the monadic functions {@link #map(Function)},
+	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
+	 * preferred to process values but a call to a terminal operation should
+	 * typically appear at the end of a chain.</p>
+	 *
+	 * @param  rDefault The value to return if the value doesn't exist
 	 *
 	 * @return The result value
 	 */

@@ -21,8 +21,6 @@ import de.esoco.lib.datatype.Pair;
 import java.time.LocalDate;
 
 import java.util.Arrays;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -90,7 +88,7 @@ public class TryTest
 
 		try
 		{
-			Try.failure(new Exception()).orThrow();
+			Try.failure(new Exception()).orFail();
 			fail();
 		}
 		catch (Throwable e)
@@ -100,7 +98,7 @@ public class TryTest
 
 		try
 		{
-			Try.failure(new Exception()).orThrow(new RuntimeException());
+			Try.failure(new Exception()).orThrow(RuntimeException::new);
 			fail();
 		}
 		catch (RuntimeException e)
@@ -228,7 +226,7 @@ public class TryTest
 
 		try
 		{
-			assertEquals("SUCCESS", Try.success("SUCCESS").orThrow());
+			assertEquals("SUCCESS", Try.success("SUCCESS").orFail());
 		}
 		catch (Throwable e)
 		{
