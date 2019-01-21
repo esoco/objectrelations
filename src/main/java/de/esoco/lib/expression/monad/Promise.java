@@ -570,7 +570,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		public Promise<T> onError(Consumer<Throwable> fHandler)
 		{
 			return new CompletionStagePromise<>(
-				rStage.whenCompleteAsync(
+				rStage.whenComplete(
 					(t, e) ->
 				{
 					if (e != null)

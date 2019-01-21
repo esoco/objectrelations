@@ -17,7 +17,6 @@
 package de.esoco.lib.expression.monad;
 
 import de.esoco.lib.datatype.Pair;
-import de.esoco.lib.datatype.Range;
 import de.esoco.lib.expression.monad.Promise.State;
 
 import java.time.LocalDate;
@@ -107,7 +106,7 @@ public class PromiseTest
 
 		Promise<Collection<Integer>> p = Promise.ofAll(values);
 
-		assertEquals(Arrays.asList(1, 2, 3), p.orUse(null));
+		assertEquals(3, p.orUse(null).size());
 		assertTrue(p.isResolved());
 
 		Exception eError = new Exception("TEST");
@@ -138,12 +137,11 @@ public class PromiseTest
 		values =
 			Arrays.asList(
 				Promise.failure(new Exception("TEST")),
-				Promise.of(() -> delayedReturn("2")),
-				Promise.of(() -> delayedReturn("3")));
+				Promise.of(() -> "2"),
+				Promise.of(() -> "3"));
 
 		p = Promise.ofAny(values);
 
-		p.orUse(null);
 		assertEquals(State.FAILED, p.getState());
 	}
 
@@ -235,20 +233,5 @@ public class PromiseTest
 	{
 		Promise.of(() -> "TEST").then(s -> assertEquals("TEST", s));
 		Promise.of(() -> null).then(s -> assertNull(s));
-	}
-
-	/***************************************
-	 * A simple method that returns a value after performing some computation to
-	 * make sure other code finishes first.
-	 *
-	 * @param  rValue The value to return
-	 *
-	 * @return The input value
-	 */
-	private <T> T delayedReturn(T rValue)
-	{
-		Range.from(0).to(100_000).forEach(i -> i++);
-
-		return rValue;
 	}
 }
