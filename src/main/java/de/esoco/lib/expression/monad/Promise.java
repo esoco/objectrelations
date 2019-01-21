@@ -243,14 +243,14 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 * resolved promise execution or throws the occurred exception if the
 	 * promise failed.
 	 *
-	 * @see #orThrow(Throwable)
+	 * @see #orThrow(Function)
 	 */
 	public abstract T orFail() throws Throwable;
 
 	/***************************************
 	 * A terminal, blocking operation that either returns the value of a
 	 * resolved execution or throws an exception if the promise failed. Success
-	 * can be tested in advance with {@link #isSuccess()}.
+	 * can be tested in advance with {@link #isResolved()}.
 	 *
 	 * <p>In general, calls to the monadic functions {@link #map(Function)},
 	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
@@ -270,7 +270,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 * A terminal, blocking operation that either returns the result of a
 	 * successful execution or returns the given default value if the execution
 	 * failed. If necessary, success can be tested before with {@link
-	 * #isSuccess()}.
+	 * #isResolved()}.
 	 *
 	 * <p>In general, calls to the monadic functions {@link #map(Function)},
 	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
@@ -311,7 +311,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	/***************************************
 	 * Checks whether this promise has been successfully resolved. If it returns
 	 * TRUE accessing the resolved value with the terminal methods like {@link
-	 * #orUse()}, {@link #orFail()}, {@link #orThrow(Function)}, or {@link
+	 * #orUse(Object)}, {@link #orFail()}, {@link #orThrow(Function)}, or {@link
 	 * #orElse(Consumer)} will not block and yield a valid result. This is just
 	 * a shortcut for testing the state with <code>getState() ==
 	 * RESOLVED</code>.

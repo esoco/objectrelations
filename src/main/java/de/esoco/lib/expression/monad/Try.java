@@ -138,7 +138,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	 * A terminal operation that either returns the result of a successful
 	 * execution or throws the occurred exception if the execution failed.
 	 *
-	 * @see #orThrow(Throwable)
+	 * @see #orThrow(Function)
 	 */
 	public abstract T orFail() throws Throwable;
 

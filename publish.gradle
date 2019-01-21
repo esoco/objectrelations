@@ -44,7 +44,7 @@ bintray {
 }
 
 // -------------- Maven POM --------------
-
+/* 
 def pomConfig = {
     licenses {
         license {
@@ -86,3 +86,4 @@ publishing {
         }
     }
 }
+*/
