@@ -107,7 +107,7 @@ public class PromiseTest
 
 		Promise<Collection<Integer>> p = Promise.ofAll(values);
 
-		p.then(c -> assertEquals(Arrays.asList(1, 2, 3), c));
+		assertEquals(Arrays.asList(1, 2, 3), p.orUse(null));
 		assertTrue(p.isResolved());
 
 		Exception eError = new Exception("TEST");
