@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -327,6 +327,17 @@ public class JsonObject extends RelatedObject
 	public boolean isEmpty()
 	{
 		return getProperties().isEmpty();
+	}
+
+	/***************************************
+	 * Removes a property from this object. If the property doesn't exists this
+	 * call has no effect.
+	 *
+	 * @param sName The property name
+	 */
+	public void remove(String sName)
+	{
+		getProperties().remove(sName);
 	}
 
 	/***************************************
