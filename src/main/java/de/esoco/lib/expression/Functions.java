@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import de.esoco.lib.expression.function.AbstractInvertibleFunction;
 import de.esoco.lib.expression.function.BinaryFunctionChain.LeftFunctionChain;
 import de.esoco.lib.expression.function.BinaryFunctionChain.RightFunctionChain;
 import de.esoco.lib.expression.function.BinaryFunctionGroup;
+import de.esoco.lib.expression.function.CachingSupplier;
 import de.esoco.lib.expression.function.ConditionalFunction;
 import de.esoco.lib.expression.function.DualFunctionChain;
 import de.esoco.lib.expression.function.FunctionChain;
@@ -279,6 +280,14 @@ public class Functions
 	public static <T> Function<T, String> asString()
 	{
 		return v -> v != null ? v.toString() : "null";
+	}
+
+	/***************************************
+	 * @see CachingSupplier#cached(Supplier)
+	 */
+	public static <T> CachingSupplier<T> cached(Supplier<T> fSupplyValue)
+	{
+		return CachingSupplier.cached(fSupplyValue);
 	}
 
 	/***************************************
