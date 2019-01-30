@@ -82,8 +82,8 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	}
 
 	/***************************************
-	 * Returns a new asynchronous promise for an value provided by a {@link
-	 * CompletionStage} (e.g. a {@link CompletableFuture}).
+	 * Returns a new <b>asynchronous</b> promise for an value provided by a
+	 * {@link CompletionStage} (e.g. a {@link CompletableFuture}).
 	 *
 	 * @param  rStage The completion stage that provides the value
 	 *
@@ -257,14 +257,14 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 * preferred to process results but a call to a terminal operation should
 	 * typically appear at the end of a chain.</p>
 	 *
-	 * @param  fCreateException A function that creates the exception to throw
+	 * @param  fMapException A function that maps the original exception
 	 *
 	 * @return The result of the execution
 	 *
 	 * @throws E The argument exception in the case of a failure
 	 */
 	public abstract <E extends Throwable> T orThrow(
-		Function<Throwable, E> fCreateException) throws E;
+		Function<Throwable, E> fMapException) throws E;
 
 	/***************************************
 	 * A terminal, blocking operation that either returns the result of a
@@ -359,7 +359,8 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	public String toString()
 	{
 		return String.format(
-			"Promise[%s]",
+			"%s[%s]",
+			getClass().getSimpleName(),
 			isResolved() ? orUse(null) : "unresolved");
 	}
 
@@ -617,15 +618,15 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 */
 		@Override
 		public <E extends Throwable> T orThrow(
-			Function<Throwable, E> fCreateException) throws E
+			Function<Throwable, E> fMapException) throws E
 		{
 			try
 			{
-				return getValue().orThrow(fCreateException);
+				return getValue().orThrow(fMapException);
 			}
 			catch (Exception e)
 			{
-				throw fCreateException.apply(e);
+				throw fMapException.apply(e);
 			}
 		}
 
@@ -754,7 +755,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 */
 		@Override
 		public <E extends Throwable> T orThrow(
-			Function<Throwable, E> fCreateException) throws E
+			Function<Throwable, E> fMapException) throws E
 		{
 			return rValue;
 		}

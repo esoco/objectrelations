@@ -176,9 +176,11 @@ public class TryTest
 
 	/***************************************
 	 * Test of {@link Try#map(Function)}.
+	 *
+	 * @throws Throwable
 	 */
 	@Test
-	public void testMap()
+	public void testMap() throws Throwable
 	{
 		assertFalse(
 			Try.<String>failure(new Exception())
@@ -186,14 +188,39 @@ public class TryTest
 			.isSuccess());
 		Try.of(() -> "42")
 		   .map(Integer::parseInt)
-		   .then(i -> assertTrue(i == 42));
+		   .then(i -> assertTrue(i == 42))
+		   .orFail();
+	}
+
+	/***************************************
+	 * Test of {@link Try#ofAll(java.util.stream.Stream)}.
+	 *
+	 * @throws Throwable
+	 */
+	@Test
+	public void testOfAll() throws Throwable
+	{
+		Try.ofAll(
+   			Arrays.asList(Try.of(() -> 1), Try.of(() -> 2), Try.of(() -> 3)))
+		   .then(c -> assertEquals(Arrays.asList(1, 2, 3), c))
+		   .orFail();
+		Try.ofAll(
+   			Arrays.asList(
+   				Try.of(() -> 1),
+   				Try.of(() -> 2),
+   				Try.of(() -> 3),
+   				Try.<Integer>failure(new Exception("FAILED"))))
+		   .then(c -> fail())
+		   .orElse(e -> assertEquals("FAILED", e.getMessage()));
 	}
 
 	/***************************************
 	 * Test of {@link Try#ofSuccessful(java.util.stream.Stream)}.
+	 *
+	 * @throws Throwable
 	 */
 	@Test
-	public void testOfSuccessful()
+	public void testOfSuccessful() throws Throwable
 	{
 		Try.ofSuccessful(
    			Arrays.asList(Try.of(() -> 1), Try.of(() -> 2), Try.of(() -> 3))
@@ -202,7 +229,8 @@ public class TryTest
    			stream ->
    				assertEquals(
    					Arrays.asList(1, 2, 3),
-   					stream.collect(Collectors.toList())));
+   					stream.collect(Collectors.toList())))
+		   .orFail();
 		Try.ofSuccessful(
    			Arrays.asList(
    				Try.of(() -> 1),
@@ -214,7 +242,8 @@ public class TryTest
    			stream ->
    				assertEquals(
    					Arrays.asList(1, 2, 3),
-   					stream.collect(Collectors.toList())));
+   					stream.collect(Collectors.toList())))
+		   .orFail();
 	}
 
 	/***************************************

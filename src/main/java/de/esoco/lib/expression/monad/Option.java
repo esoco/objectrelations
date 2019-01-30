@@ -16,8 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.monad;
 
-import de.esoco.lib.expression.Functions;
-
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -25,6 +24,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 
 /********************************************************************
@@ -47,7 +48,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	/***************************************
 	 * Creates a new instance.
 	 *
-	 * @param rValue The Value to wrap
+	 * @param rValue The value to wrap
 	 */
 	private Option(T rValue)
 	{
@@ -79,6 +80,32 @@ public class Option<T> implements Monad<T, Option<?>>
 	public static <T> Option<T> of(T rValue)
 	{
 		return rValue != null ? new Option<>(rValue) : none();
+	}
+
+	/***************************************
+	 * Converts a collection of options into either an existing option of a
+	 * collection of values if all options in the collection exist or into
+	 * {@link #none()} if one or more options in the collection do not exist.
+	 *
+	 * <p>Other than {@link #ofExisting(Stream)} this transformation cannot be
+	 * performed on a stream (of possibly indefinite size) because existence
+	 * needs to be determined upon invocation.</p>
+	 *
+	 * @param  rOptions The collection of options to convert
+	 *
+	 * @return A new option of a collection of the values of all options or
+	 *         {@link #none()} if one or more options do not exist
+	 */
+	public static <T> Option<Collection<T>> ofAll(
+		Collection<Option<T>> rOptions)
+	{
+		Optional<Option<T>> aMissing =
+			rOptions.stream().filter(o -> !o.exists()).findFirst();
+
+		return aMissing.isPresent()
+			   ? none()
+			   : Option.of(
+			rOptions.stream().map(o -> o.orFail()).collect(toList()));
 	}
 
 	/***************************************
@@ -153,7 +180,9 @@ public class Option<T> implements Monad<T, Option<?>>
 	 */
 	public final boolean exists()
 	{
-		return rValue != null;
+		// test for NONE and not for rValue == NULL as then() needs to create
+		// an Option<Void> with a NULL value
+		return this != NONE;
 	}
 
 	/***************************************
@@ -203,7 +232,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	 * A terminal operation that executes some code if this option doesn't
 	 * exist. This can be used to define the alternative of a call to a monadic
 	 * function like {@link #map(Function)}, {@link #flatMap(Function)}, and
-	 * especially {@link #then(Consumer)} to handle the case of an empty oütion.
+	 * especially {@link #then(Consumer)} to handle the case of an empty option.
 	 *
 	 * @param fAction The code to execute
 	 */
@@ -277,7 +306,15 @@ public class Option<T> implements Monad<T, Option<?>>
 	@Override
 	public Option<Void> then(Consumer<? super T> fConsumer)
 	{
-		return exists() ? map(Functions.asFunction(fConsumer)) : none();
+		return exists()
+			   ? flatMap(
+			t ->
+			{
+				fConsumer.accept(t);
+
+				// define an Option<Void> but don't return NONE
+				return new Option<>(null);
+			}) : none();
 	}
 
 	/***************************************

@@ -47,9 +47,11 @@ public class PromiseTest
 
 	/***************************************
 	 * Test of {@link Promise#and(Monad, java.util.function.BiFunction)}.
+	 *
+	 * @throws Throwable
 	 */
 	@Test
-	public void testAnd()
+	public void testAnd() throws Throwable
 	{
 		LocalDate today = LocalDate.now();
 
@@ -63,39 +65,44 @@ public class PromiseTest
 	   				(ym, d) ->
 	   					LocalDate.of(ym.first(), ym.second(), d));
 
-		aLocalDatePromise.then(d -> assertEquals(today, d));
+		aLocalDatePromise.then(d -> assertEquals(today, d)).orFail();
 	}
-
-	// ~ Methods
-	// ----------------------------------------------------------------
 
 	/***************************************
 	 * Test of {@link Promise#flatMap(java.util.function.Function)}.
+	 *
+	 * @throws Throwable
 	 */
 	@Test
-	public void testFlatMap()
+	public void testFlatMap() throws Throwable
 	{
 		Promise.of("42")
 			   .flatMap(s -> Promise.of(() -> Integer.parseInt(s)))
-			   .then(i -> assertEquals(Integer.valueOf(42), i));
+			   .then(i -> assertEquals(Integer.valueOf(42), i))
+			   .orFail();
 	}
 
 	/***************************************
 	 * Test of {@link Promise#map(Function)}.
+	 *
+	 * @throws Throwable
 	 */
 	@Test
-	public void testMap()
+	public void testMap() throws Throwable
 	{
 		Promise.of(() -> "42")
 			   .map(Integer::parseInt)
-			   .then(i -> assertEquals(Integer.valueOf(42), i));
+			   .then(i -> assertEquals(Integer.valueOf(42), i))
+			   .orFail();
 	}
 
 	/***************************************
 	 * Test of {@link Promise#ofAll(java.util.stream.Stream)}.
+	 *
+	 * @throws Throwable
 	 */
 	@Test
-	public void testOfAll()
+	public void testOfAll() throws Throwable
 	{
 		List<Promise<Integer>> values =
 			new ArrayList<>(
@@ -106,7 +113,7 @@ public class PromiseTest
 
 		Promise<Collection<Integer>> p = Promise.ofAll(values);
 
-		assertEquals(3, p.orUse(null).size());
+		assertEquals(3, p.orFail().size());
 		assertTrue(p.isResolved());
 
 		Exception eError = new Exception("TEST");
@@ -119,9 +126,11 @@ public class PromiseTest
 
 	/***************************************
 	 * Test of {@link Promise#ofAny(java.util.stream.Stream)}.
+	 *
+	 * @throws Throwable
 	 */
 	@Test
-	public void testOfAny()
+	public void testOfAny() throws Throwable
 	{
 		List<Promise<String>> values =
 			Arrays.asList(
@@ -132,7 +141,7 @@ public class PromiseTest
 		Promise<String> p = Promise.ofAny(values);
 
 		assertTrue(p.isResolved());
-		assertEquals("1", p.orUse(null));
+		assertEquals("1", p.orFail());
 
 		values =
 			Arrays.asList(
@@ -156,7 +165,7 @@ public class PromiseTest
 
 		p.then(s -> fail()).orElse(e -> aResult[0] = e);
 
-		assertEquals(null, p.orUse(null));
+		assertEquals("ERROR", p.orUse("ERROR"));
 		assertNotNull(aResult[0]);
 	}
 

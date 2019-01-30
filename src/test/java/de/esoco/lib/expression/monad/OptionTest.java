@@ -159,6 +159,31 @@ public class OptionTest
 	}
 
 	/***************************************
+	 * Test of {@link Option#ofAll(java.util.Collection)}.
+	 */
+	@Test
+	public void testOfAll()
+	{
+		boolean[] result = new boolean[1];
+
+		Option.ofAll(Arrays.asList(Option.of(1), Option.of(2), Option.of(3)))
+			  .then(c -> assertEquals(Arrays.asList(1, 2, 3), c))
+			  .orFail();
+
+		Option.ofAll(
+	  			Arrays.asList(
+	  				Option.of(1),
+	  				Option.<Integer>none(),
+	  				Option.of(2),
+	  				Option.<Integer>none(),
+	  				Option.of(3),
+	  				Option.<Integer>none()))
+			  .then(c -> fail())
+			  .orElse(() -> result[0] = true);
+		assertTrue(result[0]);
+	}
+
+	/***************************************
 	 * Test of {@link Option#ofExisting(Stream)}.
 	 */
 	@Test

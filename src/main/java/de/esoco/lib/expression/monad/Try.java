@@ -19,12 +19,16 @@ package de.esoco.lib.expression.monad;
 import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.function.ThrowingSupplier;
 
+import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 
 /********************************************************************
@@ -81,17 +85,48 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	}
 
 	/***************************************
-	 * Converts a stream of attempted executions into a try of creating a stream
-	 * of successful values.
+	 * Converts a collection of attempted executions into either a successful
+	 * try of a collection of values if all tries in the collection were
+	 * successful or into a failed try if one or more tries in the collection
+	 * have failed. The error of the failure will be that of the first failed
+	 * try.
+	 *
+	 * <p>Other than {@link #ofSuccessful(Stream)} this transformation cannot be
+	 * performed on a stream (of possibly indefinite size) because success or
+	 * failure needs to be determined upon invocation.</p>
+	 *
+	 * @param  rTries The collection of tries to convert
+	 *
+	 * @return A new successful try of a collection of the values of all tries
+	 *         or a failure if one or more tries failed
+	 */
+	public static <T> Try<Collection<T>> ofAll(Collection<Try<T>> rTries)
+	{
+		Optional<Try<T>> aFailure =
+			rTries.stream().filter(t -> !t.isSuccess()).findFirst();
+
+		return aFailure.isPresent()
+			   ? failure(((Failure<?>) aFailure.get()).eError)
+			   : success(
+			rTries.stream()
+			.map(t -> t.orThrow(e -> new AssertionError(e)))
+			.collect(toList()));
+	}
+
+	/***************************************
+	 * Converts a stream of attempted executions into a try of a stream of
+	 * successful values.
 	 *
 	 * @param  rTries The stream of tries to convert
 	 *
-	 * @return A new try that creates a stream of existing values
+	 * @return A new try that contains a stream of successful values
 	 */
 	public static <T> Try<Stream<T>> ofSuccessful(Stream<Try<T>> rTries)
 	{
 		return Try.of(
-			() -> rTries.filter(Try::isSuccess).map(t -> t.orUse(null)));
+			() ->
+				rTries.filter(Try::isSuccess)
+				.map(t -> t.orThrow(e -> new AssertionError(e))));
 	}
 
 	/***************************************
@@ -152,15 +187,14 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	 * preferred to process results but a call to a terminal operation should
 	 * typically appear at the end of a chain.</p>
 	 *
-	 * @param  fCreateException The a function that creates the exception to
-	 *                          throw
+	 * @param  fMapException A function that maps the original exception
 	 *
 	 * @return The result of the execution
 	 *
 	 * @throws E The argument exception in the case of a failure
 	 */
 	public abstract <E extends Throwable> T orThrow(
-		Function<Throwable, E> fCreateException) throws E;
+		Function<Throwable, E> fMapException) throws E;
 
 	/***************************************
 	 * A terminal operation that either returns the result of a successful
@@ -177,12 +211,6 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	 * @return The result value
 	 */
 	public abstract T orUse(T rFailureResult);
-
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	public abstract Try<Void> then(Consumer<? super T> fConsumer);
 
 	/***************************************
 	 * {@inheritDoc}
@@ -222,6 +250,15 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	public <R> Try<R> map(Function<? super T, ? extends R> fMap)
 	{
 		return flatMap(t -> Try.of(() -> fMap.apply(t)));
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Try<Void> then(Consumer<? super T> fConsumer)
+	{
+		return map(Functions.asFunction(fConsumer));
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -326,16 +363,6 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		public T orUse(T rFailureResult)
 		{
 			return rFailureResult;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		@SuppressWarnings("unchecked")
-		public Try<Void> then(Consumer<? super T> fConsumer)
-		{
-			return (Try<Void>) this;
 		}
 
 		/***************************************
@@ -447,15 +474,6 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		public T orUse(T rFailureResult)
 		{
 			return rValue;
-		}
-
-		/***************************************
-		 * {@inheritDoc}
-		 */
-		@Override
-		public Try<Void> then(Consumer<? super T> fConsumer)
-		{
-			return map(Functions.asFunction(fConsumer));
 		}
 
 		/***************************************
