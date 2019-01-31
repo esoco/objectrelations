@@ -17,6 +17,7 @@
 package de.esoco.lib.expression.monad;
 
 import de.esoco.lib.datatype.Pair;
+import de.esoco.lib.expression.monad.Try.Lazy;
 
 import java.time.LocalDate;
 
@@ -39,6 +40,10 @@ import static org.junit.Assert.fail;
  */
 public class TryTest
 {
+	//~ Instance fields --------------------------------------------------------
+
+	private Try<Void> aTry;
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -50,10 +55,10 @@ public class TryTest
 		LocalDate today = LocalDate.now();
 
 		Try<LocalDate> aLocalDateTry =
-			Try.of(() -> today.getYear())
-			   .and(Try.of(() -> today.getMonth()), (y, m) -> Pair.of(y, m))
+			Try.now(() -> today.getYear())
+			   .and(Try.now(() -> today.getMonth()), (y, m) -> Pair.of(y, m))
 			   .and(
-   				Try.of(() -> today.getDayOfMonth()),
+   				Try.now(() -> today.getDayOfMonth()),
    				(ym, d) -> LocalDate.of(ym.first(), ym.second(), d));
 
 		aLocalDateTry.then(d -> assertEquals(today, d));
@@ -65,15 +70,15 @@ public class TryTest
 	@Test
 	public void testEquals()
 	{
-		assertEquals(Try.of(() -> "TEST"), (Try.of(() -> "TEST")));
+		assertEquals(Try.now(() -> "TEST"), (Try.now(() -> "TEST")));
 		assertEquals(
-			Try.of(() -> "42").map(Integer::parseInt),
-			Try.of(() -> "42").map(Integer::parseInt));
-		assertEquals(Try.success("42"), (Try.of(() -> "42")));
+			Try.now(() -> "42").map(Integer::parseInt),
+			Try.now(() -> "42").map(Integer::parseInt));
+		assertEquals(Try.success("42"), (Try.now(() -> "42")));
 
-		assertNotEquals(Try.of(() -> "TEST1"), Try.of(() -> "TEST2"));
+		assertNotEquals(Try.now(() -> "TEST1"), Try.now(() -> "TEST2"));
 		assertNotEquals(
-			Try.of(() -> new Exception()),
+			Try.now(() -> new Exception()),
 			Try.failure(new Exception()));
 	}
 
@@ -83,10 +88,10 @@ public class TryTest
 	@Test
 	public void testExists()
 	{
-		assertTrue(Try.of(() -> "TEST").isSuccess());
+		assertTrue(Try.now(() -> "TEST").isSuccess());
 		assertFalse(Try.failure(new Exception()).isSuccess());
 		assertFalse(
-			Try.of(() -> { throw new RuntimeException(); }).isSuccess());
+			Try.now(() -> { throw new RuntimeException(); }).isSuccess());
 	}
 
 	/***************************************
@@ -131,8 +136,8 @@ public class TryTest
 	@Test
 	public void testFilter()
 	{
-		assertTrue(Try.of(() -> 42).filter(i -> i == 42).isSuccess());
-		assertFalse(Try.of(() -> 42).filter(i -> i < 42).isSuccess());
+		assertTrue(Try.now(() -> 42).filter(i -> i == 42).isSuccess());
+		assertFalse(Try.now(() -> 42).filter(i -> i < 42).isSuccess());
 		assertFalse(
 			Try.<Integer>failure(new Exception())
 			.filter(i -> i >= Integer.MIN_VALUE)
@@ -146,13 +151,14 @@ public class TryTest
 	public void testFlatMap()
 	{
 		Try<Integer> aTry =
-			Try.of(() -> "42").flatMap(s -> Try.of(() -> Integer.parseInt(s)));
+			Try.now(() -> "42")
+			   .flatMap(s -> Try.now(() -> Integer.parseInt(s)));
 
 		assertTrue(aTry.isSuccess());
 		aTry.then(i -> assertTrue(i == 42));
 		assertFalse(
 			Try.failure(new Exception())
-			.flatMap(v -> Try.of(() -> v))
+			.flatMap(v -> Try.now(() -> v))
 			.isSuccess());
 	}
 
@@ -163,15 +169,47 @@ public class TryTest
 	public void testHashCode()
 	{
 		assertTrue(
-			Try.of(() -> "TEST").hashCode() == Try.of(() -> "TEST")
-			.hashCode());
+			Try.now(() -> "TEST").hashCode() ==
+			Try.now(() -> "TEST").hashCode());
 		assertTrue(
-			Try.of(() -> "42").map(Integer::parseInt).hashCode() ==
-			Try.of(() -> "42").map(Integer::parseInt).hashCode());
+			Try.now(() -> "42").map(Integer::parseInt).hashCode() ==
+			Try.now(() -> "42").map(Integer::parseInt).hashCode());
 
 		assertFalse(
-			Try.of(() -> "TEST1").hashCode() ==
-			Try.of(() -> "TEST2").hashCode());
+			Try.now(() -> "TEST1").hashCode() ==
+			Try.now(() -> "TEST2").hashCode());
+	}
+
+	/***************************************
+	 * Test of {@link
+	 * Try#lazy(de.esoco.lib.expression.function.ThrowingSupplier)}.
+	 *
+	 * @throws Throwable
+	 */
+	@Test
+	public void testLazy() throws Throwable
+	{
+		boolean[] evaluated = new boolean[1];
+
+		assertTrue(Try.lazy(() -> "42").isSuccess());
+		assertFalse(
+			Try.lazy(() -> { throw new Exception("ERROR"); }).isSuccess());
+
+		// make sure that [flat]map() is not executed
+		Try.lazy(() -> "42").then(s -> evaluated[0] = true);
+		assertFalse(evaluated[0]);
+
+		aTry =
+			Try.lazy(() -> "42")
+			   .map(Integer::parseInt)
+			   .then(s -> evaluated[0] = true);
+		assertFalse(evaluated[0]);
+		assertTrue(aTry.isSuccess());
+		assertEquals(Lazy.class, aTry.getClass());
+
+		assertEquals(
+			Integer.valueOf(42),
+			Try.lazy(() -> "42").map(Integer::parseInt).orFail());
 	}
 
 	/***************************************
@@ -186,7 +224,7 @@ public class TryTest
 			Try.<String>failure(new Exception())
 			.map(Integer::parseInt)
 			.isSuccess());
-		Try.of(() -> "42")
+		Try.now(() -> "42")
 		   .map(Integer::parseInt)
 		   .then(i -> assertTrue(i == 42))
 		   .orFail();
@@ -201,14 +239,17 @@ public class TryTest
 	public void testOfAll() throws Throwable
 	{
 		Try.ofAll(
-   			Arrays.asList(Try.of(() -> 1), Try.of(() -> 2), Try.of(() -> 3)))
+   			Arrays.asList(
+   				Try.now(() -> 1),
+   				Try.now(() -> 2),
+   				Try.now(() -> 3)))
 		   .then(c -> assertEquals(Arrays.asList(1, 2, 3), c))
 		   .orFail();
 		Try.ofAll(
    			Arrays.asList(
-   				Try.of(() -> 1),
-   				Try.of(() -> 2),
-   				Try.of(() -> 3),
+   				Try.now(() -> 1),
+   				Try.now(() -> 2),
+   				Try.now(() -> 3),
    				Try.<Integer>failure(new Exception("FAILED"))))
 		   .then(c -> fail())
 		   .orElse(e -> assertEquals("FAILED", e.getMessage()));
@@ -223,7 +264,10 @@ public class TryTest
 	public void testOfSuccessful() throws Throwable
 	{
 		Try.ofSuccessful(
-   			Arrays.asList(Try.of(() -> 1), Try.of(() -> 2), Try.of(() -> 3))
+   			Arrays.asList(
+   				Try.now(() -> 1),
+   				Try.now(() -> 2),
+   				Try.now(() -> 3))
    			.stream())
 		   .then(
    			stream ->
@@ -233,9 +277,9 @@ public class TryTest
 		   .orFail();
 		Try.ofSuccessful(
    			Arrays.asList(
-   				Try.of(() -> 1),
-   				Try.of(() -> 2),
-   				Try.of(() -> 3),
+   				Try.now(() -> 1),
+   				Try.now(() -> 2),
+   				Try.now(() -> 3),
    				Try.<Integer>failure(new Exception()))
    			.stream())
 		   .then(

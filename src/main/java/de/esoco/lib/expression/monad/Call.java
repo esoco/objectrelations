@@ -34,10 +34,11 @@ import static java.util.stream.Collectors.toList;
  * either supply a value or fail with an exception. Other than value-based
  * monads like {@link Option} or {@link Try} which are evaluated only once upon
  * creation, the supplier wrapped by a call will be evaluated each time one of
- * the query methods {@link #orUse(Object)}, {@link #orFail()}, {@link
+ * the consuming methods {@link #orUse(Object)}, {@link #orFail()}, {@link
  * #orThrow(Function)}, or {@link #orElse(Consumer)} is invoked. If a call is
  * mapped with {@link #map(Function)} or {@link #flatMap(Function)} the
- * resulting call will also only be evaluated when a query method is invoked.
+ * resulting call will also only be evaluated when a consuming method is
+ * invoked.
  *
  * <p>Values are not cached, hence each evaluation will invoke the wrapped
  * supplier again. If caching is needed the supplier should either perform
@@ -92,8 +93,9 @@ public class Call<T> implements Monad<T, Call<?>>
 
 	/***************************************
 	 * Converts a collection of calls into a call that supplies a collection of
-	 * the values from all calls. As with all calls repeated querying of the
-	 * returned call will re-query the suppliers from the converted calls.
+	 * the values from all calls. As with single-value calls repeated consuming
+	 * of the returned call will re-evaluate all suppliers from the converted
+	 * calls.
 	 *
 	 * @param  rCalls The call collection to convert
 	 *
@@ -164,10 +166,11 @@ public class Call<T> implements Monad<T, Call<?>>
 	}
 
 	/***************************************
-	 * A query operation that executes some code if this call fails. This mainly
-	 * makes sense in conjunction with the consuming monadic method {@link
-	 * #then(Consumer)} because otherwise the value of a successful evaluation
-	 * would probably be lost (unless it is processed by a mapping call).
+	 * A consuming operation that executes some code if this call fails. This
+	 * mainly makes sense in conjunction with the consuming monadic method
+	 * {@link #then(Consumer)} because otherwise the value of a successful
+	 * evaluation would probably be lost (unless it is processed by a mapping
+	 * call).
 	 *
 	 * <p>Each invocation of this method will evaluate the wrapped supplier.</p>
 	 *
@@ -175,12 +178,12 @@ public class Call<T> implements Monad<T, Call<?>>
 	 */
 	public void orElse(Consumer<Throwable> fHandler)
 	{
-		Try.of(fSupplier).orElse(fHandler);
+		Try.now(fSupplier).orElse(fHandler);
 	}
 
 	/***************************************
-	 * A query operation that either returns the value provided by the wrapped
-	 * supplier or throws an exception caused by it's evaluation.
+	 * A consuming operation that either returns the value provided by the
+	 * wrapped supplier or throws an exception caused by it's evaluation.
 	 *
 	 * <p>Each invocation of this method will evaluate the wrapped supplier.</p>
 	 *
@@ -190,12 +193,12 @@ public class Call<T> implements Monad<T, Call<?>>
 	 */
 	public <E extends Throwable> T orFail() throws Throwable
 	{
-		return Try.of(fSupplier).orFail();
+		return Try.now(fSupplier).orFail();
 	}
 
 	/***************************************
-	 * A query operation that either returns the value provided by the wrapped
-	 * supplier or throws an exception indicating an evaluation failure.
+	 * A consuming operation that either returns the value provided by the
+	 * wrapped supplier or throws an exception indicating an evaluation failure.
 	 *
 	 * <p>Each invocation of this method will evaluate the wrapped supplier.</p>
 	 *
@@ -209,12 +212,12 @@ public class Call<T> implements Monad<T, Call<?>>
 	public <E extends Throwable> T orThrow(Function<Throwable, E> fMapException)
 		throws E
 	{
-		return Try.of(fSupplier).orThrow(fMapException);
+		return Try.now(fSupplier).orThrow(fMapException);
 	}
 
 	/***************************************
-	 * A query operation that either returns the result of a successful call or
-	 * the given default value if the call failed.
+	 * A consuming operation that either returns the result of a successful call
+	 * or the given default value if the call failed.
 	 *
 	 * <p>Each invocation of this method will evaluate the wrapped supplier.</p>
 	 *
@@ -224,7 +227,7 @@ public class Call<T> implements Monad<T, Call<?>>
 	 */
 	public T orUse(T rDefault)
 	{
-		return Try.of(fSupplier).orUse(rDefault);
+		return Try.now(fSupplier).orUse(rDefault);
 	}
 
 	/***************************************

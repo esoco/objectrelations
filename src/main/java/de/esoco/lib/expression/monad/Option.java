@@ -229,7 +229,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * A terminal operation that executes some code if this option doesn't
+	 * A consuming operation that executes some code if this option doesn't
 	 * exist. This can be used to define the alternative of a call to a monadic
 	 * function like {@link #map(Function)}, {@link #flatMap(Function)}, and
 	 * especially {@link #then(Consumer)} to handle the case of an empty option.
@@ -245,7 +245,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * A terminal operation that either returns the value of this option if it
+	 * A consuming operation that either returns the value of this option if it
 	 * exists or throws a {@link NullPointerException}.
 	 *
 	 * @see #orThrow(Throwable)
@@ -256,13 +256,13 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * A terminal operation that either returns the value of this option or
+	 * A consuming operation that either returns the value of this option or
 	 * throws the given exception if the option doesn't exist. The presence of a
 	 * value can be tested in advance with {@link #exists()}.
 	 *
 	 * <p>In general, calls to the monadic functions {@link #map(Function)},
 	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to process values but a call to a terminal operation should
+	 * preferred to process values but a call to a consuming operation should
 	 * typically appear at the end of a chain.</p>
 	 *
 	 * @param  eException The exception to throw
@@ -282,13 +282,13 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * A terminal operation that either returns an existing value or the given
+	 * A consuming operation that either returns an existing value or the given
 	 * default value if the execution failed. If necessary, existence can be
 	 * tested before with {@link #exists()}.
 	 *
 	 * <p>In general, calls to the monadic functions {@link #map(Function)},
 	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to process values but a call to a terminal operation should
+	 * preferred to process values but a call to a consuming operation should
 	 * typically appear at the end of a chain.</p>
 	 *
 	 * @param  rDefault The value to return if the value doesn't exist

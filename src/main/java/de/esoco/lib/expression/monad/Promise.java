@@ -219,7 +219,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 *
 	 * <p>In general, calls to the monadic functions {@link #map(Function)},
 	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to process values but a call to a terminal operation should
+	 * preferred to process values but a call to a consuming operation should
 	 * typically appear at the end of a chain.</p>
 	 *
 	 * @param  fHandler The consumer of the the error that occurred
@@ -229,7 +229,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	public abstract Promise<T> onError(Consumer<Throwable> fHandler);
 
 	/***************************************
-	 * A terminal, blocking operation that consumes an error if the execution
+	 * A consuming, blocking operation that consumes an error if the execution
 	 * failed. This can be used to define the alternative of a call to a monadic
 	 * function like {@link #map(Function)}, {@link #flatMap(Function)}, and
 	 * especially {@link #then(Consumer)} to handle the case of a failed try.
@@ -239,7 +239,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	public abstract void orElse(Consumer<Throwable> fHandler);
 
 	/***************************************
-	 * A terminal, blocking operation that either returns the value of a
+	 * A consuming, blocking operation that either returns the value of a
 	 * resolved promise execution or throws the occurred exception if the
 	 * promise failed.
 	 *
@@ -248,13 +248,13 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	public abstract T orFail() throws Throwable;
 
 	/***************************************
-	 * A terminal, blocking operation that either returns the value of a
+	 * A consuming, blocking operation that either returns the value of a
 	 * resolved execution or throws an exception if the promise failed. Success
 	 * can be tested in advance with {@link #isResolved()}.
 	 *
 	 * <p>In general, calls to the monadic functions {@link #map(Function)},
 	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to process results but a call to a terminal operation should
+	 * preferred to process results but a call to a consuming operation should
 	 * typically appear at the end of a chain.</p>
 	 *
 	 * @param  fMapException A function that maps the original exception
@@ -267,14 +267,14 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		Function<Throwable, E> fMapException) throws E;
 
 	/***************************************
-	 * A terminal, blocking operation that either returns the result of a
+	 * A consuming, blocking operation that either returns the result of a
 	 * successful execution or returns the given default value if the execution
 	 * failed. If necessary, success can be tested before with {@link
 	 * #isResolved()}.
 	 *
 	 * <p>In general, calls to the monadic functions {@link #map(Function)},
 	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to process results but a call to a terminal operation should
+	 * preferred to process results but a call to a consuming operation should
 	 * typically appear at the end of a chain.</p>
 	 *
 	 * @param  rFailureResult The value to return if the execution failed
@@ -286,8 +286,8 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	/***************************************
 	 * Defines the maximum time this promise may run before failing as
 	 * unresolved. Although it depends on the actual implementation, the timeout
-	 * is typically only respected by the terminal, blocking methods like {@link
-	 * #orUse(Object)}.
+	 * is typically only respected by the consuming, blocking methods like
+	 * {@link #orUse(Object)}.
 	 *
 	 * @param  nTime The timeout value
 	 * @param  eUnit The time unit
@@ -310,7 +310,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 
 	/***************************************
 	 * Checks whether this promise has been successfully resolved. If it returns
-	 * TRUE accessing the resolved value with the terminal methods like {@link
+	 * TRUE accessing the resolved value with the consuming methods like {@link
 	 * #orUse(Object)}, {@link #orFail()}, {@link #orThrow(Function)}, or {@link
 	 * #orElse(Consumer)} will not block and yield a valid result. This is just
 	 * a shortcut for testing the state with <code>getState() ==
