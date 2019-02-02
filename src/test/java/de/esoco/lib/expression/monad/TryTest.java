@@ -40,10 +40,6 @@ import static org.junit.Assert.fail;
  */
 public class TryTest
 {
-	//~ Instance fields --------------------------------------------------------
-
-	private Try<Void> aTry;
-
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -91,7 +87,7 @@ public class TryTest
 		assertTrue(Try.now(() -> "TEST").isSuccess());
 		assertFalse(Try.failure(new Exception()).isSuccess());
 		assertFalse(
-			Try.now(() -> { throw new RuntimeException(); }).isSuccess());
+			Try.now(() -> { throw new IllegalStateException(); }).isSuccess());
 	}
 
 	/***************************************
@@ -193,16 +189,17 @@ public class TryTest
 
 		assertTrue(Try.lazy(() -> "42").isSuccess());
 		assertFalse(
-			Try.lazy(() -> { throw new Exception("ERROR"); }).isSuccess());
+			Try.lazy(() -> { throw new AssertionError("ERROR"); }).isSuccess());
 
 		// make sure that [flat]map() is not executed
 		Try.lazy(() -> "42").then(s -> evaluated[0] = true);
 		assertFalse(evaluated[0]);
 
-		aTry =
+		Try<Void> aTry =
 			Try.lazy(() -> "42")
 			   .map(Integer::parseInt)
 			   .then(s -> evaluated[0] = true);
+
 		assertFalse(evaluated[0]);
 		assertTrue(aTry.isSuccess());
 		assertEquals(Lazy.class, aTry.getClass());
