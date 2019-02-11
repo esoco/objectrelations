@@ -16,7 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.monad;
 
-import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.function.ThrowingSupplier;
 
 import java.util.Collection;
@@ -184,7 +183,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	 */
 	@Override
 	public abstract <R, N extends Monad<R, Try<?>>> Try<R> flatMap(
-		Function<T, N> fMap);
+		Function<? super T, N> fMap);
 
 	/***************************************
 	 * Checks whether the execution was successful.
@@ -278,6 +277,18 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	}
 
 	/***************************************
+	 * A semantic alternative to {@link #then(Consumer)}.
+	 *
+	 * @param  fConsumer The consumer to invoke
+	 *
+	 * @return The resulting try for chained invocations
+	 */
+	public final Try<T> ifSuccessful(Consumer<? super T> fConsumer)
+	{
+		return then(fConsumer);
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -291,9 +302,9 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Try<Void> then(Consumer<? super T> fConsumer)
+	public Try<T> then(Consumer<? super T> fConsumer)
 	{
-		return map(Functions.asFunction(fConsumer));
+		return (Try<T>) Monad.super.then(fConsumer);
 	}
 
 	//~ Inner Classes ----------------------------------------------------------
@@ -340,7 +351,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		@Override
 		@SuppressWarnings("unchecked")
 		public <R, N extends Monad<R, Try<?>>> Try<R> flatMap(
-			Function<T, N> fMap)
+			Function<? super T, N> fMap)
 		{
 			return (Try<R>) this;
 		}
@@ -455,7 +466,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 */
 		@Override
 		public <R, N extends Monad<R, Try<?>>> Try<R> flatMap(
-			Function<T, N> fMap)
+			Function<? super T, N> fMap)
 		{
 			return new Lazy<>(
 				() -> ((Try<R>) fMap.apply(getResult().orFail())).orFail());
@@ -598,7 +609,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 */
 		@Override
 		public <R, N extends Monad<R, Try<?>>> Try<R> flatMap(
-			Function<T, N> fMap)
+			Function<? super T, N> fMap)
 		{
 			return (Try<R>) fMap.apply(rValue);
 		}

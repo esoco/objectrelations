@@ -202,39 +202,39 @@ public class Functions
 
 	/***************************************
 	 * Converts a {@link Consumer} into a of {@link java.util.function.Function}
-	 * that returns a Void result.
+	 * that returns the input value.
 	 *
 	 * @param  fConsumer The consumer to convert
 	 *
 	 * @return The resulting function
 	 */
-	public static <T> java.util.function.Function<T, Void> asFunction(
+	public static <T> java.util.function.Function<T, T> asFunction(
 		Consumer<T> fConsumer)
 	{
 		return v ->
 	   		{
 	   			fConsumer.accept(v);
 
-	   			return null;
+	   			return v;
 			   };
 	}
 
 	/***************************************
-	 * Converts a {@link BiConsumer} into a of {@link BiFunction} that returns a
-	 * Void result.
+	 * Converts a {@link BiConsumer} into a of {@link BiFunction} that returns
+	 * the first input value.
 	 *
 	 * @param  fConsumer The consumer to convert
 	 *
 	 * @return The resulting function
 	 */
-	public static <T, U> java.util.function.BiFunction<T, U, Void> asFunction(
+	public static <T, U> BiFunction<T, U, T> asFunction(
 		BiConsumer<T, U> fConsumer)
 	{
 		return (t, u) ->
 	   		{
 	   			fConsumer.accept(t, u);
 
-	   			return null;
+	   			return t;
 			   };
 	}
 
@@ -506,13 +506,18 @@ public class Functions
 	 * @see #doIf(Predicate, Function)
 	 */
 	public static <I> Consumer<I> doIf(
-		Predicate<? super I> rPredicate,
+		Predicate<? super I> pCondition,
 		Consumer<? super I>  fConsumer)
 	{
 		return asConsumer(
-			new ConditionalFunction<I, Void>(
-				rPredicate,
-				asFunction(fConsumer)));
+			new ConditionalFunction<I, I>(
+				pCondition,
+				i ->
+				{
+					fConsumer.accept(i);
+
+					return i;
+				}));
 	}
 
 	/***************************************
@@ -543,15 +548,25 @@ public class Functions
 	 *
 	 * @see #doIfElse(Predicate, Function, Function)
 	 */
-	public static <I> Consumer<I> doIfElse(Predicate<? super I> rPredicate,
+	public static <I> Consumer<I> doIfElse(Predicate<? super I> pCondition,
 										   Consumer<? super I>  fIf,
 										   Consumer<? super I>  fElse)
 	{
 		return asConsumer(
-			new ConditionalFunction<I, Void>(
-				rPredicate,
-				asFunction(fIf),
-				asFunction(fElse)));
+			new ConditionalFunction<I, I>(
+				pCondition,
+				i ->
+				{
+					fIf.accept(i);
+
+					return i;
+				},
+				i ->
+				{
+					fElse.accept(i);
+
+					return i;
+				}));
 	}
 
 	/***************************************

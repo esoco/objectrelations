@@ -204,7 +204,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	 */
 	@Override
 	public <R, N extends Monad<R, Option<?>>> Option<R> flatMap(
-		Function<T, N> fMap)
+		Function<? super T, N> fMap)
 	{
 		return exists() ? (Option<R>) fMap.apply(rValue) : none();
 	}
@@ -216,6 +216,18 @@ public class Option<T> implements Monad<T, Option<?>>
 	public int hashCode()
 	{
 		return Objects.hashCode(rValue);
+	}
+
+	/***************************************
+	 * A semantic alternative to {@link #then(Consumer)}.
+	 *
+	 * @param  fConsumer The consumer to invoke
+	 *
+	 * @return The resulting option for chained invocations
+	 */
+	public final Option<T> ifExists(Consumer<? super T> fConsumer)
+	{
+		return then(fConsumer);
 	}
 
 	/***************************************
@@ -304,17 +316,9 @@ public class Option<T> implements Monad<T, Option<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Option<Void> then(Consumer<? super T> fConsumer)
+	public Option<T> then(Consumer<? super T> fConsumer)
 	{
-		return exists()
-			   ? flatMap(
-			t ->
-			{
-				fConsumer.accept(t);
-
-				// define an Option<Void> but don't return NONE
-				return new Option<>(null);
-			}) : none();
+		return (Option<T>) Monad.super.then(fConsumer);
 	}
 
 	/***************************************

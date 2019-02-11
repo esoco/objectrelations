@@ -16,8 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.monad;
 
-import de.esoco.lib.expression.Functions;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -199,7 +197,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 */
 	@Override
 	public abstract <R, N extends Monad<R, Promise<?>>> Promise<R> flatMap(
-		Function<T, N> fMap);
+		Function<? super T, N> fMap);
 
 	/***************************************
 	 * Returns the current state of this promise. Due to the asynchronous nature
@@ -336,9 +334,9 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Promise<Void> then(Consumer<? super T> fConsumer)
+	public Promise<T> then(Consumer<? super T> fConsumer)
 	{
-		return map(Functions.asFunction(fConsumer));
+		return (Promise<T>) Monad.super.then(fConsumer);
 	}
 
 	/***************************************
@@ -525,7 +523,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 */
 		@Override
 		public <R, N extends Monad<R, Promise<?>>> Promise<R> flatMap(
-			Function<T, N> fMap)
+			Function<? super T, N> fMap)
 		{
 			return new CompletionStagePromise<>(
 				rStage.thenApplyAsync(p -> p.flatMap(fMap)));
@@ -710,7 +708,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 */
 		@Override
 		public <R, N extends Monad<R, Promise<?>>> Promise<R> flatMap(
-			Function<T, N> fMap)
+			Function<? super T, N> fMap)
 		{
 			return (Promise<R>) fMap.apply(rValue);
 		}

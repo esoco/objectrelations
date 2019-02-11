@@ -16,8 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.monad;
 
-import de.esoco.lib.expression.Functions;
-
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -46,15 +44,21 @@ public interface Functor<T>
 	 * end of a mapping chain for the final processing of the resulting value.
 	 * The default implementation invokes {@link #map(Function)} with the
 	 * argument consumer wrapped into a function. Some subclasses may be able to
-	 * provide an optimized version. Furthermore subclasses should typically
-	 * override this method with their own type as the return type.
+	 * provide an optimized version. Furthermore, subclasses should typically
+	 * override this method with their own type as the return type (but may just
+	 * invoke the super implementation and cast the returned value).
 	 *
-	 * @param  fConsumer The consumer of the value
+	 * @param  fConsumer The consumer of the wrapped value
 	 *
-	 * @return The resulting functor for final chained invocations
+	 * @return The resulting functor for chained invocations
 	 */
-	default public Functor<Void> then(Consumer<? super T> fConsumer)
+	default public Functor<T> then(Consumer<? super T> fConsumer)
 	{
-		return map(Functions.asFunction(fConsumer));
+		return map(t ->
+		{
+			fConsumer.accept(t);
+
+			return t;
+		});
 	}
 }

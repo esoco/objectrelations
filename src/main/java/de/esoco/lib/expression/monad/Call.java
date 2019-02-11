@@ -140,7 +140,8 @@ public class Call<T> implements Monad<T, Call<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <R, N extends Monad<R, Call<?>>> Call<R> flatMap(Function<T, N> fMap)
+	public <R, N extends Monad<R, Call<?>>> Call<R> flatMap(
+		Function<? super T, N> fMap)
 	{
 		return Call.of(
 			() -> ((Call<R>) fMap.apply(fSupplier.tryGet())).orFail());
@@ -234,9 +235,9 @@ public class Call<T> implements Monad<T, Call<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Call<Void> then(Consumer<? super T> fConsumer)
+	public Call<T> then(Consumer<? super T> fConsumer)
 	{
-		return (Call<Void>) Monad.super.then(fConsumer);
+		return (Call<T>) Monad.super.then(fConsumer);
 	}
 
 	/***************************************

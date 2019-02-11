@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'esoco-lib' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.logging;
 
+import de.esoco.lib.expression.monad.Option;
 import de.esoco.lib.text.TextUtil;
 
 import java.util.LinkedHashMap;
@@ -24,7 +25,7 @@ import java.util.Map;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
-import static org.obrel.core.RelationTypes.newType;
+import static org.obrel.core.RelationTypes.newOptionType;
 
 
 /********************************************************************
@@ -37,8 +38,9 @@ public class Profiler
 {
 	//~ Static fields/initializers ---------------------------------------------
 
-	/** A relation type that can be used to store a profiler reference. */
-	public static final RelationType<Profiler> PROFILER = newType();
+	/** A relation that stores an optional profiler reference. */
+	public static final RelationType<Option<Profiler>> PROFILER =
+		newOptionType();
 
 	static
 	{
@@ -160,10 +162,11 @@ public class Profiler
 	{
 		for (String sDescription : aMeasurements.keySet())
 		{
-			System.out.printf("%sTotal time for %s: %s\n",
-							  sIndent,
-							  sDescription,
-							  aMeasurements.get(sDescription));
+			System.out.printf(
+				"%sTotal time for %s: %s\n",
+				sIndent,
+				sDescription,
+				aMeasurements.get(sDescription));
 		}
 	}
 
@@ -193,22 +196,23 @@ public class Profiler
 		long nTime = System.currentTimeMillis() - nCreationTime;
 
 		String sHeader =
-			String.format("====== %s %s ======",
-						  sTitle,
-						  TextUtil.formatDuration(nTime));
+			String.format(
+				"====== %s %s ======",
+				sTitle,
+				TextUtil.formatDuration(nTime));
 
 		System.out.println(sHeader);
 
 		if (nCount > 1)
 		{
 			String sElementTime =
-				String.format(" Time per %s: %s ",
-							  sElementName,
-							  TextUtil.formatDuration(nTime / nCount));
+				String.format(
+					" Time per %s: %s ",
+					sElementName,
+					TextUtil.formatDuration(nTime / nCount));
 
-			System.out.println(TextUtil.padCenter(sElementTime,
-												  sHeader.length(),
-												  '-'));
+			System.out.println(
+				TextUtil.padCenter(sElementTime, sHeader.length(), '-'));
 		}
 
 		printResults("");

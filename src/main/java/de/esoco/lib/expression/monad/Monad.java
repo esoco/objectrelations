@@ -17,12 +17,13 @@
 package de.esoco.lib.expression.monad;
 
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 
 /********************************************************************
- * Interface of {@link Functor} extensions that implement monads by providing a
- * {@link #flatMap(Function)} method to transform them into other monads.
+ * Interface of a {@link Functor} extension that provides the monadic method
+ * {@link #flatMap(Function)} for transformation into derived monads.
  *
  * @author eso
  */
@@ -67,7 +68,8 @@ public interface Monad<T, M extends Monad<?, M>> extends Functor<T>
 	 *
 	 * @return The mapped and flattened monad
 	 */
-	public <R, N extends Monad<R, M>> Monad<R, M> flatMap(Function<T, N> fMap);
+	public <R, N extends Monad<R, M>> Monad<R, M> flatMap(
+		Function<? super T, N> fMap);
 
 	/***************************************
 	 * Redefined here to change the return type to Monad. Subclasses can
@@ -78,4 +80,25 @@ public interface Monad<T, M extends Monad<?, M>> extends Functor<T>
 	 */
 	@Override
 	public <R> Monad<R, M> map(Function<? super T, ? extends R> fMap);
+
+	/***************************************
+	 * Overridden from {@link Functor#then(Consumer)} to return this instance as
+	 * the result, without additional mapping. Most subclasses only need to
+	 * override this method with their own type as the return type, invoke the
+	 * superclass implementation, and cast the result to their type.
+	 *
+	 * @param  fConsumer The consumer of the wrapped value
+	 *
+	 * @return The resulting monad for chained invocations
+	 */
+	@Override
+	default public Monad<T, M> then(Consumer<? super T> fConsumer)
+	{
+		return flatMap(t ->
+		{
+			fConsumer.accept(t);
+
+			return this;
+		});
+	}
 }

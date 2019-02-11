@@ -195,10 +195,10 @@ public class TryTest
 		Try.lazy(() -> "42").then(s -> evaluated[0] = true);
 		assertFalse(evaluated[0]);
 
-		Try<Void> aTry =
+		Try<Integer> aTry =
 			Try.lazy(() -> "42")
 			   .map(Integer::parseInt)
-			   .then(s -> evaluated[0] = true);
+			   .then(i -> evaluated[0] = true);
 
 		assertFalse(evaluated[0]);
 		assertTrue(aTry.isSuccess());

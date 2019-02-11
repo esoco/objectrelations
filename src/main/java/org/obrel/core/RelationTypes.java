@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.obrel.core;
 
 import de.esoco.lib.expression.Action;
 import de.esoco.lib.expression.Function;
+import de.esoco.lib.expression.monad.Option;
 import de.esoco.lib.reflect.ReflectUtil;
 
 import java.lang.reflect.Field;
@@ -605,6 +606,25 @@ public class RelationTypes
 	{
 		return newEnumType(sName, rEnumType, rModifiers).annotate(
 			OBJECT_TYPE_ATTRIBUTE);
+	}
+
+	/***************************************
+	 * Returns a new relation type with values that are wrapped into an instance
+	 * of {@link Option}. The returned type will always return a default value
+	 * of {@link Option#none()} if the relation doesn't exist in the queried
+	 * object, without creating a new relation. Hence option relations can be
+	 * used to prevent access to NULL values.
+	 *
+	 * <p>The Relatable method {@link Relatable#setOption(RelationType, Object)}
+	 * can be used to set relations of such a type without an explicit creation
+	 * of an {@link Option} instance.</p>
+	 *
+	 * @see #newType(RelationTypeModifier...)
+	 */
+	public static <T> RelationType<Option<T>> newOptionType(
+		RelationTypeModifier... rModifiers)
+	{
+		return newType(r -> Option.none(), null, rModifiers);
 	}
 
 	/***************************************
