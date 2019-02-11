@@ -167,49 +167,27 @@ public class Call<T> implements Monad<T, Call<?>>
 	}
 
 	/***************************************
-	 * A consuming operation that executes some code if this call fails. This
-	 * mainly makes sense in conjunction with the consuming monadic method
-	 * {@link #then(Consumer)} because otherwise the value of a successful
-	 * evaluation would probably be lost (unless it is processed by a mapping
-	 * call).
-	 *
-	 * <p>Each invocation of this method will evaluate the wrapped supplier.</p>
-	 *
-	 * @param fHandler fAction The code to execute
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void orElse(Consumer<Throwable> fHandler)
 	{
 		Try.now(fSupplier).orElse(fHandler);
 	}
 
 	/***************************************
-	 * A consuming operation that either returns the value provided by the
-	 * wrapped supplier or throws an exception caused by it's evaluation.
-	 *
-	 * <p>Each invocation of this method will evaluate the wrapped supplier.</p>
-	 *
-	 * @return The supplied value
-	 *
-	 * @throws Throwable Any exception caused by a supplier evaluation
+	 * {@inheritDoc}
 	 */
-	public <E extends Throwable> T orFail() throws Throwable
+	@Override
+	public T orFail() throws Throwable
 	{
 		return Try.now(fSupplier).orFail();
 	}
 
 	/***************************************
-	 * A consuming operation that either returns the value provided by the
-	 * wrapped supplier or throws an exception indicating an evaluation failure.
-	 *
-	 * <p>Each invocation of this method will evaluate the wrapped supplier.</p>
-	 *
-	 * @param  fMapException A function that maps the original exception
-	 *
-	 * @return The supplied value
-	 *
-	 * @throws E The exception produced by the argument function in the case of
-	 *           a failure
+	 * {@inheritDoc}
 	 */
+	@Override
 	public <E extends Throwable> T orThrow(Function<Throwable, E> fMapException)
 		throws E
 	{
@@ -217,15 +195,9 @@ public class Call<T> implements Monad<T, Call<?>>
 	}
 
 	/***************************************
-	 * A consuming operation that either returns the result of a successful call
-	 * or the given default value if the call failed.
-	 *
-	 * <p>Each invocation of this method will evaluate the wrapped supplier.</p>
-	 *
-	 * @param  rDefault The value to return if the value doesn't exist
-	 *
-	 * @return The result value
+	 * {@inheritDoc}
 	 */
+	@Override
 	public T orUse(T rDefault)
 	{
 		return Try.now(fSupplier).orUse(rDefault);
@@ -247,5 +219,15 @@ public class Call<T> implements Monad<T, Call<?>>
 	public String toString()
 	{
 		return String.format("%s[%s]", getClass().getSimpleName(), fSupplier);
+	}
+
+	/***************************************
+	 * Executes this call and returns a {@link Try} representing the result.
+	 *
+	 * @return The resulting try
+	 */
+	public Try<T> toTry()
+	{
+		return Try.now(fSupplier);
 	}
 }

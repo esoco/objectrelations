@@ -22,13 +22,75 @@ import java.util.function.Function;
 
 /********************************************************************
  * Interface of functors that wrap values of type T and allow their mapping with
- * {@link #map(Function)}.
+ * {@link #map(Function)}. This interface also defines several consuming methods
+ * like {@link #orUse(Object)} and {@link #orFail()} that handle the case where
+ * a functor cannot provide or determine a valid value. These methods are
+ * typically invoked at the end of a chain of mappings from one functor to
+ * another to consume the final value or react to failure to produce that value.
  *
  * @author eso
  */
 public interface Functor<T>
 {
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * A consuming operation that is performed if the functor doesn't contain a
+	 * valid value. This can be used to define the alternative of a call to a
+	 * monadic function like {@link #map(Function)}, {@link #flatMap(Function)},
+	 * and especially {@link #then(Consumer)} to handle a failure case.
+	 *
+	 * @param fHandler The consumer of the the error that occurred
+	 */
+	public abstract void orElse(Consumer<Throwable> fHandler);
+
+	/***************************************
+	 * A consuming operation that either returns the functor's value or throws
+	 * an implementation-dependent exception if a valid value couldn't be
+	 * determined.
+	 *
+	 * <p>In general, calls to the monadic functions {@link #map(Function)},
+	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
+	 * preferred to processing values with consuming operations.</p>
+	 *
+	 * @return The functor's value
+	 *
+	 * @throws Throwable An exception signaling an invalid or indeterminable
+	 *                   value
+	 */
+	public abstract T orFail() throws Throwable;
+
+	/***************************************
+	 * A consuming operation that either returns the functor's value or throws a
+	 * mapped exception if a valid value couldn't be determined.
+	 *
+	 * <p>In general, calls to the monadic functions {@link #map(Function)},
+	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
+	 * preferred to processing values with consuming operations.</p>
+	 *
+	 * @param  fMapException A function that maps the original exception
+	 *
+	 * @return The result of the execution
+	 *
+	 * @throws E The argument exception in the case of a failure
+	 */
+	public abstract <E extends Throwable> T orThrow(
+		Function<Throwable, E> fMapException) throws E;
+
+	/***************************************
+	 * A consuming operation that either returns the functor's value or returns
+	 * the given default value if a valid value couldn't be determined.
+	 *
+	 * <p>In general, calls to the monadic functions {@link #map(Function)},
+	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
+	 * preferred to processing values with consuming operations.</p>
+	 *
+	 * @param  rDefaultValue The value to return if no regular value could be
+	 *                       determined
+	 *
+	 * @return The resulting value
+	 */
+	public abstract T orUse(T rDefaultValue);
 
 	/***************************************
 	 * Maps the wrapped value into a new functor instance.

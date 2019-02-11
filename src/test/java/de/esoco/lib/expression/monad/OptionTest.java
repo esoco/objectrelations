@@ -179,7 +179,7 @@ public class OptionTest
 	  				Option.of(3),
 	  				Option.<Integer>none()))
 			  .then(c -> fail())
-			  .orElse(() -> result[0] = true);
+			  .orElse(e -> result[0] = true);
 		assertTrue(result[0]);
 	}
 
@@ -223,13 +223,13 @@ public class OptionTest
 	{
 		boolean[] result = new boolean[1];
 
-		Option.none().then(v -> fail()).orElse(() -> result[0] = true);
+		Option.none().then(v -> fail()).orElse(e -> result[0] = true);
 		assertTrue(result[0]);
 		assertEquals("DEFAULT", Option.none().orUse("DEFAULT"));
 
 		try
 		{
-			Option.none().orThrow(new Exception("THROW"));
+			Option.none().orThrow(e -> new Exception("THROW", e));
 			fail();
 		}
 		catch (Throwable e)

@@ -227,61 +227,6 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	public abstract Promise<T> onError(Consumer<Throwable> fHandler);
 
 	/***************************************
-	 * A consuming, blocking operation that consumes an error if the execution
-	 * failed. This can be used to define the alternative of a call to a monadic
-	 * function like {@link #map(Function)}, {@link #flatMap(Function)}, and
-	 * especially {@link #then(Consumer)} to handle the case of a failed try.
-	 *
-	 * @param fHandler The consumer of the the error that occurred
-	 */
-	public abstract void orElse(Consumer<Throwable> fHandler);
-
-	/***************************************
-	 * A consuming, blocking operation that either returns the value of a
-	 * resolved promise execution or throws the occurred exception if the
-	 * promise failed.
-	 *
-	 * @see #orThrow(Function)
-	 */
-	public abstract T orFail() throws Throwable;
-
-	/***************************************
-	 * A consuming, blocking operation that either returns the value of a
-	 * resolved execution or throws an exception if the promise failed. Success
-	 * can be tested in advance with {@link #isResolved()}.
-	 *
-	 * <p>In general, calls to the monadic functions {@link #map(Function)},
-	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to process results but a call to a consuming operation should
-	 * typically appear at the end of a chain.</p>
-	 *
-	 * @param  fMapException A function that maps the original exception
-	 *
-	 * @return The result of the execution
-	 *
-	 * @throws E The argument exception in the case of a failure
-	 */
-	public abstract <E extends Throwable> T orThrow(
-		Function<Throwable, E> fMapException) throws E;
-
-	/***************************************
-	 * A consuming, blocking operation that either returns the result of a
-	 * successful execution or returns the given default value if the execution
-	 * failed. If necessary, success can be tested before with {@link
-	 * #isResolved()}.
-	 *
-	 * <p>In general, calls to the monadic functions {@link #map(Function)},
-	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to process results but a call to a consuming operation should
-	 * typically appear at the end of a chain.</p>
-	 *
-	 * @param  rFailureResult The value to return if the execution failed
-	 *
-	 * @return The result value
-	 */
-	public abstract T orUse(T rFailureResult);
-
-	/***************************************
 	 * Defines the maximum time this promise may run before failing as
 	 * unresolved. Although it depends on the actual implementation, the timeout
 	 * is typically only respected by the consuming, blocking methods like

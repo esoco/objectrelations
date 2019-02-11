@@ -241,72 +241,56 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * A consuming operation that executes some code if this option doesn't
-	 * exist. This can be used to define the alternative of a call to a monadic
-	 * function like {@link #map(Function)}, {@link #flatMap(Function)}, and
-	 * especially {@link #then(Consumer)} to handle the case of an empty option.
-	 *
-	 * @param fAction The code to execute
+	 * {@inheritDoc}
 	 */
-	public void orElse(Runnable fAction)
+	@Override
+	public void orElse(Consumer<Throwable> fHandler)
 	{
 		if (!exists())
 		{
-			fAction.run();
+			fHandler.accept(new NullPointerException());
 		}
 	}
 
 	/***************************************
-	 * A consuming operation that either returns the value of this option if it
-	 * exists or throws a {@link NullPointerException}.
+	 * Throws a {@link NullPointerException} if this option does not exist.
 	 *
-	 * @see #orThrow(Throwable)
+	 * @see Functor#orFail()
 	 */
-	public <E extends Throwable> T orFail()
+	@Override
+	public T orFail()
 	{
-		return orThrow(new NullPointerException());
-	}
-
-	/***************************************
-	 * A consuming operation that either returns the value of this option or
-	 * throws the given exception if the option doesn't exist. The presence of a
-	 * value can be tested in advance with {@link #exists()}.
-	 *
-	 * <p>In general, calls to the monadic functions {@link #map(Function)},
-	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to process values but a call to a consuming operation should
-	 * typically appear at the end of a chain.</p>
-	 *
-	 * @param  eException The exception to throw
-	 *
-	 * @return The result of the execution
-	 *
-	 * @throws E The argument exception in the case of a failure
-	 */
-	public <E extends Throwable> T orThrow(E eException) throws E
-	{
-		if (!exists())
+		if (exists())
 		{
-			throw eException;
+			return rValue;
 		}
-
-		return rValue;
+		else
+		{
+			throw new NullPointerException();
+		}
 	}
 
 	/***************************************
-	 * A consuming operation that either returns an existing value or the given
-	 * default value if the execution failed. If necessary, existence can be
-	 * tested before with {@link #exists()}.
-	 *
-	 * <p>In general, calls to the monadic functions {@link #map(Function)},
-	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to process values but a call to a consuming operation should
-	 * typically appear at the end of a chain.</p>
-	 *
-	 * @param  rDefault The value to return if the value doesn't exist
-	 *
-	 * @return The result value
+	 * {@inheritDoc}
 	 */
+	@Override
+	public <E extends Throwable> T orThrow(Function<Throwable, E> fMapException)
+		throws E
+	{
+		if (exists())
+		{
+			return rValue;
+		}
+		else
+		{
+			throw fMapException.apply(new NullPointerException());
+		}
+	}
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
 	public T orUse(T rDefault)
 	{
 		return exists() ? rValue : rDefault;
