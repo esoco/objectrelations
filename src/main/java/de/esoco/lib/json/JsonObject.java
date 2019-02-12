@@ -18,10 +18,12 @@ package de.esoco.lib.json;
 
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.datatype.Pair;
+import de.esoco.lib.expression.monad.Option;
 
 import java.math.BigDecimal;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -139,35 +141,33 @@ public class JsonObject extends RelatedObject
 	}
 
 	/***************************************
-	 * Returns a certain property.
+	 * Returns an {@link Option} containing a property value cast to a certain
+	 * datatype. If the property value cannot be cast to the generic datatype a
+	 * {@link ClassCastException} will be thrown.
 	 *
-	 * @param  sName The property name
-	 *
-	 * @return The property value (may be NULL)
-	 */
-	public <T> T get(String sName)
-	{
-		return get(sName, null);
-	}
-
-	/***************************************
-	 * Returns a property value as a certain datatype or a default value if the
-	 * property is not set or NULL. If the property value cannot be cast to the
-	 * generic datatype a {@link ClassCastException} will be thrown.
-	 *
-	 * @param  sName    The property name
-	 * @param  rDefault The default value if the property is NULL
+	 * @param  sName     The property name
+	 * @param  rDatatype The datatype to cast to
 	 *
 	 * @return The {@link BigDecimal} value
 	 *
-	 * @throws ClassCastException If the property is not a {@link BigDecimal}
+	 * @throws ClassCastException If the property is not of the given datatype
 	 */
-	public <T> T get(String sName, T rDefault)
+	public <T> Option<T> get(String sName, Class<? extends T> rDatatype)
 	{
-		@SuppressWarnings("unchecked")
-		T rValue = (T) getRawProperty(sName);
+		return getProperty(sName).map(v -> rDatatype.cast(v));
+	}
 
-		return rValue != null ? rValue : rDefault;
+	/***************************************
+	 * Returns an Option containing the value of a child object property if it
+	 * exists.
+	 *
+	 * @param  sName The property name
+	 *
+	 * @return The JSON object option
+	 */
+	public Option<List<Object>> getArray(String sName)
+	{
+		return get(sName, List.class);
 	}
 
 	/***************************************
@@ -176,18 +176,16 @@ public class JsonObject extends RelatedObject
 	 * value will be returned. If it is a string it will be tried to parse it
 	 * into an int which will throw an exception on parsing errors. Else the
 	 * default value will be returned. If the number exceeds the value range of
-	 * an int truncation or exceptions may occur.
+	 * a truncation or exceptions may occur.
 	 *
 	 * @param  sName    The property name
 	 * @param  nDefault The default value if the property is NULL
 	 *
 	 * @return The integer value
-	 *
-	 * @throws ClassCastException If the property is not a number
 	 */
 	public int getInt(String sName, int nDefault)
 	{
-		Object rRawProperty = getRawProperty(sName);
+		Object rRawProperty = getProperty(sName);
 		Number rValue	    =
 			rRawProperty instanceof Number ? (Number) rRawProperty : null;
 
@@ -203,18 +201,16 @@ public class JsonObject extends RelatedObject
 	 * value will be returned. If it is a string it will be tried to parse it
 	 * into a long which will throw an exception on parsing errors. Else the
 	 * default value will be returned. If the number exceeds the value range of
-	 * a long truncation or exceptions may occur.
+	 * a truncation or exceptions may occur.
 	 *
 	 * @param  sName    The property name
 	 * @param  nDefault The default value if the property is NULL
 	 *
 	 * @return The long value
-	 *
-	 * @throws ClassCastException If the property is not a number
 	 */
 	public long getLong(String sName, long nDefault)
 	{
-		Object rRawProperty = getRawProperty(sName);
+		Object rRawProperty = getProperty(sName);
 		Number rValue	    =
 			rRawProperty instanceof Number ? (Number) rRawProperty : null;
 
@@ -222,6 +218,32 @@ public class JsonObject extends RelatedObject
 			   ? rValue.longValue()
 			   : rRawProperty instanceof String
 			   ? Long.parseLong((String) rRawProperty) : nDefault;
+	}
+
+	/***************************************
+	 * Returns an Option containing the value of a {@link Number} property if it
+	 * exists.
+	 *
+	 * @param  sName The property name
+	 *
+	 * @return The number option
+	 */
+	public Option<Number> getNumber(String sName)
+	{
+		return get(sName, Number.class);
+	}
+
+	/***************************************
+	 * Returns an Option containing the value of a child object property if it
+	 * exists.
+	 *
+	 * @param  sName The property name
+	 *
+	 * @return The JSON object option
+	 */
+	public Option<JsonObject> getObject(String sName)
+	{
+		return get(sName, JsonObject.class);
 	}
 
 	/***************************************
@@ -235,7 +257,21 @@ public class JsonObject extends RelatedObject
 	}
 
 	/***************************************
-	 * Returns the names of the properties in this instance.
+	 * Returns an option of a certain property value without cast or conversion.
+	 *
+	 * @param  sName The property name
+	 *
+	 * @return The property option
+	 */
+	public Option<Object> getProperty(String sName)
+	{
+		return Option.of(
+			hasRelation(Json.JSON_PROPERTIES) ? getProperties().get(sName)
+											  : null);
+	}
+
+	/***************************************
+	 * Returns the names of the properties that are set in this instance.
 	 *
 	 * @return A set of property names
 	 */
@@ -245,7 +281,7 @@ public class JsonObject extends RelatedObject
 	}
 
 	/***************************************
-	 * Returns the values of the properties in this instance.
+	 * Returns the values of the properties that are set in this instance.
 	 *
 	 * @return A set of property values
 	 */
@@ -255,16 +291,15 @@ public class JsonObject extends RelatedObject
 	}
 
 	/***************************************
-	 * Returns a raw property value without cast or conversion.
+	 * Returns an Option containing the value of a string property if it exists.
 	 *
 	 * @param  sName The property name
 	 *
-	 * @return The property value
+	 * @return The string option
 	 */
-	public Object getRawProperty(String sName)
+	public Option<String> getString(String sName)
 	{
-		return hasRelation(Json.JSON_PROPERTIES) ? getProperties().get(sName)
-												 : null;
+		return get(sName, String.class);
 	}
 
 	/***************************************
@@ -278,10 +313,10 @@ public class JsonObject extends RelatedObject
 	 */
 	public boolean hasFlag(String sName)
 	{
-		Object rValue = getRawProperty(sName);
+		Option<?> oValue = getProperty(sName);
 
-		return rValue != null && rValue instanceof Boolean &&
-			   ((Boolean) rValue).booleanValue() == true;
+		return oValue.is(Boolean.class) &&
+			   oValue.map(Boolean.class::cast).orFail();
 	}
 
 	/***************************************
@@ -316,7 +351,7 @@ public class JsonObject extends RelatedObject
 	 */
 	public boolean hasPropertyValue(String sName)
 	{
-		return getRawProperty(sName) != null;
+		return getProperty(sName) != null;
 	}
 
 	/***************************************

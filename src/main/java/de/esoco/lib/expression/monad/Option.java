@@ -180,9 +180,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	 */
 	public final boolean exists()
 	{
-		// test for NONE and not for rValue == NULL as then() needs to create
-		// an Option<Void> with a NULL value
-		return this != NONE;
+		return rValue != null;
 	}
 
 	/***************************************
@@ -231,6 +229,22 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
+	 * A convenience method for a fast test of options for existence and a
+	 * certain value datatype. This is especially helpful for options that are
+	 * declared with a generic or common type (like <code>Option&lt;?&gt;</code>
+	 * or <code>Option&lt;Object&gt;</code>).
+	 *
+	 * @param  rDatatype The datatype to test the wrapped value against
+	 *
+	 * @return TRUE if this option exists and the value can be assigned to the
+	 *         given datatype
+	 */
+	public final boolean is(Class<?> rDatatype)
+	{
+		return exists() && rDatatype.isAssignableFrom(rValue.getClass());
+	}
+
+	/***************************************
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -249,6 +263,20 @@ public class Option<T> implements Monad<T, Option<?>>
 		if (!exists())
 		{
 			fHandler.accept(new NullPointerException());
+		}
+	}
+
+	/***************************************
+	 * A variant of {@link #orElse(Consumer)} that simply executes some code if
+	 * this option doesn't exist.
+	 *
+	 * @param fCode The code to execute
+	 */
+	public void orElse(Runnable fCode)
+	{
+		if (!exists())
+		{
+			fCode.run();
 		}
 	}
 

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
+import de.esoco.lib.expression.monad.Option;
+
 import java.math.BigDecimal;
 
 import java.util.Arrays;
@@ -26,7 +28,6 @@ import static de.esoco.lib.collection.CollectionUtil.orderedMapOf;
 import static de.esoco.lib.datatype.Pair.t;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 
@@ -59,14 +60,15 @@ public class JsonObjectTest
 	private JsonObject aChildObject =
 		new JsonObject(orderedMapOf(t("childName", "CHILD"), t("childId", 1)));
 	private JsonObject aJsonObject  =
-		new JsonObject(orderedMapOf(t("testNull", null),
-									t("testString", "TEST"),
-									t("testFlag", true),
-									t("testInt", 42),
-									t("testDecimal", new BigDecimal("3.14159")),
-									t("testCollection",
-									  Arrays.asList("test1", "test2", "test3")),
-									t("testChild", aChildObject)));
+		new JsonObject(
+			orderedMapOf(
+				t("testNull", null),
+				t("testString", "TEST"),
+				t("testFlag", true),
+				t("testInt", 42),
+				t("testDecimal", new BigDecimal("3.14159")),
+				t("testCollection", Arrays.asList("test1", "test2", "test3")),
+				t("testChild", aChildObject)));
 
 	//~ Methods ----------------------------------------------------------------
 
@@ -88,7 +90,9 @@ public class JsonObjectTest
 	{
 		assertJsonProperties(aJsonObject);
 		aJsonObject.set("testLong", 555L);
-		assertEquals(Long.valueOf(555), aJsonObject.get("testLong", 0));
+		assertEquals(
+			Long.valueOf(555),
+			aJsonObject.getNumber("testLong").orFail());
 	}
 
 	/***************************************
@@ -102,8 +106,10 @@ public class JsonObjectTest
 		aTestObject.set("testName", "TEST");
 		aTestObject.set("testObject", new JsonObject());
 
-		assertEquals("TEST", aTestObject.get("testName", null));
-		assertEquals(new JsonObject(), aTestObject.get("testObject", null));
+		assertEquals("TEST", aTestObject.getString("testName").orFail());
+		assertEquals(
+			new JsonObject(),
+			aTestObject.getObject("testObject").orFail());
 	}
 
 	/***************************************
@@ -125,17 +131,22 @@ public class JsonObjectTest
 	 */
 	private void assertJsonProperties(JsonObject rJsonObject)
 	{
-		assertNull(rJsonObject.getRawProperty("testNull"));
+		assertEquals(Option.none(), rJsonObject.getProperty("testNull"));
 		assertTrue(rJsonObject.hasFlag("testFlag"));
 		assertTrue(rJsonObject.hasProperty("testNull"));
-		assertEquals(Json.JSON_DATE_FORMAT,
-					 rJsonObject.get("testNull", Json.JSON_DATE_FORMAT));
-		assertEquals("TEST", rJsonObject.get("testString", ""));
-		assertEquals(Integer.valueOf(42), rJsonObject.get("testInt", 0));
-		assertEquals(new BigDecimal("3.14159"),
-					 rJsonObject.get("testDecimal", BigDecimal.ZERO));
-		assertEquals(Arrays.asList("test1", "test2", "test3"),
-					 rJsonObject.get("testCollection", null));
-		assertEquals(aChildObject, rJsonObject.get("testChild", null));
+		assertEquals(
+			"Not",
+			rJsonObject.getString("testNotExisting").orUse("Not"));
+		assertEquals("TEST", rJsonObject.getString("testString").orFail());
+		assertEquals(
+			Integer.valueOf(42),
+			rJsonObject.getNumber("testInt").orFail());
+		assertEquals(
+			new BigDecimal("3.14159"),
+			rJsonObject.getNumber("testDecimal").orFail());
+		assertEquals(
+			Arrays.asList("test1", "test2", "test3"),
+			rJsonObject.getArray("testCollection").orFail());
+		assertEquals(aChildObject, rJsonObject.getObject("testChild").orFail());
 	}
 }

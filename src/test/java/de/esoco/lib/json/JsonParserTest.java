@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,14 +68,17 @@ public class JsonParserTest
 	public void testLimitedDepth()
 	{
 		JsonObject jo =
-			new JsonParser(1).parseObject("{\"PARENT\": {\"NAME\": \"PARENT\"," +
-										  " \"INFO\": \"JSON_OBJECT\"}," +
-										  " \"NAME\": \"TEST\"," +
-										  " \"INFO\": \"JSON\"," +
-										  " \"PORT\": 12345}");
+			new JsonParser(1).parseObject(
+				"{\"REF\": {\"NAME\": \"REF\"," +
+				" \"INFO\": \"JSON_OBJECT\"}," +
+				" \"NAME\": \"TEST\"," +
+				" \"INFO\": \"JSON\"," +
+				" \"PORT\": 12345}");
 
-		assertEquals("{\"NAME\": \"PARENT\", \"INFO\": \"JSON_OBJECT\"}",
-					 jo.get("PARENT"));
+		// assert that REF is an unparsed string
+		assertEquals(
+			"{\"NAME\": \"REF\", \"INFO\": \"JSON_OBJECT\"}",
+			jo.getString("REF").orFail());
 	}
 
 	/***************************************
@@ -96,24 +99,27 @@ public class JsonParserTest
 		aCompare.set(StandardTypes.PORT, 12345);
 		aCompare.set(TEST_LIST, Arrays.asList(1L, 2L, 3L));
 
-		new JsonParser().parseRelatable("{\"NAME\": \"TEST\"," +
-										" \"INFO\": \"JSON\"," +
-										" \"PORT\": 12345," +
-										" \"TEST_LIST\": [1,2,3]}",
-										aTest);
+		new JsonParser().parseRelatable(
+			"{\"NAME\": \"TEST\"," +
+			" \"INFO\": \"JSON\"," +
+			" \"PORT\": 12345," +
+			" \"TEST_LIST\": [1,2,3]}",
+			aTest);
 		assertTrue(aTest.relationsEqual(aCompare));
 		assertEquals(Long.class, aTest.get(TEST_LIST).get(0).getClass());
 
 		aCompare.set(StandardTypes.PARENT, aParent);
 
-		new JsonParser().parseRelatable("{\"PARENT\": {\"NAME\": \"PARENT\"," +
-										" \"INFO\": \"JSON_OBJECT\"}," +
-										" \"NAME\": \"TEST\"," +
-										" \"INFO\": \"JSON\"," +
-										" \"PORT\": 12345}",
-										aTest);
-		assertTrue(((RelatedObject) aTest.get(StandardTypes.PARENT))
-				   .relationsEqual(aParent));
+		new JsonParser().parseRelatable(
+			"{\"PARENT\": {\"NAME\": \"PARENT\"," +
+			" \"INFO\": \"JSON_OBJECT\"}," +
+			" \"NAME\": \"TEST\"," +
+			" \"INFO\": \"JSON\"," +
+			" \"PORT\": 12345}",
+			aTest);
+		assertTrue(
+			((RelatedObject) aTest.get(StandardTypes.PARENT)).relationsEqual(
+				aParent));
 	}
 
 	/***************************************
@@ -135,25 +141,33 @@ public class JsonParserTest
 		assertEquals(Boolean.FALSE, aParser.parse("false"));
 
 		assertEquals(new Integer(12345678), aParser.parse("12345678"));
-		assertEquals(Integer.MIN_VALUE,
-					 aParser.parse(Integer.toString(Integer.MIN_VALUE)));
-		assertEquals(Integer.MAX_VALUE,
-					 aParser.parse(Integer.toString(Integer.MAX_VALUE)));
+		assertEquals(
+			Integer.MIN_VALUE,
+			aParser.parse(Integer.toString(Integer.MIN_VALUE)));
+		assertEquals(
+			Integer.MAX_VALUE,
+			aParser.parse(Integer.toString(Integer.MAX_VALUE)));
 
-		assertEquals(new Long(1234567890123456L),
-					 aParser.parse("1234567890123456"));
-		assertEquals(Long.MIN_VALUE,
-					 aParser.parse(Long.toString(Long.MIN_VALUE)));
-		assertEquals(Long.MAX_VALUE,
-					 aParser.parse(Long.toString(Long.MAX_VALUE)));
+		assertEquals(
+			new Long(1234567890123456L),
+			aParser.parse("1234567890123456"));
+		assertEquals(
+			Long.MIN_VALUE,
+			aParser.parse(Long.toString(Long.MIN_VALUE)));
+		assertEquals(
+			Long.MAX_VALUE,
+			aParser.parse(Long.toString(Long.MAX_VALUE)));
 
-		assertEquals(new Integer(Short.MIN_VALUE),
-					 aParser.parse(Short.toString(Short.MIN_VALUE)));
-		assertEquals(new Integer(Short.MAX_VALUE),
-					 aParser.parse(Short.toString(Short.MAX_VALUE)));
+		assertEquals(
+			new Integer(Short.MIN_VALUE),
+			aParser.parse(Short.toString(Short.MIN_VALUE)));
+		assertEquals(
+			new Integer(Short.MAX_VALUE),
+			aParser.parse(Short.toString(Short.MAX_VALUE)));
 
-		assertEquals(new BigInteger("1234567890123456789012345678901234567890"),
-					 aParser.parse("1234567890123456789012345678901234567890"));
+		assertEquals(
+			new BigInteger("1234567890123456789012345678901234567890"),
+			aParser.parse("1234567890123456789012345678901234567890"));
 
 		assertEquals(new BigDecimal("0.01"), aParser.parse("0.01"));
 		assertEquals(new BigDecimal("42.0"), aParser.parse("42.0"));
@@ -161,17 +175,22 @@ public class JsonParserTest
 		assertEquals(new BigDecimal("-42.0e42"), aParser.parse("-42.0E42"));
 
 		assertEquals(new JsonObject(), aParser.parse("{}"));
-		assertEquals(new JsonObject(t("TESTKEY", "TESTVALUE")),
-					 aParser.parse("{\"TESTKEY\": \"TESTVALUE\"}"));
-		assertEquals(new JsonObject(t("TESTKEY1", "TESTVALUE1"),
-									t("TESTKEY2", "TESTVALUE2"),
-									t("NULLVALUE", null)),
-					 aParser.parse("{\"TESTKEY1\": \"TESTVALUE1\"," +
-								   " \"TESTKEY2\": \"TESTVALUE2\"," +
-								   "\"NULLVALUE\": null}"));
+		assertEquals(
+			new JsonObject(t("TESTKEY", "TESTVALUE")),
+			aParser.parse("{\"TESTKEY\": \"TESTVALUE\"}"));
+		assertEquals(
+			new JsonObject(
+				t("TESTKEY1", "TESTVALUE1"),
+				t("TESTKEY2", "TESTVALUE2"),
+				t("NULLVALUE", null)),
+			aParser.parse(
+				"{\"TESTKEY1\": \"TESTVALUE1\"," +
+				" \"TESTKEY2\": \"TESTVALUE2\"," +
+				"\"NULLVALUE\": null}"));
 
 		assertEquals(new ArrayList<Object>(), aParser.parse("[]"));
-		assertEquals(Arrays.asList("TEST1", "TEST2"),
-					 aParser.parse("[\"TEST1\", \"TEST2\"]"));
+		assertEquals(
+			Arrays.asList("TEST1", "TEST2"),
+			aParser.parse("[\"TEST1\", \"TEST2\"]"));
 	}
 }
