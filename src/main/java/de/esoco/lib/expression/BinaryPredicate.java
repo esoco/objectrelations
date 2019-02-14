@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,55 +57,5 @@ public interface BinaryPredicate<L, R> extends Predicate<L>,
 		Function<B, ? extends R> rRight)
 	{
 		return Predicates.chain(this, rLeft, rRight);
-	}
-
-	//~ Inner Interfaces -------------------------------------------------------
-
-	/********************************************************************
-	 * A sub-interface that allows implementations to throw checked exceptions.
-	 * If an exception occurs it will be converted into a runtime exception of
-	 * the type {@link FunctionException}.
-	 *
-	 * @author eso
-	 */
-	@FunctionalInterface
-	public static interface ThrowingBinaryPredicate<L, R, E extends Exception>
-		extends BinaryPredicate<L, R>
-	{
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
-		 * Overridden to forward the invocation to the actual implementation in
-		 * {@link #evaluateWithException(Object, Object)} and to convert
-		 * occurring exceptions into {@link FunctionException}.
-		 *
-		 * @see BinaryFunction#evaluate(Object, Object)
-		 */
-		@Override
-		default public Boolean evaluate(L rLeft, R rRight)
-		{
-			try
-			{
-				return evaluateWithException(rLeft, rRight);
-			}
-			catch (Exception e)
-			{
-				throw (e instanceof RuntimeException)
-					  ? (RuntimeException) e : new FunctionException(this, e);
-			}
-		}
-
-		/***************************************
-		 * Replaces {@link #evaluate(Object)} and allows implementations to
-		 * throw an exception.
-		 *
-		 * @param  rLeft  The first argument
-		 * @param  rRight The second argument
-		 *
-		 * @return The function result
-		 *
-		 * @throws E An exception in the case of errors
-		 */
-		public Boolean evaluateWithException(L rLeft, R rRight) throws E;
 	}
 }

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,16 +16,9 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-import de.esoco.lib.expression.BinaryPredicate.ThrowingBinaryPredicate;
-import de.esoco.lib.expression.Predicate.ThrowingPredicate;
 import de.esoco.lib.expression.function.GetElement.GetField;
 import de.esoco.lib.expression.function.GetElement.ReadField;
-import de.esoco.lib.expression.predicate.AbstractBinaryPredicate;
-import de.esoco.lib.expression.predicate.AbstractPredicate;
 import de.esoco.lib.expression.predicate.BinaryPredicateChain;
-import de.esoco.lib.expression.predicate.ClassPredicate;
-import de.esoco.lib.expression.predicate.ClassPredicate.HasBaseClass;
-import de.esoco.lib.expression.predicate.ClassPredicate.HasClass;
 import de.esoco.lib.expression.predicate.Comparison;
 import de.esoco.lib.expression.predicate.Comparison.EqualTo;
 import de.esoco.lib.expression.predicate.Comparison.GreaterOrEqual;
@@ -38,12 +31,13 @@ import de.esoco.lib.expression.predicate.ElementPredicate;
 import de.esoco.lib.expression.predicate.FunctionPredicate;
 import de.esoco.lib.expression.predicate.PredicateChain;
 import de.esoco.lib.expression.predicate.PredicateJoin;
+import de.esoco.lib.expression.predicate.ThrowingBinaryPredicate;
+import de.esoco.lib.expression.predicate.ThrowingPredicate;
 
 import java.util.regex.Pattern;
 
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
-import org.obrel.type.MetaTypes;
 
 
 /********************************************************************
@@ -57,26 +51,10 @@ public class Predicates
 	//~ Static fields/initializers ---------------------------------------------
 
 	/** Always returns true */
-	private static final Predicate<?> TRUE =
-		new AbstractPredicate<Object>("TRUE")
-		{
-			@Override
-			public final Boolean evaluate(Object rValue)
-			{
-				return true;
-			}
-		};
+	private static final Predicate<?> TRUE = v -> true;
 
 	/** Always returns false */
-	private static final Predicate<?> FALSE =
-		new AbstractPredicate<Object>("FALSE")
-		{
-			@Override
-			public final Boolean evaluate(Object rValue)
-			{
-				return false;
-			}
-		};
+	private static final Predicate<?> FALSE = v -> false;
 
 	/** Tests if a value is null */
 	private static final Predicate<?> IS_NULL =
@@ -91,18 +69,6 @@ public class Predicates
 
 	/** Tests if a value is not null */
 	private static final Predicate<?> NOT_NULL = not(IS_NULL);
-
-	/**
-	 * Tests if a relatable object has the {@link MetaTypes#MODIFIED} flag set.
-	 */
-	private static final Predicate<Relatable> IS_MODIFIED =
-		hasFlag(MetaTypes.MODIFIED);
-
-	/**
-	 * Tests if a relatable object has no {@link MetaTypes#MODIFIED} flag set.
-	 */
-	private static final Predicate<Relatable> IS_NOT_MODIFIED =
-		not(IS_MODIFIED);
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -206,29 +172,6 @@ public class Predicates
 	}
 
 	/***************************************
-	 * Returns a new predicate instance that counts down from a certain value to
-	 * zero and returns TRUE while the value is still greater and FALSE when it
-	 * reached zero.
-	 *
-	 * @param  nValue The value to count to zero from
-	 *
-	 * @return A new predicate instance
-	 */
-	public static <T> Predicate<T> countDown(final int nValue)
-	{
-		return new AbstractPredicate<T>("countDown")
-		{
-			int nCountValue = nValue;
-
-			@Override
-			public Boolean evaluate(T rValue)
-			{
-				return nCountValue-- > 0;
-			}
-		};
-	}
-
-	/***************************************
 	 * Returns a predicate that compares the target object with another object
 	 * by means of the {@link Object#equals(Object)} method. The predicate
 	 * yields TRUE if the tested object is equal to the other object. NULL
@@ -294,78 +237,6 @@ public class Predicates
 	}
 
 	/***************************************
-	 * Returns a class predicate that checks if target objects have a certain
-	 * base class by means of the method {@link Class#isAssignableFrom(Class)}.
-	 *
-	 * @param  rClass The class to check target objects against
-	 *
-	 * @return A new instance of {@link HasBaseClass}
-	 */
-	public static <T> ClassPredicate<T> hasBaseClass(Class<?> rClass)
-	{
-		return new HasBaseClass<T>(rClass);
-	}
-
-	/***************************************
-	 * Returns a class predicate that checks if target objects have a certain
-	 * class by performing an identity comparison of the classes.
-	 *
-	 * @param  rClass The class to check target objects against
-	 *
-	 * @return A new instance of {@link HasClass}
-	 */
-	public static <T> ClassPredicate<T> hasClass(Class<?> rClass)
-	{
-		return new HasClass<T>(rClass);
-	}
-
-	/***************************************
-	 * Returns a new predicate that invokes {@link
-	 * Relatable#hasFlag(RelationType)}.
-	 *
-	 * @param  rType The boolean relation type to check
-	 *
-	 * @return A new predicate instance
-	 */
-	public static <R extends Relatable> Predicate<R> hasFlag(
-		final RelationType<Boolean> rType)
-	{
-		return new AbstractBinaryPredicate<R, RelationType<Boolean>>(rType,
-																	 "hasRelation")
-		{
-			@Override
-			public Boolean evaluate(
-				R					  rRelatable,
-				RelationType<Boolean> rFlagType)
-			{
-				return rRelatable.hasFlag(rFlagType);
-			}
-		};
-	}
-
-	/***************************************
-	 * Returns a new predicate that checks if instances of {@link Relatable}
-	 * have a certain relation set.
-	 *
-	 * @param  rType The relation type to check
-	 *
-	 * @return A new predicate instance
-	 */
-	public static <R extends Relatable> Predicate<R> hasRelation(
-		final RelationType<?> rType)
-	{
-		return new AbstractBinaryPredicate<R, RelationType<?>>(rType,
-															   "hasRelation")
-		{
-			@Override
-			public Boolean evaluate(R rRelatable, RelationType<?> rType)
-			{
-				return rRelatable.hasRelation(rType);
-			}
-		};
-	}
-
-	/***************************************
 	 * Creates an {@link ElementPredicate} for a certain field in target
 	 * objects. It creates an instance of the function {@link ReadField} to
 	 * retrieve the field value from target objects.
@@ -384,8 +255,9 @@ public class Predicates
 		String		 sField,
 		Predicate<V> rPredicate)
 	{
-		return new ElementPredicate<T, V>(new ReadField<T, V>(sField),
-										  rPredicate);
+		return new ElementPredicate<T, V>(
+			new ReadField<T, V>(sField),
+			rPredicate);
 	}
 
 	/***************************************
@@ -407,8 +279,9 @@ public class Predicates
 		String		 sProperty,
 		Predicate<V> rPredicate)
 	{
-		return new ElementPredicate<T, V>(new GetField<T, V>(sProperty),
-										  rPredicate);
+		return new ElementPredicate<T, V>(
+			new GetField<T, V>(sProperty),
+			rPredicate);
 	}
 
 	/***************************************
@@ -439,31 +312,6 @@ public class Predicates
 		Predicate<? super V> rPredicate)
 	{
 		return new ElementPredicate<T, V>(rType, rPredicate);
-	}
-
-	/***************************************
-	 * Returns a new predicate that evaluates to TRUE on the first invocation
-	 * only, independent of the target object. All further evaluations will
-	 * yield FALSE.
-	 *
-	 * @return A new predicate that yields TRUE only on the first evaluation
-	 */
-	public static <T> Predicate<T> isFirstCall()
-	{
-		return new AbstractPredicate<T>("isFirstCall")
-		{
-			boolean bIsFirst = true;
-
-			@Override
-			public Boolean evaluate(T rIgnored)
-			{
-				boolean bResult = bIsFirst;
-
-				bIsFirst = false;
-
-				return bResult;
-			}
-		};
 	}
 
 	/***************************************
@@ -533,19 +381,6 @@ public class Predicates
 	}
 
 	/***************************************
-	 * Returns a predicate that tests if the {@link MetaTypes#MODIFIED} flag is
-	 * set on a relatable object.
-	 *
-	 * @return A constant predicate that yields TRUE if the target object is
-	 *         marked as modified
-	 */
-	@SuppressWarnings("unchecked")
-	public static <R extends Relatable> Predicate<R> modified()
-	{
-		return (Predicate<R>) IS_MODIFIED;
-	}
-
-	/***************************************
 	 * Returns the logical negation of a particular predicate.
 	 *
 	 * @param  rPredicate The predicate to negate
@@ -555,19 +390,6 @@ public class Predicates
 	public static <T> Predicate<T> not(Predicate<T> rPredicate)
 	{
 		return new Not<T>(rPredicate);
-	}
-
-	/***************************************
-	 * Returns a predicate that tests if the {@link MetaTypes#MODIFIED} flag is
-	 * not set on a relatable object.
-	 *
-	 * @return A constant predicate that yields TRUE if the target object is not
-	 *         marked as modified
-	 */
-	@SuppressWarnings("unchecked")
-	public static <R extends Relatable> Predicate<R> notModified()
-	{
-		return (Predicate<R>) IS_NOT_MODIFIED;
 	}
 
 	/***************************************
@@ -636,8 +458,7 @@ public class Predicates
 	 *
 	 * @return The unchecked predicate
 	 */
-	public static <T, E extends Exception> Predicate<T> unchecked(
-		ThrowingPredicate<T, E> pChecked)
+	public static <T> Predicate<T> unchecked(ThrowingPredicate<T> pChecked)
 	{
 		return pChecked;
 	}
@@ -651,10 +472,33 @@ public class Predicates
 	 *
 	 * @return The unchecked predicate
 	 */
-	public static <L, R, E extends Exception> BinaryPredicate<L, R> unchecked(
-		ThrowingBinaryPredicate<L, R, E> pChecked)
+	public static <L, R> BinaryPredicate<L, R> unchecked(
+		ThrowingBinaryPredicate<L, R> pChecked)
 	{
 		return pChecked;
+	}
+
+	/***************************************
+	 * Returns a new predicate instance that counts down from a certain value to
+	 * zero and returns TRUE while the value is still greater than zero and
+	 * FALSE as soon as it has reached zero.
+	 *
+	 * @param  nValue The value to count to zero from
+	 *
+	 * @return A new predicate instance
+	 */
+	public static <T> Predicate<T> untilCountDown(int nValue)
+	{
+		return new Predicate<T>()
+		{
+			int nCountValue = nValue;
+
+			@Override
+			public Boolean evaluate(T rValue)
+			{
+				return nCountValue-- > 0;
+			}
+		};
 	}
 
 	/***************************************
@@ -711,9 +555,9 @@ public class Predicates
 	}
 
 	/********************************************************************
-	 * Implementation of the logical negation of a certain predicate.
+	 * A predicate that inverts the result another predicate.
 	 */
-	public static class Not<T> extends AbstractPredicate<T>
+	public static class Not<T> implements Predicate<T>
 	{
 		//~ Instance fields ----------------------------------------------------
 
@@ -724,24 +568,22 @@ public class Predicates
 		/***************************************
 		 * Creates a new instance.
 		 *
-		 * @param rPredicate The predicate to negate
+		 * @param rPredicate The predicate to invert
 		 */
 		public Not(Predicate<T> rPredicate)
 		{
-			super("NOT");
-
 			this.rPredicate = rPredicate;
 		}
 
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
-		 * Returns the logical of the result of the evaluate() method of the
-		 * underlying predicate.
+		 * Returns the logical inversion of the result of the evaluate() method
+		 * of the underlying predicate.
 		 *
 		 * @param  rTarget The target value to be evaluated by the predicate
 		 *
-		 * @return The negated result of the evaluation
+		 * @return The inverted result of the evaluation
 		 */
 		@Override
 		public Boolean evaluate(T rTarget)
@@ -750,19 +592,17 @@ public class Predicates
 		}
 
 		/***************************************
-		 * Returns the predicate that is negated by this instance.
+		 * Returns the predicate that is inverted by this instance.
 		 *
-		 * @return The negated predicate
+		 * @return The inverted predicate
 		 */
-		public final Predicate<T> getPredicate()
+		public final Predicate<T> getInvertedPredicate()
 		{
 			return rPredicate;
 		}
 
 		/***************************************
-		 * Overridden for specific format.
-		 *
-		 * @see AbstractPredicate#toString()
+		 * {@inheritDoc}
 		 */
 		@Override
 		public String toString()

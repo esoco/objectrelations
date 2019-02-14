@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-import de.esoco.lib.expression.function.AbstractInvertibleFunction;
 import de.esoco.lib.property.HasOrder;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
@@ -97,15 +96,17 @@ public class Conversions
 		else if (rValue instanceof Collection<?>)
 		{
 			sValue =
-				asString((Collection<?>) rValue,
-						 TextConvert.DEFAULT_COLLECTION_SEPARATOR);
+				asString(
+					(Collection<?>) rValue,
+					TextConvert.DEFAULT_COLLECTION_SEPARATOR);
 		}
 		else if (rValue instanceof Map<?, ?>)
 		{
 			sValue =
-				asString((Map<?, ?>) rValue,
-						 TextConvert.DEFAULT_COLLECTION_SEPARATOR,
-						 TextConvert.DEFAULT_KEY_VALUE_SEPARATOR);
+				asString(
+					(Map<?, ?>) rValue,
+					TextConvert.DEFAULT_COLLECTION_SEPARATOR,
+					TextConvert.DEFAULT_KEY_VALUE_SEPARATOR);
 		}
 		else
 		{
@@ -116,8 +117,9 @@ public class Conversions
 
 			if (rConversion == null)
 			{
-				throw new IllegalArgumentException("No string conversion registered for " +
-												   rValue.getClass());
+				throw new IllegalArgumentException(
+					"No string conversion registered for " +
+					rValue.getClass());
 			}
 
 			sValue = rConversion.evaluate(rValue);
@@ -206,8 +208,8 @@ public class Conversions
 
 				aResult.append(sKey);
 				aResult.append(sKeyValueSeparator);
-				aResult.append(TextConvert.unicodeEncode(sValue,
-														 sEntrySeparator));
+				aResult.append(
+					TextConvert.unicodeEncode(sValue, sEntrySeparator));
 				aResult.append(sEntrySeparator);
 			}
 
@@ -283,7 +285,8 @@ public class Conversions
 					if (rSuperclass != Object.class)
 					{
 						rConversion =
-							(InvertibleFunction<T, String>) rConversions.get(rSuperclass);
+							(InvertibleFunction<T, String>) rConversions.get(
+								rSuperclass);
 					}
 					else
 					{
@@ -312,11 +315,12 @@ public class Conversions
 		Class<E> rElementType,
 		boolean  bOrdered)
 	{
-		return parseCollection(sElements,
-							   rCollectionType,
-							   rElementType,
-							   TextConvert.DEFAULT_COLLECTION_SEPARATOR,
-							   bOrdered);
+		return parseCollection(
+			sElements,
+			rCollectionType,
+			rElementType,
+			TextConvert.DEFAULT_COLLECTION_SEPARATOR,
+			bOrdered);
 	}
 
 	/***************************************
@@ -366,8 +370,9 @@ public class Conversions
 			while (aElements.hasMoreElements())
 			{
 				String sElement =
-					TextConvert.unicodeDecode(aElements.nextToken(),
-											  sSeparator);
+					TextConvert.unicodeDecode(
+						aElements.nextToken(),
+						sSeparator);
 
 				aCollection.add(parseValue(sElement, rElementType));
 			}
@@ -390,13 +395,14 @@ public class Conversions
 		Class<V> rValueType,
 		boolean  bOrdered)
 	{
-		return parseMap(sMapEntries,
-						rMapType,
-						rKeyType,
-						rValueType,
-						TextConvert.DEFAULT_COLLECTION_SEPARATOR,
-						TextConvert.DEFAULT_KEY_VALUE_SEPARATOR,
-						bOrdered);
+		return parseMap(
+			sMapEntries,
+			rMapType,
+			rKeyType,
+			rValueType,
+			TextConvert.DEFAULT_COLLECTION_SEPARATOR,
+			TextConvert.DEFAULT_KEY_VALUE_SEPARATOR,
+			bOrdered);
 	}
 
 	/***************************************
@@ -455,8 +461,9 @@ public class Conversions
 
 				sValue = TextConvert.unicodeDecode(sValue, sEntrySeparator);
 
-				aMap.put(parseValue(sKey, rKeyType),
-						 parseValue(sValue, rValueType));
+				aMap.put(
+					parseValue(sKey, rKeyType),
+					parseValue(sValue, rValueType));
 			}
 		}
 
@@ -495,8 +502,9 @@ public class Conversions
 
 		if (rConversion == null)
 		{
-			throw new IllegalArgumentException("No string conversion registered for " +
-											   rDatatype);
+			throw new IllegalArgumentException(
+				"No string conversion registered for " +
+				rDatatype);
 		}
 
 		return rConversion.invert(sValue);
@@ -530,19 +538,21 @@ public class Conversions
 		if (Collection.class.isAssignableFrom(rDatatype))
 		{
 			aResult =
-				(T) parseCollection(sValue,
-									(Class<Collection<Object>>) rDatatype,
-									(Class<Object>) rTargetType.get(ELEMENT_DATATYPE),
-									bOrdered);
+				(T) parseCollection(
+					sValue,
+					(Class<Collection<Object>>) rDatatype,
+					(Class<Object>) rTargetType.get(ELEMENT_DATATYPE),
+					bOrdered);
 		}
 		else if (Map.class.isAssignableFrom(rDatatype))
 		{
 			aResult =
-				(T) parseMap(sValue,
-							 (Class<Map<Object, Object>>) rDatatype,
-							 (Class<Object>) rTargetType.get(KEY_DATATYPE),
-							 (Class<Object>) rTargetType.get(VALUE_DATATYPE),
-							 bOrdered);
+				(T) parseMap(
+					sValue,
+					(Class<Map<Object, Object>>) rDatatype,
+					(Class<Object>) rTargetType.get(KEY_DATATYPE),
+					(Class<Object>) rTargetType.get(VALUE_DATATYPE),
+					bOrdered);
 		}
 		else
 		{
@@ -596,7 +606,8 @@ public class Conversions
 
 			aStringConversions.put(String.class, Functions.<String>identity());
 
-			aStringConversions.put(Boolean.class,
+			aStringConversions.put(
+				Boolean.class,
 				new StringConversion<Boolean>(Boolean.class)
 				{
 					@Override
@@ -605,7 +616,8 @@ public class Conversions
 						return Boolean.valueOf(sValue);
 					}
 				});
-			aStringConversions.put(Integer.class,
+			aStringConversions.put(
+				Integer.class,
 				new StringConversion<Integer>(Integer.class)
 				{
 					@Override
@@ -614,7 +626,8 @@ public class Conversions
 						return Integer.valueOf(sValue);
 					}
 				});
-			aStringConversions.put(Long.class,
+			aStringConversions.put(
+				Long.class,
 				new StringConversion<Long>(Long.class)
 				{
 					@Override
@@ -623,7 +636,8 @@ public class Conversions
 						return Long.valueOf(sValue);
 					}
 				});
-			aStringConversions.put(Short.class,
+			aStringConversions.put(
+				Short.class,
 				new StringConversion<Short>(Short.class)
 				{
 					@Override
@@ -632,7 +646,8 @@ public class Conversions
 						return Short.valueOf(sValue);
 					}
 				});
-			aStringConversions.put(Float.class,
+			aStringConversions.put(
+				Float.class,
 				new StringConversion<Float>(Float.class)
 				{
 					@Override
@@ -641,7 +656,8 @@ public class Conversions
 						return Float.valueOf(sValue);
 					}
 				});
-			aStringConversions.put(Double.class,
+			aStringConversions.put(
+				Double.class,
 				new StringConversion<Double>(Double.class)
 				{
 					@Override
@@ -650,7 +666,8 @@ public class Conversions
 						return Double.valueOf(sValue);
 					}
 				});
-			aStringConversions.put(RelationType.class,
+			aStringConversions.put(
+				RelationType.class,
 				new StringConversion<RelationType<?>>(RelationType.class)
 				{
 					@Override
@@ -659,10 +676,12 @@ public class Conversions
 						return RelationType.valueOf(sName);
 					}
 				});
-			aStringConversions.put(BigDecimal.class,
-								   new StringConversion<>(BigDecimal.class));
-			aStringConversions.put(BigInteger.class,
-								   new StringConversion<>(BigInteger.class));
+			aStringConversions.put(
+				BigDecimal.class,
+				new StringConversion<>(BigDecimal.class));
+			aStringConversions.put(
+				BigInteger.class,
+				new StringConversion<>(BigInteger.class));
 
 			aStringConversions.put(Date.class, new DateToStringConversion());
 			aStringConversions.put(Class.class, new ClassToStringConversion());
@@ -680,18 +699,8 @@ public class Conversions
 	 * @author eso
 	 */
 	public static class DateToStringConversion
-		extends AbstractInvertibleFunction<Date, String>
+		implements InvertibleFunction<Date, String>
 	{
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
-		 * Creates a new instance.
-		 */
-		public DateToStringConversion()
-		{
-			super("DateToString");
-		}
-
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
@@ -724,7 +733,7 @@ public class Conversions
 	 * @author eso
 	 */
 	public static class StringConversion<T>
-		extends AbstractInvertibleFunction<T, String>
+		implements InvertibleFunction<T, String>
 	{
 		//~ Static fields/initializers -----------------------------------------
 
@@ -738,11 +747,12 @@ public class Conversions
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
-		 * @see AbstractInvertibleFunction#AbstractInvertibleFunction(String)
+		 * Creates a new instance.
+		 *
+		 * @param rDatatype The datatype to convert to and from
 		 */
 		public StringConversion(Class<? super T> rDatatype)
 		{
-			super(rDatatype.getSimpleName() + "ToString");
 			this.rDatatype = rDatatype;
 		}
 
@@ -771,9 +781,10 @@ public class Conversions
 		@SuppressWarnings("unchecked")
 		public T invert(String sValue)
 		{
-			return (T) ReflectUtil.newInstance(rDatatype,
-											   new Object[] { sValue },
-											   STRING_ARG);
+			return (T) ReflectUtil.newInstance(
+				rDatatype,
+				new Object[] { sValue },
+				STRING_ARG);
 		}
 	}
 
@@ -790,7 +801,7 @@ public class Conversions
 		//~ Constructors -------------------------------------------------------
 
 		/***************************************
-		 * @see AbstractInvertibleFunction#AbstractInvertibleFunction(String)
+		 * Creates a new instance.
 		 */
 		ClassToStringConversion()
 		{

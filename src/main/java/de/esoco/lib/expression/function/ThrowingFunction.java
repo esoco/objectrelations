@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,12 +30,29 @@ import de.esoco.lib.expression.FunctionException;
 @FunctionalInterface
 public interface ThrowingFunction<I, O> extends Function<I, O>
 {
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Factory method that allows to declare a throwing function from a lambda
+	 * expression that is mapped to a regular function. Otherwise an anonymous
+	 * inner class expression would be needed because of the similar signatures
+	 * of throwing and non-throwing functions.
+	 *
+	 * @param  fThrowing The throwing function expression
+	 *
+	 * @return The resulting function
+	 */
+	public static <I, O> Function<I, O> of(ThrowingFunction<I, O> fThrowing)
+	{
+		return fThrowing;
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
 	 * Overridden to forward the invocation to the actual function
-	 * implementation in {@link #tryApply(Object)} and to convert
-	 * occurring exceptions into {@link FunctionException}.
+	 * implementation in {@link #tryApply(Object)} and to convert occurring
+	 * exceptions into {@link FunctionException}.
 	 *
 	 * @see Function#evaluate(Object)
 	 */

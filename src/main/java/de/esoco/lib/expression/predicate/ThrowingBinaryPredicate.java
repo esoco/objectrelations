@@ -14,36 +14,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-package de.esoco.lib.expression.function;
+package de.esoco.lib.expression.predicate;
 
+import de.esoco.lib.expression.BinaryPredicate;
 import de.esoco.lib.expression.FunctionException;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-
 /********************************************************************
- * A {@link Supplier} extension that maps any occurring exception to a runtime
+ * A sub-interface that allows implementations to throw checked exceptions. If
+ * an exception occurs it will be converted into a runtime exception of the type
  * {@link FunctionException}.
  *
  * @author eso
  */
 @FunctionalInterface
-public interface ThrowingConsumer<T> extends Consumer<T>
+public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R>
 {
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Factory method that allows to declare a throwing consumer from a lambda
-	 * expression that is mapped to a regular consumer. Otherwise an anonymous
+	 * Factory method that allows to declare a throwing predicate from a lambda
+	 * expression that is mapped to a regular predicate. Otherwise an anonymous
 	 * inner class expression would be needed because of the similar signatures
-	 * of throwing and non-throwing consumers.
+	 * of throwing and non-throwing predicate.
 	 *
-	 * @param  fThrowing The throwing consumer expression
+	 * @param  fThrowing The throwing predicate expression
 	 *
-	 * @return The resulting function
+	 * @return The resulting predicate
 	 */
-	public static <T> Consumer<T> of(ThrowingConsumer<T> fThrowing)
+	public static <L, R> BinaryPredicate<L, R> of(
+		ThrowingBinaryPredicate<L, R> fThrowing)
 	{
 		return fThrowing;
 	}
@@ -51,39 +50,36 @@ public interface ThrowingConsumer<T> extends Consumer<T>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Overridden to forward the invocation to the actual function
-	 * implementation in {@link #tryAccept(Object)} and to convert occurring
-	 * exceptions into {@link FunctionException}.
+	 * Overridden to forward the invocation to the actual implementation in
+	 * {@link #tryTest(Object, Object)} and to convert occurring exceptions into
+	 * {@link FunctionException}.
 	 *
-	 * @see Consumer#accept(Object)
+	 * @see BinaryPredicate#evaluate(Object, Object)
 	 */
 	@Override
-	default public void accept(T rValue)
+	default public Boolean evaluate(L rLeft, R rRight)
 	{
 		try
 		{
-			tryAccept(rValue);
+			return tryTest(rLeft, rRight);
 		}
 		catch (Throwable e)
 		{
-			if (e instanceof RuntimeException)
-			{
-				throw (RuntimeException) e;
-			}
-			else
-			{
-				throw new FunctionException(this, e);
-			}
+			throw (e instanceof RuntimeException)
+				  ? (RuntimeException) e : new FunctionException(this, e);
 		}
 	}
 
 	/***************************************
-	 * Replaces {@link #accept(Object)} and allows implementations to throw any
-	 * kind of exception.
+	 * Replaces {@link #evaluate(Object)} and allows implementations to throw an
+	 * exception.
 	 *
-	 * @param  rValue The value to consume
+	 * @param  rLeft  The first argument
+	 * @param  rRight The second argument
 	 *
-	 * @throws Throwable If the invocation fails
+	 * @return The function result
+	 *
+	 * @throws Throwable On errors
 	 */
-	public void tryAccept(T rValue) throws Throwable;
+	public Boolean tryTest(L rLeft, R rRight) throws Throwable;
 }

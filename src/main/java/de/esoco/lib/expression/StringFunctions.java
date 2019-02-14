@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,19 +17,13 @@
 package de.esoco.lib.expression;
 
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
-import de.esoco.lib.expression.function.AbstractFunction;
-import de.esoco.lib.expression.function.AbstractInvertibleFunction;
-import de.esoco.lib.expression.function.ExceptionMappingBinaryFunction;
-import de.esoco.lib.expression.function.ExceptionMappingFunction;
 import de.esoco.lib.expression.function.GetSubstring;
-import de.esoco.lib.expression.predicate.AbstractPredicate;
+import de.esoco.lib.expression.monad.Try;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
 import de.esoco.lib.text.TextUtil;
 
 import java.net.IDN;
-
-import java.nio.charset.Charset;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,144 +44,31 @@ public class StringFunctions
 {
 	//~ Static fields/initializers ---------------------------------------------
 
-	private static final Function<CharSequence, Integer> STRING_LENGTH =
-		new AbstractFunction<CharSequence, Integer>("StringLength")
-		{
-			@Override
-			@SuppressWarnings("boxing")
-			public Integer evaluate(CharSequence sValue)
-			{
-				return sValue.length();
-			}
-		};
-
-	private static final Function<String, String> TRIM =
-		new AbstractFunction<String, String>("Trim")
-		{
-			@Override
-			public String evaluate(String sValue)
-			{
-				return sValue.trim();
-			}
-		};
-
 	private static final Function<String, String> TO_LOWER_CASE =
-		new AbstractFunction<String, String>("ToLowerCase")
-		{
-			@Override
-			public String evaluate(String sValue)
-			{
-				return sValue.toLowerCase();
-			}
-		};
+		s -> s.toLowerCase();
 
 	private static final Function<String, String> TO_UPPER_CASE =
-		new AbstractFunction<String, String>("ToUpperCase")
-		{
-			@Override
-			public String evaluate(String sValue)
-			{
-				return sValue.toUpperCase();
-			}
-		};
+		s -> s.toUpperCase();
 
 	private static final InvertibleFunction<String, byte[]> TO_BYTE_ARRAY =
-		new AbstractInvertibleFunction<String, byte[]>("ToByteArray")
-		{
-			@Override
-			public byte[] evaluate(String sValue)
-			{
-				return sValue != null ? sValue.getBytes() : null;
-			}
-
-			@Override
-			public String invert(byte[] rValue)
-			{
-				return rValue != null ? new String(rValue) : null;
-			}
-		};
-
-	private static final Function<String, String> CAPITALIZED_IDENTIFIER =
-		new AbstractFunction<String, String>("CapitalizedIdentifier")
-		{
-			@Override
-			public String evaluate(String sValue)
-			{
-				return TextUtil.capitalizedIdentifier(sValue);
-			}
-		};
-
-	private static final Function<String, String> UPPERCASE_IDENTIFIER =
-		new AbstractFunction<String, String>("UppercaseIdentifier")
-		{
-			@Override
-			public String evaluate(String sValue)
-			{
-				return TextUtil.uppercaseIdentifier(sValue);
-			}
-		};
+		InvertibleFunction.of(
+			s -> s != null ? s.getBytes() : null,
+			b -> b != null ? new String(b) : null);
 
 	private static final Predicate<CharSequence> IS_EMPTY =
-		new AbstractPredicate<CharSequence>("StringIsEmpty")
-		{
-			@Override
-			@SuppressWarnings("boxing")
-			public Boolean evaluate(CharSequence rValue)
-			{
-				return rValue == null || rValue.length() == 0;
-			}
-		};
+		s -> s == null || s.length() == 0;
 
-	private static final Predicate<CharSequence> IS_NOT_EMPTY =
-		new AbstractPredicate<CharSequence>("StringIsNotEmpty")
-		{
-			@Override
-			@SuppressWarnings("boxing")
-			public Boolean evaluate(CharSequence rValue)
-			{
-				return rValue != null && rValue.length() > 0;
-			}
-		};
+	private static final Predicate<CharSequence> NOT_EMPTY =
+		s -> s != null && s.length() > 0;
 
 	private static final Predicate<String> IS_VALID_IDN_UNICODE =
-		new AbstractPredicate<String>("IsValidIdnUnicode")
-		{
-			@Override
-			@SuppressWarnings("boxing")
-			public Boolean evaluate(String sIDN)
-			{
-				try
-				{
-					IDN.toASCII(sIDN);
-
-					return true;
-				}
-				catch (Exception e)
-				{
-					return false;
-				}
-			}
-		};
+		s -> Try.now(() -> IDN.toASCII(s) != null).orUse(false);
 
 	private static final Function<String, String> IDN_UNICODE_TO_ASCII =
-		new AbstractFunction<String, String>("IdnUnicodeToAscii")
-		{
-			@Override
-			public String evaluate(String sValue)
-			{
-				return IDN.toASCII(sValue);
-			}
-		};
+		s -> IDN.toASCII(s);
 
 	private static final Function<String, String> IDN_ASCII_TO_UNICODE =
-		new AbstractFunction<String, String>("IdnAsciiToUnicode")
-		{
-			@Override
-			public String evaluate(String sValue)
-			{
-				return IDN.toUnicode(sValue);
-			}
-		};
+		s -> IDN.toUnicode(s);
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -212,8 +93,9 @@ public class StringFunctions
 	public static BinaryFunction<String, String, String> capitalize(
 		String sSeparator)
 	{
-		return new AbstractBinaryFunction<String, String, String>(sSeparator,
-																  "Capitalize")
+		return new AbstractBinaryFunction<String, String, String>(
+			sSeparator,
+			"Capitalize")
 		{
 			@Override
 			public String evaluate(String sText, String sSeparator)
@@ -232,69 +114,7 @@ public class StringFunctions
 	 */
 	public static Function<String, String> capitalizedIdentifier()
 	{
-		return CAPITALIZED_IDENTIFIER;
-	}
-
-	/***************************************
-	 * Returns a predicate that checks whether a string contains another string.
-	 *
-	 * @param  sString The string to check
-	 *
-	 * @return A new predicate
-	 */
-	public static Predicate<String> contains(final String sString)
-	{
-		return new AbstractPredicate<String>("Contains")
-		{
-			@Override
-			@SuppressWarnings("boxing")
-			public Boolean evaluate(String sValue)
-			{
-				return sValue.contains(sString);
-			}
-		};
-	}
-
-	/***************************************
-	 * Returns a new function that converts a byte array into a string with the
-	 * default character set.
-	 *
-	 * @return A new function instance
-	 */
-	public static Function<byte[], String> createString()
-	{
-		return new ExceptionMappingFunction<byte[], String>("createString")
-		{
-			@Override
-			public String tryApply(byte[] rBytes) throws Exception
-			{
-				return new String(rBytes);
-			}
-		};
-	}
-
-	/***************************************
-	 * Returns a new binary function that converts a byte array into a string
-	 * with a certain character set.
-	 *
-	 * @param  rCharset The character set to apply for the encoding
-	 *
-	 * @return A new binary function instance
-	 */
-	public static BinaryFunction<byte[], Charset, String> createString(
-		Charset rCharset)
-	{
-		return new ExceptionMappingBinaryFunction<byte[], Charset, String>(rCharset,
-																		   "createString")
-		{
-			@Override
-			public String evaluateWithException(byte[]  rBytes,
-												Charset rCharset)
-				throws Exception
-			{
-				return new String(rBytes, rCharset);
-			}
-		};
+		return TextUtil::capitalizedIdentifier;
 	}
 
 	/***************************************
@@ -307,8 +127,9 @@ public class StringFunctions
 	 */
 	public static BinaryFunction<String, String, String> find(String sRegex)
 	{
-		return new AbstractBinaryFunction<String, String, String>(sRegex,
-																  "Find")
+		return new AbstractBinaryFunction<String, String, String>(
+			sRegex,
+			"Find")
 		{
 			@Override
 			public String evaluate(String sInput, String sRegex)
@@ -330,8 +151,9 @@ public class StringFunctions
 	 */
 	public static <T> BinaryFunction<T, String, String> format(String sPattern)
 	{
-		return new AbstractBinaryFunction<T, String, String>(sPattern,
-															 "StringFormat")
+		return new AbstractBinaryFunction<T, String, String>(
+			sPattern,
+			"StringFormat")
 		{
 			@Override
 			public String evaluate(T rValue, String sPattern)
@@ -409,7 +231,7 @@ public class StringFunctions
 	 */
 	public static Predicate<CharSequence> notEmpty()
 	{
-		return IS_NOT_EMPTY;
+		return NOT_EMPTY;
 	}
 
 	/***************************************
@@ -424,8 +246,9 @@ public class StringFunctions
 	public static BinaryFunction<String, String, String[]> split(
 		String sPattern)
 	{
-		return new AbstractBinaryFunction<String, String, String[]>(sPattern,
-																	"StringSplit")
+		return new AbstractBinaryFunction<String, String, String[]>(
+			sPattern,
+			"StringSplit")
 		{
 			@Override
 			public String[] evaluate(String sValue, String sPattern)
@@ -433,17 +256,6 @@ public class StringFunctions
 				return sValue.split(sPattern);
 			}
 		};
-	}
-
-	/***************************************
-	 * Returns a function constant that queries the length of strings or other
-	 * character sequence.
-	 *
-	 * @return A function constant
-	 */
-	public static Function<CharSequence, Integer> stringLength()
-	{
-		return STRING_LENGTH;
 	}
 
 	/***************************************
@@ -489,13 +301,14 @@ public class StringFunctions
 	 * @return A new binary function instance
 	 */
 	public static <C extends Collection<String>> BinaryFunction<String,
-																String, C> toCollection(
-		final Class<C> rCollectionClass,
-		String		   sSplitPattern,
-		final boolean  bTrim)
+																String, C>
+	toCollection(final Class<C> rCollectionClass,
+				 String			sSplitPattern,
+				 final boolean  bTrim)
 	{
-		return new AbstractBinaryFunction<String, String, C>(sSplitPattern,
-															 "StringSplit")
+		return new AbstractBinaryFunction<String, String, C>(
+			sSplitPattern,
+			"StringSplit")
 		{
 			@Override
 			public C evaluate(String sValue, String sPattern)
@@ -531,15 +344,15 @@ public class StringFunctions
 	@SuppressWarnings({ "unchecked" })
 	public static <C extends Collection<String>> BinaryFunction<String,
 																String,
-																List<String>> toList(
-		String  sSplitPattern,
-		boolean bTrim)
+																List<String>>
+	toList(String sSplitPattern, boolean bTrim)
 	{
 		Class<C> rListClass = (Class<C>) (Class<?>) ArrayList.class;
 
-		return (BinaryFunction<String, String, List<String>>) toCollection(rListClass,
-																		   sSplitPattern,
-																		   bTrim);
+		return (BinaryFunction<String, String, List<String>>) toCollection(
+			rListClass,
+			sSplitPattern,
+			bTrim);
 	}
 
 	/***************************************
@@ -586,17 +399,16 @@ public class StringFunctions
 	@SuppressWarnings("unchecked")
 	public static <C extends Collection<String>> BinaryFunction<String,
 																String,
-																Set<String>> toSet(
-		String  sSplitPattern,
-		boolean bTrim,
-		boolean bOrdered)
+																Set<String>>
+	toSet(String sSplitPattern, boolean bTrim, boolean bOrdered)
 	{
 		Class<C> rSetClass =
 			(Class<C>) (bOrdered ? LinkedHashSet.class : HashSet.class);
 
-		return (BinaryFunction<String, String, Set<String>>) toCollection(rSetClass,
-																		  sSplitPattern,
-																		  bTrim);
+		return (BinaryFunction<String, String, Set<String>>) toCollection(
+			rSetClass,
+			sSplitPattern,
+			bTrim);
 	}
 
 	/***************************************
@@ -631,17 +443,6 @@ public class StringFunctions
 	}
 
 	/***************************************
-	 * Returns a function constant that removes leading and trailing whitespace
-	 * from a string. See the method {@link String#trim()} for details.
-	 *
-	 * @return A function constant
-	 */
-	public static Function<String, String> trim()
-	{
-		return TRIM;
-	}
-
-	/***************************************
 	 * Returns a function constant that converts a string to an uppercase
 	 * identifier. See method {@link TextConvert#uppercaseIdentifier(String)}
 	 * for details.
@@ -650,6 +451,6 @@ public class StringFunctions
 	 */
 	public static Function<String, String> uppercaseIdentifier()
 	{
-		return UPPERCASE_IDENTIFIER;
+		return TextConvert::uppercaseIdentifier;
 	}
 }

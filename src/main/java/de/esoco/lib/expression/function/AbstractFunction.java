@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import de.esoco.lib.expression.Functions;
 
 import java.util.Objects;
 
-import org.obrel.core.RelatedObject;
-
 
 /********************************************************************
  * A base class for implementations of the Function interface. It contains an
@@ -31,22 +29,13 @@ import org.obrel.core.RelatedObject;
  *
  * @author eso
  */
-public abstract class AbstractFunction<I, O> extends RelatedObject
-	implements Function<I, O>
+public abstract class AbstractFunction<I, O> implements Function<I, O>
 {
 	//~ Instance fields --------------------------------------------------------
 
 	private String sToken;
 
 	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
-	 * Creates a new instance that uses the class name as the token.
-	 */
-	public AbstractFunction()
-	{
-		this(null);
-	}
 
 	/***************************************
 	 * Creates a new instance.
@@ -94,8 +83,7 @@ public abstract class AbstractFunction<I, O> extends RelatedObject
 
 		AbstractFunction<?, ?> rOther = (AbstractFunction<?, ?>) rObject;
 
-		return Objects.equals(getToken(), getToken()) && paramsEqual(rOther) &&
-			   relationsEqual(rOther);
+		return Objects.equals(getToken(), getToken()) && paramsEqual(rOther);
 	}
 
 	/***************************************
@@ -126,12 +114,8 @@ public abstract class AbstractFunction<I, O> extends RelatedObject
 	@Override
 	public int hashCode()
 	{
-		int nHashCode = getToken().hashCode();
 
-		nHashCode = 31 * nHashCode + paramsHashCode();
-		nHashCode = 31 * nHashCode + relationsHashCode();
-
-		return nHashCode;
+		return 31 * (getToken().hashCode() + 31 + paramsHashCode());
 	}
 
 	/***************************************

@@ -19,6 +19,7 @@ package de.esoco.lib.json;
 import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.datatype.Pair;
 import de.esoco.lib.expression.monad.Option;
+import de.esoco.lib.expression.monad.Try;
 
 import java.math.BigDecimal;
 
@@ -142,8 +143,8 @@ public class JsonObject extends RelatedObject
 
 	/***************************************
 	 * Returns an {@link Option} containing a property value cast to a certain
-	 * datatype. If the property value cannot be cast to the generic datatype a
-	 * {@link ClassCastException} will be thrown.
+	 * datatype. If the property value cannot be cast to the given datatype
+	 * {@link Option#none()} will be returned.
 	 *
 	 * @param  sName     The property name
 	 * @param  rDatatype The datatype to cast to
@@ -154,20 +155,24 @@ public class JsonObject extends RelatedObject
 	 */
 	public <T> Option<T> get(String sName, Class<? extends T> rDatatype)
 	{
-		return getProperty(sName).map(v -> rDatatype.cast(v));
+		return getProperty(sName).map(
+			v -> Try.now(() -> rDatatype.cast(v)).orUse(null));
 	}
 
 	/***************************************
-	 * Returns an Option containing the value of a child object property if it
-	 * exists.
+	 * Returns an {@link Option} containing an array property as a list of
+	 * values. If the property doesn't exist or isn't an array an empty option
+	 * will be returned.
 	 *
 	 * @param  sName The property name
 	 *
 	 * @return The JSON object option
 	 */
+	@SuppressWarnings("unchecked")
 	public Option<List<Object>> getArray(String sName)
 	{
-		return get(sName, List.class);
+		return getProperty(sName).map(
+			v -> Try.now(() -> (List<Object>) v).orUse(null));
 	}
 
 	/***************************************
@@ -221,8 +226,9 @@ public class JsonObject extends RelatedObject
 	}
 
 	/***************************************
-	 * Returns an Option containing the value of a {@link Number} property if it
-	 * exists.
+	 * Returns an {@link Option} containing the value of a {@link Number}
+	 * property. If the property doesn't exist or has a different datatype an
+	 * empty option will be returned.
 	 *
 	 * @param  sName The property name
 	 *
@@ -234,8 +240,9 @@ public class JsonObject extends RelatedObject
 	}
 
 	/***************************************
-	 * Returns an Option containing the value of a child object property if it
-	 * exists.
+	 * Returns an {@link Option} containing the value of a {@link JsonObject}
+	 * property. If the property doesn't exist or has a different datatype an
+	 * empty option will be returned.
 	 *
 	 * @param  sName The property name
 	 *
@@ -291,7 +298,9 @@ public class JsonObject extends RelatedObject
 	}
 
 	/***************************************
-	 * Returns an Option containing the value of a string property if it exists.
+	 * Returns an {@link Option} containing the value of a string property. If
+	 * the property doesn't exist or has a different datatype an empty option
+	 * will be returned.
 	 *
 	 * @param  sName The property name
 	 *

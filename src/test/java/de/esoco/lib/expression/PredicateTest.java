@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import junit.framework.TestCase;
 import static de.esoco.lib.expression.Predicates.equalTo;
 import static de.esoco.lib.expression.Predicates.greaterOrEqual;
 import static de.esoco.lib.expression.Predicates.greaterThan;
-import static de.esoco.lib.expression.Predicates.hasBaseClass;
-import static de.esoco.lib.expression.Predicates.hasClass;
 import static de.esoco.lib.expression.Predicates.ifField;
 import static de.esoco.lib.expression.Predicates.lessOrEqual;
 import static de.esoco.lib.expression.Predicates.lessThan;
@@ -109,11 +107,8 @@ public class PredicateTest extends TestCase
 	 */
 	public void testReflection()
 	{
-		assertTrue(hasClass(PredicateTest.class).evaluate(this));
-		assertTrue(hasBaseClass(Object.class).evaluate(this));
-		assertFalse(hasClass(Object.class).evaluate(this));
-
 		assertTrue(ifField("nReflectionTestField", equalTo(42)).evaluate(this));
-		assertFalse(ifField("nReflectionTestField", lessThan(20)).evaluate(this));
+		assertFalse(
+			ifField("nReflectionTestField", lessThan(20)).evaluate(this));
 	}
 }

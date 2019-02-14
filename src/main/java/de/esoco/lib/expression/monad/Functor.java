@@ -40,7 +40,7 @@ public interface Functor<T>
 	 * monadic function like {@link #map(Function)}, {@link #flatMap(Function)},
 	 * and especially {@link #then(Consumer)} to handle a failure case.
 	 *
-	 * @param fHandler The consumer of the the error that occurred
+	 * @param  fHandler The consumer of the the error that occurred
 	 */
 	public abstract void orElse(Consumer<Throwable> fHandler);
 

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,8 +34,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.obrel.type.ListenerTypes;
-
-import static org.obrel.type.MetaTypes.IMMUTABLE;
 
 
 /********************************************************************
@@ -103,12 +101,7 @@ public class RelatedObject implements Relatable
 			{
 				rRelation = rType.newRelation(this, rInitialValue);
 
-				if (hasFlag(IMMUTABLE))
-				{
-					rRelation.immutable();
-				}
-
-				addRelation(rRelation, false);
+				addRelation(rRelation, true);
 			}
 		}
 

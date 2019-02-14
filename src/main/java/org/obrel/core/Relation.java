@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -310,58 +310,6 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	}
 
 	/***************************************
-	 * Sets this relation to be immutable and tries to apply the immutable state
-	 * recursively to the relation's target object. For this it checks whether
-	 * the target either implements the {@link Immutability} interface or, if it
-	 * is a {@link Relatable} object, sets the {@link MetaTypes#IMMUTABLE} flag.
-	 * Else if the target is a collection or a map it will be wrapped in a
-	 * corresponding unmodifiable instance.
-	 */
-	@SuppressWarnings("unchecked")
-	public void immutable()
-	{
-		Class<?> rTargetType = rType.getTargetType();
-		Object   rTarget     = getTarget();
-
-		if (rTarget instanceof Immutability)
-		{
-			((Immutability) rTarget).setImmutable();
-		}
-		else if (rTarget instanceof Relatable)
-		{
-			Relatable rRelatableTarget = (Relatable) rTarget;
-
-			if (!rRelatableTarget.hasRelation(IMMUTABLE))
-			{
-				rRelatableTarget.set(IMMUTABLE);
-			}
-		}
-		else if (rTargetType == List.class)
-		{
-			setTarget((T) Collections.unmodifiableList((List<?>) rTarget));
-		}
-		else if (rTargetType == Set.class)
-		{
-			setTarget((T) Collections.unmodifiableSet((Set<?>) rTarget));
-		}
-		else if (rTargetType == Collection.class)
-		{
-			setTarget(
-				(T) Collections.unmodifiableCollection(
-					(Collection<?>) rTarget));
-		}
-		else if (rTargetType == Map.class)
-		{
-			setTarget((T) Collections.unmodifiableMap((Map<?, ?>) rTarget));
-		}
-
-		if (!hasFlag(IMMUTABLE))
-		{
-			set(IMMUTABLE);
-		}
-	}
-
-	/***************************************
 	 * Adds an event listener for changes of this relation's target. Other than
 	 * with {@link #onUpdate(Consumer)} change listeners are only notified if
 	 * the target value has changed according to it's equals() method. This
@@ -421,6 +369,58 @@ public abstract class Relation<T> extends SerializableRelatedObject
 		addUpdateListener(aHandler);
 
 		return aHandler;
+	}
+
+	/***************************************
+	 * Sets this relation to be immutable and tries to apply the immutable state
+	 * recursively to the relation's target object. For this it checks whether
+	 * the target either implements the {@link Immutability} interface or, if it
+	 * is a {@link Relatable} object, sets the {@link MetaTypes#IMMUTABLE} flag.
+	 * Else if the target is a collection or a map it will be wrapped in a
+	 * corresponding unmodifiable instance.
+	 */
+	@SuppressWarnings("unchecked")
+	public void setImmutable()
+	{
+		Class<?> rTargetType = rType.getTargetType();
+		Object   rTarget     = getTarget();
+
+		if (rTarget instanceof Immutability)
+		{
+			((Immutability) rTarget).setImmutable();
+		}
+		else if (rTarget instanceof Relatable)
+		{
+			Relatable rRelatableTarget = (Relatable) rTarget;
+
+			if (!rRelatableTarget.hasRelation(IMMUTABLE))
+			{
+				rRelatableTarget.set(IMMUTABLE);
+			}
+		}
+		else if (rTargetType == List.class)
+		{
+			setTarget((T) Collections.unmodifiableList((List<?>) rTarget));
+		}
+		else if (rTargetType == Set.class)
+		{
+			setTarget((T) Collections.unmodifiableSet((Set<?>) rTarget));
+		}
+		else if (rTargetType == Collection.class)
+		{
+			setTarget(
+				(T) Collections.unmodifiableCollection(
+					(Collection<?>) rTarget));
+		}
+		else if (rTargetType == Map.class)
+		{
+			setTarget((T) Collections.unmodifiableMap((Map<?, ?>) rTarget));
+		}
+
+		if (!hasFlag(IMMUTABLE))
+		{
+			set(IMMUTABLE);
+		}
 	}
 
 	/***************************************
@@ -581,11 +581,13 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 */
 	final void updateTarget(T rNewTarget)
 	{
+		// prevent changing of an immutable relation; although lookup is less
+		// efficient the IMMUTABLE flag is used to prevent storing a boolean
+		// in each relation instance
 		if (hasFlag(IMMUTABLE))
 		{
 			throw new UnsupportedOperationException(
-				"Relation is immutable: " +
-				rType);
+				"Relation is immutable: " + rType);
 		}
 
 		if (!rType.isValidTarget(rNewTarget))

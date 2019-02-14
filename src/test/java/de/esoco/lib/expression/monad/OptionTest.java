@@ -256,6 +256,6 @@ public class OptionTest
 	public void testToString()
 	{
 		assertEquals("TEST", Option.of("TEST").toString());
-		assertEquals("none", Option.none().toString());
+		assertEquals("[none]", Option.none().toString());
 	}
 }

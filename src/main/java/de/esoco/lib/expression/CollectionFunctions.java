@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@
 package de.esoco.lib.expression;
 
 import de.esoco.lib.collection.CollectionUtil;
-import de.esoco.lib.expression.function.AbstractAction;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.AbstractFunction;
-import de.esoco.lib.expression.function.AbstractInvertibleFunction;
 import de.esoco.lib.expression.function.GetElement.GetListElement;
 import de.esoco.lib.expression.function.GetElement.GetMapValue;
 import de.esoco.lib.reflect.ReflectUtil;
@@ -40,73 +38,6 @@ import java.util.Map;
  */
 public class CollectionFunctions
 {
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final Function<?, ?> AS_LIST =
-		new AbstractInvertibleFunction<Object[], List<Object>>("AsList")
-		{
-			@Override
-			public List<Object> evaluate(Object[] rArray)
-			{
-				return Arrays.asList(rArray);
-			}
-
-			@Override
-			public Object[] invert(List<Object> rList)
-			{
-				return rList.toArray();
-			}
-		};
-
-	private static final Function<?, ?> NEW_LIST =
-		new AbstractFunction<List<Object>, List<Object>>("NewList")
-		{
-			@Override
-			public List<Object> evaluate(List<Object> rList)
-			{
-				return new ArrayList<Object>(rList);
-			}
-		};
-
-	private static final Function<?, ?> COPY_OF_COLLECTION =
-		new AbstractFunction<Collection<Object>, Collection<Object>>("CopyOfCollection")
-		{
-			@Override
-			public Collection<Object> evaluate(Collection<Object> rInput)
-			{
-				@SuppressWarnings("unchecked")
-				Collection<Object> aOutput =
-					ReflectUtil.newInstance(rInput.getClass());
-
-				aOutput.addAll(rInput);
-
-				return aOutput;
-			}
-		};
-
-	private static final Function<Collection<?>, Integer> COLLECTION_SIZE =
-		new AbstractFunction<Collection<?>, Integer>("CollectionSize")
-		{
-			@Override
-			@SuppressWarnings("boxing")
-			public Integer evaluate(Collection<?> rCollection)
-			{
-				return rCollection.size();
-			}
-		};
-
-	private static final Function<Collection<?>, Object> CLEAR_COLLECTION =
-		new AbstractFunction<Collection<?>, Object>("ClearCollection")
-		{
-			@Override
-			public Object evaluate(Collection<?> rCollection)
-			{
-				rCollection.clear();
-
-				return null;
-			}
-		};
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -129,8 +60,9 @@ public class CollectionFunctions
 																	  Boolean>
 	add(T rValue)
 	{
-		return new AbstractBinaryFunction<C, T, Boolean>(rValue,
-														 "AddToCollection")
+		return new AbstractBinaryFunction<C, T, Boolean>(
+			rValue,
+			"AddToCollection")
 		{
 			@Override
 			@SuppressWarnings("boxing")
@@ -152,19 +84,9 @@ public class CollectionFunctions
 	@SuppressWarnings("unchecked")
 	public static <T> InvertibleFunction<T[], List<T>> asList()
 	{
-		return (InvertibleFunction<T[], List<T>>) AS_LIST;
-	}
-
-	/***************************************
-	 * Returns a function that clears a collection.
-	 *
-	 * @return A function instance
-	 */
-	@SuppressWarnings("unchecked")
-	public static <C extends Collection<?>> Function<C, Object>
-	clearCollection()
-	{
-		return (Function<C, Object>) CLEAR_COLLECTION;
+		return InvertibleFunction.of(
+			a -> Arrays.asList(a),
+			l -> (T[]) l.toArray());
 	}
 
 	/***************************************
@@ -179,8 +101,9 @@ public class CollectionFunctions
 	public static <T, C extends Collection<T>> BinaryFunction<C, Predicate<? super T>, C>
 	collect(Predicate<? super T> pCollect)
 	{
-		return new AbstractBinaryFunction<C, Predicate<? super T>, C>(pCollect,
-																	  "Collect")
+		return new AbstractBinaryFunction<C, Predicate<? super T>, C>(
+			pCollect,
+			"Collect")
 		{
 			@Override
 			@SuppressWarnings("boxing")
@@ -213,14 +136,7 @@ public class CollectionFunctions
 	public static <E, T extends Collection<E>, C extends Collection<E>> Action<C>
 	collectAllInto(final T rTargetCollection)
 	{
-		return new AbstractAction<C>("CollectAllInto")
-		{
-			@Override
-			public void execute(C rCollection)
-			{
-				rTargetCollection.addAll(rCollection);
-			}
-		};
+		return c -> rTargetCollection.addAll(c);
 	}
 
 	/***************************************
@@ -234,14 +150,7 @@ public class CollectionFunctions
 	public static <T, C extends Collection<T>> Action<T> collectInto(
 		final C rCollection)
 	{
-		return new AbstractAction<T>("CollectInto")
-		{
-			@Override
-			public void execute(T rValue)
-			{
-				rCollection.add(rValue);
-			}
-		};
+		return v -> rCollection.add(v);
 	}
 
 	/***************************************
@@ -253,7 +162,7 @@ public class CollectionFunctions
 	public static <C extends Collection<?>> Function<C, Integer>
 	collectionSize()
 	{
-		return (Function<C, Integer>) COLLECTION_SIZE;
+		return c -> c.size();
 	}
 
 	/***************************************
@@ -266,7 +175,14 @@ public class CollectionFunctions
 	@SuppressWarnings("unchecked")
 	public static <T, C extends Collection<T>> Function<C, C> copyOfCollection()
 	{
-		return (Function<C, C>) COPY_OF_COLLECTION;
+		return rInput ->
+	   		{
+	   			C aOutput = (C) ReflectUtil.newInstance(rInput.getClass());
+
+	   			aOutput.addAll(rInput);
+
+	   			return aOutput;
+			   };
 	}
 
 	/***************************************
@@ -326,8 +242,9 @@ public class CollectionFunctions
 	createMap(Function<? super V, K> fKey)
 	{
 		return new AbstractBinaryFunction<Collection<V>,
-										  Function<? super V, K>, Map<K, V>>(fKey,
-																			 "CreateMap")
+										  Function<? super V, K>, Map<K, V>>(
+			fKey,
+			"CreateMap")
 		{
 			@Override
 			public Map<K, V> evaluate(
@@ -392,8 +309,8 @@ public class CollectionFunctions
 				{
 					Object rValue = rFunction.evaluate(rInput);
 
-					aResult.add(rValue != null ? rValue.toString()
-											   : sNullValue);
+					aResult.add(
+						rValue != null ? rValue.toString() : sNullValue);
 				}
 
 				return aResult;
@@ -416,8 +333,9 @@ public class CollectionFunctions
 	public static <T> BinaryFunction<List<T>, Integer, T> extractListElement(
 		int nIndex)
 	{
-		return new AbstractBinaryFunction<List<T>, Integer, T>(nIndex,
-															   "ExtractListElement")
+		return new AbstractBinaryFunction<List<T>, Integer, T>(
+			nIndex,
+			"ExtractListElement")
 		{
 			@Override
 			public T evaluate(List<T> rList, Integer rIndex)
@@ -440,8 +358,9 @@ public class CollectionFunctions
 	 */
 	public static <K, V> BinaryFunction<Map<K, V>, K, V> extractMapValue(K rKey)
 	{
-		return new AbstractBinaryFunction<Map<K, V>, K, V>(rKey,
-														   "ExtractMapValue")
+		return new AbstractBinaryFunction<Map<K, V>, K, V>(
+			rKey,
+			"ExtractMapValue")
 		{
 			@Override
 			public V evaluate(Map<K, V> rMap, K rKey)
@@ -464,8 +383,9 @@ public class CollectionFunctions
 	public static <T, C extends Collection<T>> BinaryFunction<C, Predicate<? super T>, T>
 	find(Predicate<? super T> rPredicate)
 	{
-		return new AbstractBinaryFunction<C, Predicate<? super T>, T>(rPredicate,
-																	  "Find")
+		return new AbstractBinaryFunction<C, Predicate<? super T>, T>(
+			rPredicate,
+			"Find")
 		{
 			@Override
 			@SuppressWarnings("boxing")
@@ -498,8 +418,9 @@ public class CollectionFunctions
 																		  ?>, C>
 	forEach(Function<T, ?> rFunction)
 	{
-		return new AbstractBinaryFunction<C, Function<? super T, ?>, C>(rFunction,
-																		"ForEach")
+		return new AbstractBinaryFunction<C, Function<? super T, ?>, C>(
+			rFunction,
+			"ForEach")
 		{
 			@Override
 			public C evaluate(C rCollection, Function<? super T, ?> rFunction)
@@ -617,8 +538,9 @@ public class CollectionFunctions
 	public static <T> BinaryFunction<List<? super T>, T, Integer> indexOf(
 		T rElement)
 	{
-		return new AbstractBinaryFunction<List<? super T>, T, Integer>(rElement,
-																	   "IndexOf")
+		return new AbstractBinaryFunction<List<? super T>, T, Integer>(
+			rElement,
+			"IndexOf")
 		{
 			@Override
 			public Integer evaluate(List<? super T> rList, T rElement)
@@ -650,7 +572,8 @@ public class CollectionFunctions
 			{
 				@SuppressWarnings("unchecked")
 				Collection<O> aResult =
-					(Collection<O>) CollectionUtil.newCollectionLike(rInputCollection);
+					(Collection<O>) CollectionUtil.newCollectionLike(
+						rInputCollection);
 
 				for (I rValue : rInputCollection)
 				{
@@ -671,7 +594,7 @@ public class CollectionFunctions
 	@SuppressWarnings("unchecked")
 	public static <T> Function<List<T>, List<T>> newList()
 	{
-		return (Function<List<T>, List<T>>) NEW_LIST;
+		return rList -> new ArrayList<T>(rList);
 	}
 
 	/***************************************
@@ -685,8 +608,9 @@ public class CollectionFunctions
 	public static <T, C extends Collection<T>> BinaryFunction<C, BinaryFunction<T, T, T>, T>
 	reduce(BinaryFunction<T, T, T> fReduce)
 	{
-		return new AbstractBinaryFunction<C, BinaryFunction<T, T, T>, T>(fReduce,
-																		 "Reduce")
+		return new AbstractBinaryFunction<C, BinaryFunction<T, T, T>, T>(
+			fReduce,
+			"Reduce")
 		{
 			@Override
 			public T evaluate(C rCollection, BinaryFunction<T, T, T> rFunction)

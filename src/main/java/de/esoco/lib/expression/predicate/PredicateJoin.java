@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package de.esoco.lib.expression.predicate;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
-import de.esoco.lib.expression.function.AbstractFunction;
 
 
 /********************************************************************
@@ -30,7 +29,7 @@ import de.esoco.lib.expression.function.AbstractFunction;
  *
  * @author eso
  */
-public abstract class PredicateJoin<T> extends AbstractPredicate<T>
+public abstract class PredicateJoin<T> implements Predicate<T>
 {
 	//~ Instance fields --------------------------------------------------------
 
@@ -51,9 +50,6 @@ public abstract class PredicateJoin<T> extends AbstractPredicate<T>
 						 Predicate<? super T> rRight,
 						 String				  sJoinToken)
 	{
-		// use empty string because toString is overridden
-		super("");
-
 		if (rLeft == null || rRight == null)
 		{
 			throw new IllegalArgumentException("Predicates must not be NULL");
@@ -65,6 +61,27 @@ public abstract class PredicateJoin<T> extends AbstractPredicate<T>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object rObj)
+	{
+		if (rObj == this)
+		{
+			return true;
+		}
+
+		if (rObj == null || rObj.getClass() != getClass())
+		{
+			return false;
+		}
+
+		PredicateJoin<?> rOther = (PredicateJoin<?>) rObj;
+
+		return rLeft.equals(rOther.rLeft) && rRight.equals(rOther.rRight);
+	}
 
 	/***************************************
 	 * Implemented as final, subclasses must implement the abstract method
@@ -101,6 +118,15 @@ public abstract class PredicateJoin<T> extends AbstractPredicate<T>
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode()
+	{
+		return 31 * (rLeft.hashCode() + 31 * rRight.hashCode());
+	}
+
+	/***************************************
 	 * Returns a string representation of this join.
 	 *
 	 * @return A string representation of this join
@@ -123,25 +149,4 @@ public abstract class PredicateJoin<T> extends AbstractPredicate<T>
 	protected abstract Boolean evaluate(Predicate<? super T> rLeft,
 										Predicate<? super T> rRight,
 										T					 rValue);
-
-	/***************************************
-	 * @see AbstractFunction#paramsEqual(AbstractFunction)
-	 */
-	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther)
-	{
-		PredicateJoin<?> rOtherPredicate = (PredicateJoin<?>) rOther;
-
-		return rLeft.equals(rOtherPredicate.rLeft) &&
-			   rRight.equals(rOtherPredicate.rRight);
-	}
-
-	/***************************************
-	 * @see AbstractFunction#paramsHashCode()
-	 */
-	@Override
-	protected int paramsHashCode()
-	{
-		return 31 * rLeft.hashCode() + rRight.hashCode();
-	}
 }

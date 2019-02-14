@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-import de.esoco.lib.expression.predicate.AbstractBinaryPredicate;
-import de.esoco.lib.expression.predicate.AbstractPredicate;
 import de.esoco.lib.expression.predicate.Comparison.ElementOf;
 
 import java.util.Arrays;
@@ -33,30 +31,6 @@ import java.util.Collection;
 @SuppressWarnings("boxing")
 public class CollectionPredicates
 {
-	//~ Static fields/initializers ---------------------------------------------
-
-	/** Yields TRUE if a collection is empty. */
-	private static final Predicate<Collection<?>> IS_EMPTY =
-		new AbstractPredicate<Collection<?>>("IsEmpty")
-		{
-			@Override
-			public final Boolean evaluate(Collection<?> rCollection)
-			{
-				return rCollection.isEmpty();
-			}
-		};
-
-	/** Yields TRUE if a collection is not empty. */
-	private static final Predicate<Collection<?>> NOT_EMPTY =
-		new AbstractPredicate<Collection<?>>("IsEmpty")
-		{
-			@Override
-			public final Boolean evaluate(Collection<?> rCollection)
-			{
-				return !rCollection.isEmpty();
-			}
-		};
-
 	//~ Constructors -----------------------------------------------------------
 
 	/***************************************
@@ -67,27 +41,6 @@ public class CollectionPredicates
 	}
 
 	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
-	 * Returns a new binary predicate that evaluates to TRUE if a collection
-	 * contains a certain element.
-	 *
-	 * @param  rElement The collection element to check for
-	 *
-	 * @return A new predicate
-	 */
-	public static <T, C extends Collection<T>> BinaryPredicate<C, T> contains(
-		T rElement)
-	{
-		return new AbstractBinaryPredicate<C, T>(rElement, "Contains")
-		{
-			@Override
-			public Boolean evaluate(C rCollection, T rElement)
-			{
-				return rCollection.contains(rElement);
-			}
-		};
-	}
 
 	/***************************************
 	 * Returns a new predicate that checks if a target object is an element of
@@ -113,27 +66,5 @@ public class CollectionPredicates
 	public static <T> Predicate<T> elementOf(Object... rValues)
 	{
 		return new ElementOf<T>(Arrays.asList(rValues));
-	}
-
-	/***************************************
-	 * Returns a predicate constant that evaluates to TRUE if a collection is
-	 * empty.
-	 *
-	 * @return A predicate constant
-	 */
-	public static Predicate<Collection<?>> isEmpty()
-	{
-		return IS_EMPTY;
-	}
-
-	/***************************************
-	 * Returns a predicate constant that evaluates to TRUE if a collection is
-	 * not empty.
-	 *
-	 * @return A predicate constant
-	 */
-	public static Predicate<Collection<?>> notEmpty()
-	{
-		return NOT_EMPTY;
 	}
 }

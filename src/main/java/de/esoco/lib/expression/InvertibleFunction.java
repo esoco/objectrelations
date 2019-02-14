@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,6 +32,38 @@ package de.esoco.lib.expression;
  */
 public interface InvertibleFunction<I, O> extends Function<I, O>
 {
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * A factory method that returns an new instance for two distinct functions
+	 * that perform the evaluation and inversion, respectively. This allows to
+	 * construct a new invertible function from two lambda expressions.
+	 *
+	 * @param  fEvaluate The evaluating function
+	 * @param  fInvert   The inverting function
+	 *
+	 * @return The new instance
+	 */
+	public static <I, O> InvertibleFunction<I, O> of(
+		Function<I, O> fEvaluate,
+		Function<O, I> fInvert)
+	{
+		return new InvertibleFunction<I, O>()
+		{
+			@Override
+			public O evaluate(I rValue)
+			{
+				return fEvaluate.apply(rValue);
+			}
+
+			@Override
+			public I invert(O rValue)
+			{
+				return fInvert.evaluate(rValue);
+			}
+		};
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************

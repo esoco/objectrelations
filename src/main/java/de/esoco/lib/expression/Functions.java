@@ -18,7 +18,6 @@ package de.esoco.lib.expression;
 
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.AbstractFunction;
-import de.esoco.lib.expression.function.AbstractInvertibleFunction;
 import de.esoco.lib.expression.function.BinaryFunctionChain.LeftFunctionChain;
 import de.esoco.lib.expression.function.BinaryFunctionChain.RightFunctionChain;
 import de.esoco.lib.expression.function.BinaryFunctionGroup;
@@ -31,12 +30,12 @@ import de.esoco.lib.expression.function.GetElement.GetRelation;
 import de.esoco.lib.expression.function.GetElement.GetRelationValue;
 import de.esoco.lib.expression.function.GetElement.ReadField;
 import de.esoco.lib.expression.function.Group;
-import de.esoco.lib.expression.function.Invert;
 import de.esoco.lib.expression.function.Print;
 import de.esoco.lib.expression.function.SetElement.SetRelationValue;
 import de.esoco.lib.expression.function.ThrowingConsumer;
 import de.esoco.lib.expression.function.ThrowingFunction;
 import de.esoco.lib.expression.function.ThrowingSupplier;
+import de.esoco.lib.expression.monad.Try;
 import de.esoco.lib.reflect.ReflectUtil;
 
 import java.io.PrintWriter;
@@ -68,100 +67,6 @@ public class Functions
 
 	/** A runnable instance that does nothing. */
 	public static final Runnable NO_OPERATION = () ->{};
-
-	private static final InvertibleFunction<Object, Object> IDENTITY =
-		new AbstractInvertibleFunction<Object, Object>("Identity")
-		{
-			/***************************************
-			 * @see Function#evaluate(Object)
-			 */
-			@Override
-			public Object evaluate(Object rValue)
-			{
-				return rValue;
-			}
-
-			/***************************************
-			 * @see InvertibleFunction#invert(Object)
-			 */
-			@Override
-			public Object invert(Object rValue)
-			{
-				return rValue;
-			}
-		};
-
-	private static final Function<Number, Number> THREAD_SLEEP =
-		new AbstractFunction<Number, Number>("ThreadSleep")
-		{
-			@Override
-			public Number evaluate(Number nTime)
-			{
-				try
-				{
-					Thread.sleep(nTime.longValue());
-				}
-				catch (InterruptedException e)
-				{ // just terminate; interruption must be handled elsewhere
-				}
-
-				return nTime;
-			}
-		};
-
-	private static final Function<Object, Object> THREAD_YIELD =
-		new AbstractFunction<Object, Object>("ThreadYield")
-		{
-			@Override
-			public Object evaluate(Object rValue)
-			{
-				Thread.yield();
-
-				return rValue;
-			}
-		};
-
-	private static final Function<Object, Long> CURRENT_TIME_MILLIS =
-		new AbstractFunction<Object, Long>("CurrentTimeMillis")
-		{
-			@Override
-			@SuppressWarnings("boxing")
-			public Long evaluate(Object rValue)
-			{
-				return System.currentTimeMillis();
-			}
-		};
-
-	private static final Function<Object, Integer> UNIX_TIMESTAMP =
-		new AbstractFunction<Object, Integer>("UnixTimestamp")
-		{
-			@Override
-			@SuppressWarnings("boxing")
-			public Integer evaluate(Object rValue)
-			{
-				return (int) (System.currentTimeMillis() / 1000);
-			}
-		};
-
-	private static final Function<RelationType<?>, String> GET_RELATION_TYPE_SIMPLE_NAME =
-		new AbstractFunction<RelationType<?>, String>("GetSimpleName")
-		{
-			@Override
-			public String evaluate(RelationType<?> rRelationType)
-			{
-				return rRelationType.getSimpleName();
-			}
-		};
-
-	private static final Function<String, RelationType<?>> GET_RELATION_TYPE =
-		new AbstractFunction<String, RelationType<?>>("GetRelationType")
-		{
-			@Override
-			public RelationType<?> evaluate(String sTypeName)
-			{
-				return RelationType.valueOf(sTypeName);
-			}
-		};
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -412,18 +317,6 @@ public class Functions
 	}
 
 	/***************************************
-	 * Returns a function that returns the current system time as returned by
-	 * {@link System#currentTimeMillis()}.
-	 *
-	 * @return A function constant that returns the current system time
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> Function<T, Long> currentTimeMillis()
-	{
-		return (Function<T, Long>) CURRENT_TIME_MILLIS;
-	}
-
-	/***************************************
 	 * Returns a single function that applies several consumers successively to
 	 * input values in the order in which they appear in the argument list. The
 	 * return value of the resulting function will be the input value to support
@@ -671,29 +564,6 @@ public class Functions
 	}
 
 	/***************************************
-	 * Returns a static function that returns the relation type instance for a
-	 * certain name by invoking {@link RelationType#valueOf(String)}.
-	 *
-	 * @return A static function instance
-	 */
-	public static final Function<String, RelationType<?>> getRelationType()
-	{
-		return GET_RELATION_TYPE;
-	}
-
-	/***************************************
-	 * Returns a static function that returns the simple name of a relation type
-	 * as returned by {@link RelationType#getSimpleName()}.
-	 *
-	 * @return A static function instance
-	 */
-	public static final Function<RelationType<?>, String>
-	getRelationTypeSimpleName()
-	{
-		return GET_RELATION_TYPE_SIMPLE_NAME;
-	}
-
-	/***************************************
 	 * Returns a new instance of {@link GetRelationValue}.
 	 *
 	 * @param  rType The type of the relation value to return
@@ -714,7 +584,7 @@ public class Functions
 	@SuppressWarnings("unchecked")
 	public static <T> InvertibleFunction<T, T> identity()
 	{
-		return (InvertibleFunction<T, T>) IDENTITY;
+		return InvertibleFunction.of(t -> t, t -> t);
 	}
 
 	/***************************************
@@ -746,14 +616,14 @@ public class Functions
 	 * another invertible function. That means the input parameter becomes the
 	 * output parameter and vice versa.
 	 *
-	 * @param  rFunction The function to invert
+	 * @param  fToInvert The function to invert
 	 *
 	 * @return A new invertible function instance
 	 */
 	public static <I, O> InvertibleFunction<O, I> invert(
-		final InvertibleFunction<I, O> rFunction)
+		final InvertibleFunction<I, O> fToInvert)
 	{
-		return new Invert<O, I>(rFunction);
+		return InvertibleFunction.of(fToInvert::invert, fToInvert::evaluate);
 	}
 
 	/***************************************
@@ -875,16 +745,16 @@ public class Functions
 	}
 
 	/***************************************
-	 * Returns a function that invokes {@link Thread#sleep(long)} with the time
-	 * in milliseconds that it receives as the input value. The input value of
-	 * the function will be returned unchanged to allow function chaining.
+	 * Returns a consumer that invokes {@link Thread#sleep(long)} with the time
+	 * in milliseconds that it receives as the input value. An interruption
+	 * exception that occurs during the sleep will be ignored.
 	 *
 	 * @return A function constant that causes the current thread to sleep
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends Number> Function<T, T> sleep()
+	public static Consumer<Long> sleep()
 	{
-		return (Function<T, T>) THREAD_SLEEP;
+		return time -> Try.run(() -> Thread.sleep(time)).orUse(null);
 	}
 
 	/***************************************
@@ -1000,9 +870,9 @@ public class Functions
 	 * @return A function constant that returns the current UNIX timestamp
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Function<T, Integer> unixTimestamp()
+	public static Supplier<Long> unixTimestamp()
 	{
-		return (Function<T, Integer>) UNIX_TIMESTAMP;
+		return () -> System.currentTimeMillis() / 1000;
 	}
 
 	/***************************************
@@ -1031,18 +901,5 @@ public class Functions
 				return "value=" + rValue;
 			}
 		};
-	}
-
-	/***************************************
-	 * Returns a function that invokes {@link Thread#yield()}. The input value
-	 * of the function will be returned unchanged to allow function chaining.
-	 *
-	 * @return A function constant that causes the current thread to yield
-	 *         execution to other threads
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> Function<T, T> yield()
-	{
-		return (Function<T, T>) THREAD_YIELD;
 	}
 }

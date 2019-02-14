@@ -366,7 +366,7 @@ public class MetaTypes
 				 rParent.getRelations(
 					r -> r.getType() != ListenerTypes.RELATION_LISTENERS))
 			{
-				rRelation.immutable();
+				rRelation.setImmutable();
 			}
 
 			if (rParent instanceof Immutability)

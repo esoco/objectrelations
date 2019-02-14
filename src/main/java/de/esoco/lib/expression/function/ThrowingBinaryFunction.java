@@ -16,74 +16,73 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.function;
 
+import de.esoco.lib.expression.BinaryFunction;
 import de.esoco.lib.expression.FunctionException;
-
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 
 /********************************************************************
- * A {@link Supplier} extension that maps any occurring exception to a runtime
+ * A sub-interface that allows implementations to throw checked exceptions. If
+ * an exception occurs it will be converted into a runtime exception of the type
  * {@link FunctionException}.
  *
  * @author eso
  */
 @FunctionalInterface
-public interface ThrowingConsumer<T> extends Consumer<T>
+public interface ThrowingBinaryFunction<L, R, O> extends BinaryFunction<L, R, O>
 {
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Factory method that allows to declare a throwing consumer from a lambda
-	 * expression that is mapped to a regular consumer. Otherwise an anonymous
+	 * Factory method that allows to declare a throwing function from a lambda
+	 * expression that is mapped to a regular function. Otherwise an anonymous
 	 * inner class expression would be needed because of the similar signatures
-	 * of throwing and non-throwing consumers.
+	 * of throwing and non-throwing functions.
 	 *
-	 * @param  fThrowing The throwing consumer expression
+	 * @param  fThrowing The throwing function expression
 	 *
 	 * @return The resulting function
 	 */
-	public static <T> Consumer<T> of(ThrowingConsumer<T> fThrowing)
+	public static <L, R, O> BinaryFunction<L, R, O> of(
+		ThrowingBinaryFunction<L, R, O> fThrowing)
 	{
 		return fThrowing;
 	}
 
 	//~ Methods ----------------------------------------------------------------
 
+	// ~ Methods ------------------------------------------------------------
+
 	/***************************************
 	 * Overridden to forward the invocation to the actual function
-	 * implementation in {@link #tryAccept(Object)} and to convert occurring
-	 * exceptions into {@link FunctionException}.
+	 * implementation in {@link #tryApply(Object, Object)} and to convert
+	 * occurring exceptions into {@link FunctionException}.
 	 *
-	 * @see Consumer#accept(Object)
+	 * @see BinaryFunction#evaluate(Object, Object)
 	 */
 	@Override
-	default public void accept(T rValue)
+	default public O evaluate(L rLeft, R rRight)
 	{
 		try
 		{
-			tryAccept(rValue);
+			return tryApply(rLeft, rRight);
 		}
 		catch (Throwable e)
 		{
-			if (e instanceof RuntimeException)
-			{
-				throw (RuntimeException) e;
-			}
-			else
-			{
-				throw new FunctionException(this, e);
-			}
+			throw (e instanceof RuntimeException)
+				  ? (RuntimeException) e : new FunctionException(this, e);
 		}
 	}
 
 	/***************************************
-	 * Replaces {@link #accept(Object)} and allows implementations to throw any
-	 * kind of exception.
+	 * A variant of {@link #evaluate(Object)} that allows implementations to
+	 * throw an exception.
 	 *
-	 * @param  rValue The value to consume
+	 * @param  rLeft  The left argument
+	 * @param  rRight The right argument
 	 *
-	 * @throws Throwable If the invocation fails
+	 * @return The function result
+	 *
+	 * @throws Throwable Any kind of exception may be thrown
 	 */
-	public void tryAccept(T rValue) throws Throwable;
+	public O tryApply(L rLeft, R rRight) throws Throwable;
 }

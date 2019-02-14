@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,12 +30,29 @@ import java.util.function.Supplier;
 @FunctionalInterface
 public interface ThrowingSupplier<T> extends Supplier<T>
 {
+	//~ Static methods ---------------------------------------------------------
+
+	/***************************************
+	 * Factory method that allows to declare a throwing supplier from a lambda
+	 * expression that is mapped to a regular supplier. Otherwise an anonymous
+	 * inner class expression would be needed because of the similar signatures
+	 * of throwing and non-throwing suppliers.
+	 *
+	 * @param  fThrowing The throwing supplier expression
+	 *
+	 * @return The resulting function
+	 */
+	public static <T> Supplier<T> of(ThrowingSupplier<T> fThrowing)
+	{
+		return fThrowing;
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
 	 * Overridden to forward the invocation to the actual function
-	 * implementation in {@link #tryGet()} and to convert occurring
-	 * exceptions into {@link FunctionException}.
+	 * implementation in {@link #tryGet()} and to convert occurring exceptions
+	 * into {@link FunctionException}.
 	 *
 	 * @see Supplier#get()
 	 */

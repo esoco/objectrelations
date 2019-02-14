@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,11 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.filter;
 
-import de.esoco.lib.expression.BinaryPredicate;
-import de.esoco.lib.expression.CollectionPredicates;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
-import de.esoco.lib.expression.predicate.AbstractBinaryPredicate;
 
 import java.util.Collection;
 
@@ -28,6 +25,8 @@ import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.type.StandardTypes;
+
+import static de.esoco.lib.expression.CollectionPredicates.elementOf;
 
 
 /********************************************************************
@@ -68,12 +67,38 @@ public class RelationFilters
 	 *
 	 * @param  rTypePredicate The predicate to evaluate relation types with
 	 *
-	 * @return A new relation filter instance
+	 * @return A new relation filter predicate
 	 */
 	public static Predicate<Relation<?>> ifType(
 		Predicate<RelationType<?>> rTypePredicate)
 	{
-		return new RelationTypeFilter(rTypePredicate);
+		return r -> rTypePredicate.test(r.getType());
+	}
+
+	/***************************************
+	 * Returns a relation filter predicate that tests for the presence of a
+	 * certain relation type.
+	 *
+	 * @param  rType The relation type to filter
+	 *
+	 * @return A new relation filter predicate
+	 */
+	public static Predicate<Relation<?>> ifType(RelationType<?> rType)
+	{
+		return ifType(t -> t == rType);
+	}
+
+	/***************************************
+	 * Returns a relation filter predicate that tests for the absesence of a
+	 * certain relation type.
+	 *
+	 * @param  rType The relation type to filter
+	 *
+	 * @return A new relation filter predicate
+	 */
+	public static Predicate<Relation<?>> ifTypeNot(RelationType<?> rType)
+	{
+		return ifType(t -> t != rType);
 	}
 
 	/***************************************
@@ -81,25 +106,15 @@ public class RelationFilters
 	 * their annotations. Annotations are meta-relations that are set on the
 	 * relations themselves, not on their parent object.
 	 *
-	 * @param  rAnnotationFilter The predicate to evaluate relation targets with
+	 * @param  rAnnotationFilter The predicate to evaluate relation annotations
+	 *                           with
 	 *
-	 * @return A new relation filter instance
+	 * @return A new relation filter predicate
 	 */
-	public static BinaryPredicate<Relation<?>, Predicate<Relation<?>>> withAnnotation(
+	public static Predicate<Relation<?>> withAnnotation(
 		Predicate<Relation<?>> rAnnotationFilter)
 	{
-		return new AbstractBinaryPredicate<Relation<?>, Predicate<Relation<?>>>(rAnnotationFilter,
-																				"Target %s")
-		{
-			@Override
-			@SuppressWarnings("boxing")
-			public Boolean evaluate(
-				Relation<?>			   rRelation,
-				Predicate<Relation<?>> rAnnotationFilter)
-			{
-				return rRelation.hasRelations(rAnnotationFilter);
-			}
-		};
+		return r -> r.hasRelations(rAnnotationFilter);
 	}
 
 	/***************************************
@@ -109,22 +124,12 @@ public class RelationFilters
 	 *
 	 * @param  rTargetPredicate The predicate to evaluate relation targets with
 	 *
-	 * @return A new relation filter instance
+	 * @return A new relation filter predicate
 	 */
-	public static BinaryPredicate<Relation<?>, Predicate<Object>> withTarget(
+	public static Predicate<Relation<?>> withTarget(
 		Predicate<Object> rTargetPredicate)
 	{
-		return new AbstractBinaryPredicate<Relation<?>, Predicate<Object>>(rTargetPredicate,
-																		   "Target %s")
-		{
-			@Override
-			public Boolean evaluate(
-				Relation<?>		  rRelation,
-				Predicate<Object> rTargetPredicate)
-			{
-				return rTargetPredicate.evaluate(rRelation.getTarget());
-			}
-		};
+		return r -> rTargetPredicate.evaluate(r.getTarget());
 	}
 
 	/***************************************
@@ -137,9 +142,6 @@ public class RelationFilters
 	public static Predicate<Relation<?>> withTypeIn(
 		Collection<RelationType<?>> rTypes)
 	{
-		Predicate<RelationType<?>> aElementOfTypes =
-			CollectionPredicates.elementOf(rTypes);
-
-		return ifType(aElementOfTypes);
+		return ifType(elementOf(rTypes));
 	}
 }

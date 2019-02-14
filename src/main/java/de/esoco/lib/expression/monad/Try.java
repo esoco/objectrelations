@@ -16,6 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.monad;
 
+import de.esoco.lib.expression.function.ThrowingRunnable;
 import de.esoco.lib.expression.function.ThrowingSupplier;
 
 import java.util.Collection;
@@ -25,6 +26,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -96,13 +98,13 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 
 	/***************************************
 	 * Returns a new instance that represents the immediate execution of the
-	 * given supplier. The returned instance either represents a successful
-	 * execution or a failure if the execution failed.
+	 * given {@link Supplier}. The returned instance either represents a
+	 * successful execution or a failure if the execution failed.
 	 *
 	 * <p>An instance that evaluates the supplier lazily on the first access can
 	 * be created with {@link #lazy(ThrowingSupplier)}.</p>
 	 *
-	 * @param  fSupplier rValue The value to wrap
+	 * @param  fSupplier The supplier to execute
 	 *
 	 * @return The new instance
 	 */
@@ -161,6 +163,37 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 			() ->
 				rTries.filter(Try::isSuccess)
 				.map(t -> t.orThrow(e -> new AssertionError(e))));
+	}
+
+	/***************************************
+	 * Returns a new instance that represents the immediate execution of the
+	 * given {@link Runnable}. The returned instance either represents a
+	 * successful execution or a failure if the execution failed.
+	 *
+	 * <p>Because a runnable doesn't return a value the generic type of the
+	 * result is VOID and consequently the wrapped value is NULL. Therefore
+	 * mapping or consuming the returned instance doesn't make sense. The main
+	 * purpose of this method is to serve as a compact alternative to try/catch
+	 * blocks, like in this example:</p>
+	 *
+	 * <pre>Try.run(() -> invokeWithPossibleFailure()).orElse(e -> handleError(e));</pre>
+	 *
+	 * @param  fCode The code to execute
+	 *
+	 * @return The new instance
+	 */
+	public static Try<Void> run(ThrowingRunnable fCode)
+	{
+		try
+		{
+			fCode.run();
+
+			return new Success<>(null);
+		}
+		catch (Throwable e)
+		{
+			return new Failure<>(e);
+		}
 	}
 
 	/***************************************

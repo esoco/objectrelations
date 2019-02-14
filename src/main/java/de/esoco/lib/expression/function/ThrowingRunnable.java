@@ -18,32 +18,29 @@ package de.esoco.lib.expression.function;
 
 import de.esoco.lib.expression.FunctionException;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 
 /********************************************************************
- * A {@link Supplier} extension that maps any occurring exception to a runtime
+ * A {@link Runnable} extension that maps any occurring exception to a runtime
  * {@link FunctionException}.
  *
  * @author eso
  */
 @FunctionalInterface
-public interface ThrowingConsumer<T> extends Consumer<T>
+public interface ThrowingRunnable extends Runnable
 {
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
-	 * Factory method that allows to declare a throwing consumer from a lambda
-	 * expression that is mapped to a regular consumer. Otherwise an anonymous
+	 * Factory method that allows to declare a throwing runnable from a lambda
+	 * expression that is mapped to a regular runnable. Otherwise an anonymous
 	 * inner class expression would be needed because of the similar signatures
-	 * of throwing and non-throwing consumers.
+	 * of the throwing and non-throwing runnable interfaces
 	 *
-	 * @param  fThrowing The throwing consumer expression
+	 * @param  fThrowing The throwing runnable expression
 	 *
 	 * @return The resulting function
 	 */
-	public static <T> Consumer<T> of(ThrowingConsumer<T> fThrowing)
+	public static Runnable of(ThrowingRunnable fThrowing)
 	{
 		return fThrowing;
 	}
@@ -52,17 +49,17 @@ public interface ThrowingConsumer<T> extends Consumer<T>
 
 	/***************************************
 	 * Overridden to forward the invocation to the actual function
-	 * implementation in {@link #tryAccept(Object)} and to convert occurring
-	 * exceptions into {@link FunctionException}.
+	 * implementation in {@link #tryRun()} and to convert occurring exceptions
+	 * into {@link FunctionException}.
 	 *
-	 * @see Consumer#accept(Object)
+	 * @see Runnable#run()
 	 */
 	@Override
-	default public void accept(T rValue)
+	default public void run()
 	{
 		try
 		{
-			tryAccept(rValue);
+			tryRun();
 		}
 		catch (Throwable e)
 		{
@@ -78,12 +75,10 @@ public interface ThrowingConsumer<T> extends Consumer<T>
 	}
 
 	/***************************************
-	 * Replaces {@link #accept(Object)} and allows implementations to throw any
-	 * kind of exception.
-	 *
-	 * @param  rValue The value to consume
+	 * An alternative to {@link #run()} that is allowed to throw any kind of
+	 * exception.
 	 *
 	 * @throws Throwable If the invocation fails
 	 */
-	public void tryAccept(T rValue) throws Throwable;
+	public void tryRun() throws Throwable;
 }

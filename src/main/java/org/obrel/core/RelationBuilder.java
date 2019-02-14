@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.obrel.core;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.InvertibleFunction;
+
+import org.obrel.type.MetaTypes;
 
 
 /********************************************************************
@@ -50,22 +52,33 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	default public <T> R annotate(RelationType<?> rType,
-								  RelationType<T> rAnnotationType,
-								  T				  rValue)
+	default <T> R annotate(RelationType<?> rType,
+						   RelationType<T> rAnnotationType,
+						   T			   rValue)
 	{
-		return _with(() ->
-		 			{
-		 				Relation<?> rRelation = getRelation(rType);
+		return _with(
+			() ->
+			{
+				Relation<?> rRelation = getRelation(rType);
 
-		 				if (rRelation == null)
-		 				{
-		 					throw new IllegalArgumentException("No relation with type " +
-		 													   rType);
-		 				}
+				if (rRelation == null)
+				{
+					throw new IllegalArgumentException(
+						"No relation with type " +
+						rType);
+				}
 
-		 				rRelation.annotate(rAnnotationType, rValue);
-					 });
+				rRelation.annotate(rAnnotationType, rValue);
+			});
+	}
+
+	/***************************************
+	 * Seals this instance by setting the flag {@link MetaTypes#IMMUTABLE} so
+	 * that the relations cannot be modified anymore.
+	 */
+	default void seal()
+	{
+		set(MetaTypes.IMMUTABLE);
 	}
 
 	/***************************************
@@ -76,7 +89,7 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("unchecked")
-	default public R with(RelationData<?>... rRelations)
+	default R with(RelationData<?>... rRelations)
 	{
 		return _with(() -> set(rRelations));
 	}
@@ -87,7 +100,7 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 	 * @see #transform(RelationType, InvertibleFunction)
 	 */
 	@SuppressWarnings("unchecked")
-	default public <T, D> R with(
+	default <T, D> R with(
 		RelationType<T>			 rType,
 		InvertibleFunction<T, D> fTransformation)
 	{
@@ -100,9 +113,9 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 	 * @see #set(RelationType, Function, Object)
 	 */
 	@SuppressWarnings("unchecked")
-	default public <T, I> R with(RelationType<T> rType,
-								 Function<I, T>  fTargetResolver,
-								 I				 rIntermediateTarget)
+	default <T, I> R with(RelationType<T> rType,
+						  Function<I, T>  fTargetResolver,
+						  I				  rIntermediateTarget)
 	{
 		return _with(() -> set(rType, fTargetResolver, rIntermediateTarget));
 	}

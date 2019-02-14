@@ -349,6 +349,6 @@ public class Option<T> implements Monad<T, Option<?>>
 	@Override
 	public String toString()
 	{
-		return exists() ? rValue.toString() : "none";
+		return exists() ? rValue.toString() : "[none]";
 	}
 }

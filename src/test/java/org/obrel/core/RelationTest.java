@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.obrel.core;
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Conversions;
 import de.esoco.lib.expression.InvertibleFunction;
-import de.esoco.lib.expression.function.Invert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -478,9 +477,6 @@ public class RelationTest
 		Object it = r.get(IntermediateRelation.INTERMEDIATE_TARGET);
 
 		assertTrue(it instanceof byte[]);
-		assertEquals(
-			Invert.class,
-			r.get(IntermediateRelation.TARGET_CONVERSION).getClass());
 		assertEquals("TEST", o.get(NAME));
 
 		o = new RelatedObject();

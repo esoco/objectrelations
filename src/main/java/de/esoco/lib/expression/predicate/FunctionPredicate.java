@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// This file is a part of the 'ObjectRelations' project.
-// Copyright 2015 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// This file is a part of the 'objectrelations' project.
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.AbstractFunction;
 
+import org.obrel.core.RelatedObject;
+
 
 /********************************************************************
  * A predicate that evaluates the result of applying a function to input objects
@@ -29,7 +31,8 @@ import de.esoco.lib.expression.function.AbstractFunction;
  *
  * @author eso
  */
-public class FunctionPredicate<T, V> extends AbstractPredicate<T>
+public class FunctionPredicate<T, V> extends RelatedObject
+	implements Predicate<T>
 {
 	//~ Instance fields --------------------------------------------------------
 
@@ -51,9 +54,6 @@ public class FunctionPredicate<T, V> extends AbstractPredicate<T>
 		Function<? super T, V> rFunction,
 		Predicate<? super V>   rPredicate)
 	{
-		// use empty string because toString is overridden
-		super("");
-
 		if (rFunction == null)
 		{
 			throw new IllegalArgumentException("Function must not be NULL");
@@ -69,6 +69,28 @@ public class FunctionPredicate<T, V> extends AbstractPredicate<T>
 	}
 
 	//~ Methods ----------------------------------------------------------------
+
+	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean equals(Object rObj)
+	{
+		if (rObj == this)
+		{
+			return true;
+		}
+
+		if (rObj == null || rObj.getClass() != getClass())
+		{
+			return false;
+		}
+
+		FunctionPredicate<?, ?> rOther = (FunctionPredicate<?, ?>) rObj;
+
+		return rPredicate.equals(rOther.rPredicate) &&
+			   rFunction.equals(rOther.rFunction);
+	}
 
 	/***************************************
 	 * Retrieves the field value from the target object and returns the result
@@ -107,6 +129,15 @@ public class FunctionPredicate<T, V> extends AbstractPredicate<T>
 	}
 
 	/***************************************
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode()
+	{
+		return 31 * (rPredicate.hashCode() + 31 * rFunction.hashCode());
+	}
+
+	/***************************************
 	 * Creates a combined string representation from the function and predicate
 	 * of this instance.
 	 *
@@ -117,29 +148,5 @@ public class FunctionPredicate<T, V> extends AbstractPredicate<T>
 	{
 		return rPredicate.toString()
 						 .replace(INPUT_PLACEHOLDER, rFunction.toString());
-	}
-
-	/***************************************
-	 * Compares the predicate and the function of this instance for equality.
-	 *
-	 * @see AbstractFunction#paramsEqual(AbstractFunction)
-	 */
-	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther)
-	{
-		FunctionPredicate<?, ?> rOtherPredicate =
-			(FunctionPredicate<?, ?>) rOther;
-
-		return rPredicate.equals(rOtherPredicate.rPredicate) &&
-			   rFunction.equals(rOtherPredicate.rFunction);
-	}
-
-	/***************************************
-	 * @see AbstractFunction#paramsHashCode()
-	 */
-	@Override
-	protected int paramsHashCode()
-	{
-		return 31 * rPredicate.hashCode() + rFunction.hashCode();
 	}
 }
