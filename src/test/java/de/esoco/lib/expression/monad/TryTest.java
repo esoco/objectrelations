@@ -22,9 +22,10 @@ import de.esoco.lib.expression.monad.Try.Lazy;
 import java.time.LocalDate;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import org.junit.Test;
+
+import static java.util.stream.Collectors.toList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -247,9 +248,9 @@ public class TryTest
    				Try.now(() -> 1),
    				Try.now(() -> 2),
    				Try.now(() -> 3),
-   				Try.<Integer>failure(new Exception("FAILED"))))
+   				Try.<Integer>failure(new Exception("EXPECTED"))))
 		   .then(c -> fail())
-		   .orElse(e -> assertEquals("FAILED", e.getMessage()));
+		   .orElse(e -> assertEquals("EXPECTED", e.getMessage()));
 	}
 
 	/***************************************
@@ -270,7 +271,7 @@ public class TryTest
    			stream ->
    				assertEquals(
    					Arrays.asList(1, 2, 3),
-   					stream.collect(Collectors.toList())))
+   					stream.collect(toList())))
 		   .orFail();
 		Try.ofSuccessful(
    			Arrays.asList(
@@ -283,7 +284,7 @@ public class TryTest
    			stream ->
    				assertEquals(
    					Arrays.asList(1, 2, 3),
-   					stream.collect(Collectors.toList())))
+   					stream.collect(toList())))
 		   .orFail();
 	}
 
