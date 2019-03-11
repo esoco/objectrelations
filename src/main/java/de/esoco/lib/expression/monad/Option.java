@@ -23,6 +23,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -139,6 +140,8 @@ public class Option<T> implements Monad<T, Option<?>>
 	 * @param  rValue The required value to wrap
 	 *
 	 * @return The new instance
+	 *
+	 * @throws NullPointerException If the given value is NULL
 	 */
 	public static <T> Option<T> ofRequired(T rValue)
 	{
@@ -296,6 +299,19 @@ public class Option<T> implements Monad<T, Option<?>>
 		{
 			throw new NullPointerException();
 		}
+	}
+
+	/***************************************
+	 * Similar to the standard method {@link #orUse(Object)}, but with a
+	 * supplier argument that can execute arbitrary code.
+	 *
+	 * @param  fSupplyDefault The supplier of the default value
+	 *
+	 * @return Either the existing value or the default provided by the supplier
+	 */
+	public T orGet(Supplier<T> fSupplyDefault)
+	{
+		return exists() ? rValue : fSupplyDefault.get();
 	}
 
 	/***************************************

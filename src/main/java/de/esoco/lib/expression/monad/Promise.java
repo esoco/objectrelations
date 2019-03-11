@@ -603,8 +603,8 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 *
 		 * @return The resolved value
 		 *
-		 * @throws Exception If the promise execution failed or a timeout has
-		 *                   been reached
+		 * @throws Exception If the stage execution failed or a timeout has been
+		 *                   reached
 		 */
 		private Promise<T> getValue() throws Exception
 		{

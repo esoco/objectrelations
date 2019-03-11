@@ -73,20 +73,20 @@ public class JsonObject extends RelatedObject
 		setProperties(rProperties);
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
 	/***************************************
-	 * Creates a new instance from certain properties.
+	 * Creates a new instance with a certain property.
 	 *
-	 * @param  rProperties The key-value pairs of the object properties
+	 * @param  sName  The property name
+	 * @param  rValue The property value
 	 *
 	 * @return The new JSON object
 	 */
-	@SafeVarargs
-	public static JsonObject of(Pair<String, Object>... rProperties)
+	public JsonObject(String sName, Object rValue)
 	{
-		return new JsonObject(rProperties);
+		set(sName, rValue);
 	}
+
+	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
 	 * Creates a new generic JSON object from a JSON string.
@@ -415,5 +415,20 @@ public class JsonObject extends RelatedObject
 	public String toString()
 	{
 		return toJson();
+	}
+
+	/***************************************
+	 * Sets a property and returns this object for fluent invocations.
+	 *
+	 * @param  sName  The property name
+	 * @param  rValue The property value
+	 *
+	 * @return This object
+	 */
+	public JsonObject with(String sName, Object rValue)
+	{
+		getProperties().put(sName, rValue);
+
+		return this;
 	}
 }

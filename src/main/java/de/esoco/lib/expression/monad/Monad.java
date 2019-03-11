@@ -82,14 +82,11 @@ public interface Monad<T, M extends Monad<?, M>> extends Functor<T>
 	public <R> Monad<R, M> map(Function<? super T, ? extends R> fMap);
 
 	/***************************************
-	 * Overridden from {@link Functor#then(Consumer)} to return this instance as
-	 * the result, without additional mapping. Most subclasses only need to
-	 * override this method with their own type as the return type, invoke the
-	 * superclass implementation, and cast the result to their type.
+	 * Redefined here to change the return type to Monad. Subclasses can
+	 * typically just invoke super and declare their own type as the return
+	 * type.
 	 *
-	 * @param  fConsumer The consumer of the wrapped value
-	 *
-	 * @return The resulting monad for chained invocations
+	 * @see Functor#then(Consumer)
 	 */
 	@Override
 	default public Monad<T, M> then(Consumer<? super T> fConsumer)
