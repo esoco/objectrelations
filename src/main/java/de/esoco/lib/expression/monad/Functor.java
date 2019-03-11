@@ -37,10 +37,10 @@ public interface Functor<T>
 	/***************************************
 	 * A consuming operation that is performed if the functor doesn't contain a
 	 * valid value. This can be used to define the alternative of a call to a
-	 * monadic function like {@link #map(Function)}, {@link #flatMap(Function)},
-	 * and especially {@link #then(Consumer)} to handle a failure case.
+	 * monadic function like {@link #map(Function)} and especially {@link
+	 * #then(Consumer)} to handle a failure case.
 	 *
-	 * @param  fHandler The consumer of the the error that occurred
+	 * @param fHandler The consumer of the the error that occurred
 	 */
 	public abstract void orElse(Consumer<Throwable> fHandler);
 
@@ -49,9 +49,9 @@ public interface Functor<T>
 	 * an implementation-dependent exception if a valid value couldn't be
 	 * determined.
 	 *
-	 * <p>In general, calls to the monadic functions {@link #map(Function)},
-	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to processing values with consuming operations.</p>
+	 * <p>In general, calls to the monadic functions {@link #map(Function)} or
+	 * {@link #then(Consumer)} should be preferred to processing values with
+	 * consuming operations.</p>
 	 *
 	 * @return The functor's value
 	 *
@@ -64,9 +64,9 @@ public interface Functor<T>
 	 * A consuming operation that either returns the functor's value or throws a
 	 * mapped exception if a valid value couldn't be determined.
 	 *
-	 * <p>In general, calls to the monadic functions {@link #map(Function)},
-	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to processing values with consuming operations.</p>
+	 * <p>In general, calls to the monadic functions {@link #map(Function)} or
+	 * {@link #then(Consumer)} should be preferred to processing values with
+	 * consuming operations.</p>
 	 *
 	 * @param  fMapException A function that maps the original exception
 	 *
@@ -81,9 +81,9 @@ public interface Functor<T>
 	 * A consuming operation that either returns the functor's value or returns
 	 * the given default value if a valid value couldn't be determined.
 	 *
-	 * <p>In general, calls to the monadic functions {@link #map(Function)},
-	 * {@link #flatMap(Function)}, or {@link #then(Consumer)} should be
-	 * preferred to processing values with consuming operations.</p>
+	 * <p>In general, calls to the monadic functions {@link #map(Function)} or
+	 * {@link #then(Consumer)} should be preferred to processing values with
+	 * consuming operations.</p>
 	 *
 	 * @param  rDefaultValue The value to return if no regular value could be
 	 *                       determined

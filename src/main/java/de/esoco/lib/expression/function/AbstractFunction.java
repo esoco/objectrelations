@@ -55,8 +55,7 @@ public abstract class AbstractFunction<I, O> implements Function<I, O>
 	 * Compares this function instance for equality with another object. Two
 	 * functions are considered equal if they have exactly the same class, if
 	 * their parameters are equal (this will be checked by invoking the method
-	 * {@link #paramsEqual(AbstractFunction)}), and if they have equal relations
-	 * (checked with {@link #relationsEqual(RelatedObject)}).
+	 * {@link #paramsEqual(AbstractFunction)}).
 	 *
 	 * <p>The description string of a function is not taken into account by this
 	 * method and it is strongly advised that the description text is always the
@@ -106,15 +105,13 @@ public abstract class AbstractFunction<I, O> implements Function<I, O>
 	 * Calculates a hash code for this function instance. The hash code of a
 	 * function is based on the function class and the the result of the methods
 	 * {@link #paramsHashCode()} (which should be overridden by subclasses that
-	 * define function parameters) and {@link #relationsHashCode()} which takes
-	 * into account the relations that are set on a function accounts.
+	 * define function parameters).
 	 *
 	 * @see Object#hashCode()
 	 */
 	@Override
 	public int hashCode()
 	{
-
 		return 31 * (getToken().hashCode() + 31 + paramsHashCode());
 	}
 

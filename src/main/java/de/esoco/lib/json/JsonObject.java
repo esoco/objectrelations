@@ -76,10 +76,8 @@ public class JsonObject extends RelatedObject
 	/***************************************
 	 * Creates a new instance with a certain property.
 	 *
-	 * @param  sName  The property name
-	 * @param  rValue The property value
-	 *
-	 * @return The new JSON object
+	 * @param sName  The property name
+	 * @param rValue The property value
 	 */
 	public JsonObject(String sName, Object rValue)
 	{
