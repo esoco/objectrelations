@@ -121,7 +121,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		Collection<Promise<T>> rPromises)
 	{
 		// list needs to be synchronized because the promises may run in
-		// parallel in which aResult.add(t) will be invoked concurrently
+		// parallel in which case aResult.add(t) will be invoked concurrently
 		int     nCount  = rPromises.size();
 		List<T> aResult = Collections.synchronizedList(new ArrayList<>(nCount));
 
