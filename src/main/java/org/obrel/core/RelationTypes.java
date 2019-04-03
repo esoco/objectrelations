@@ -600,12 +600,11 @@ public class RelationTypes
 	 * @see #newEnumType(String, Class, RelationTypeModifier...)
 	 */
 	public static <E extends Enum<E>> RelationType<E> newObjectTypeType(
-		String					sName,
-		Class<E>				rEnumType,
 		RelationTypeModifier... rModifiers)
 	{
-		return newEnumType(sName, rEnumType, rModifiers).annotate(
-			OBJECT_TYPE_ATTRIBUTE);
+		RelationType<E> aType = newType(rModifiers);
+
+		return aType.annotate(OBJECT_TYPE_ATTRIBUTE);
 	}
 
 	/***************************************
