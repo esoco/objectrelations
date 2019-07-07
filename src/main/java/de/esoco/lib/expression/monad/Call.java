@@ -140,6 +140,7 @@ public class Call<T> implements Monad<T, Call<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public <R, N extends Monad<R, Call<?>>> Call<R> flatMap(
 		Function<? super T, N> fMap)
 	{

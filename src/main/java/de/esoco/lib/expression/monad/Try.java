@@ -445,6 +445,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public <R, N extends Monad<R, Try<?>>> Try<R> flatMap(
 			Function<? super T, N> fMap)
 		{
@@ -588,6 +589,7 @@ public abstract class Try<T> implements Monad<T, Try<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public <R, N extends Monad<R, Try<?>>> Try<R> flatMap(
 			Function<? super T, N> fMap)
 		{

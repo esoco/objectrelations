@@ -652,6 +652,7 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 		 * {@inheritDoc}
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public <R, N extends Monad<R, Promise<?>>> Promise<R> flatMap(
 			Function<? super T, N> fMap)
 		{

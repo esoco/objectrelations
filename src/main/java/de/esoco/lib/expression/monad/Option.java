@@ -204,6 +204,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	 * {@inheritDoc}
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public <R, N extends Monad<R, Option<?>>> Option<R> flatMap(
 		Function<? super T, N> fMap)
 	{
