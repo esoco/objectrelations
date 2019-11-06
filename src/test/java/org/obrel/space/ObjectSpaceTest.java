@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
+import org.obrel.type.StandardTypes;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -47,7 +48,7 @@ public class ObjectSpaceTest
 
 	static
 	{
-		RelationTypes.init(ObjectSpaceTest.class);
+		RelationTypes.init(ObjectSpaceTest.class, StandardTypes.class);
 	}
 
 	//~ Instance fields --------------------------------------------------------

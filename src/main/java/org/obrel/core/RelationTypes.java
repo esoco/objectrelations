@@ -125,11 +125,24 @@ public class RelationTypes
 	}
 
 	/***************************************
+	 * Initializes the relation type constants of certain classes.
+	 *
+	 * @param rClasses The classes to initialize
+	 */
+	public static void init(Class<?>... rClasses)
+	{
+		for (Class<?> rClass : rClasses)
+		{
+			initClass(rClass);
+		}
+	}
+
+	/***************************************
 	 * Initializes the relation type constants of a certain class.
 	 *
 	 * @param rClass The class to initialize
 	 */
-	public static void init(Class<?> rClass)
+	public static void initClass(Class<?> rClass)
 	{
 		List<Field> rFields		    = ReflectUtil.getAllFields(rClass);
 		String	    sClassNamespace = getRelationTypeNamespace(rClass);
