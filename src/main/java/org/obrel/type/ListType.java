@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class ListType<T> extends RelationType<List<T>>
 	/***************************************
 	 * Creates a new instance for the use with static initialization. Instances
 	 * created with this constructor MUST be declared as static constants in a
-	 * class that is initialized with {@link RelationTypes#init(Class)}.
+	 * class that is initialized with {@link RelationTypes#init(Class...)}.
 	 *
 	 * @param rModifiers The optional relation type modifiers
 	 */

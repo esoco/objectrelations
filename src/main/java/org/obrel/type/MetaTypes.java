@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -285,7 +285,7 @@ public class MetaTypes
 	 * by the framework. After the initialization this meta-relation will be
 	 * deleted from it's relation type. The initialization will only be invoked
 	 * for relation types that are initialized globally through the framework
-	 * method {@link RelationTypes#init(Class)}. It can be used to establish
+	 * method {@link RelationTypes#init(Class...)}. It can be used to establish
 	 * additional constraints on certain relations types, e.g. special
 	 * namespaces.
 	 */

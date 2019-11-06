@@ -133,7 +133,7 @@ public class RelationTypes
 	{
 		for (Class<?> rClass : rClasses)
 		{
-			initClass(rClass);
+			initRelationTypesOf(rClass);
 		}
 	}
 
@@ -142,7 +142,7 @@ public class RelationTypes
 	 *
 	 * @param rClass The class to initialize
 	 */
-	public static void initClass(Class<?> rClass)
+	public static void initRelationTypesOf(Class<?> rClass)
 	{
 		List<Field> rFields		    = ReflectUtil.getAllFields(rClass);
 		String	    sClassNamespace = getRelationTypeNamespace(rClass);
@@ -832,8 +832,8 @@ public class RelationTypes
 
 	/***************************************
 	 * Creates a new partially initialized relation type that will only be valid
-	 * after a call to {@link #init(Class)} from the static initializer of the
-	 * defining class.
+	 * after a call to {@link #init(Class...)} from the static initializer of
+	 * the defining class.
 	 *
 	 * @param  rModifiers The relation type modifiers
 	 *
@@ -847,8 +847,8 @@ public class RelationTypes
 
 	/***************************************
 	 * Creates a new partially initialized relation type that will only be valid
-	 * after a call to {@link #init(Class)} from the static initializer of the
-	 * defining class.
+	 * after a call to {@link #init(Class...)} from the static initializer of
+	 * the defining class.
 	 *
 	 * @param  rFlag      A flag annotation type to be set on the new type
 	 * @param  rModifiers The relation type modifiers
@@ -864,8 +864,8 @@ public class RelationTypes
 
 	/***************************************
 	 * Creates a new partially initialized relation type that will only be valid
-	 * after a call to {@link #init(Class)} from the static initializer of the
-	 * defining class.
+	 * after a call to {@link #init(Class...)} from the static initializer of
+	 * the defining class.
 	 *
 	 * @param  fInitialValue A function that returns the initial value for
 	 *                       relations of this type
@@ -882,8 +882,8 @@ public class RelationTypes
 
 	/***************************************
 	 * Creates a new partially initialized relation type that will only be valid
-	 * after a call to {@link #init(Class)} from the static initializer of the
-	 * defining class.
+	 * after a call to {@link #init(Class...)} from the static initializer of
+	 * the defining class.
 	 *
 	 * @param  fDefaultValue The default value
 	 * @param  fInitialValue A function that returns the initial value for

@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,10 +62,11 @@ public class CounterType<N extends Number> extends AutomaticType<N>
 					   Function<N, N>			   fIncrement,
 					   RelationTypeModifier...     rModifiers)
 	{
-		super(sName,
-			  (Class<N>) rInitialValue.getClass(),
-			  value(rInitialValue),
-			  rModifiers);
+		super(
+			sName,
+			(Class<N>) rInitialValue.getClass(),
+			value(rInitialValue),
+			rModifiers);
 
 		this.pCount     = pCount;
 		this.fIncrement = fIncrement;
@@ -75,7 +76,7 @@ public class CounterType<N extends Number> extends AutomaticType<N>
 
 	/***************************************
 	 * Factory method for a counter with an arbitrary number type that is
-	 * initialized by {@link RelationTypes#init(Class)}.
+	 * initialized by {@link RelationTypes#init(Class...)}.
 	 *
 	 * @param  rInitialValue The value to start counting at
 	 * @param  pCount        A predicate that determines what to count
@@ -90,16 +91,17 @@ public class CounterType<N extends Number> extends AutomaticType<N>
 		Function<N, N>				fIncrement,
 		RelationTypeModifier...     rModifiers)
 	{
-		return new CounterType<>(null,
-								 rInitialValue,
-								 pCount,
-								 fIncrement,
-								 rModifiers);
+		return new CounterType<>(
+			null,
+			rInitialValue,
+			pCount,
+			fIncrement,
+			rModifiers);
 	}
 
 	/***************************************
 	 * Factory method for an integer counter that starts at zero and is
-	 * initialized by {@link RelationTypes#init(Class)}.
+	 * initialized by {@link RelationTypes#init(Class...)}.
 	 *
 	 * @param  pCount     A predicate that determines what to count
 	 * @param  rModifiers The relation type modifiers
@@ -110,10 +112,11 @@ public class CounterType<N extends Number> extends AutomaticType<N>
 		Predicate<RelationEvent<?>> pCount,
 		RelationTypeModifier...     rModifiers)
 	{
-		return newCounter(Integer.valueOf(0),
-						  pCount,
-						  MathFunctions.add(1),
-						  rModifiers);
+		return newCounter(
+			Integer.valueOf(0),
+			pCount,
+			MathFunctions.add(1),
+			rModifiers);
 	}
 
 	//~ Methods ----------------------------------------------------------------

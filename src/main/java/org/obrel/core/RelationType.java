@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2018 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -152,7 +152,7 @@ public class RelationType<T> extends RelatedObject
 	 *
 	 * @param  sName         The name of the type instance or NULL for automatic
 	 *                       name initialization by {@link
-	 *                       RelationTypes#init(Class)}
+	 *                       RelationTypes#init(Class...)}
 	 * @param  rTargetType   The class of the target value datatype
 	 * @param  fDefaultValue The default value
 	 * @param  fInitialValue A function that returns the initial value for
@@ -185,9 +185,9 @@ public class RelationType<T> extends RelatedObject
 
 	/***************************************
 	 * Creates a new instance that is only partially initialized. The defining
-	 * class must invoke the method {@link RelationTypes#init(Class)} from it's
-	 * static initializer to fully initialize this relation type before it is
-	 * used.
+	 * class must invoke the method {@link RelationTypes#init(Class...)} from
+	 * it's static initializer to fully initialize this relation type before it
+	 * is used.
 	 *
 	 * <p>The generic declaration of the datatype and function arguments has
 	 * been relaxed to '? super T' to allow Classes and Functions that represent
@@ -215,9 +215,9 @@ public class RelationType<T> extends RelatedObject
 
 	/***************************************
 	 * Creates a new instance that is only partially initialized. The defining
-	 * class must invoke the method {@link RelationTypes#init(Class)} from it's
-	 * static initializer to fully initialize this relation type before it is
-	 * used.
+	 * class must invoke the method {@link RelationTypes#init(Class...)} from
+	 * it's static initializer to fully initialize this relation type before it
+	 * is used.
 	 *
 	 * <p>The generic declaration of the datatype and function arguments has
 	 * been relaxed to '? super T' to allow Classes and Functions that represent
@@ -245,20 +245,6 @@ public class RelationType<T> extends RelatedObject
 	}
 
 	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
-	 * Deprecated.
-	 *
-	 * @see        RelationTypes#init(Class)
-	 * @deprecated
-	 */
-	@Deprecated
-	public static boolean assertRelationTypes(Class<?> rDeclaringClass)
-	{
-		RelationTypes.init(rDeclaringClass);
-
-		return true;
-	}
 
 	/***************************************
 	 * Returns a collection of all currently registered relation types.

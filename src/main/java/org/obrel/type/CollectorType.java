@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -111,10 +111,11 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 						 boolean								bDistinctValues,
 						 RelationTypeModifier... 				rModifiers)
 	{
-		super(sName,
-			  (Class<Collection<T>>) (bDistinctValues ? Set.class : List.class),
-			  o -> bDistinctValues ? new LinkedHashSet<>() : new ArrayList<>(),
-			  rModifiers);
+		super(
+			sName,
+			(Class<Collection<T>>) (bDistinctValues ? Set.class : List.class),
+			o -> bDistinctValues ? new LinkedHashSet<>() : new ArrayList<>(),
+			rModifiers);
 
 		this.fCollector		 = fCollector;
 		this.bDistinctValues = bDistinctValues;
@@ -126,7 +127,7 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 
 	/***************************************
 	 * Factory method for an instance that collects all values of the given type
-	 * and is initialized by {@link RelationTypes#init(Class)}.
+	 * and is initialized by {@link RelationTypes#init(Class...)}.
 	 *
 	 * @param  rCollectedType The datatype of the collected values
 	 * @param  fCollector     The function that determines the values to be
@@ -140,16 +141,17 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 		BinaryFunction<Relation<?>, Object, T> fCollector,
 		RelationTypeModifier... 			   rModifiers)
 	{
-		return new CollectorType<>(null,
-								   rCollectedType,
-								   fCollector,
-								   false,
-								   rModifiers);
+		return new CollectorType<>(
+			null,
+			rCollectedType,
+			fCollector,
+			false,
+			rModifiers);
 	}
 
 	/***************************************
 	 * Factory method for an instance that collects only distinct values of the
-	 * given type and is initialized by {@link RelationTypes#init(Class)}.
+	 * given type and is initialized by {@link RelationTypes#init(Class...)}.
 	 *
 	 * @param  rCollectedType The datatype of the collected values
 	 * @param  fCollector     The function that determines the values to be
@@ -163,11 +165,12 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 		BinaryFunction<Relation<?>, Object, T> fCollector,
 		RelationTypeModifier... 			   rModifiers)
 	{
-		return new CollectorType<>(null,
-								   rCollectedType,
-								   fCollector,
-								   true,
-								   rModifiers);
+		return new CollectorType<>(
+			null,
+			rCollectedType,
+			fCollector,
+			true,
+			rModifiers);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -219,7 +222,8 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 						}
 						else
 						{
-							rValues.remove(CollectionUtil.firstElementOf(rValues));
+							rValues.remove(
+								CollectionUtil.firstElementOf(rValues));
 						}
 					}
 				}
@@ -241,8 +245,9 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 		Relatable				rParent,
 		Relation<Collection<T>> rRelation)
 	{
-		setRelationTarget(rRelation,
-						  new CollectionWrapper<>(rRelation.getTarget()));
+		setRelationTarget(
+			rRelation,
+			new CollectionWrapper<>(rRelation.getTarget()));
 	}
 
 	//~ Inner Classes ----------------------------------------------------------

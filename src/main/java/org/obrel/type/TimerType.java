@@ -1,6 +1,6 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // This file is a part of the 'objectrelations' project.
-// Copyright 2017 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
+// Copyright 2019 Elmar Sonnenschein, esoco GmbH, Flensburg, Germany
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ public class TimerType extends RelationType<Long>
 
 	/***************************************
 	 * Creates a new partially initialized timer type for use in conjunction
-	 * with {@link RelationTypes#init(Class)}.
+	 * with {@link RelationTypes#init(Class...)}.
 	 *
 	 * @param  rModifiers The optional modifiers
 	 *
