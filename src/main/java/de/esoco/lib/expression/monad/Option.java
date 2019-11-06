@@ -71,8 +71,22 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
+	 * A semantic alternative to {@link #ofRequired(Object)} that can be used as
+	 * a static import.
+	 *
+	 * @param  rValue The value to wrap
+	 *
+	 * @return The new instance
+	 */
+	public static <T> Option<T> nonNull(T rValue)
+	{
+		return Option.ofRequired(rValue);
+	}
+
+	/***************************************
 	 * Returns a new instance that wraps a certain value or {@link #none()} if
-	 * the argument is NULL.
+	 * the argument is NULL. To throw an exception if the value is NULL use
+	 * {@link #ofRequired(Object)} instead.
 	 *
 	 * @param  rValue The value to wrap
 	 *
@@ -150,6 +164,19 @@ public class Option<T> implements Monad<T, Option<?>>
 		return Option.of(rValue);
 	}
 
+	/***************************************
+	 * A semantic alternative to {@link #of(Object)} that can be used as a
+	 * static import.
+	 *
+	 * @param  rValue The value to wrap
+	 *
+	 * @return The new instance
+	 */
+	public static <T> Option<T> option(T rValue)
+	{
+		return Option.of(rValue);
+	}
+
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -201,14 +228,39 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Converts this option into another option by applying a mapping function
+	 * that produces an option with the target type from the value of this
+	 * instance.
+	 *
+	 * <p>Other than Java's {@link Optional} this implementation respects the
+	 * monad laws of left and right identity as well as associativity. It does
+	 * so by considering the not existing value {@link #none()} as equivalent to
+	 * NULL. Therefore, if the mapping function is invoked on a non-existing
+	 * option it will receive NULL as it's argument and should be able to handle
+	 * it.</p>
+	 *
+	 * <p>If the mapping function throws a {@link NullPointerException} it will
+	 * be caught and the returned option will be {@link #none()}. This allows to
+	 * use functions that are not NULL-aware as an argument. It has the small
+	 * limitation that NPEs caused by nested code will not be thrown.</p>
+	 *
+	 * @param  fMap The mapping function
+	 *
+	 * @return The resulting option
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public <R, N extends Monad<R, Option<?>>> Option<R> flatMap(
 		Function<? super T, N> fMap)
 	{
-		return exists() ? (Option<R>) fMap.apply(rValue) : none();
+		try
+		{
+			return (Option<R>) fMap.apply(rValue);
+		}
+		catch (NullPointerException e)
+		{
+			return none();
+		}
 	}
 
 	/***************************************
@@ -249,7 +301,14 @@ public class Option<T> implements Monad<T, Option<?>>
 	}
 
 	/***************************************
-	 * {@inheritDoc}
+	 * Maps this option to another one containing the result of invoking a
+	 * mapping function on this instance's value. Other than Java's {@link
+	 * Optional} this implementation respects the monad laws. See the
+	 * description of {@link #flatMap(Function)} for details.
+	 *
+	 * @param  fMap The mapping function
+	 *
+	 * @return The mapped option
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
@@ -347,7 +406,7 @@ public class Option<T> implements Monad<T, Option<?>>
 	@Override
 	public Option<T> then(Consumer<? super T> fConsumer)
 	{
-		return (Option<T>) Monad.super.then(fConsumer);
+		return exists() ? (Option<T>) Monad.super.then(fConsumer) : this;
 	}
 
 	/***************************************

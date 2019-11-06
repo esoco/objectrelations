@@ -108,10 +108,9 @@ public class OptionTest
 	@Test
 	public void testFlatMap()
 	{
-		assertFalse(
-			Option.of((String) null)
-			.flatMap(s -> Option.of(Integer.parseInt(s)))
-			.exists());
+		Option<String> none = Option.none();
+
+		assertFalse(none.flatMap(s -> Option.of(s.length())).exists());
 		Option.of("42")
 			  .flatMap(s -> Option.of(Integer.parseInt(s)))
 			  .then(i -> assertTrue(i == 42));
@@ -143,7 +142,7 @@ public class OptionTest
 	@Test
 	public void testMap()
 	{
-		assertFalse(Option.of((String) null).map(Integer::parseInt).exists());
+		assertFalse(Option.of((String) null).map(s -> s.length()).exists());
 		Option.of("42").map(Integer::parseInt).then(i -> assertTrue(i == 42));
 	}
 
@@ -170,16 +169,15 @@ public class OptionTest
 			  .then(c -> assertEquals(Arrays.asList(1, 2, 3), c))
 			  .orFail();
 
+		Option<Integer> noInt = Option.none();
+
 		Option.ofAll(
 	  			Arrays.asList(
 	  				Option.of(1),
-	  				Option.<Integer>none(),
 	  				Option.of(2),
-	  				Option.<Integer>none(),
 	  				Option.of(3),
-	  				Option.<Integer>none()))
-			  .then(c -> fail())
-			  .orElse(e -> result[0] = true);
+	  				noInt)).then(c -> fail()).orElse(e ->
+	  				result[0] = true);
 		assertTrue(result[0]);
 	}
 
