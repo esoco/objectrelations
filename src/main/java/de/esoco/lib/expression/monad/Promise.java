@@ -227,10 +227,14 @@ public abstract class Promise<T> implements Monad<T, Promise<?>>
 	public abstract Promise<T> onError(Consumer<Throwable> fHandler);
 
 	/***************************************
-	 * Defines the maximum time this promise may run before failing as
-	 * unresolved. Although it depends on the actual implementation, the timeout
-	 * is typically only respected by the consuming, blocking methods like
-	 * {@link #orUse(Object)}.
+	 * Defines the maximum time this promise may try to acquire the promised
+	 * value before failing as unresolved. As promises are immutable objects
+	 * this method will not modify the current instance but returns a new
+	 * instance (if necessary) that will respect the given timeout.
+	 *
+	 * <p>Although it depends on the actual underlying implementation, the
+	 * timeout is typically only respected by blocking methods like {@link
+	 * #orUse(Object)}.</p>
 	 *
 	 * @param  nTime The timeout value
 	 * @param  eUnit The time unit
