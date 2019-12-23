@@ -50,33 +50,6 @@ public interface ThrowingSupplier<T> extends Supplier<T>
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
-	 * Overridden to forward the invocation to the actual function
-	 * implementation in {@link #tryGet()} and to convert occurring exceptions
-	 * into {@link FunctionException}.
-	 *
-	 * @see Supplier#get()
-	 */
-	@Override
-	default public T get()
-	{
-		try
-		{
-			return tryGet();
-		}
-		catch (Throwable e)
-		{
-			if (e instanceof RuntimeException)
-			{
-				throw (RuntimeException) e;
-			}
-			else
-			{
-				throw new FunctionException(this, e);
-			}
-		}
-	}
-
-	/***************************************
 	 * Replaces {@link #get()} and allows implementations to throw an exception.
 	 *
 	 * @return The function result
@@ -84,4 +57,28 @@ public interface ThrowingSupplier<T> extends Supplier<T>
 	 * @throws Throwable If the invocation fails
 	 */
 	public T tryGet() throws Throwable;
+
+	/***************************************
+	 * Overridden to forward the invocation to the actual function
+	 * implementation in {@link #tryGet()} and to convert occurring exceptions
+	 * into {@link FunctionException}.
+	 *
+	 * @see Supplier#get()
+	 */
+	@Override
+	default T get()
+	{
+		try
+		{
+			return tryGet();
+		}
+		catch (RuntimeException e)
+		{
+			throw e;
+		}
+		catch (Throwable e)
+		{
+			throw new FunctionException(this, e);
+		}
+	}
 }
