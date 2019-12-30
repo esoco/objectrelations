@@ -17,7 +17,8 @@
 package de.esoco.lib.expression;
 
 import de.esoco.lib.expression.function.DualFunctionChain;
-import de.esoco.lib.expression.function.ThrowingBinaryFunction;
+
+import java.util.function.BiFunction;
 
 
 /********************************************************************
@@ -49,7 +50,7 @@ public interface BinaryFunction<L, R, O> extends Function<L, O>
 	 *
 	 * @return The unchecked binary function
 	 */
-	public static <L, R, O> BinaryFunction<L, R, O> unchecked(
+	public static <L, R, O> BiFunction<L, R, O> unchecked(
 		ThrowingBinaryFunction<L, R, O> fChecked)
 	{
 		return fChecked;

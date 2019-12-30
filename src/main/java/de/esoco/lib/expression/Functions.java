@@ -32,9 +32,6 @@ import de.esoco.lib.expression.function.GetElement.ReadField;
 import de.esoco.lib.expression.function.Group;
 import de.esoco.lib.expression.function.Print;
 import de.esoco.lib.expression.function.SetElement.SetRelationValue;
-import de.esoco.lib.expression.function.ThrowingConsumer;
-import de.esoco.lib.expression.function.ThrowingFunction;
-import de.esoco.lib.expression.function.ThrowingSupplier;
 import de.esoco.lib.expression.monad.Try;
 import de.esoco.lib.reflect.ReflectUtil;
 
@@ -791,75 +788,6 @@ public class Functions
 					   INPUT_PLACEHOLDER + ")";
 			}
 		};
-	}
-
-	/***************************************
-	 * Returns an unchecked function that evaluates a function in a
-	 * try-with-resource code block with an {@link AutoCloseable} resource that
-	 * is created by another functions.
-	 *
-	 * @param  fOpenResource  An unchecked function that opens a resource
-	 *                        derived from the function input
-	 * @param  fProduceResult An unchecked function that creates the function
-	 *                        result from the resource
-	 *
-	 * @return A new unchecked function instance
-	 */
-	public static <I, R extends AutoCloseable, O> Function<I, O> tryWith(
-		ThrowingFunction<I, R> fOpenResource,
-		ThrowingFunction<R, O> fProduceResult)
-	{
-		return unchecked(
-			i ->
-		{
-			try (R rResource = fOpenResource.evaluate(i))
-			{
-				return fProduceResult.evaluate(rResource);
-			}
-		});
-	}
-
-	/***************************************
-	 * Takes a consumer that throws an exception and returns it as a consumer
-	 * that can be executed without a checked exception. This method is mainly
-	 * intended to be used for lambdas that throw exceptions.
-	 *
-	 * @param  fChecked The checked function to wrap as unchecked
-	 *
-	 * @return The unchecked function
-	 */
-	public static <T> Consumer<T> unchecked(ThrowingConsumer<T> fChecked)
-	{
-		return fChecked;
-	}
-
-	/***************************************
-	 * Takes a supplier that throws an exception and returns it as a supplier
-	 * that can be executed without a checked exception. This method is mainly
-	 * intended to be used for lambdas that throw exceptions.
-	 *
-	 * @param  fChecked The checked function to wrap as unchecked
-	 *
-	 * @return The unchecked function
-	 */
-	public static <T> Supplier<T> unchecked(ThrowingSupplier<T> fChecked)
-	{
-		return fChecked;
-	}
-
-	/***************************************
-	 * Takes a function that throws an exception and returns it as a function
-	 * that can be executed without a checked exception. This method is mainly
-	 * intended to be used for lambdas that throw exceptions.
-	 *
-	 * @param  fChecked The checked function to wrap as unchecked
-	 *
-	 * @return The unchecked function
-	 */
-	public static <I, O> Function<I, O> unchecked(
-		ThrowingFunction<I, O> fChecked)
-	{
-		return fChecked;
 	}
 
 	/***************************************

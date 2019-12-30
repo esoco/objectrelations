@@ -17,6 +17,7 @@
 package de.esoco.lib.expression.function;
 
 import de.esoco.lib.expression.Predicates;
+import de.esoco.lib.expression.ThrowingSupplier;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -100,7 +101,7 @@ public class CachingSupplier<T> implements ThrowingSupplier<T>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public T tryGet() throws Throwable
+	public T tryGet() throws Exception
 	{
 		if (rCachedValue == null || pCheckInvalid.test(rCachedValue))
 		{
