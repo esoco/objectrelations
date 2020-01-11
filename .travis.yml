@@ -8,7 +8,8 @@ git:
 
 install:
   - pushd .. 
-  - git clone -b ${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH} --depth 3 https://github.com/esoco/esoco-common
+  - git clone -b ${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH} --depth 1 https://github.com/esoco/esoco-common
+  - git clone -b ${TRAVIS_PULL_REQUEST_BRANCH:-$TRAVIS_BRANCH} --depth 1 https://github.com/esoco/esoco-monads
   - popd
 
 before_cache:
