@@ -9,4 +9,6 @@ buildscript {
 
 apply plugin: 'net.vivin.gradle-semantic-build-versioning'
 
-includeFlat 'esoco-common', 'esoco-monads'
+['esoco-common', 'esoco-monads'].each {
+	project -> if (new File("$rootDir/../$project").exists()) includeFlat project
+}

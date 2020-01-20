@@ -27,7 +27,7 @@ configurations.all {
 
 dependencies
 {
-	api 'de.esoco:esoco-monads:0.+'
+	api 'de.esoco:esoco-monads:1.0.+'
 	
 	testImplementation platform('org.junit:junit-bom:5.5.2')	
 	testImplementation 'org.junit.jupiter:junit-jupiter'
