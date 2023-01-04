@@ -36,8 +36,8 @@ public class CountElements<E, K> extends AbstractFunction<E, Void>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private Map<K, Integer>		   aCountMap = new HashMap<>();
-	private Function<? super E, K> fGetKey;
+	private final Map<K, Integer>		   aCountMap = new HashMap<>();
+	private final Function<? super E, K> fGetKey;
 
 	//~ Constructors -----------------------------------------------------------
 

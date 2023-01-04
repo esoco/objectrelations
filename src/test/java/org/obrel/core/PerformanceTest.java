@@ -185,7 +185,7 @@ public class PerformanceTest
 
 		private int				 nValue;
 		private String			 sName;
-		private List<TestObject> aChildren = new ArrayList<>();
+		private final List<TestObject> aChildren = new ArrayList<>();
 
 		//~ Methods ------------------------------------------------------------
 

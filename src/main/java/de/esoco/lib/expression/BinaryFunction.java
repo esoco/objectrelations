@@ -50,7 +50,7 @@ public interface BinaryFunction<L, R, O> extends Function<L, O>
 	 *
 	 * @return The unchecked binary function
 	 */
-	public static <L, R, O> BiFunction<L, R, O> unchecked(
+	static <L, R, O> BiFunction<L, R, O> unchecked(
 		ThrowingBinaryFunction<L, R, O> fChecked)
 	{
 		return fChecked;
@@ -65,7 +65,7 @@ public interface BinaryFunction<L, R, O> extends Function<L, O>
 	 * @see Function#evaluate(Object)
 	 */
 	@Override
-	default public O evaluate(L rLeftValue)
+	default O evaluate(L rLeftValue)
 	{
 		return evaluate(rLeftValue, getRightValue());
 	}
@@ -79,7 +79,7 @@ public interface BinaryFunction<L, R, O> extends Function<L, O>
 	 *
 	 * @return The result of the evaluation
 	 */
-	public O evaluate(L rLeftValue, R rRightValue);
+	O evaluate(L rLeftValue, R rRightValue);
 
 	/***************************************
 	 * Returns a new function object that evaluates the output values received
@@ -90,7 +90,7 @@ public interface BinaryFunction<L, R, O> extends Function<L, O>
 	 *
 	 * @return A new instance of {@link DualFunctionChain}
 	 */
-	default public <A, B> BinaryFunction<A, B, O> from(
+	default <A, B> BinaryFunction<A, B, O> from(
 		Function<A, ? extends L> fLeft,
 		Function<B, ? extends R> fRight)
 	{
@@ -103,7 +103,7 @@ public interface BinaryFunction<L, R, O> extends Function<L, O>
 	 *
 	 * @return The right value
 	 */
-	default public R getRightValue()
+	default R getRightValue()
 	{
 		return null;
 	}
@@ -117,7 +117,7 @@ public interface BinaryFunction<L, R, O> extends Function<L, O>
 	 *
 	 * @return A new instance of {@link DualFunctionChain}
 	 */
-	default public <T> BinaryFunction<L, T, O> withRight(
+	default <T> BinaryFunction<L, T, O> withRight(
 		Function<T, ? extends R> fRight)
 	{
 		return from(Functions.identity(), fRight);

@@ -33,7 +33,7 @@ public class BinaryFunctionGroup<L, R> extends AbstractBinaryFunction<L, R, L>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private List<BinaryFunction<? super L, ? super R, ?>> rFunctions;
+	private final List<BinaryFunction<? super L, ? super R, ?>> rFunctions;
 
 	//~ Constructors -----------------------------------------------------------
 

@@ -44,7 +44,7 @@ public interface InvertibleFunction<I, O> extends Function<I, O>
 	 *
 	 * @return The new instance
 	 */
-	public static <I, O> InvertibleFunction<I, O> of(
+	static <I, O> InvertibleFunction<I, O> of(
 		Function<I, O> fEvaluate,
 		Function<O, I> fInvert)
 	{
@@ -78,5 +78,5 @@ public interface InvertibleFunction<I, O> extends Function<I, O>
 	 *
 	 * @return The inverted output value
 	 */
-	public I invert(O rValue);
+	I invert(O rValue);
 }

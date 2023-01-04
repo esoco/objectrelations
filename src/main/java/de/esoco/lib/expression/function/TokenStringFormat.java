@@ -113,7 +113,7 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String>
 {
 	//~ Static fields/initializers ---------------------------------------------
 
-	private static Map<String, Token<Object>> aTokenRegistry =
+	private static final Map<String, Token<Object>> aTokenRegistry =
 		new HashMap<String, Token<Object>>();
 
 	static
@@ -146,7 +146,7 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String>
 	//~ Instance fields --------------------------------------------------------
 
 	private String				   sTargetPattern;
-	private List<Token<? super T>> aTokens = new ArrayList<Token<? super T>>();
+	private final List<Token<? super T>> aTokens = new ArrayList<Token<? super T>>();
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -403,7 +403,7 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String>
 
 			aTokens.add(rToken);
 
-			sb.append(sTokenString.substring(nTextStart, nStart - 1));
+			sb.append(sTokenString, nTextStart, nStart - 1);
 			sb.append(rToken.toString());
 
 			nTextStart = nStart = nEnd + 1;
@@ -423,9 +423,9 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String>
 	{
 		//~ Instance fields ----------------------------------------------------
 
-		private TokenStringFormat<?> rParent;
+		private final TokenStringFormat<?> rParent;
 
-		private String sToken;
+		private final String sToken;
 
 		private Object rFormatObject	  = null;
 		private int    nArrayElementCount = -1;

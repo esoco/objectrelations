@@ -32,7 +32,7 @@ public abstract class AbstractBinaryFunction<L, R, O>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private R rRightValue;
+	private final R rRightValue;
 
 	//~ Constructors -----------------------------------------------------------
 

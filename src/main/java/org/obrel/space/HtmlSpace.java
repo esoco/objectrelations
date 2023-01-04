@@ -17,19 +17,16 @@
 package org.obrel.space;
 
 import de.esoco.lib.text.TextConvert;
-
-import java.text.DateFormat;
-
-import java.util.Date;
-
 import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.type.StandardTypes.NAME;
-
 
 /********************************************************************
  * An object space implementation that converts values from another object space
@@ -37,8 +34,7 @@ import static org.obrel.type.StandardTypes.NAME;
  *
  * @author eso
  */
-public class HtmlSpace extends RelationSpace<String>
-{
+public class HtmlSpace extends RelationSpace<String> {
 	//~ Static fields/initializers ---------------------------------------------
 
 	/**
@@ -47,14 +43,8 @@ public class HtmlSpace extends RelationSpace<String>
 	 * content.
 	 */
 	public static final RelationType<String> PAGE_TEMPLATE =
-		newInitialValueType("<!DOCTYPE html>\n" +
-							"<html>\n" +
-							"<head>\n" +
-							"<title>%s</title>\n" +
-							"</head>\n" +
-							"<body>\n" +
-							"%s</body>\n" +
-							"</html>");
+		newInitialValueType(
+			"<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<title>%s</title>\n" + "</head>\n" + "<body>\n" + "%s</body>\n" + "</html>");
 
 	/**
 	 * Template for a space-internal link on a rendered HTML page. The template
@@ -64,20 +54,21 @@ public class HtmlSpace extends RelationSpace<String>
 	public static final RelationType<String> INTERNAL_LINK_TEMPLATE =
 		newInitialValueType("<a href=\"%s\">%s</a>");
 
-	/** Template for the (read-only) display of text values. */
+	/**
+	 * Template for the (read-only) display of text values.
+	 */
 	public static final RelationType<String> TEXT_DISPLAY_TEMPLATE =
 		newInitialValueType("<b>%s</b>: %s");
 
-	static
-	{
+	static {
 		RelationTypes.init(HtmlSpace.class);
 	}
 
 	//~ Instance fields --------------------------------------------------------
 
-	private ObjectSpace<?> rDataSpace;
+	private final ObjectSpace<?> rDataSpace;
 
-	private String sBaseUrl;
+	private final String sBaseUrl;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -88,10 +79,9 @@ public class HtmlSpace extends RelationSpace<String>
 	 *                   as HTML
 	 * @param sBaseUrl   The base URL to be prepended to all space-relative URLs
 	 */
-	public HtmlSpace(ObjectSpace<?> rDataSpace, String sBaseUrl)
-	{
+	public HtmlSpace(ObjectSpace<?> rDataSpace, String sBaseUrl) {
 		this.rDataSpace = rDataSpace;
-		this.sBaseUrl   = checkUrl(sBaseUrl);
+		this.sBaseUrl = checkUrl(sBaseUrl);
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -100,16 +90,12 @@ public class HtmlSpace extends RelationSpace<String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String get(String sUrl)
-	{
+	public String get(String sUrl) {
 		Object rValue = rDataSpace.get(sUrl);
 
-		if (rValue != null)
-		{
+		if (rValue != null) {
 			return renderAsHtml(sUrl, rValue);
-		}
-		else
-		{
+		} else {
 			throw new IllegalArgumentException("Not found: " + sUrl);
 		}
 	}
@@ -118,8 +104,7 @@ public class HtmlSpace extends RelationSpace<String>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void put(String sUrl, String sValue)
-	{
+	public void put(String sUrl, String sValue) {
 	}
 
 	/***************************************
@@ -128,8 +113,7 @@ public class HtmlSpace extends RelationSpace<String>
 	 * @return The HTML for this space
 	 */
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return renderAsHtml("", rDataSpace);
 	}
 
@@ -142,8 +126,7 @@ public class HtmlSpace extends RelationSpace<String>
 	 *
 	 * @return This instance for method concatenation
 	 */
-	public <T> HtmlSpace with(RelationType<T> rType, T rValue)
-	{
+	public <T> HtmlSpace with(RelationType<T> rType, T rValue) {
 		set(rType, rValue);
 
 		return this;
@@ -156,10 +139,8 @@ public class HtmlSpace extends RelationSpace<String>
 	 *
 	 * @return The URL, modified if necessary
 	 */
-	protected String checkUrl(String sUrl)
-	{
-		if (sUrl.length() > 0 && !sUrl.endsWith("/"))
-		{
+	protected String checkUrl(String sUrl) {
+		if (sUrl.length() > 0 && !sUrl.endsWith("/")) {
 			sUrl += "/";
 		}
 
@@ -173,12 +154,10 @@ public class HtmlSpace extends RelationSpace<String>
 	 *
 	 * @return The page title
 	 */
-	protected String getPageTitle(Relatable rPageObject)
-	{
+	protected String getPageTitle(Relatable rPageObject) {
 		String sTitle = rPageObject.get(NAME);
 
-		if (sTitle == null)
-		{
+		if (sTitle == null) {
 			sTitle = rPageObject.getClass().getSimpleName();
 		}
 
@@ -193,32 +172,24 @@ public class HtmlSpace extends RelationSpace<String>
 	 *
 	 * @return The HTML to display for the value
 	 */
-	protected String renderAsHtml(String sUrl, Object rObject)
-	{
+	protected String renderAsHtml(String sUrl, Object rObject) {
 		String sHtml;
 
-		if (rObject instanceof HtmlSpace)
-		{
+		if (rObject instanceof HtmlSpace) {
 			sHtml = rObject.toString();
-		}
-		else
-		{
+		} else {
 			Object sTitle;
 			String sBody;
 
-			if (rObject instanceof Relatable)
-			{
+			if (rObject instanceof Relatable) {
 				Relatable rPageObject = (Relatable) rObject;
 
 				sTitle =
 					getPageTitle(rObject == rDataSpace ? this : rPageObject);
-				sBody  =
-					renderRelations(sBaseUrl + checkUrl(sUrl), rPageObject);
-			}
-			else
-			{
+				sBody = renderRelations(sBaseUrl + checkUrl(sUrl), rPageObject);
+			} else {
 				sTitle = sUrl.substring(sUrl.lastIndexOf('/') + 1);
-				sBody  = renderDisplayValue(rObject);
+				sBody = renderDisplayValue(rObject);
 			}
 
 			sHtml = String.format(get(PAGE_TEMPLATE), sTitle, sBody);
@@ -235,26 +206,21 @@ public class HtmlSpace extends RelationSpace<String>
 	 *
 	 * @return The HTML representing the relation
 	 */
-	protected String renderRelation(String sUrl, Relation<?> rRelation)
-	{
+	protected String renderRelation(String sUrl, Relation<?> rRelation) {
 		Object rValue = rRelation.getTarget();
-		String sHtml  = null;
+		String sHtml = null;
 
-		if (rValue instanceof Relatable)
-		{
+		if (rValue instanceof Relatable) {
 			String sType = rRelation.getType().getSimpleName().toLowerCase();
 
 			sHtml = String.format(get(INTERNAL_LINK_TEMPLATE), sType, sType);
-		}
-		else
-		{
+		} else {
 			String sLabel = rRelation.getType().getSimpleName();
 			String sValue = renderDisplayValue(rValue);
 
-			if (sValue != null)
-			{
+			if (sValue != null) {
 				sLabel = TextConvert.capitalize(sLabel, " ");
-				sHtml  =
+				sHtml =
 					String.format(get(TEXT_DISPLAY_TEMPLATE), sLabel, sValue);
 			}
 		}
@@ -270,21 +236,19 @@ public class HtmlSpace extends RelationSpace<String>
 	 *
 	 * @return An HTML string
 	 */
-	protected String renderRelations(String sUrl, Relatable rRelatable)
-	{
+	protected String renderRelations(String sUrl, Relatable rRelatable) {
 		StringBuilder aHtml = new StringBuilder();
 
-		rRelatable.getRelations(null).stream().filter(r -> r.getType() != NAME)
-				  .forEach(rRelation ->
-			   			{
-			   				String sRelation =
-			   					renderRelation(sUrl, rRelation);
+		rRelatable.getRelations(null)
+			.stream()
+			.filter(r -> r.getType() != NAME)
+			.forEach(rRelation -> {
+				String sRelation = renderRelation(sUrl, rRelation);
 
-			   				if (sRelation != null)
-			   				{
-			   					aHtml.append(sRelation).append("<br>");
-			   				}
-						   });
+				if (sRelation != null) {
+					aHtml.append(sRelation).append("<br>");
+				}
+			});
 
 		return aHtml.toString();
 	}
@@ -296,16 +260,12 @@ public class HtmlSpace extends RelationSpace<String>
 	 *
 	 * @return The resulting HTML string
 	 */
-	private String renderDisplayValue(Object rValue)
-	{
+	private String renderDisplayValue(Object rValue) {
 		String sHtml = null;
 
-		if (rValue instanceof Date)
-		{
+		if (rValue instanceof Date) {
 			sHtml = DateFormat.getDateTimeInstance().format(rValue);
-		}
-		else if (rValue != null)
-		{
+		} else if (rValue != null) {
 			sHtml = rValue.toString();
 		}
 

@@ -35,7 +35,7 @@ public interface BinaryPredicate<L, R> extends Predicate<L>,
 	 * @see Function#evaluate(Object)
 	 */
 	@Override
-	default public Boolean evaluate(L rLeftValue)
+	default Boolean evaluate(L rLeftValue)
 	{
 		return evaluate(rLeftValue, getRightValue());
 	}
@@ -52,7 +52,7 @@ public interface BinaryPredicate<L, R> extends Predicate<L>,
 	 *         input values and then evaluates the result with this predicate
 	 */
 	@Override
-	default public <A, B> BinaryPredicate<A, B> from(
+	default <A, B> BinaryPredicate<A, B> from(
 		Function<A, ? extends L> rLeft,
 		Function<B, ? extends R> rRight)
 	{

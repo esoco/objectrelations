@@ -18,7 +18,6 @@ package org.obrel.core;
 
 import de.esoco.lib.property.Fluent;
 
-
 /********************************************************************
  * An interface that can be implemented by relatable objects that provide a
  * fluent interface. The default method {@link #with(RelationType, Object)} sets
@@ -28,8 +27,7 @@ import de.esoco.lib.property.Fluent;
  * @author eso
  */
 public interface FluentRelatable<T extends FluentRelatable<T>>
-	extends Relatable, Fluent<T>
-{
+	extends Relatable, Fluent<T> {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -39,8 +37,7 @@ public interface FluentRelatable<T extends FluentRelatable<T>>
 	 *
 	 * @return This instance for fluent invocation
 	 */
-	default public T with(RelationType<Boolean> rType)
-	{
+	default T with(RelationType<Boolean> rType) {
 		return _with(() -> set(rType));
 	}
 
@@ -50,8 +47,7 @@ public interface FluentRelatable<T extends FluentRelatable<T>>
 	 *
 	 * @see #with(RelationType, Object)
 	 */
-	default public T with(RelationType<Integer> rType, int nValue)
-	{
+	default T with(RelationType<Integer> rType, int nValue) {
 		return _with(() -> set(rType, Integer.valueOf(nValue)));
 	}
 
@@ -66,8 +62,7 @@ public interface FluentRelatable<T extends FluentRelatable<T>>
 	 *
 	 * @return This instance for fluent invocation
 	 */
-	default <V> T with(RelationType<V> rType, V rValue)
-	{
+	default <V> T with(RelationType<V> rType, V rValue) {
 		return _with(() -> set(rType, rValue));
 	}
 }

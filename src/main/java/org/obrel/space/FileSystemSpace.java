@@ -20,19 +20,19 @@ import de.esoco.lib.expression.Function;
 
 import java.io.File;
 
-
 /********************************************************************
  * An object space implementation that maps URLs to the local file system.
  *
  * @author eso
  */
-public class FileSystemSpace<T> extends RelationSpace<T>
-{
+public class FileSystemSpace<T> extends RelationSpace<T> {
 	//~ Instance fields --------------------------------------------------------
 
-	private final String	  sRootPath;
-	private String			  sDefaultFile;
-	private Function<File, T> fReadFile;
+	private final String sRootPath;
+
+	private final String sDefaultFile;
+
+	private final Function<File, T> fReadFile;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -45,18 +45,15 @@ public class FileSystemSpace<T> extends RelationSpace<T>
 	 * @param fReadFile    A function that reads a file and returns it's content
 	 *                     with the datatype of this space
 	 */
-	public FileSystemSpace(String			 sRootPath,
-						   String			 sDefaultFile,
-						   Function<File, T> fReadFile)
-	{
-		if (!sRootPath.endsWith("/"))
-		{
+	public FileSystemSpace(String sRootPath, String sDefaultFile,
+		Function<File, T> fReadFile) {
+		if (!sRootPath.endsWith("/")) {
 			sRootPath += "/";
 		}
 
-		this.sRootPath    = sRootPath;
+		this.sRootPath = sRootPath;
 		this.sDefaultFile = sDefaultFile;
-		this.fReadFile    = fReadFile;
+		this.fReadFile = fReadFile;
 	}
 
 	//~ Methods ----------------------------------------------------------------
@@ -65,22 +62,18 @@ public class FileSystemSpace<T> extends RelationSpace<T>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public T get(String sUrl)
-	{
-		if (sUrl.startsWith("/"))
-		{
+	public T get(String sUrl) {
+		if (sUrl.startsWith("/")) {
 			sUrl = sUrl.substring(1);
 		}
 
-		if (sUrl.isEmpty())
-		{
+		if (sUrl.isEmpty()) {
 			sUrl = sDefaultFile;
 		}
 
 		File aFile = new File(sRootPath + sUrl);
 
-		if (!aFile.exists() || !aFile.isFile() || aFile.isHidden())
-		{
+		if (!aFile.exists() || !aFile.isFile() || aFile.isHidden()) {
 			throw new IllegalArgumentException("Invalid URL: " + sUrl);
 		}
 

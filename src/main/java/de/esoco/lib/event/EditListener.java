@@ -26,7 +26,7 @@ public interface EditListener<T>
 	/********************************************************************
 	 * Enumeration of the standard actions for the editing of objects.
 	 */
-	public enum EditAction { SAVE, CANCEL }
+	enum EditAction { SAVE, CANCEL }
 
 	//~ Methods ----------------------------------------------------------------
 
@@ -37,12 +37,12 @@ public interface EditListener<T>
 	 * @param rObject       The edited object
 	 * @param eFinishAction The edit action that caused the finishing
 	 */
-	public void editFinished(T rObject, EditAction eFinishAction);
+	void editFinished(T rObject, EditAction eFinishAction);
 
 	/***************************************
 	 * Will be invoked when the editing of a TLD begins.
 	 *
 	 * @param rObject The edited object
 	 */
-	public void editStarted(T rObject);
+	void editStarted(T rObject);
 }

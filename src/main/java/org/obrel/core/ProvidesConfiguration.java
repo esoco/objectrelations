@@ -23,8 +23,7 @@ package org.obrel.core;
  * @author eso
  */
 @FunctionalInterface
-public interface ProvidesConfiguration
-{
+public interface ProvidesConfiguration {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -36,7 +35,7 @@ public interface ProvidesConfiguration
 	 *
 	 * @return The relation value or the default
 	 */
-	public <T> T getConfigValue(RelationType<T> rType, T rDefaultValue);
+	<T> T getConfigValue(RelationType<T> rType, T rDefaultValue);
 
 	/***************************************
 	 * Sets a configuration value. The default implementation always throws an
@@ -46,8 +45,7 @@ public interface ProvidesConfiguration
 	 * @param rType  The relation type
 	 * @param rValue The value to set
 	 */
-	default public <T> void setConfigValue(RelationType<T> rType, T rValue)
-	{
+	default <T> void setConfigValue(RelationType<T> rType, T rValue) {
 		throw new UnsupportedOperationException("Modifications not supported");
 	}
 }

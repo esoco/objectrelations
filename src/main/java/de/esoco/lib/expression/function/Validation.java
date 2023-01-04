@@ -44,7 +44,7 @@ public interface Validation<T> extends Function<T, ValidationResult>
 	 *
 	 * @return A new validation instance
 	 */
-	public static <T> Validation<T> ensure(
+	static <T> Validation<T> ensure(
 		Predicate<T> pIsValid,
 		String		 sInvalidMessage)
 	{
@@ -61,7 +61,7 @@ public interface Validation<T> extends Function<T, ValidationResult>
 	 * @see Function#apply(Object)
 	 */
 	@Override
-	default public ValidationResult apply(T rValue)
+	default ValidationResult apply(T rValue)
 	{
 		return validate(rValue);
 	}
@@ -74,7 +74,7 @@ public interface Validation<T> extends Function<T, ValidationResult>
 	 *
 	 * @return The validation result
 	 */
-	public ValidationResult validate(T rValue);
+	ValidationResult validate(T rValue);
 
 	//~ Inner Classes ----------------------------------------------------------
 
@@ -85,7 +85,7 @@ public interface Validation<T> extends Function<T, ValidationResult>
 	 *
 	 * @author eso
 	 */
-	public static class ValidationResult
+	class ValidationResult
 	{
 		//~ Instance fields ----------------------------------------------------
 

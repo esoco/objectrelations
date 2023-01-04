@@ -57,9 +57,9 @@ public class JsonObjectTest
 
 	//~ Instance fields --------------------------------------------------------
 
-	private JsonObject aChildObject =
+	private final JsonObject aChildObject =
 		new JsonObject(orderedMapOf(t("childName", "CHILD"), t("childId", 1)));
-	private JsonObject aJsonObject  =
+	private final JsonObject aJsonObject  =
 		new JsonObject(
 			orderedMapOf(
 				t("testNull", null),

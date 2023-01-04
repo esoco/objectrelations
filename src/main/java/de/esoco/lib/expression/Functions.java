@@ -479,7 +479,7 @@ public class Functions
 	{
 		return new AbstractBinaryFunction<I, String, O>(sMessage, "error")
 		{
-			Constructor<? extends Exception> rConstructor =
+			final Constructor<? extends Exception> rConstructor =
 				ReflectUtil.getPublicConstructor(rExceptionClass, String.class);
 
 			@Override

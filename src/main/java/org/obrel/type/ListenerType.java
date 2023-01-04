@@ -16,16 +16,15 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.type;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiConsumer;
-
 import org.obrel.core.Annotations.RelationTypeNamespace;
 import org.obrel.core.ObjectRelations;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 /********************************************************************
  * A generic event listener relation type. The generic parameters define the
@@ -50,15 +49,14 @@ import org.obrel.core.RelationTypeModifier;
  * @author eso
  */
 @RelationTypeNamespace(RelationType.DEFAULT_NAMESPACE)
-public class ListenerType<L, E> extends RelationType<List<L>>
-{
+public class ListenerType<L, E> extends RelationType<List<L>> {
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
 
 	//~ Instance fields --------------------------------------------------------
 
-	private BiConsumer<L, E> fEventDispatcher;
+	private final BiConsumer<L, E> fEventDispatcher;
 
 	//~ Constructors -----------------------------------------------------------
 
@@ -72,10 +70,8 @@ public class ListenerType<L, E> extends RelationType<List<L>>
 	 *                    single listener
 	 * @param rModifiers  The relation type modifiers for the new instance
 	 */
-	public ListenerType(
-		BiConsumer<L, E>		fDispatcher,
-		RelationTypeModifier... rModifiers)
-	{
+	public ListenerType(BiConsumer<L, E> fDispatcher,
+		RelationTypeModifier... rModifiers) {
 		super(null, r -> new ArrayList<L>(), rModifiers);
 
 		fEventDispatcher = fDispatcher;
@@ -92,14 +88,11 @@ public class ListenerType<L, E> extends RelationType<List<L>>
 	 * @param rSource The event source to notify the listeners of
 	 * @param rEvent  The event object to send to the listeners
 	 */
-	public final void notifyListeners(Object rSource, E rEvent)
-	{
+	public final void notifyListeners(Object rSource, E rEvent) {
 		Relatable rRelatable = ObjectRelations.getRelatable(rSource);
 
-		if (rRelatable.hasRelation(this))
-		{
-			for (L rListener : rRelatable.get(this))
-			{
+		if (rRelatable.hasRelation(this)) {
+			for (L rListener : rRelatable.get(this)) {
 				fEventDispatcher.accept(rListener, rEvent);
 			}
 		}
@@ -116,16 +109,12 @@ public class ListenerType<L, E> extends RelationType<List<L>>
 	 * @param fDispatcher The event dispatch function to be used to notify the
 	 *                    listeners
 	 */
-	public final void notifyListeners(Object		   rSource,
-									  E				   rEvent,
-									  BiConsumer<L, E> fDispatcher)
-	{
+	public final void notifyListeners(Object rSource, E rEvent,
+		BiConsumer<L, E> fDispatcher) {
 		Relatable rRelatable = ObjectRelations.getRelatable(rSource);
 
-		if (rRelatable.hasRelation(this))
-		{
-			for (L rListener : rRelatable.get(this))
-			{
+		if (rRelatable.hasRelation(this)) {
+			for (L rListener : rRelatable.get(this)) {
 				fDispatcher.accept(rListener, rEvent);
 			}
 		}

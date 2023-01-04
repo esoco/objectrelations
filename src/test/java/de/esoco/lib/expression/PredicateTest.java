@@ -38,7 +38,7 @@ public class PredicateTest extends TestCase
 	//~ Instance fields --------------------------------------------------------
 
 	@SuppressWarnings("unused")
-	private int nReflectionTestField = 42;
+	private final int nReflectionTestField = 42;
 
 	//~ Methods ----------------------------------------------------------------
 

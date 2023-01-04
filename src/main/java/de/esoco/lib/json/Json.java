@@ -64,7 +64,7 @@ public class Json
 		 * @param cOpen  The structure opening character
 		 * @param cClose The structure closing character
 		 */
-		private JsonStructure(char cOpen, char cClose)
+		JsonStructure(char cOpen, char cClose)
 		{
 			this.cOpen  = cOpen;
 			this.cClose = cClose;

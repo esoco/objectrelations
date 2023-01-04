@@ -27,8 +27,8 @@ public class EventMulticaster<E extends Event<?>> implements EventHandler<E>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private EventHandler<E> rFirst;
-	private EventHandler<E> rSecond;
+	private final EventHandler<E> rFirst;
+	private final EventHandler<E> rSecond;
 
 	//~ Constructors -----------------------------------------------------------
 

@@ -32,5 +32,5 @@ public interface SelectionListener<T>
 	 *
 	 * @param rNewSelection The new selection or NULL for no selection
 	 */
-	public void selectionChanged(T rNewSelection);
+	void selectionChanged(T rNewSelection);
 }

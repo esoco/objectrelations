@@ -31,5 +31,5 @@ public interface Event<T>
 	 *
 	 * @return The event source object
 	 */
-	public T getSource();
+	T getSource();
 }

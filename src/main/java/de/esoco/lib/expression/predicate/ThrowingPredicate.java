@@ -27,8 +27,7 @@ import de.esoco.lib.expression.Predicate;
  * @author eso
  */
 @FunctionalInterface
-public interface ThrowingPredicate<T> extends Predicate<T>
-{
+public interface ThrowingPredicate<T> extends Predicate<T> {
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
@@ -41,8 +40,7 @@ public interface ThrowingPredicate<T> extends Predicate<T>
 	 *
 	 * @return The resulting predicate
 	 */
-	public static <T> Predicate<T> of(ThrowingPredicate<T> fThrowing)
-	{
+	static <T> Predicate<T> of(ThrowingPredicate<T> fThrowing) {
 		return fThrowing;
 	}
 
@@ -56,16 +54,13 @@ public interface ThrowingPredicate<T> extends Predicate<T>
 	 * @see Predicate#evaluate(Object)
 	 */
 	@Override
-	default public Boolean evaluate(T rValue)
-	{
-		try
-		{
+	default Boolean evaluate(T rValue) {
+		try {
 			return tryTest(rValue);
-		}
-		catch (Throwable e)
-		{
-			throw (e instanceof RuntimeException)
-				  ? (RuntimeException) e : new FunctionException(this, e);
+		} catch (Throwable e) {
+			throw (e instanceof RuntimeException) ?
+				(RuntimeException) e :
+				new FunctionException(this, e);
 		}
 	}
 
@@ -79,5 +74,5 @@ public interface ThrowingPredicate<T> extends Predicate<T>
 	 *
 	 * @throws Throwable On errors
 	 */
-	public Boolean tryTest(T rValue) throws Throwable;
+	Boolean tryTest(T rValue) throws Throwable;
 }

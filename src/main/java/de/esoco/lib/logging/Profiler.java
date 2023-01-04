@@ -54,7 +54,7 @@ public class Profiler
 	private final long nCreationTime = System.currentTimeMillis();
 	private long	   nStartTime    = System.currentTimeMillis();
 
-	private Map<String, Measurement> aMeasurements = new LinkedHashMap<>();
+	private final Map<String, Measurement> aMeasurements = new LinkedHashMap<>();
 
 	//~ Constructors -----------------------------------------------------------
 

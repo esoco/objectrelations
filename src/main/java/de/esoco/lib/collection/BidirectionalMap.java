@@ -45,8 +45,8 @@ public class BidirectionalMap<K, V> implements Map<K, V>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private Map<K, V> aKeyToValueMap;
-	private Map<V, K> aValueToKeyMap;
+	private final Map<K, V> aKeyToValueMap;
+	private final Map<V, K> aValueToKeyMap;
 
 	//~ Constructors -----------------------------------------------------------
 

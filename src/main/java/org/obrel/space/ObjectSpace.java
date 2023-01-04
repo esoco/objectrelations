@@ -16,11 +16,10 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.space;
 
-import java.util.NoSuchElementException;
-
 import org.obrel.core.ObjectRelations;
 import org.obrel.core.Relatable;
 
+import java.util.NoSuchElementException;
 
 /********************************************************************
  * An interface that defines hierarchical spaces of relatable objects which can
@@ -31,8 +30,7 @@ import org.obrel.core.Relatable;
  *
  * @author eso
  */
-public interface ObjectSpace<T> extends Relatable
-{
+public interface ObjectSpace<T> extends Relatable {
 	//~ Methods ----------------------------------------------------------------
 
 	/***************************************
@@ -46,8 +44,7 @@ public interface ObjectSpace<T> extends Relatable
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	default public void delete(String sUrl)
-	{
+	default void delete(String sUrl) {
 		throw new UnsupportedOperationException("DELETE not supported");
 	}
 
@@ -64,7 +61,7 @@ public interface ObjectSpace<T> extends Relatable
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	public T get(String sUrl);
+	T get(String sUrl);
 
 	/***************************************
 	 * Stores or updates a value object at a certain URL. See the method {@link
@@ -78,8 +75,7 @@ public interface ObjectSpace<T> extends Relatable
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	default public void put(String sUrl, T rValue)
-	{
+	default void put(String sUrl, T rValue) {
 		throw new UnsupportedOperationException("PUT not supported");
 	}
 }

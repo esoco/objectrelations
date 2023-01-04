@@ -43,7 +43,7 @@ public interface Action<T> extends Function<T, Void>, Consumer<T>
 	 *
 	 * @return The unchecked action
 	 */
-	public static <T, E extends Exception> Action<T> unchecked(
+	static <T, E extends Exception> Action<T> unchecked(
 		ThrowingAction<T, E> fChecked)
 	{
 		return fChecked;
@@ -56,7 +56,7 @@ public interface Action<T> extends Function<T, Void>, Consumer<T>
 	 *
 	 * @param rValue The value to execute the action upon
 	 */
-	public abstract void execute(T rValue);
+	void execute(T rValue);
 
 	/***************************************
 	 * {@inheritDoc}
@@ -105,7 +105,7 @@ public interface Action<T> extends Function<T, Void>, Consumer<T>
 	 * @author eso
 	 */
 	@FunctionalInterface
-	public static interface ThrowingAction<T, E extends Exception>
+	interface ThrowingAction<T, E extends Exception>
 		extends Action<T>
 	{
 		//~ Methods ------------------------------------------------------------
@@ -118,7 +118,7 @@ public interface Action<T> extends Function<T, Void>, Consumer<T>
 		 *
 		 * @throws E An exception in the case of errors
 		 */
-		public void evaluateWithException(T rValue) throws E;
+		void evaluateWithException(T rValue) throws E;
 
 		/***************************************
 		 * Overridden to forward the invocation to the actual function
@@ -128,7 +128,7 @@ public interface Action<T> extends Function<T, Void>, Consumer<T>
 		 * @see Action#execute(Object)
 		 */
 		@Override
-		default public void execute(T rValue)
+		default void execute(T rValue)
 		{
 			try
 			{

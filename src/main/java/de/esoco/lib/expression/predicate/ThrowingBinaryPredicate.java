@@ -27,8 +27,7 @@ import de.esoco.lib.expression.FunctionException;
  * @author eso
  */
 @FunctionalInterface
-public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R>
-{
+public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R> {
 	//~ Static methods ---------------------------------------------------------
 
 	/***************************************
@@ -41,9 +40,8 @@ public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R>
 	 *
 	 * @return The resulting predicate
 	 */
-	public static <L, R> BinaryPredicate<L, R> of(
-		ThrowingBinaryPredicate<L, R> fThrowing)
-	{
+	static <L, R> BinaryPredicate<L, R> of(
+		ThrowingBinaryPredicate<L, R> fThrowing) {
 		return fThrowing;
 	}
 
@@ -57,16 +55,13 @@ public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R>
 	 * @see BinaryPredicate#evaluate(Object, Object)
 	 */
 	@Override
-	default public Boolean evaluate(L rLeft, R rRight)
-	{
-		try
-		{
+	default Boolean evaluate(L rLeft, R rRight) {
+		try {
 			return tryTest(rLeft, rRight);
-		}
-		catch (Throwable e)
-		{
-			throw (e instanceof RuntimeException)
-				  ? (RuntimeException) e : new FunctionException(this, e);
+		} catch (Throwable e) {
+			throw (e instanceof RuntimeException) ?
+				(RuntimeException) e :
+				new FunctionException(this, e);
 		}
 	}
 
@@ -81,5 +76,5 @@ public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R>
 	 *
 	 * @throws Throwable On errors
 	 */
-	public Boolean tryTest(L rLeft, R rRight) throws Throwable;
+	Boolean tryTest(L rLeft, R rRight) throws Throwable;
 }

@@ -55,7 +55,7 @@ public final class ReflectUtil
 	/** Constant to signal no-argument methods */
 	public static final Class<?>[] NO_ARGS = new Class<?>[0];
 
-	private static Map<Class<?>, Class<?>> aInterfaceImplementationMap =
+	private static final Map<Class<?>, Class<?>> aInterfaceImplementationMap =
 		new HashMap<Class<?>, Class<?>>();
 
 	private static final BidirectionalMap<Class<?>, Class<?>> aWrapperPrimitiveMap =

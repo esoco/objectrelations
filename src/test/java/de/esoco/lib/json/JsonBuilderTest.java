@@ -272,7 +272,7 @@ public class JsonBuilderTest
 		aTestObj.set(MetaTypes.MODIFIED);
 		aTestObj.set(StandardTypes.PARENT, aParent);
 		aTestObj.set(StandardTypes.CHILDREN,
-					 Arrays.<Relatable>asList(aChild1, aChild2));
+					 Arrays.asList(aChild1, aChild2));
 
 		return aTestObj;
 	}

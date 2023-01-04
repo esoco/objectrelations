@@ -19,14 +19,12 @@ package org.obrel.space;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.expression.Predicate;
-
-import java.util.List;
-
 import org.obrel.core.Relation;
 import org.obrel.core.RelationType;
 import org.obrel.core.TransformedRelation;
 import org.obrel.type.StandardTypes;
 
+import java.util.List;
 
 /********************************************************************
  * An {@link ObjectSpace} implementation that maps values from another object
@@ -45,12 +43,13 @@ import org.obrel.type.StandardTypes;
  *
  * @author eso
  */
-public class MappedSpace<I, O> implements ObjectSpace<I>
-{
+public class MappedSpace<I, O> implements ObjectSpace<I> {
 	//~ Instance fields --------------------------------------------------------
 
-	private ObjectSpace<O>			 rWrappedSpace;
-	private Function<O, I>			 fValueMapper;
+	private final ObjectSpace<O> rWrappedSpace;
+
+	private final Function<O, I> fValueMapper;
+
 	private InvertibleFunction<O, I> fPutMapper = null;
 
 	//~ Constructors -----------------------------------------------------------
@@ -61,15 +60,12 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 * @param rWrappedSpace The target object space to map values from and to
 	 * @param fValueMapper  The value mapping function
 	 */
-	public MappedSpace(
-		ObjectSpace<O> rWrappedSpace,
-		Function<O, I> fValueMapper)
-	{
+	public MappedSpace(ObjectSpace<O> rWrappedSpace,
+		Function<O, I> fValueMapper) {
 		this.rWrappedSpace = rWrappedSpace;
-		this.fValueMapper  = fValueMapper;
+		this.fValueMapper = fValueMapper;
 
-		if (fValueMapper instanceof InvertibleFunction)
-		{
+		if (fValueMapper instanceof InvertibleFunction) {
 			fPutMapper = (InvertibleFunction<O, I>) fValueMapper;
 		}
 	}
@@ -80,8 +76,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void delete(String sUrl)
-	{
+	public void delete(String sUrl) {
 		rWrappedSpace.delete(sUrl);
 	}
 
@@ -89,8 +84,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteRelation(Relation<?> rRelation)
-	{
+	public void deleteRelation(Relation<?> rRelation) {
 		rWrappedSpace.deleteRelation(rRelation);
 	}
 
@@ -98,8 +92,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public I get(String sUrl)
-	{
+	public I get(String sUrl) {
 		return fValueMapper.evaluate(rWrappedSpace.get(sUrl));
 	}
 
@@ -107,8 +100,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> T get(RelationType<T> rType)
-	{
+	public <T> T get(RelationType<T> rType) {
 		return rWrappedSpace.get(rType);
 	}
 
@@ -116,8 +108,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> Relation<T> getRelation(RelationType<T> rType)
-	{
+	public <T> Relation<T> getRelation(RelationType<T> rType) {
 		return rWrappedSpace.getRelation(rType);
 	}
 
@@ -126,8 +117,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 */
 	@Override
 	public List<Relation<?>> getRelations(
-		Predicate<? super Relation<?>> rFilter)
-	{
+		Predicate<? super Relation<?>> rFilter) {
 		return rWrappedSpace.getRelations(rFilter);
 	}
 
@@ -136,8 +126,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 *
 	 * @return The value mapping function
 	 */
-	public final Function<O, I> getValueMapper()
-	{
+	public final Function<O, I> getValueMapper() {
 		return fValueMapper;
 	}
 
@@ -146,8 +135,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 *
 	 * @return The wrapped object space
 	 */
-	public final ObjectSpace<O> getWrappedSpace()
-	{
+	public final ObjectSpace<O> getWrappedSpace() {
 		return rWrappedSpace;
 	}
 
@@ -155,15 +143,12 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void put(String sUrl, I rValue)
-	{
-		if (fPutMapper != null)
-		{
+	public void put(String sUrl, I rValue) {
+		if (fPutMapper != null) {
 			rWrappedSpace.put(sUrl, fPutMapper.invert(rValue));
-		}
-		else
-		{
-			throw new UnsupportedOperationException("Value mapping not invertible");
+		} else {
+			throw new UnsupportedOperationException(
+				"Value mapping not invertible");
 		}
 	}
 
@@ -171,8 +156,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> Relation<T> set(RelationType<T> rType, T rTarget)
-	{
+	public <T> Relation<T> set(RelationType<T> rType, T rTarget) {
 		return rWrappedSpace.set(rType, rTarget);
 	}
 
@@ -181,9 +165,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 */
 	@Override
 	public <T, V> Relation<T> set(RelationType<T> rType,
-								  Function<V, T>  fTargetResolver,
-								  V				  rIntermediateTarget)
-	{
+		Function<V, T> fTargetResolver, V rIntermediateTarget) {
 		return rWrappedSpace.set(rType, fTargetResolver, rIntermediateTarget);
 	}
 
@@ -194,8 +176,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 * @see Object#toString()
 	 */
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return getWrappedSpace().toString();
 	}
 
@@ -203,10 +184,8 @@ public class MappedSpace<I, O> implements ObjectSpace<I>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T, D> TransformedRelation<T, D> transform(
-		RelationType<T>			 rType,
-		InvertibleFunction<T, D> fTransformation)
-	{
+	public <T, D> TransformedRelation<T, D> transform(RelationType<T> rType,
+		InvertibleFunction<T, D> fTransformation) {
 		return rWrappedSpace.transform(rType, fTransformation);
 	}
 }

@@ -57,7 +57,7 @@ public class JsonParserTest
 
 	//~ Instance fields --------------------------------------------------------
 
-	private JsonParser aParser = new JsonParser();
+	private final JsonParser aParser = new JsonParser();
 
 	//~ Methods ----------------------------------------------------------------
 

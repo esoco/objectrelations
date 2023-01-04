@@ -72,7 +72,7 @@ public class Period implements Serializable
 
 		private final int nCalendarField;
 
-		private long nMilliseconds;
+		private final long nMilliseconds;
 
 		//~ Constructors -------------------------------------------------------
 
@@ -84,7 +84,7 @@ public class Period implements Serializable
 		 * @param nMilliseconds  The number of milliseconds in one count of this
 		 *                       unit
 		 */
-		private Unit(int nCalendarField, long nMilliseconds)
+		Unit(int nCalendarField, long nMilliseconds)
 		{
 			this.nCalendarField = nCalendarField;
 			this.nMilliseconds  = nMilliseconds;

@@ -32,5 +32,5 @@ public interface ElementAccess<E>
 	 *
 	 * @return The element descriptor
 	 */
-	public E getElementDescriptor();
+	E getElementDescriptor();
 }

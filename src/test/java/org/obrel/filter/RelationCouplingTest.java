@@ -55,11 +55,11 @@ public class RelationCouplingTest
 	private String sTarget = null;
 	private int    nCount  = 0;
 
-	private RelationCoupling<String> c1 =
+	private final RelationCoupling<String> c1 =
 		couple(o, NAME, v -> sTarget = v, () -> sTarget);
 
 	@SuppressWarnings({ "boxing", "unused" })
-	private RelationCoupling<Integer> c2 =
+	private final RelationCoupling<Integer> c2 =
 		couple(o, COUNT, n -> nCount = n, () -> nCount);
 
 	//~ Methods ----------------------------------------------------------------

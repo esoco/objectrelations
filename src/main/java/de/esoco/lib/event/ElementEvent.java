@@ -75,9 +75,9 @@ public class ElementEvent<S, E, U> extends GenericEvent<S>
 
 	//~ Instance fields --------------------------------------------------------
 
-	private EventType rType;
-	private E		  rElement;
-	private U		  rUpdateValue;
+	private final EventType rType;
+	private final E		  rElement;
+	private final U		  rUpdateValue;
 
 	//~ Constructors -----------------------------------------------------------
 

@@ -21,6 +21,11 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.json.JsonBuilder;
 import de.esoco.lib.json.JsonParser;
+import org.obrel.space.ObjectSpace;
+import org.obrel.space.ObjectSpaceResolver;
+import org.obrel.space.ObjectSpaceResolver.PutResolver;
+import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,14 +36,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import org.obrel.space.ObjectSpace;
-import org.obrel.space.ObjectSpaceResolver;
-import org.obrel.space.ObjectSpaceResolver.PutResolver;
-import org.obrel.type.MetaTypes;
-import org.obrel.type.StandardTypes;
-
 import static de.esoco.lib.expression.Predicates.alwaysTrue;
-
 
 /********************************************************************
  * A class containing static methods for the handling of object relations. This
@@ -49,14 +47,13 @@ import static de.esoco.lib.expression.Predicates.alwaysTrue;
  *
  * @author eso
  */
-public class ObjectRelations
-{
+public class ObjectRelations {
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final RelatedObject EMPTY_RELATION_CONTAINER =
 		new RelatedObject();
 
-	private static Map<Object, RelatedObject> aRelationContainerMap =
+	private static final Map<Object, RelatedObject> aRelationContainerMap =
 		new WeakHashMap<Object, RelatedObject>();
 
 	//~ Constructors -----------------------------------------------------------
@@ -64,8 +61,7 @@ public class ObjectRelations
 	/***************************************
 	 * Private, only static use.
 	 */
-	private ObjectRelations()
-	{
+	private ObjectRelations() {
 	}
 
 	//~ Static methods ---------------------------------------------------------
@@ -75,10 +71,8 @@ public class ObjectRelations
 	 *
 	 * @see #copyRelations(Relatable, Relatable, boolean, Predicate)
 	 */
-	public static void copyRelations(Relatable rSource,
-									 Relatable rTarget,
-									 boolean   bReplace)
-	{
+	public static void copyRelations(Relatable rSource, Relatable rTarget,
+		boolean bReplace) {
 		copyRelations(rSource, rTarget, bReplace, alwaysTrue());
 	}
 
@@ -96,13 +90,9 @@ public class ObjectRelations
 	 *                 FALSE to keep them
 	 * @param pFilter  A predicate that filters the relations to copy
 	 */
-	public static void copyRelations(Relatable				rSource,
-									 Relatable				rTarget,
-									 boolean				bReplace,
-									 Predicate<Relation<?>> pFilter)
-	{
-		for (Relation<?> rSourceRelation : rSource.getRelations(pFilter))
-		{
+	public static void copyRelations(Relatable rSource, Relatable rTarget,
+		boolean bReplace, Predicate<Relation<?>> pFilter) {
+		for (Relation<?> rSourceRelation : rSource.getRelations(pFilter)) {
 			rSourceRelation.copyTo(rTarget, bReplace);
 		}
 	}
@@ -117,8 +107,7 @@ public class ObjectRelations
 	 *
 	 * @return The target object
 	 */
-	public static <T extends Relatable> T fromJson(T rTarget, String sJson)
-	{
+	public static <T extends Relatable> T fromJson(T rTarget, String sJson) {
 		return new JsonParser().parseRelatable(sJson, rTarget);
 	}
 
@@ -134,9 +123,42 @@ public class ObjectRelations
 	 *
 	 * @return A {@link Relatable} instance associated with the argument object
 	 */
-	public static Relatable getRelatable(Object rForObject)
-	{
+	public static Relatable getRelatable(Object rForObject) {
 		return getRelationContainer(rForObject, true);
+	}
+
+	/***************************************
+	 * Internal method to determine the container that stores the relations of a
+	 * particular object. If the given object is a related object it will simply
+	 * be returned. Else, if bCreate is TRUE a new relation container instance
+	 * will be created and returned. And if bCreate is FALSE an empty default
+	 * container will be returned.
+	 *
+	 * @param  rObject The object to return the data for
+	 * @param  bCreate TRUE to create a new relation container, FALSE to return
+	 *                 an empty default
+	 *
+	 * @return The corresponding related object data instance
+	 */
+	static RelatedObject getRelationContainer(Object rObject, boolean bCreate) {
+		if (rObject instanceof RelatedObject) {
+			return (RelatedObject) rObject;
+		} else {
+			synchronized (aRelationContainerMap) {
+				RelatedObject rContainer = aRelationContainerMap.get(rObject);
+
+				if (rContainer == null) {
+					if (bCreate) {
+						rContainer = new RelatedObject();
+						aRelationContainerMap.put(rObject, rContainer);
+					} else {
+						rContainer = EMPTY_RELATION_CONTAINER;
+					}
+				}
+
+				return rContainer;
+			}
+		}
 	}
 
 	/***************************************
@@ -148,11 +170,8 @@ public class ObjectRelations
 	 * versions may perform additional tasks and therefore it is recommended to
 	 * always invoke it.
 	 */
-	public static void init()
-	{
-		registerRelationTypes(
-			RelationTypes.class,
-			MetaTypes.class,
+	public static void init() {
+		registerRelationTypes(RelationTypes.class, MetaTypes.class,
 			StandardTypes.class);
 	}
 
@@ -179,20 +198,15 @@ public class ObjectRelations
 	 *
 	 * @param rClasses A list of classes to register all defined types of
 	 */
-	public static void registerRelationTypes(Class<?>... rClasses)
-	{
+	public static void registerRelationTypes(Class<?>... rClasses) {
 		assert rClasses.length > 0 : "No classes to register";
 
-		for (Class<?> rClass : rClasses)
-		{
-			try
-			{
+		for (Class<?> rClass : rClasses) {
+			try {
 				// only accessing the class may not be sufficient because
 				// ineffective code could be removed by compiler optimizations
 				Class.forName(rClass.getName());
-			}
-			catch (ClassNotFoundException e)
-			{
+			} catch (ClassNotFoundException e) {
 				// this should not be possible
 				throw new IllegalStateException(e);
 			}
@@ -206,8 +220,7 @@ public class ObjectRelations
 	 *
 	 * @param rForObject The object to remove the relatable object for
 	 */
-	public static void removeRelatable(Object rForObject)
-	{
+	public static void removeRelatable(Object rForObject) {
 		aRelationContainerMap.remove(rForObject);
 	}
 
@@ -217,8 +230,8 @@ public class ObjectRelations
 	 *
 	 * @see #require(Relatable, Predicate, RelationType...)
 	 */
-	public static void require(Relatable rRelatable, RelationType<?>... rTypes)
-	{
+	public static void require(Relatable rRelatable,
+		RelationType<?>... rTypes) {
 		require(rRelatable, Predicates.alwaysTrue(), rTypes);
 	}
 
@@ -238,27 +251,21 @@ public class ObjectRelations
 	 * @throws IllegalArgumentException If one or more relations don't exist or
 	 *                                  the requirement predicate yields FALSE
 	 */
-	public static void require(Relatable			  rRelatable,
-							   Predicate<Relation<?>> pRequirement,
-							   RelationType<?>...     rTypes)
-	{
+	public static void require(Relatable rRelatable,
+		Predicate<Relation<?>> pRequirement, RelationType<?>... rTypes) {
 		Set<RelationType<?>> aMissingTypes = new LinkedHashSet<>();
 
-		for (RelationType<?> rType : rTypes)
-		{
+		for (RelationType<?> rType : rTypes) {
 			Relation<?> rRelation = rRelatable.getRelation(rType);
 
-			if (rRelation == null || !pRequirement.test(rRelation))
-			{
+			if (rRelation == null || !pRequirement.test(rRelation)) {
 				aMissingTypes.add(rType);
 			}
 		}
 
-		if (!aMissingTypes.isEmpty())
-		{
+		if (!aMissingTypes.isEmpty()) {
 			throw new IllegalArgumentException(
-				"Relations missing: " +
-				aMissingTypes);
+				"Relations missing: " + aMissingTypes);
 		}
 	}
 
@@ -269,10 +276,8 @@ public class ObjectRelations
 	 * @see #require(Relatable, Predicate, RelationType...)
 	 */
 	@SuppressWarnings("boxing")
-	public static void requireNonNull(
-		Relatable		   rRelatable,
-		RelationType<?>... rTypes)
-	{
+	public static void requireNonNull(Relatable rRelatable,
+		RelationType<?>... rTypes) {
 		require(rRelatable, r -> r.getTarget() != null, rTypes);
 	}
 
@@ -283,12 +288,9 @@ public class ObjectRelations
 	 * @param rTarget  The relation target value
 	 * @param rObjects The objects to set the relation on
 	 */
-	public static <T> void setAll(RelationType<T> rType,
-								  T				  rTarget,
-								  Relatable...    rObjects)
-	{
-		for (Relatable rObject : rObjects)
-		{
+	public static <T> void setAll(RelationType<T> rType, T rTarget,
+		Relatable... rObjects) {
+		for (Relatable rObject : rObjects) {
 			rObject.set(rType, rTarget);
 		}
 	}
@@ -300,18 +302,15 @@ public class ObjectRelations
 	 * @param rFlagType The boolean type of the relation
 	 * @param rObjects  The objects to set the flag on
 	 */
-	public static void setFlags(
-		RelationType<Boolean> rFlagType,
-		Relatable... 		  rObjects)
-	{
+	public static void setFlags(RelationType<Boolean> rFlagType,
+		Relatable... rObjects) {
 		setAll(rFlagType, Boolean.TRUE, rObjects);
 	}
 
 	/***************************************
 	 * Performs a shutdown by freeing global resources.
 	 */
-	public static void shutdown()
-	{
+	public static void shutdown() {
 		aRelationContainerMap.clear();
 	}
 
@@ -323,14 +322,12 @@ public class ObjectRelations
 	 * @param rFirst  The first object to swap the relations of the second to
 	 * @param rSecond The second object to swap the relations of the first to
 	 */
-	public static void swapRelations(
-		RelatedObject rFirst,
-		RelatedObject rSecond)
-	{
+	public static void swapRelations(RelatedObject rFirst,
+		RelatedObject rSecond) {
 		Map<RelationType<?>, Relation<?>> rSecondRelations = rSecond.aRelations;
 
 		rSecond.aRelations = rFirst.aRelations;
-		rFirst.aRelations  = rSecondRelations;
+		rFirst.aRelations = rSecondRelations;
 	}
 
 	/***************************************
@@ -342,10 +339,8 @@ public class ObjectRelations
 	 * @param rTarget The target object to replace the relations of
 	 * @param rSource The object replace the target object's relations with
 	 */
-	public static void syncRelations(
-		RelatedObject rTarget,
-		RelatedObject rSource)
-	{
+	public static void syncRelations(RelatedObject rTarget,
+		RelatedObject rSource) {
 		rTarget.aRelations = rSource.aRelations;
 	}
 
@@ -368,10 +363,8 @@ public class ObjectRelations
 	 *
 	 * @return The resulting JSON string
 	 */
-	public static String toJson(
-		Relatable		   rObject,
-		RelationType<?>... rRelationTypes)
-	{
+	public static String toJson(Relatable rObject,
+		RelationType<?>... rRelationTypes) {
 		List<RelationType<?>> rTypes =
 			rRelationTypes.length > 0 ? Arrays.asList(rRelationTypes) : null;
 
@@ -388,12 +381,10 @@ public class ObjectRelations
 	 *
 	 * @return The resulting JSON string
 	 */
-	public static String toJson(
-		Relatable					rObject,
-		Collection<RelationType<?>> rRelationTypes)
-	{
+	public static String toJson(Relatable rObject,
+		Collection<RelationType<?>> rRelationTypes) {
 		return new JsonBuilder().appendRelatable(rObject, rRelationTypes, true)
-								.toString();
+			.toString();
 	}
 
 	/***************************************
@@ -410,8 +401,7 @@ public class ObjectRelations
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	public static void urlDelete(Relatable rRoot, String sUrl)
-	{
+	public static void urlDelete(Relatable rRoot, String sUrl) {
 		urlResolve(rRoot, sUrl, true, ObjectSpaceResolver.URL_DELETE);
 	}
 
@@ -431,9 +421,23 @@ public class ObjectRelations
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	public static Object urlGet(Relatable rRoot, String sUrl)
-	{
+	public static Object urlGet(Relatable rRoot, String sUrl) {
 		return urlResolve(rRoot, sUrl, true, ObjectSpaceResolver.URL_GET);
+	}
+
+	/***************************************
+	 * Internal helper method to throw a {@link NoSuchElementException} upon a
+	 * URL resolving error.
+	 *
+	 * @param sUrl     The URL to resolve
+	 * @param sElement The URL element that could not be resolved
+	 */
+	private static void urlLookupError(String sUrl, String sElement) {
+		String sMessage =
+			String.format("Could not resolve element '%s' in URL '%s'",
+				sElement, sUrl);
+
+		throw new NoSuchElementException(sMessage);
 	}
 
 	/***************************************
@@ -453,8 +457,7 @@ public class ObjectRelations
 	 *                                  relation type or if the given value
 	 *                                  cannot be assigned to the relation type
 	 */
-	public static void urlPut(Relatable rRoot, String sUrl, Object rValue)
-	{
+	public static void urlPut(Relatable rRoot, String sUrl, Object rValue) {
 		urlResolve(rRoot, sUrl, true, new PutResolver<Object>(rValue));
 	}
 
@@ -481,81 +484,56 @@ public class ObjectRelations
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	public static Object urlResolve(Relatable			rRoot,
-									String				sUrl,
-									boolean				bForwardToObjectSpace,
-									ObjectSpaceResolver fTargetHandler)
-	{
-		String[]	    rElements	    = sUrl.split("/");
-		Object		    rNextElement    = rRoot;
-		Relatable	    rCurrentElement = rRoot;
-		RelationType<?> rType		    = null;
-		int			    nChildUrlIndex  = 0;
+	public static Object urlResolve(Relatable rRoot, String sUrl,
+		boolean bForwardToObjectSpace, ObjectSpaceResolver fTargetHandler) {
+		String[] rElements = sUrl.split("/");
+		Object rNextElement = rRoot;
+		Relatable rCurrentElement = rRoot;
+		RelationType<?> rType = null;
+		int nChildUrlIndex = 0;
 
-		for (String sElement : rElements)
-		{
+		for (String sElement : rElements) {
 			// ignore empty URL elements (// or / at start or end)
-			if (!sElement.isEmpty())
-			{
+			if (!sElement.isEmpty()) {
 				sElement = sElement.replaceAll("-", "_");
 
-				if (bForwardToObjectSpace &&
-					rNextElement instanceof ObjectSpace)
-				{
+				if (bForwardToObjectSpace && rNextElement instanceof ObjectSpace) {
 					// let child-spaces perform the lookup by themselves
-					return fTargetHandler.resolve(
-						(ObjectSpace<?>) rNextElement,
+					return fTargetHandler.resolve((ObjectSpace<?>) rNextElement,
 						sUrl.substring(nChildUrlIndex));
-				}
-				else if (rNextElement instanceof Relatable)
-				{
+				} else if (rNextElement instanceof Relatable) {
 					rCurrentElement = (Relatable) rNextElement;
-				}
-				else
-				{
+				} else {
 					urlLookupError(sUrl, sElement);
 				}
 
 				int nPackageEnd = sElement.lastIndexOf('.') + 1;
 
-				if (nPackageEnd > 0)
-				{
+				if (nPackageEnd > 0) {
 					sElement =
-						sElement.substring(0, nPackageEnd) +
-						sElement.substring(nPackageEnd).toUpperCase();
-				}
-				else
-				{
+						sElement.substring(0, nPackageEnd) + sElement.substring(
+							nPackageEnd).toUpperCase();
+				} else {
 					sElement = sElement.toUpperCase();
 				}
 
 				rType = RelationType.valueOf(sElement);
 
-				if (rType != null)
-				{
+				if (rType != null) {
 					rNextElement = rCurrentElement.get(rType);
-				}
-				else
-				{
+				} else {
 					String sType = sElement;
 
 					Relation<?> rElementRelation =
 						rCurrentElement.streamRelations()
-									   .filter(
-			   							r ->
-			   								r.getType()
-			   								.getName()
-			   								.endsWith(sType))
-									   .findFirst()
-									   .orElse(null);
+							.filter(r -> r.getType().getName().endsWith(sType))
+							.findFirst()
+							.orElse(null);
 
-					if (rElementRelation != null)
-					{
+					if (rElementRelation != null) {
 						rNextElement = rElementRelation.getTarget();
-						rType		 = rElementRelation.getType();
-					}
-					else
-					{
+						rType = rElementRelation.getType();
+					} else {
 						urlLookupError(sUrl, sElement);
 					}
 				}
@@ -568,72 +546,10 @@ public class ObjectRelations
 			bForwardToObjectSpace = true;
 		}
 
-		if (rType == null)
-		{
+		if (rType == null) {
 			throw new IllegalArgumentException("Could not resolve URL " + sUrl);
 		}
 
 		return fTargetHandler.evaluate(rCurrentElement, rType);
-	}
-
-	/***************************************
-	 * Internal method to determine the container that stores the relations of a
-	 * particular object. If the given object is a related object it will simply
-	 * be returned. Else, if bCreate is TRUE a new relation container instance
-	 * will be created and returned. And if bCreate is FALSE an empty default
-	 * container will be returned.
-	 *
-	 * @param  rObject The object to return the data for
-	 * @param  bCreate TRUE to create a new relation container, FALSE to return
-	 *                 an empty default
-	 *
-	 * @return The corresponding related object data instance
-	 */
-	static RelatedObject getRelationContainer(Object rObject, boolean bCreate)
-	{
-		if (rObject instanceof RelatedObject)
-		{
-			return (RelatedObject) rObject;
-		}
-		else
-		{
-			synchronized (aRelationContainerMap)
-			{
-				RelatedObject rContainer = aRelationContainerMap.get(rObject);
-
-				if (rContainer == null)
-				{
-					if (bCreate)
-					{
-						rContainer = new RelatedObject();
-						aRelationContainerMap.put(rObject, rContainer);
-					}
-					else
-					{
-						rContainer = EMPTY_RELATION_CONTAINER;
-					}
-				}
-
-				return rContainer;
-			}
-		}
-	}
-
-	/***************************************
-	 * Internal helper method to throw a {@link NoSuchElementException} upon a
-	 * URL resolving error.
-	 *
-	 * @param sUrl     The URL to resolve
-	 * @param sElement The URL element that could not be resolved
-	 */
-	private static void urlLookupError(String sUrl, String sElement)
-	{
-		String sMessage =
-			String.format(
-				"Could not resolve element '%s' in URL '%s'",
-				sElement,
-				sUrl);
-
-		throw new NoSuchElementException(sMessage);
 	}
 }

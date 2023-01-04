@@ -32,5 +32,5 @@ public interface Initializer<T>
 	 *
 	 * @throws Exception If the initialization fails
 	 */
-	public void init(T rInitObject) throws Exception;
+	void init(T rInitObject) throws Exception;
 }

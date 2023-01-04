@@ -32,5 +32,5 @@ public interface EventHandler<E extends Event<?>> extends EventListener
 	 *
 	 * @param rEvent The event that occurred
 	 */
-	public void handleEvent(E rEvent);
+	void handleEvent(E rEvent);
 }

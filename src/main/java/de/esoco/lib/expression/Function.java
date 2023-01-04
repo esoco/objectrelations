@@ -39,7 +39,7 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 	 * The placeholder string that is used to display the input value of a
 	 * function in the result of the {@link Object#toString()} method.
 	 */
-	public static final String INPUT_PLACEHOLDER = "#";
+	String INPUT_PLACEHOLDER = "#";
 
 	//~ Methods ----------------------------------------------------------------
 
@@ -57,7 +57,7 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 	 *
 	 * @return The resulting (output) value (may be NULL)
 	 */
-	public O evaluate(I rValue);
+	O evaluate(I rValue);
 
 	/***************************************
 	 * Creates an action that consumes the result of evaluating an input value.

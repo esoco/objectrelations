@@ -22,11 +22,12 @@ import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
 import de.esoco.lib.expression.InvertibleFunction;
 import de.esoco.lib.property.Immutability;
+import org.obrel.type.ListenerTypes;
+import org.obrel.type.MetaTypes;
 
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -35,11 +36,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.obrel.type.ListenerTypes;
-import org.obrel.type.MetaTypes;
-
 import static org.obrel.type.MetaTypes.IMMUTABLE;
-
 
 /********************************************************************
  * This is the abstract base class for relations from a certain origin object to
@@ -50,15 +47,16 @@ import static org.obrel.type.MetaTypes.IMMUTABLE;
  *
  * @author eso
  */
-public abstract class Relation<T> extends SerializableRelatedObject
-{
+public abstract class Relation<T> extends SerializableRelatedObject {
 	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
 
 	//~ Instance fields --------------------------------------------------------
 
-	/** @serial The relation type */
+	/**
+	 * @serial The relation type
+	 */
 	private final RelationType<T> rType;
 
 	//~ Constructors -----------------------------------------------------------
@@ -68,19 +66,11 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *
 	 * @param rType The relation type
 	 */
-	public Relation(RelationType<T> rType)
-	{
+	public Relation(RelationType<T> rType) {
 		this.rType = rType;
 	}
 
 	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
-	 * Returns the target object of this relation.
-	 *
-	 * @return The target object
-	 */
-	public abstract T getTarget();
 
 	/***************************************
 	 * Adds a listener to update events of this particular relation. This method
@@ -91,8 +81,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *
 	 * @param rListener The relation event listener to add
 	 */
-	public void addUpdateListener(EventHandler<RelationEvent<T>> rListener)
-	{
+	public void addUpdateListener(EventHandler<RelationEvent<T>> rListener) {
 		get(ListenerTypes.RELATION_UPDATE_LISTENERS).add(rListener);
 	}
 
@@ -103,10 +92,8 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *
 	 * @see #aliasAs(RelationType, Relatable, InvertibleFunction)
 	 */
-	public final Relation<T> aliasAs(
-		RelationType<T> rAliasType,
-		Relatable		rInParent)
-	{
+	public final Relation<T> aliasAs(RelationType<T> rAliasType,
+		Relatable rInParent) {
 		return aliasAs(rAliasType, rInParent, Functions.identity());
 	}
 
@@ -137,18 +124,10 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *
 	 * @return The alias relation
 	 */
-	public final <A> Relation<A> aliasAs(
-		RelationType<A>			 rAliasType,
-		Relatable				 rInParent,
-		InvertibleFunction<T, A> fAliasConversion)
-	{
-		return addAlias(
-			new RelationAlias<A, T>(
-				rInParent,
-				rAliasType,
-				this,
-				fAliasConversion),
-			rInParent);
+	public final <A> Relation<A> aliasAs(RelationType<A> rAliasType,
+		Relatable rInParent, InvertibleFunction<T, A> fAliasConversion) {
+		return addAlias(new RelationAlias<A, T>(rInParent, rAliasType, this,
+			fAliasConversion), rInParent);
 	}
 
 	/***************************************
@@ -156,8 +135,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *
 	 * @see #annotate(RelationType, Object)
 	 */
-	public final Relation<T> annotate(RelationType<Boolean> rAnnotationType)
-	{
+	public final Relation<T> annotate(RelationType<Boolean> rAnnotationType) {
 		return annotate(rAnnotationType, Boolean.TRUE);
 	}
 
@@ -182,10 +160,8 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @return Returns this instance to allow concatenation of annotation
 	 *         setting
 	 */
-	public final <V> Relation<T> annotate(
-		RelationType<V> rAnnotationType,
-		V				rValue)
-	{
+	public final <V> Relation<T> annotate(RelationType<V> rAnnotationType,
+		V rValue) {
 		set(rAnnotationType, rValue);
 
 		return this;
@@ -198,22 +174,19 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public final boolean equals(Object rObject)
-	{
-		if (this == rObject)
-		{
+	public final boolean equals(Object rObject) {
+		if (this == rObject) {
 			return true;
 		}
 
-		if (rObject == null || getClass() != rObject.getClass())
-		{
+		if (rObject == null || getClass() != rObject.getClass()) {
 			return false;
 		}
 
 		final Relation<?> rOther = (Relation<?>) rObject;
 
-		return (rType == rOther.rType && dataEqual(rOther) &&
-				relationsEqual(rOther));
+		return (rType == rOther.rType && dataEqual(rOther) && relationsEqual(
+			rOther));
 	}
 
 	/***************************************
@@ -229,20 +202,14 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @return The annotation value from either this relation or from it's type;
 	 *         will be NULL if no such annotation is available
 	 */
-	public final <V> V getAnnotation(RelationType<V> rAnnotationType)
-	{
+	public final <V> V getAnnotation(RelationType<V> rAnnotationType) {
 		V rValue;
 
-		if (hasRelation(rAnnotationType))
-		{
+		if (hasRelation(rAnnotationType)) {
 			rValue = get(rAnnotationType);
-		}
-		else if (rType.hasRelation(rAnnotationType))
-		{
+		} else if (rType.hasRelation(rAnnotationType)) {
 			rValue = rType.get(rAnnotationType);
-		}
-		else
-		{
+		} else {
 			rValue = null;
 		}
 
@@ -250,12 +217,18 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	}
 
 	/***************************************
+	 * Returns the target object of this relation.
+	 *
+	 * @return The target object
+	 */
+	public abstract T getTarget();
+
+	/***************************************
 	 * Returns the relation's type.
 	 *
 	 * @return The type of this relation
 	 */
-	public final RelationType<T> getType()
-	{
+	public final RelationType<T> getType() {
 		return rType;
 	}
 
@@ -272,10 +245,9 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @return TRUE if either this relation or it's type have an annotation with
 	 *         the given type
 	 */
-	public final boolean hasAnnotation(RelationType<?> rAnnotationType)
-	{
-		return hasRelation(rAnnotationType) ||
-			   rType.hasRelation(rAnnotationType);
+	public final boolean hasAnnotation(RelationType<?> rAnnotationType) {
+		return hasRelation(rAnnotationType) || rType.hasRelation(
+			rAnnotationType);
 	}
 
 	/***************************************
@@ -288,19 +260,17 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *         type
 	 */
 	public final boolean hasFlagAnnotation(
-		RelationType<Boolean> rAnnotationType)
-	{
+		RelationType<Boolean> rAnnotationType) {
 		Boolean rFlag = getAnnotation(rAnnotationType);
 
-		return rFlag != null ? rFlag.booleanValue() : false;
+		return rFlag != null && rFlag.booleanValue();
 	}
 
 	/***************************************
 	 * @see Object#hashCode()
 	 */
 	@Override
-	public final int hashCode()
-	{
+	public final int hashCode() {
 		int nResult = rType.hashCode();
 
 		nResult = 31 * nResult + dataHashCode();
@@ -322,19 +292,13 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @return The registered event handler (needed for de-registration of the
 	 *         event listener)
 	 */
-	public EventHandler<RelationEvent<T>> onChange(Consumer<T> fChangeHandler)
-	{
-		EventHandler<RelationEvent<T>> aHandler =
-			e ->
-			{
-				if (e.getType() == EventType.UPDATE &&
-					!Objects.equals(
-						e.getUpdateValue(),
-						e.getElement().getTarget()))
-				{
-					fChangeHandler.accept(e.getUpdateValue());
-				}
-			};
+	public EventHandler<RelationEvent<T>> onChange(Consumer<T> fChangeHandler) {
+		EventHandler<RelationEvent<T>> aHandler = e -> {
+			if (e.getType() == EventType.UPDATE && !Objects.equals(
+				e.getUpdateValue(), e.getElement().getTarget())) {
+				fChangeHandler.accept(e.getUpdateValue());
+			}
+		};
 
 		addUpdateListener(aHandler);
 
@@ -355,16 +319,12 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @return The registered event handler (needed for de-registration of the
 	 *         event listener)
 	 */
-	public EventHandler<RelationEvent<T>> onUpdate(Consumer<T> fUpdateHandler)
-	{
-		EventHandler<RelationEvent<T>> aHandler =
-			e ->
-			{
-				if (e.getType() == EventType.UPDATE)
-				{
-					fUpdateHandler.accept(e.getUpdateValue());
-				}
-			};
+	public EventHandler<RelationEvent<T>> onUpdate(Consumer<T> fUpdateHandler) {
+		EventHandler<RelationEvent<T>> aHandler = e -> {
+			if (e.getType() == EventType.UPDATE) {
+				fUpdateHandler.accept(e.getUpdateValue());
+			}
+		};
 
 		addUpdateListener(aHandler);
 
@@ -380,45 +340,30 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * corresponding unmodifiable instance.
 	 */
 	@SuppressWarnings("unchecked")
-	public void setImmutable()
-	{
+	public void setImmutable() {
 		Class<?> rTargetType = rType.getTargetType();
-		Object   rTarget     = getTarget();
+		Object rTarget = getTarget();
 
-		if (rTarget instanceof Immutability)
-		{
+		if (rTarget instanceof Immutability) {
 			((Immutability) rTarget).setImmutable();
-		}
-		else if (rTarget instanceof Relatable)
-		{
+		} else if (rTarget instanceof Relatable) {
 			Relatable rRelatableTarget = (Relatable) rTarget;
 
-			if (!rRelatableTarget.hasRelation(IMMUTABLE))
-			{
+			if (!rRelatableTarget.hasRelation(IMMUTABLE)) {
 				rRelatableTarget.set(IMMUTABLE);
 			}
-		}
-		else if (rTargetType == List.class)
-		{
+		} else if (rTargetType == List.class) {
 			setTarget((T) Collections.unmodifiableList((List<?>) rTarget));
-		}
-		else if (rTargetType == Set.class)
-		{
+		} else if (rTargetType == Set.class) {
 			setTarget((T) Collections.unmodifiableSet((Set<?>) rTarget));
-		}
-		else if (rTargetType == Collection.class)
-		{
-			setTarget(
-				(T) Collections.unmodifiableCollection(
-					(Collection<?>) rTarget));
-		}
-		else if (rTargetType == Map.class)
-		{
+		} else if (rTargetType == Collection.class) {
+			setTarget((T) Collections.unmodifiableCollection(
+				(Collection<?>) rTarget));
+		} else if (rTargetType == Map.class) {
 			setTarget((T) Collections.unmodifiableMap((Map<?, ?>) rTarget));
 		}
 
-		if (!hasFlag(IMMUTABLE))
-		{
+		if (!hasFlag(IMMUTABLE)) {
 			set(IMMUTABLE);
 		}
 	}
@@ -429,8 +374,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @return A string describing this relation
 	 */
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "Relation[" + rType + "=" + getTarget() + "]";
 	}
 
@@ -442,13 +386,9 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @see #viewAs(RelationType, Relatable, Function)
 	 */
 	@SuppressWarnings({ "unchecked" })
-	public final Relation<T> viewAs(
-		RelationType<? super T> rViewType,
-		Relatable				rInParent)
-	{
-		return viewAs(
-			(RelationType<T>) rViewType,
-			rInParent,
+	public final Relation<T> viewAs(RelationType<? super T> rViewType,
+		Relatable rInParent) {
+		return viewAs((RelationType<T>) rViewType, rInParent,
 			Functions.identity());
 	}
 
@@ -474,9 +414,7 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @return The view relation
 	 */
 	public final <V> Relation<V> viewAs(RelationType<V> rViewType,
-										Relatable		rInParent,
-										Function<T, V>  fViewConversion)
-	{
+		Relatable rInParent, Function<T, V> fViewConversion) {
 		return addAlias(
 			new RelationView<V, T>(rInParent, rViewType, this, fViewConversion),
 			rInParent);
@@ -486,8 +424,23 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * Will be invoked after a relation has been removed from it's parent
 	 * Relatable. The default implementation does nothing.
 	 */
-	protected void removed()
-	{
+	protected void removed() {
+	}
+
+	/***************************************
+	 * Adds a new relation wrapper as an alias or view to this relation and it's
+	 * parent.
+	 *
+	 * @param  rAlias    The relation wrapper to add
+	 * @param  rInParent The parent to add the wrapper to
+	 *
+	 * @return The alias relation
+	 */
+	final <A> Relation<A> addAlias(RelationWrapper<A, ?, ?> rAlias,
+		Relatable rInParent) {
+		((RelatedObject) rInParent).addRelation(rAlias, true);
+
+		return rAlias;
 	}
 
 	/***************************************
@@ -502,6 +455,26 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 * @return A new relation instance or NULL if copying is not possible
 	 */
 	abstract Relation<T> copyTo(Relatable rTarget);
+
+	/***************************************
+	 * Copies this relation to another related object. The copying will happen
+	 * recursively, i.e. all relations of this instance will be copied too.
+	 *
+	 * @param rTarget  The target object to copy this relation to
+	 * @param bReplace TRUE to replace an existing relation, FALSE to keep it
+	 */
+	void copyTo(Relatable rTarget, boolean bReplace) {
+		boolean bExists = rTarget.hasRelation(rType);
+
+		// The alias list will be rebuilt separately, therefore ignore here
+		if (!bExists || (bReplace && !rType.isFinal())) {
+			Relation<T> aCopy = copyTo(rTarget);
+
+			if (aCopy != null) {
+				ObjectRelations.copyRelations(this, aCopy, bReplace);
+			}
+		}
+	}
 
 	/***************************************
 	 * Must be implemented by a subclass to compare the subclass-specific data
@@ -533,72 +506,25 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	abstract void setTarget(T rNewTarget);
 
 	/***************************************
-	 * Adds a new relation wrapper as an alias or view to this relation and it's
-	 * parent.
-	 *
-	 * @param  rAlias    The relation wrapper to add
-	 * @param  rInParent The parent to add the wrapper to
-	 *
-	 * @return The alias relation
-	 */
-	final <A> Relation<A> addAlias(
-		RelationWrapper<A, ?, ?> rAlias,
-		Relatable				 rInParent)
-	{
-		((RelatedObject) rInParent).addRelation(rAlias, true);
-
-		return rAlias;
-	}
-
-	/***************************************
-	 * Copies this relation to another related object. The copying will happen
-	 * recursively, i.e. all relations of this instance will be copied too.
-	 *
-	 * @param rTarget  The target object to copy this relation to
-	 * @param bReplace TRUE to replace an existing relation, FALSE to keep it
-	 */
-	void copyTo(Relatable rTarget, boolean bReplace)
-	{
-		boolean bExists = rTarget.hasRelation(rType);
-
-		// The alias list will be rebuilt separately, therefore ignore here
-		if (!bExists || (bReplace && !rType.isFinal()))
-		{
-			Relation<T> aCopy = copyTo(rTarget);
-
-			if (aCopy != null)
-			{
-				ObjectRelations.copyRelations(this, aCopy, bReplace);
-			}
-		}
-	}
-
-	/***************************************
 	 * Package-internal method that will be invoked by the relation type to
 	 * modify the reference to the target object.
 	 *
 	 * @param rNewTarget The new target object
 	 */
-	final void updateTarget(T rNewTarget)
-	{
+	final void updateTarget(T rNewTarget) {
 		// prevent changing of an immutable relation; although lookup is less
 		// efficient the IMMUTABLE flag is used to prevent storing a boolean
 		// in each relation instance
-		if (hasFlag(IMMUTABLE))
-		{
+		if (hasFlag(IMMUTABLE)) {
 			throw new UnsupportedOperationException(
 				"Relation is immutable: " + rType);
 		}
 
-		if (!rType.isValidTarget(rNewTarget))
-		{
-			throw new IllegalArgumentException(
-				String.format(
-					"Invalid target for type '%s': %s (is %s - expected %s)",
-					rType,
-					rNewTarget,
-					rNewTarget.getClass().getName(),
-					rType.getTargetType()));
+		if (!rType.isValidTarget(rNewTarget)) {
+			throw new IllegalArgumentException(String.format(
+				"Invalid target for type '%s': %s (is %s - expected %s)", rType,
+				rNewTarget, rNewTarget.getClass().getName(),
+				rType.getTargetType()));
 		}
 
 		setTarget(rNewTarget);
@@ -611,20 +537,18 @@ public abstract class Relation<T> extends SerializableRelatedObject
 	 *
 	 * @param      rIn The input stream
 	 *
-	 * @throws     IOException            If reading data fails
-	 * @throws     ClassNotFoundException If the class couldn't be found
+	 * @throws IOException            If reading data fails
+	 * @throws ClassNotFoundException If the class couldn't be found
 	 *
 	 * @serialData This class reads uses the default serialized form and only
 	 *             implements readObject() to perform a validation of the values
 	 *             read by the default serialization handler
 	 */
-	private void readObject(ObjectInputStream rIn) throws IOException,
-														  ClassNotFoundException
-	{
+	private void readObject(ObjectInputStream rIn)
+		throws IOException, ClassNotFoundException {
 		rIn.defaultReadObject();
 
-		if (rType == null)
-		{
+		if (rType == null) {
 			throw new InvalidObjectException("RelationType is NULL");
 		}
 	}

@@ -35,7 +35,7 @@ public class Group<I> extends AbstractFunction<I, I>
 {
 	//~ Instance fields --------------------------------------------------------
 
-	private List<Consumer<? super I>> aConsumers;
+	private final List<Consumer<? super I>> aConsumers;
 
 	//~ Constructors -----------------------------------------------------------
 

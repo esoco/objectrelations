@@ -31,7 +31,7 @@ public interface EventSource<E extends Event<?>>
 	 *
 	 * @param rListener The listener to add
 	 */
-	public void addListener(EventHandler<? super E> rListener);
+	void addListener(EventHandler<? super E> rListener);
 
 	/***************************************
 	 * Returns the class of the events of this event source. This method be
@@ -44,7 +44,7 @@ public interface EventSource<E extends Event<?>>
 	 *
 	 * @return The event class
 	 */
-	public Class<? super E> getEventClass();
+	Class<? super E> getEventClass();
 
 	/***************************************
 	 * Adds a new element listener to this list. All registered listeners will
@@ -52,5 +52,5 @@ public interface EventSource<E extends Event<?>>
 	 *
 	 * @param rListener The listener to add
 	 */
-	public void removeListener(EventHandler<? super E> rListener);
+	void removeListener(EventHandler<? super E> rListener);
 }

@@ -347,7 +347,7 @@ public class StringFunctions
 																List<String>>
 	toList(String sSplitPattern, boolean bTrim)
 	{
-		Class<C> rListClass = (Class<C>) (Class<?>) ArrayList.class;
+		Class<C> rListClass = (Class<C>) ArrayList.class;
 
 		return (BinaryFunction<String, String, List<String>>) toCollection(
 			rListClass,

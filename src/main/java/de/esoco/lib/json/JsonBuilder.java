@@ -68,7 +68,7 @@ public class JsonBuilder
 		r -> !r.getType().hasModifier(RelationTypeModifier.TRANSIENT);
 
 	private static final Collection<RelationType<?>> DEFAULT_EXCLUDED_RELATION_TYPES =
-		CollectionUtil.<RelationType<?>>setOf(
+		CollectionUtil.setOf(
 			ListenerTypes.RELATION_LISTENERS,
 			ListenerTypes.RELATION_TYPE_LISTENERS,
 			ListenerTypes.RELATION_UPDATE_LISTENERS,
@@ -76,7 +76,7 @@ public class JsonBuilder
 
 	//~ Instance fields --------------------------------------------------------
 
-	private StringBuilder aJson = new StringBuilder();
+	private final StringBuilder aJson = new StringBuilder();
 
 	private String sIndent		  = "";
 	private String sCurrentIndent = sIndent;
@@ -86,7 +86,7 @@ public class JsonBuilder
 	private boolean bRecursiveRelations = false;
 	private boolean bNamespaces		    = false;
 
-	private Collection<RelationType<?>> aExcludedRelationTypes =
+	private final Collection<RelationType<?>> aExcludedRelationTypes =
 		new HashSet<>(DEFAULT_EXCLUDED_RELATION_TYPES);
 
 	//~ Constructors -----------------------------------------------------------
@@ -150,7 +150,7 @@ public class JsonBuilder
 		}
 		else if (rValue instanceof Boolean || rValue instanceof Number)
 		{
-			aJson.append(rValue.toString());
+			aJson.append(rValue);
 		}
 		else if (rValue instanceof Date)
 		{

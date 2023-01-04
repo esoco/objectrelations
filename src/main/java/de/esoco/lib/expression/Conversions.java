@@ -437,7 +437,7 @@ public class Conversions
 		if (bOrdered)
 		{
 			// double cast necessary for JDK javac
-			rMapClass = (Class<? extends M>) (Class<?>) LinkedHashMap.class;
+			rMapClass = (Class<? extends M>) LinkedHashMap.class;
 		}
 		else
 		{
@@ -604,7 +604,7 @@ public class Conversions
 			aStringConversions =
 				new HashMap<Class<?>, InvertibleFunction<?, String>>();
 
-			aStringConversions.put(String.class, Functions.<String>identity());
+			aStringConversions.put(String.class, Functions.identity());
 
 			aStringConversions.put(
 				Boolean.class,

@@ -35,7 +35,7 @@ public interface JsonSerializable<J extends JsonSerializable<J>>
 	 *
 	 * @param rBuilder The {@link JsonBuilder} to append this instance to
 	 */
-	public void appendTo(JsonBuilder rBuilder);
+	void appendTo(JsonBuilder rBuilder);
 
 	/***************************************
 	 * Parses data from a JSON string and returns the resulting instance.
@@ -52,7 +52,7 @@ public interface JsonSerializable<J extends JsonSerializable<J>>
 	 * @return This instance so that it can be directly used after
 	 *         de-serialization
 	 */
-	public J fromJson(String sJson);
+	J fromJson(String sJson);
 
 	/***************************************
 	 * Converts this instance into a compact JSON representation that can be
@@ -60,7 +60,7 @@ public interface JsonSerializable<J extends JsonSerializable<J>>
 	 *
 	 * @return The resulting JSON string
 	 */
-	default public String toCompactJson()
+	default String toCompactJson()
 	{
 		return new JsonBuilder().compact().append(this).toString();
 	}
@@ -80,7 +80,7 @@ public interface JsonSerializable<J extends JsonSerializable<J>>
 	 *
 	 * @return The resulting JSON string
 	 */
-	default public String toJson()
+	default String toJson()
 	{
 		return new JsonBuilder().indent("\t").append(this).toString();
 	}

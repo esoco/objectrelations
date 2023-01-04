@@ -17,11 +17,9 @@
 package org.obrel.space;
 
 import de.esoco.lib.expression.BinaryFunction;
-
 import org.obrel.core.ObjectRelations;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
-
 
 /********************************************************************
  * A binary function extension that resolves URLs in object spaces. Invoked by
@@ -31,21 +29,22 @@ import org.obrel.core.RelationType;
  * @author eso
  */
 public interface ObjectSpaceResolver
-	extends BinaryFunction<Relatable, RelationType<?>, Object>
-{
+	extends BinaryFunction<Relatable, RelationType<?>, Object> {
 	//~ Static fields/initializers ---------------------------------------------
 
-	/** Standard delete resolver. */
-	public static final DeleteResolver URL_DELETE =
-		(r, t) ->
-		{
-			r.deleteRelation(t);
+	/**
+	 * Standard delete resolver.
+	 */
+	DeleteResolver URL_DELETE = (r, t) -> {
+		r.deleteRelation(t);
 
-			return null;
-		};
+		return null;
+	};
 
-	/** Standard get resolver. */
-	public static final GetResolver URL_GET = (r, t) -> r.get(t);
+	/**
+	 * Standard get resolver.
+	 */
+	GetResolver URL_GET = (r, t) -> r.get(t);
 
 	//~ Methods ----------------------------------------------------------------
 
@@ -60,7 +59,7 @@ public interface ObjectSpaceResolver
 	 *
 	 * @return The resolved object (NULL for none)
 	 */
-	public Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl);
+	Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl);
 
 	//~ Inner Interfaces -------------------------------------------------------
 
@@ -71,18 +70,14 @@ public interface ObjectSpaceResolver
 	 * @author eso
 	 */
 	@FunctionalInterface
-	public static interface DeleteResolver extends ObjectSpaceResolver
-	{
+	interface DeleteResolver extends ObjectSpaceResolver {
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
 		 * {@inheritDoc}
 		 */
 		@Override
-		default public Object resolve(
-			ObjectSpace<?> rSpace,
-			String		   sRelativeUrl)
-		{
+		default Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl) {
 			rSpace.delete(sRelativeUrl);
 
 			return null;
@@ -96,18 +91,14 @@ public interface ObjectSpaceResolver
 	 * @author eso
 	 */
 	@FunctionalInterface
-	public static interface GetResolver extends ObjectSpaceResolver
-	{
+	interface GetResolver extends ObjectSpaceResolver {
 		//~ Methods ------------------------------------------------------------
 
 		/***************************************
 		 * {@inheritDoc}
 		 */
 		@Override
-		default public Object resolve(
-			ObjectSpace<?> rSpace,
-			String		   sRelativeUrl)
-		{
+		default Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl) {
 			return rSpace.get(sRelativeUrl);
 		}
 	}
@@ -120,8 +111,7 @@ public interface ObjectSpaceResolver
 	 *
 	 * @author eso
 	 */
-	public static class PutResolver<T> implements ObjectSpaceResolver
-	{
+	class PutResolver<T> implements ObjectSpaceResolver {
 		//~ Instance fields ----------------------------------------------------
 
 		private final T rValue;
@@ -133,8 +123,7 @@ public interface ObjectSpaceResolver
 		 *
 		 * @param rValue The value to put
 		 */
-		public PutResolver(T rValue)
-		{
+		public PutResolver(T rValue) {
 			this.rValue = rValue;
 		}
 
@@ -145,16 +134,13 @@ public interface ObjectSpaceResolver
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		public Object evaluate(Relatable rRelatable, RelationType<?> rType)
-		{
+		public Object evaluate(Relatable rRelatable, RelationType<?> rType) {
 			Object rValue = getValue();
 
-			if (!rType.getTargetType().isAssignableFrom(rValue.getClass()))
-			{
+			if (!rType.getTargetType().isAssignableFrom(rValue.getClass())) {
 				String sMessage =
-					String.format("Invalid value for type '%s': %s",
-								  rType,
-								  rValue);
+					String.format("Invalid value for type '%s': %s", rType,
+						rValue);
 
 				throw new IllegalArgumentException(sMessage);
 			}
@@ -169,8 +155,7 @@ public interface ObjectSpaceResolver
 		 *
 		 * @return The put value
 		 */
-		public T getValue()
-		{
+		public T getValue() {
 			return rValue;
 		}
 
@@ -179,8 +164,7 @@ public interface ObjectSpaceResolver
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		public Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl)
-		{
+		public Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl) {
 			((ObjectSpace<Object>) rSpace).put(sRelativeUrl, rValue);
 
 			return null;
