@@ -1,46 +1,33 @@
-apply plugin: 'java-library'
-apply plugin: 'eclipse'
+plugins {
+    id "java-library"
+    id "pl.allegro.tech.build.axion-release" version "$axionReleaseVersion"
+    id "com.vanniktech.maven.publish" version "$mavenPublishVersion"
+}
 
-project.group = 'org.obrel'
-sourceCompatibility = 1.8
-
-repositories
-{
+repositories {
 	mavenLocal()
-    jcenter()
+	mavenCentral()
 }
 
-// substitute local project dependencies if available
-configurations.all {
-    resolutionStrategy.dependencySubstitution.all { DependencySubstitution dependency ->
-        if (dependency.requested instanceof ModuleComponentSelector && 
-            ["org.obrel" ,"de.esoco"].contains(dependency.requested.group)) {
-            def targetProject = findProject(":${dependency.requested.module}")
-            if (targetProject != null) {
-                dependency.useTarget (targetProject, "prefer local project")
-                if (name.startsWith("compile")) // only log once
-                    println "$project.name using local $targetProject as dependency"
-            }
-        }
-    }
-}
+scmVersion { tag { prefix.set("") }}
+
+project.version = scmVersion.version
+project.group = 'org.obrel'
+project.description = 'Functor and monad implementations'
 
 dependencies
 {
-	api 'de.esoco:esoco-monads:1.0.+'
+	api 'de.esoco:esoco-monads:1.0.1'
 	
-	testImplementation platform('org.junit:junit-bom:5.5.2')	
+	testImplementation platform("org.junit:junit-bom:$junitVersion")
 	testImplementation 'org.junit.jupiter:junit-jupiter'
-	testImplementation 'junit:junit:4.12'
-	
-	testRuntimeOnly 'org.junit.vintage:junit-vintage-engine' // JUnit4 support
 }
 
 test {
 	useJUnitPlatform()
 }
 
-task sourceJar(type: Jar, dependsOn: classes) {
+task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
@@ -51,21 +38,36 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 artifacts {
-    archives sourceJar
+    archives sourcesJar
     archives javadocJar
 }
 
-tasks.withType(Javadoc) {
-    failOnError = false
-    options.addBooleanOption('quiet', true)
-    
-    if (JavaVersion.current().isJava8Compatible()) {
-        options.addBooleanOption('Xdoclint:none', true) 
-    }
-}
+mavenPublishing {
+  coordinates("$project.group", "$project.name", "$project.version")
 
-buildscript {
-	repositories { jcenter() }
-	dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+' }
+  pom {
+    name = "$project.name"
+    description = "$project.description"
+    inceptionYear = "2016"
+    url = "https://github.com/esoco/${project.name}"
+    licenses {
+      license {
+        name = "The Apache License, Version 2.0"
+        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+        distribution = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+      }
+    }
+    developers {
+      developer {
+        id = "esoco"
+        name = "esoco GmbH"
+        url = "https://esoco.de/"
+      }
+    }
+    scm {
+      url = "https://github.com/esoco/${project.name}/"
+      connection = "scm:git:git://github.com/esoco/${project.name}.git"
+      developerConnection = "scm:git:ssh://git@github.com/esoco/${project.name}.git"
+    }
+  }
 }
-apply from: 'publish.gradle'

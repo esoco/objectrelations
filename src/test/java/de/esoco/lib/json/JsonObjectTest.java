@@ -16,91 +16,75 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
-import de.esoco.lib.expression.monad.Option;
-
-import java.math.BigDecimal;
-
-import java.util.Arrays;
-
-import org.junit.Test;
-
 import static de.esoco.lib.collection.CollectionUtil.orderedMapOf;
 import static de.esoco.lib.datatype.Pair.t;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.math.BigDecimal;
+import java.util.Arrays;
 
+import org.junit.jupiter.api.Test;
 
-/********************************************************************
+import de.esoco.lib.expression.monad.Option;
+
+/**
  * Test of {@link JsonObject}.
  *
  * @author eso
  */
 @SuppressWarnings("boxing")
-public class JsonObjectTest
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class JsonObjectTest {
+	private static final String SERIALIZED_JSON = "{\n" +
+			"	\"testNull\": null,\n" +
+			"	\"testString\": \"TEST\",\n" +
+			"	\"testFlag\": true,\n" +
+			"	\"testInt\": 42,\n" +
+			"	\"testDecimal\": 3.14159,\n" +
+			"	\"testCollection\": [\"test1\", \"test2\", \"test3\"],\n" +
+			"	\"testChild\": {\n" +
+			"		\"childName\": \"CHILD\",\n" +
+			"		\"childId\": 1\n" +
+			"	}\n" +
+			"}";
 
-	private static final String SERIALIZED_JSON =
-		"{\n" +
-		"	\"testNull\": null,\n" +
-		"	\"testString\": \"TEST\",\n" +
-		"	\"testFlag\": true,\n" +
-		"	\"testInt\": 42,\n" +
-		"	\"testDecimal\": 3.14159,\n" +
-		"	\"testCollection\": [\"test1\", \"test2\", \"test3\"],\n" +
-		"	\"testChild\": {\n" +
-		"		\"childName\": \"CHILD\",\n" +
-		"		\"childId\": 1\n" +
-		"	}\n" +
-		"}";
-
-	//~ Instance fields --------------------------------------------------------
-
-	private final JsonObject aChildObject =
-		new JsonObject(orderedMapOf(t("childName", "CHILD"), t("childId", 1)));
-	private final JsonObject aJsonObject  =
-		new JsonObject(
+	private final JsonObject aChildObject = new JsonObject(orderedMapOf(t("childName", "CHILD"), t("childId", 1)));
+	private final JsonObject aJsonObject = new JsonObject(
 			orderedMapOf(
-				t("testNull", null),
-				t("testString", "TEST"),
-				t("testFlag", true),
-				t("testInt", 42),
-				t("testDecimal", new BigDecimal("3.14159")),
-				t("testCollection", Arrays.asList("test1", "test2", "test3")),
-				t("testChild", aChildObject)));
+					t("testNull", null),
+					t("testString", "TEST"),
+					t("testFlag", true),
+					t("testInt", 42),
+					t("testDecimal", new BigDecimal("3.14159")),
+					t("testCollection", Arrays.asList("test1", "test2", "test3")),
+					t("testChild", aChildObject)));
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Test of {@link JsonObject#toJson()} (including {@link
 	 * JsonObject#appendTo(JsonBuilder)}).
 	 */
 	@Test
-	public void testFromJson()
-	{
+	public void testFromJson() {
 		assertJsonProperties(new JsonObject().fromJson(SERIALIZED_JSON));
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link JsonObject#get(String, Object)}.
 	 */
 	@Test
-	public void testGetProperty()
-	{
+	public void testGetProperty() {
 		assertJsonProperties(aJsonObject);
 		aJsonObject.set("testLong", 555L);
 		assertEquals(
-			Long.valueOf(555),
-			aJsonObject.getNumber("testLong").orFail());
+				Long.valueOf(555),
+				aJsonObject.getNumber("testLong").orFail());
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link JsonObject#set(String, Object)}.
 	 */
 	@Test
-	public void testSetProperty()
-	{
+	public void testSetProperty() {
 		JsonObject aTestObject = new JsonObject();
 
 		aTestObject.set("testName", "TEST");
@@ -108,45 +92,43 @@ public class JsonObjectTest
 
 		assertEquals("TEST", aTestObject.getString("testName").orFail());
 		assertEquals(
-			new JsonObject(),
-			aTestObject.getObject("testObject").orFail());
+				new JsonObject(),
+				aTestObject.getObject("testObject").orFail());
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link JsonObject#toJson()} (including {@link
 	 * JsonObject#appendTo(JsonBuilder)}).
 	 */
 	@Test
-	public void testToJson()
-	{
+	public void testToJson() {
 		String sJson = aJsonObject.toJson();
 
 		assertEquals(SERIALIZED_JSON, sJson);
 	}
 
-	/***************************************
+	/**
 	 * Asserts that the given object contains all test properties.
 	 *
 	 * @param rJsonObject The JSON object
 	 */
-	private void assertJsonProperties(JsonObject rJsonObject)
-	{
+	private void assertJsonProperties(JsonObject rJsonObject) {
 		assertEquals(Option.none(), rJsonObject.getProperty("testNull"));
 		assertTrue(rJsonObject.hasFlag("testFlag"));
 		assertTrue(rJsonObject.hasProperty("testNull"));
 		assertEquals(
-			"Not",
-			rJsonObject.getString("testNotExisting").orUse("Not"));
+				"Not",
+				rJsonObject.getString("testNotExisting").orUse("Not"));
 		assertEquals("TEST", rJsonObject.getString("testString").orFail());
 		assertEquals(
-			Integer.valueOf(42),
-			rJsonObject.getNumber("testInt").orFail());
+				Integer.valueOf(42),
+				rJsonObject.getNumber("testInt").orFail());
 		assertEquals(
-			new BigDecimal("3.14159"),
-			rJsonObject.getNumber("testDecimal").orFail());
+				new BigDecimal("3.14159"),
+				rJsonObject.getNumber("testDecimal").orFail());
 		assertEquals(
-			Arrays.asList("test1", "test2", "test3"),
-			rJsonObject.getArray("testCollection").orFail());
+				Arrays.asList("test1", "test2", "test3"),
+				rJsonObject.getArray("testCollection").orFail());
 		assertEquals(aChildObject, rJsonObject.getObject("testChild").orFail());
 	}
 }

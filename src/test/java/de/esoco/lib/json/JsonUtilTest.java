@@ -16,26 +16,21 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
-
-/********************************************************************
+/**
  * Test of {@link Json}
  *
  * @author eso
  */
-public class JsonUtilTest
-{
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+public class JsonUtilTest {
+	/**
 	 * Test of {@link Json#escape(String)}
 	 */
 	@Test
-	public void testEscape()
-	{
+	public void testEscape() {
 		assertEquals("\\\"", Json.escape("\""));
 		assertEquals("\\\\", Json.escape("\\"));
 		assertEquals("\\/", Json.escape("/"));
@@ -50,17 +45,16 @@ public class JsonUtilTest
 		assertEquals("\u2100,\u21FF", Json.escape("\u2100,\u21ff"));
 		assertEquals("\uFFFF", Json.escape("\uffff"));
 		assertEquals("\\\"\\\\\\/\\b\\f\\n\\r\\t\\\"",
-					 Json.escape("\"\\/\b\f\n\r\t\""));
+				Json.escape("\"\\/\b\f\n\r\t\""));
 		assertEquals(" \\\" \\\\ \\/ \\b \\f \\n \\r \\t \\\" ",
-					 Json.escape(" \" \\ / \b \f \n \r \t \" "));
+				Json.escape(" \" \\ / \b \f \n \r \t \" "));
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link Json#restore(String)}
 	 */
 	@Test
-	public void testRestore()
-	{
+	public void testRestore() {
 		assertEquals("\"", Json.restore("\\\""));
 		assertEquals("\\", Json.restore("\\\\"));
 		assertEquals("/", Json.restore("\\/"));
@@ -75,8 +69,8 @@ public class JsonUtilTest
 		assertEquals("\u2100,\u21FF", Json.restore("\u2100,\u21ff"));
 		assertEquals("\uFFFF", Json.restore("\uffff"));
 		assertEquals("\"\\/\b\f\n\r\t\"",
-					 Json.restore("\\\"\\\\\\/\\b\\f\\n\\r\\t\\\""));
+				Json.restore("\\\"\\\\\\/\\b\\f\\n\\r\\t\\\""));
 		assertEquals(" \" \\ / \b \f \n \r \t \" ",
-					 Json.restore(" \\\" \\\\ \\/ \\b \\f \\n \\r \\t \\\" "));
+				Json.restore(" \\\" \\\\ \\/ \\b \\f \\n \\r \\t \\\" "));
 	}
 }

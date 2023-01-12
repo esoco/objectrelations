@@ -19,24 +19,18 @@ package de.esoco.lib.expression.function;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-
-/********************************************************************
+/**
  * A conditional function implementation that only evaluates a function on the
  * input value if a certain predicate yields TRUE for that value.
  *
  * @author eso
  */
-public class ConditionalFunction<I, O> extends AbstractFunction<I, O>
-{
-	//~ Instance fields --------------------------------------------------------
-
-	private final Predicate<? super I>			   pCondition;
+public class ConditionalFunction<I, O> extends AbstractFunction<I, O> {
+	private final Predicate<? super I> pCondition;
 	private final Function<? super I, ? extends O> fTrue;
 	private final Function<? super I, ? extends O> fFalse;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance for a simple if expression (i.e. without else).
 	 *
 	 * @param pCondition The predicate to be evaluated for input values
@@ -44,13 +38,12 @@ public class ConditionalFunction<I, O> extends AbstractFunction<I, O>
 	 *                   the predicate yields TRUE
 	 */
 	public ConditionalFunction(
-		Predicate<? super I>   pCondition,
-		Function<? super I, O> fTrue)
-	{
+			Predicate<? super I> pCondition,
+			Function<? super I, O> fTrue) {
 		this(pCondition, fTrue, null);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance for an if-else expression.
 	 *
 	 * @param pCondition The predicate to be evaluated for input values
@@ -59,38 +52,34 @@ public class ConditionalFunction<I, O> extends AbstractFunction<I, O>
 	 * @param fFalse     The function to be applied to input values for which
 	 *                   the predicate yields FALSE
 	 */
-	public ConditionalFunction(Predicate<? super I>				pCondition,
-							   Function<? super I, ? extends O> fTrue,
-							   Function<? super I, ? extends O> fFalse)
-	{
+	public ConditionalFunction(Predicate<? super I> pCondition,
+			Function<? super I, ? extends O> fTrue,
+			Function<? super I, ? extends O> fFalse) {
 		super("IF");
 
 		assert pCondition != null && fTrue != null;
 
 		this.pCondition = pCondition;
-		this.fTrue	    = fTrue;
-		this.fFalse     = fFalse;
+		this.fTrue = fTrue;
+		this.fFalse = fFalse;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns a new conditional function that contains a function to be
 	 * evaluated if the predicate of this instance yields FALSE. This is a
 	 * convenience method that is more expressive for the concatenation of
 	 * conditional functions than the three-argument constructor.
 	 *
-	 * @param  rFunction The function to be evaluated if the predicates yields
-	 *                   FALSE
+	 * @param rFunction The function to be evaluated if the predicates yields
+	 *                  FALSE
 	 *
 	 * @return A new conditional function
 	 */
-	public Function<I, O> elseDo(Function<? super I, ? extends O> rFunction)
-	{
+	public Function<I, O> elseDo(Function<? super I, ? extends O> rFunction) {
 		return new ConditionalFunction<I, O>(pCondition, fTrue, rFunction);
 	}
 
-	/***************************************
+	/**
 	 * Evaluates this instance's function on the input value if the predicate
 	 * yields TRUE for that value. Else NULL will be returned.
 	 *
@@ -98,58 +87,46 @@ public class ConditionalFunction<I, O> extends AbstractFunction<I, O>
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	public O evaluate(I rInput)
-	{
+	public O evaluate(I rInput) {
 		O rResult = null;
 
-		if (pCondition.test(rInput))
-		{
+		if (pCondition.test(rInput)) {
 			rResult = fTrue.apply(rInput);
-		}
-		else if (fFalse != null)
-		{
+		} else if (fFalse != null) {
 			rResult = fFalse.apply(rInput);
 		}
 
 		return rResult;
 	}
 
-	/***************************************
+	/**
 	 * Overridden to return a specific format.
 	 *
 	 * @see AbstractFunction#toString()
 	 */
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "IF " + pCondition + " DO " + fTrue + " ELSE " +
-			   (fFalse != null ? fFalse : "value=NULL");
+				(fFalse != null ? fFalse : "value=NULL");
 	}
 
-	/***************************************
+	/**
 	 * Compares the predicate and the result functions of this instance for
 	 * equality.
 	 *
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther)
-	{
-		ConditionalFunction<?, ?> rOtherFunction =
-			(ConditionalFunction<?, ?>) rOther;
+	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
+		ConditionalFunction<?, ?> rOtherFunction = (ConditionalFunction<?, ?>) rOther;
 
-		boolean bEqual =
-			pCondition.equals(rOtherFunction.pCondition) &&
-			fTrue.equals(rOtherFunction.fTrue);
+		boolean bEqual = pCondition.equals(rOtherFunction.pCondition) &&
+				fTrue.equals(rOtherFunction.fTrue);
 
-		if (bEqual)
-		{
-			if (fFalse != null)
-			{
+		if (bEqual) {
+			if (fFalse != null) {
 				bEqual = fFalse.equals(rOtherFunction.fFalse);
-			}
-			else
-			{
+			} else {
 				bEqual = (rOtherFunction.fFalse == null);
 			}
 		}
@@ -157,12 +134,11 @@ public class ConditionalFunction<I, O> extends AbstractFunction<I, O>
 		return bEqual;
 	}
 
-	/***************************************
+	/**
 	 * @see AbstractFunction#paramsHashCode()
 	 */
 	@Override
-	protected int paramsHashCode()
-	{
+	protected int paramsHashCode() {
 		int nHashCode = pCondition.hashCode();
 
 		nHashCode = nHashCode * 31 + fTrue.hashCode();

@@ -16,28 +16,23 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.text;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.regex.Pattern;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-
-
-/********************************************************************
+/**
  * Test of TextUtil class.
  *
  * @author eso
  */
-public class TextUtilTest
-{
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+public class TextUtilTest {
+	/**
 	 * Test of method {@link TextUtil#uppercaseIdentifier(String)}.
 	 */
 	@Test
-	public final void testCapitalizedIdentifier()
-	{
+	public final void testCapitalizedIdentifier() {
 		assertEquals("Foobar", TextUtil.capitalizedIdentifier("Foobar"));
 		assertEquals("FooBar", TextUtil.capitalizedIdentifier("FooBar"));
 		assertEquals("Foobar", TextUtil.capitalizedIdentifier("FOOBAR"));
@@ -47,23 +42,21 @@ public class TextUtilTest
 		assertEquals("FooBar", TextUtil.capitalizedIdentifier("foo_bar"));
 	}
 
-	/***************************************
+	/**
 	 * Test of method {@link TextUtil#count(String, Pattern)}.
 	 */
 	@Test
-	public final void testCount()
-	{
+	public final void testCount() {
 		String s = "[] test [abc][xyz] [1]---[2]";
 
 		assertEquals(5, TextUtil.count(s, Pattern.compile("\\[.*?\\]")));
 	}
 
-	/***************************************
+	/**
 	 * Test of method {@link TextUtil#parseObject(String)}.
 	 */
 	@Test
-	public final void testParseObject()
-	{
+	public final void testParseObject() {
 		assertEquals(null, TextUtil.parseObject("null"));
 
 		// tests of valid string values
@@ -77,37 +70,35 @@ public class TextUtilTest
 		assertEquals("\"'\"'", TextUtil.parseObject("\"\"'\"'\""));
 
 		// tests of valid integer values
-		assertEquals(new Integer(0), TextUtil.parseObject("0"));
-		assertEquals(new Integer(0), TextUtil.parseObject("-0"));
-		assertEquals(new Integer(0), TextUtil.parseObject("000000000"));
+		assertEquals(Integer.valueOf(0), TextUtil.parseObject("0"));
+		assertEquals(Integer.valueOf(0), TextUtil.parseObject("-0"));
+		assertEquals(Integer.valueOf(0), TextUtil.parseObject("000000000"));
 
-		assertEquals(new Integer(12345), TextUtil.parseObject("12345"));
-		assertEquals(new Integer(-654321), TextUtil.parseObject("-654321"));
-		assertEquals(new Integer(Integer.MAX_VALUE),
-					 TextUtil.parseObject("" + Integer.MAX_VALUE));
-		assertEquals(new Integer(Integer.MIN_VALUE),
-					 TextUtil.parseObject("" + Integer.MIN_VALUE));
+		assertEquals(Integer.valueOf(12345), TextUtil.parseObject("12345"));
+		assertEquals(Integer.valueOf(-654321), TextUtil.parseObject("-654321"));
+		assertEquals(Integer.valueOf(Integer.MAX_VALUE),
+				TextUtil.parseObject("" + Integer.MAX_VALUE));
+		assertEquals(Integer.valueOf(Integer.MIN_VALUE),
+				TextUtil.parseObject("" + Integer.MIN_VALUE));
 	}
 
-	/***************************************
+	/**
 	 * Test of method {@link TextUtil#toAscii(String)}.
 	 */
 	@Test
-	public final void testToAscii()
-	{
+	public final void testToAscii() {
 		assertEquals("aeoeueAeOeUess",
-					 TextUtil.toAscii("\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00DF"));
+				TextUtil.toAscii("\u00E4\u00F6\u00FC\u00C4\u00D6\u00DC\u00DF"));
 
 		assertEquals("aaaaAAAA",
-					 TextUtil.toAscii("\u00E0\u00E1\u00E2\u00E3\u00C0\u00C1\u00C2\u00C3"));
+				TextUtil.toAscii("\u00E0\u00E1\u00E2\u00E3\u00C0\u00C1\u00C2\u00C3"));
 	}
 
-	/***************************************
+	/**
 	 * Test of method {@link TextUtil#uppercaseIdentifier(String)}.
 	 */
 	@Test
-	public final void testUppercaseIdentifier()
-	{
+	public final void testUppercaseIdentifier() {
 		assertEquals("FOOBAR", TextUtil.uppercaseIdentifier("foobar"));
 		assertEquals("FOOBAR", TextUtil.uppercaseIdentifier("Foobar"));
 

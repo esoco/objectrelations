@@ -16,38 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
-import de.esoco.lib.event.EventHandler;
-import de.esoco.lib.expression.Conversions;
-import de.esoco.lib.expression.InvertibleFunction;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-import org.junit.Test;
-
-import org.obrel.core.Annotations.NoRelationNameCheck;
-import org.obrel.core.Annotations.RelationTypeNamespace;
-import org.obrel.filter.RelationFilters;
-import org.obrel.type.ListenerTypes;
-import org.obrel.type.MetaTypes;
-import org.obrel.type.StandardTypes;
-
 import static de.esoco.lib.expression.Functions.invert;
 import static de.esoco.lib.expression.StringFunctions.toByteArray;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.obrel.core.ObjectRelations.urlDelete;
 import static org.obrel.core.ObjectRelations.urlGet;
 import static org.obrel.core.ObjectRelations.urlPut;
@@ -64,75 +38,83 @@ import static org.obrel.type.StandardTypes.INFO;
 import static org.obrel.type.StandardTypes.NAME;
 import static org.obrel.type.StandardTypes.ORDINAL;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
-/********************************************************************
+import org.junit.jupiter.api.Test;
+import org.obrel.core.Annotations.NoRelationNameCheck;
+import org.obrel.core.Annotations.RelationTypeNamespace;
+import org.obrel.filter.RelationFilters;
+import org.obrel.type.ListenerTypes;
+import org.obrel.type.MetaTypes;
+import org.obrel.type.StandardTypes;
+
+import de.esoco.lib.event.EventHandler;
+import de.esoco.lib.expression.Conversions;
+import de.esoco.lib.expression.InvertibleFunction;
+
+/**
  * Basic object relation tests.
  *
  * @author eso
  */
 @RelationTypeNamespace("org.obrel.test")
 @SuppressWarnings("boxing")
-public class RelationTest
-{
-	//~ Static fields/initializers ---------------------------------------------
-
+public class RelationTest {
 	private static final String TEST_VALUE = "TestValue";
 
-	static final RelationType<Object>    TEST_ID  = newType();
+	static final RelationType<Object> TEST_ID = newType();
 	static final RelationType<Relatable> TEST_REF = newType();
 
-	static final RelationType<Boolean> TEST_FLAG		 = newType(FINAL);
-	static final RelationType<Boolean> FINAL_TEST_FLAG   = newFlagType(FINAL);
+	static final RelationType<Boolean> TEST_FLAG = newType(FINAL);
+	static final RelationType<Boolean> FINAL_TEST_FLAG = newFlagType(FINAL);
 	static final RelationType<Boolean> PRIVATE_TEST_FLAG = newFlagType(PRIVATE);
 
-	static final RelationType<List<String>> ELEMENTS		   = newListType();
-	static final RelationType<String[]>     TEST_ARRAY		   = newType();
-	static final RelationType<List<?>[]>    TEST_GENERIC_ARRAY = newType();
+	static final RelationType<List<String>> ELEMENTS = newListType();
+	static final RelationType<String[]> TEST_ARRAY = newType();
+	static final RelationType<List<?>[]> TEST_GENERIC_ARRAY = newType();
 
 	static final RelationType<Set<String>> TEST_SET = newSetType(false);
 
-	static final RelationType<Map<String, Integer>> TEST_MAP =
-		newMapType(false);
+	static final RelationType<Map<String, Integer>> TEST_MAP = newMapType(false);
 
 	static final RelationType<Set<String>> TEST_ORDERED_SET = newSetType(true);
 
-	static final RelationType<Map<String, Integer>> TEST_ORDERED_MAP =
-		newMapType(true);
+	static final RelationType<Map<String, Integer>> TEST_ORDERED_MAP = newMapType(true);
 
-	static final RelationType<List<Map<String, Integer>>> TEST_MAP_LIST =
-		newListType();
+	static final RelationType<List<Map<String, Integer>>> TEST_MAP_LIST = newListType();
 
-	static final RelationType<String> TEST_FLAGGED =
-		newType(MetaTypes.MANDATORY);
+	static final RelationType<String> TEST_FLAGGED = newType(MetaTypes.MANDATORY);
 
-	static final RelationType<Integer> TEST_ANNOTATED =
-		RelationTypes.<Integer>newType().annotate(MetaTypes.ORDERED);
+	static final RelationType<Integer> TEST_ANNOTATED = RelationTypes.<Integer>newType().annotate(MetaTypes.ORDERED);
 
 	// test if name check annotation works
 	@NoRelationNameCheck
 	static final RelationType<String> TEST_NAME = StandardTypes.NAME;
 
-	static
-	{
+	static {
 		RelationTypes.init(RelationTest.class);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Performs a load test of relations.
 	 */
 	@Test
-	public void loadTest()
-	{
-		int				  nTestCount = 100000;
-		RelatedObject     aTestObj   = new RelatedObject();
-		RelationType<?>[] aTypes     = new RelationType<?>[nTestCount];
+	public void loadTest() {
+		int nTestCount = 100000;
+		RelatedObject aTestObj = new RelatedObject();
+		RelationType<?>[] aTypes = new RelationType<?>[nTestCount];
 
-		for (int i = 0; i < nTestCount; i++)
-		{
-			RelationType<String> aType =
-				new RelationType<>("TEST_TYPE_" + i, String.class);
+		for (int i = 0; i < nTestCount; i++) {
+			RelationType<String> aType = new RelationType<>("TEST_TYPE_" + i, String.class);
 
 			aTypes[i] = aType;
 			aTestObj.set(aType, TEST_VALUE + i);
@@ -140,23 +122,21 @@ public class RelationTest
 
 		int nHalf = nTestCount / 2;
 
-		for (int i = 0; i < nHalf; i++)
-		{
+		for (int i = 0; i < nHalf; i++) {
 			int nAddIndex = nHalf + i;
 			int nSubIndex = nHalf - i;
 
 			assertEquals(
-				TEST_VALUE + nAddIndex,
-				aTestObj.get(aTypes[nAddIndex]));
+					TEST_VALUE + nAddIndex,
+					aTestObj.get(aTypes[nAddIndex]));
 			assertEquals(
-				TEST_VALUE + nSubIndex,
-				aTestObj.get(aTypes[nSubIndex]));
+					TEST_VALUE + nSubIndex,
+					aTestObj.get(aTypes[nSubIndex]));
 		}
 
 		assertEquals(nTestCount, aTestObj.getRelationCount(ALL_RELATIONS));
 
-		for (int i = 0; i < nHalf; i++)
-		{
+		for (int i = 0; i < nHalf; i++) {
 			int nAddIndex = nHalf + i;
 			int nSubIndex = nHalf - i;
 
@@ -167,18 +147,16 @@ public class RelationTest
 		assertEquals(1, aTestObj.getRelationCount(ALL_RELATIONS));
 	}
 
-	/***************************************
+	/**
 	 * Tests aliased relations. See {@link RelationAlias} and {@link
 	 * RelationView}.
 	 */
 	@Test
-	public void testAliasedConvertedRelations()
-	{
-		RelatedObject     o = new RelatedObject();
+	public void testAliasedConvertedRelations() {
+		RelatedObject o = new RelatedObject();
 		Relation<Integer> r = o.set(ORDINAL, 1234);
 
-		InvertibleFunction<Integer, String> fConvertInt =
-			Conversions.getStringConversion(Integer.class);
+		InvertibleFunction<Integer, String> fConvertInt = Conversions.getStringConversion(Integer.class);
 
 		r.aliasAs(NAME, o, fConvertInt);
 		r.viewAs(INFO, o, fConvertInt);
@@ -190,14 +168,13 @@ public class RelationTest
 		assertEquals(Integer.valueOf(42), o.get(ORDINAL));
 	}
 
-	/***************************************
+	/**
 	 * Tests aliased relations. See {@link RelationAlias} and {@link
 	 * RelationView}.
 	 */
 	@Test
-	public void testAliasedRelations()
-	{
-		RelatedObject    o = new RelatedObject();
+	public void testAliasedRelations() {
+		RelatedObject o = new RelatedObject();
 		Relation<String> r = o.set(NAME, "AliasTest");
 
 		r.aliasAs(DESCRIPTION, o);
@@ -207,13 +184,10 @@ public class RelationTest
 		assertEquals("AliasTest", o.get(DESCRIPTION));
 		assertEquals("AliasTest", o.get(TEST_ID));
 
-		try
-		{
+		try {
 			o.set(TEST_ID, "XXX");
 			fail();
-		}
-		catch (UnsupportedOperationException e)
-		{
+		} catch (UnsupportedOperationException e) {
 			// expected
 			assertEquals("AliasTest", o.get(NAME));
 			assertEquals("AliasTest", o.get(TEST_ID));
@@ -236,12 +210,11 @@ public class RelationTest
 		assertTrue(o.hasRelation(TEST_ID));
 	}
 
-	/***************************************
+	/**
 	 * Test of annotations (meta-relations).
 	 */
 	@Test
-	public void testAnnotations()
-	{
+	public void testAnnotations() {
 		RelatedObject o = new RelatedObject();
 
 		o.set(NAME, "Test").annotate(TEST_ID, "ID1");
@@ -250,12 +223,11 @@ public class RelationTest
 		assertEquals("ID1", o.getRelation(NAME).getAnnotation(TEST_ID));
 	}
 
-	/***************************************
+	/**
 	 * Test relation access.
 	 */
 	@Test
-	public void testBasicRelations()
-	{
+	public void testBasicRelations() {
 		RelatedObject o = new RelatedObject();
 
 		o.get(ELEMENTS).add("Elem1");
@@ -268,13 +240,12 @@ public class RelationTest
 		assertFalse(o.hasFlag(TEST_FLAG));
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link ObjectRelations#copyRelations(Relatable, Relatable,
 	 * boolean)}.
 	 */
 	@Test
-	public void testCopyRelations()
-	{
+	public void testCopyRelations() {
 		RelatedObject s = new RelatedObject();
 		RelatedObject t = new RelatedObject();
 
@@ -299,14 +270,13 @@ public class RelationTest
 		assertEquals("DESC1", t.get(StandardTypes.DESCRIPTION));
 	}
 
-	/***************************************
+	/**
 	 * Tests the methods {@link RelatedObject#relationsEqual(RelatedObject)},
 	 * {@link RelatedObject#relationsHashCode()}, {@link Relation#hashCode()},
 	 * and {@link Relation#equals(Object)}.
 	 */
 	@Test
-	public void testEqualsAndHashCode()
-	{
+	public void testEqualsAndHashCode() {
 		RelatedObject o1 = new RelatedObject();
 		RelatedObject o2 = new RelatedObject();
 
@@ -321,158 +291,124 @@ public class RelationTest
 
 		assertEquals(o1.relationsHashCode(), o2.relationsHashCode());
 		assertEquals(
-			o1.getRelation(NAME).hashCode(),
-			o2.getRelation(NAME).hashCode());
+				o1.getRelation(NAME).hashCode(),
+				o2.getRelation(NAME).hashCode());
 	}
 
-	/***************************************
+	/**
 	 * Test final relation type.
 	 */
 	@Test
-	public void testFinalType()
-	{
+	public void testFinalType() {
 		RelatedObject o = new RelatedObject();
 
 		o.set(FINAL_TEST_FLAG);
 
-		try
-		{
+		try {
 			o.set(FINAL_TEST_FLAG, false);
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			assertTrue(o.get(FINAL_TEST_FLAG));
 		}
 
-		try
-		{
+		try {
 			o.deleteRelation(FINAL_TEST_FLAG);
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			assertTrue(o.get(FINAL_TEST_FLAG));
 		}
 	}
 
-	/***************************************
+	/**
 	 * Test immutable flag type {@link MetaTypes#IMMUTABLE}.
 	 */
 	@Test
-	public void testImmutable()
-	{
+	public void testImmutable() {
 		RelatedObject o = new RelatedObject();
 
 		o.set(NAME, "immutable");
 		o.get(ELEMENTS).add("E1");
 		o.set(MetaTypes.IMMUTABLE);
 
-		try
-		{
+		try {
 			o.set(NAME, "changed");
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			assertEquals("immutable", o.get(NAME));
 		}
 
-		try
-		{
+		try {
 			o.set(DESCRIPTION, "test");
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			assertFalse(o.hasRelation(DESCRIPTION));
 		}
 
-		try
-		{
+		try {
 			o.getRelation(NAME).annotate(TEST_FLAG);
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			assertFalse(o.getRelation(NAME).hasFlagAnnotation(TEST_FLAG));
 		}
 
-		try
-		{
+		try {
 			o.deleteRelation(NAME);
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			assertTrue(o.hasRelation(NAME));
 		}
 
-		try
-		{
+		try {
 			o.get(ELEMENTS).add("E2");
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			assertTrue(
-				o.get(ELEMENTS).size() == 1 &&
-				o.get(ELEMENTS).get(0).equals("E1"));
+					o.get(ELEMENTS).size() == 1 &&
+							o.get(ELEMENTS).get(0).equals("E1"));
 		}
 
-		try
-		{
+		try {
 			o.get(ListenerTypes.RELATION_LISTENERS)
-			 .add(
- 				new EventHandler<RelationEvent<?>>()
- 				{
- 					@Override
- 					public void handleEvent(RelationEvent<?> rEvent)
- 					{
- 						// should never be invoked
- 						fail();
- 					}
- 				});
+					.add(
+							new EventHandler<RelationEvent<?>>() {
+								@Override
+								public void handleEvent(RelationEvent<?> rEvent) {
+									// should never be invoked
+									fail();
+								}
+							});
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			// this should happen
 		}
 	}
 
-	/***************************************
+	/**
 	 * Test immutable flag type {@link MetaTypes#IMMUTABLE} on single relation.
 	 */
 	@Test
-	public void testImmutableRelation()
-	{
+	public void testImmutableRelation() {
 		RelatedObject o = new RelatedObject();
 
 		o.set(NAME, "test").annotate(MetaTypes.IMMUTABLE);
 
-		try
-		{
+		try {
 			o.set(NAME, "changed");
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			assertEquals("test", o.get(NAME));
 		}
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link RelatedObject#set(RelationType,
 	 * de.esoco.lib.expression.Function, Object)}.
 	 */
 	@Test
-	public void testIntermediateRelation()
-	{
+	public void testIntermediateRelation() {
 		RelatedObject o = new RelatedObject();
 
-		Relation<String> r =
-			o.set(NAME, invert(toByteArray()), "TEST".getBytes());
+		Relation<String> r = o.set(NAME, invert(toByteArray()), "TEST".getBytes());
 
 		Object it = r.get(IntermediateRelation.INTERMEDIATE_TARGET);
 
@@ -482,23 +418,19 @@ public class RelationTest
 		o = new RelatedObject();
 		o.set(NAME, "TEST");
 
-		try
-		{
+		try {
 			r = o.set(NAME, invert(toByteArray()), "TEST".getBytes());
 			assertTrue(false);
-		}
-		catch (IllegalStateException e)
-		{
+		} catch (IllegalStateException e) {
 			// expected
 		}
 	}
 
-	/***************************************
+	/**
 	 * Test setting list relations with vararg method.
 	 */
 	@Test
-	public void testListRelations()
-	{
+	public void testListRelations() {
 		RelatedObject o = new RelatedObject();
 
 		o.set(ELEMENTS, Arrays.asList("Elem1", "Elem2"));
@@ -509,12 +441,11 @@ public class RelationTest
 		assertEquals(1, o.getRelationCount(ALL_RELATIONS));
 	}
 
-	/***************************************
+	/**
 	 * Test private relation type.
 	 */
 	@Test
-	public void testPrivateType()
-	{
+	public void testPrivateType() {
 		RelatedObject o = new RelatedObject();
 
 		o.set(PRIVATE_TEST_FLAG);
@@ -535,18 +466,17 @@ public class RelationTest
 		assertFalse(o.hasRelation(PRIVATE_TEST_FLAG));
 	}
 
-	/***************************************
+	/**
 	 * Tests the correct initialization of the relation types.
 	 */
 	@Test
-	public void testRelationTypeInit()
-	{
+	public void testRelationTypeInit() {
 		RelatedObject o = new RelatedObject();
 
-		List<String>		 l  = o.get(ELEMENTS);
-		Set<String>			 s  = o.get(TEST_SET);
-		Set<String>			 os = o.get(TEST_ORDERED_SET);
-		Map<String, Integer> m  = o.get(TEST_MAP);
+		List<String> l = o.get(ELEMENTS);
+		Set<String> s = o.get(TEST_SET);
+		Set<String> os = o.get(TEST_ORDERED_SET);
+		Map<String, Integer> m = o.get(TEST_MAP);
 		Map<String, Integer> om = o.get(TEST_ORDERED_MAP);
 
 		assertTrue(ELEMENTS.get(MetaTypes.ELEMENT_DATATYPE) == String.class);
@@ -576,33 +506,27 @@ public class RelationTest
 		assertTrue(TEST_ANNOTATED.hasFlag(MetaTypes.ORDERED));
 
 		assertTrue(
-			StandardTypes.NAME.get(MetaTypes.DECLARING_CLASS) ==
-			StandardTypes.class);
+				StandardTypes.NAME.get(MetaTypes.DECLARING_CLASS) == StandardTypes.class);
 
-		List<RelationType<?>> rStandardTypes =
-			ObjectRelations.getRelatable(StandardTypes.class)
-						   .get(MetaTypes.DECLARED_RELATION_TYPES);
+		List<RelationType<?>> rStandardTypes = ObjectRelations.getRelatable(StandardTypes.class)
+				.get(MetaTypes.DECLARED_RELATION_TYPES);
 
 		assertTrue(rStandardTypes.contains(StandardTypes.NAME));
 
-		try
-		{
+		try {
 			rStandardTypes.clear();
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			// this is expected
 		}
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link ObjectRelations#swapRelations(RelatedObject,
 	 * RelatedObject)}.
 	 */
 	@Test
-	public void testSwapRelations()
-	{
+	public void testSwapRelations() {
 		RelatedObject o1 = new RelatedObject();
 		RelatedObject o2 = new RelatedObject();
 
@@ -624,13 +548,12 @@ public class RelationTest
 		assertEquals("DESC1", o2.get(StandardTypes.DESCRIPTION));
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link ObjectRelations#syncRelations(RelatedObject,
 	 * RelatedObject)}.
 	 */
 	@Test
-	public void testSyncRelations()
-	{
+	public void testSyncRelations() {
 		RelatedObject o1 = new RelatedObject();
 		RelatedObject o2 = new RelatedObject();
 
@@ -647,16 +570,14 @@ public class RelationTest
 		assertEquals("TEST1", o2.get(StandardTypes.NAME));
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link RelatedObject#transform(RelationType, InvertibleFunction)}.
 	 */
 	@Test
-	public void testTransformedRelation()
-	{
+	public void testTransformedRelation() {
 		RelatedObject o = new RelatedObject();
 
-		TransformedRelation<String, byte[]> tr =
-			o.transform(NAME, toByteArray());
+		TransformedRelation<String, byte[]> tr = o.transform(NAME, toByteArray());
 
 		assertTrue(o.set(NAME, "TEST") instanceof TransformedRelation);
 		assertEquals(toByteArray(), tr.getTransformation());
@@ -670,14 +591,13 @@ public class RelationTest
 		assertEquals("TEST", o.get(NAME));
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link ObjectRelations#urlGet(Relatable, String)} and {@link
 	 * ObjectRelations#urlResolve(Relatable, String, boolean,
 	 * org.obrel.space.ObjectSpaceResolver)}.
 	 */
 	@Test
-	public void testUrlGet()
-	{
+	public void testUrlGet() {
 		RelatedObject o1 = new RelatedObject();
 		RelatedObject o2 = new RelatedObject();
 		RelatedObject o3 = new RelatedObject();
@@ -702,46 +622,36 @@ public class RelationTest
 		assertEquals("TEST3", urlGet(o1, "test-ref//test-ref///name"));
 		assertEquals(true, urlGet(o1, "test-ref/test-ref/test-flag"));
 		assertEquals(
-			true,
-			urlGet(o1, "test-ref/test-ref/org.obrel.test.test-flag"));
+				true,
+				urlGet(o1, "test-ref/test-ref/org.obrel.test.test-flag"));
 
-		try
-		{
+		try {
 			urlGet(o1, "test-flag");
 			fail();
-		}
-		catch (NoSuchElementException e)
-		{
+		} catch (NoSuchElementException e) {
 			// expected
 		}
 
-		try
-		{
+		try {
 			urlGet(o1, "test-ref/test-flag");
 			fail();
-		}
-		catch (NoSuchElementException e)
-		{
+		} catch (NoSuchElementException e) {
 			// expected
 		}
 
-		try
-		{
+		try {
 			urlGet(o1, "test-ref/test-ref/test-ref");
 			fail();
-		}
-		catch (NoSuchElementException e)
-		{
+		} catch (NoSuchElementException e) {
 			// expected
 		}
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link ObjectRelations#urlPut(Relatable, String, Object)}.
 	 */
 	@Test
-	public void testUrlPut()
-	{
+	public void testUrlPut() {
 		RelatedObject o1 = new RelatedObject();
 		RelatedObject o2 = new RelatedObject();
 		RelatedObject o3 = new RelatedObject();
@@ -762,13 +672,10 @@ public class RelationTest
 		urlPut(o1, "test-ref/test-ref/org.obrel.test.test-flag", Boolean.TRUE);
 		assertEquals(Boolean.TRUE, o3.get(TEST_FLAG));
 
-		try
-		{
-			urlPut(o1, "name", new Integer(1));
+		try {
+			urlPut(o1, "name", Integer.valueOf(1));
 			fail();
-		}
-		catch (IllegalArgumentException e)
-		{
+		} catch (IllegalArgumentException e) {
 			// expected
 		}
 

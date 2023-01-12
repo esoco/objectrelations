@@ -1,14 +1,5 @@
 rootProject.name = "objectrelations"
 
-buildscript {
-    repositories { jcenter()
-    			   maven { url 'https://plugins.gradle.org/m2/' }
-    }
-    dependencies { classpath 'gradle.plugin.net.vivin:gradle-semantic-build-versioning:4.0.0' }
-}
-
-apply plugin: 'net.vivin.gradle-semantic-build-versioning'
-
 ['esoco-common', 'esoco-monads'].each {
-	project -> if (new File("$rootDir/../$project").exists()) includeFlat project
+	project -> if (new File("$rootDir/../$project").exists()) includeBuild "../$project"
 }

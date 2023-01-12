@@ -16,76 +16,59 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
-import de.esoco.lib.text.TextUtil;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.obrel.core.RelationTypes.newListType;
+import static org.obrel.filter.RelationFilters.ALL_RELATIONS;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import org.obrel.type.StandardTypes;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import de.esoco.lib.text.TextUtil;
 
-import static org.obrel.core.RelationTypes.newListType;
-import static org.obrel.filter.RelationFilters.ALL_RELATIONS;
-
-
-/********************************************************************
+/**
  * Tests serialization of object-relation classes.
  *
  * @author eso
  */
-public class SerializationTest
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class SerializationTest {
+	private static final RelationType<List<String>> TEST_STRINGS = newListType();
 
-	private static final RelationType<List<String>> TEST_STRINGS =
-		newListType();
-
-	private static final byte[] NAME_PROPERTY_TYPE_BYTES =
-	{
-		(byte) 0xAC, (byte) 0xED, 0x00, 0x05, 0x73, 0x72, 0x00, 0x1B, 0x6F,
-		0x72, 0x67, 0x2E, 0x6F, 0x62, 0x72, 0x65, 0x6C, 0x2E, 0x63, 0x6F, 0x72,
-		0x65, 0x2E, 0x52, 0x65, 0x6C, 0x61, 0x74, 0x69, 0x6F, 0x6E, 0x54, 0x79,
-		0x70, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x00,
-		0x01, 0x4C, 0x00, 0x05, 0x73, 0x4E, 0x61, 0x6D, 0x65, 0x74, 0x00, 0x12,
-		0x4C, 0x6A, 0x61, 0x76, 0x61, 0x2F, 0x6C, 0x61, 0x6E, 0x67, 0x2F, 0x53,
-		0x74, 0x72, 0x69, 0x6E, 0x67, 0x3B, 0x78, 0x70, 0x74, 0x00, 0x04, 0x4E,
-		0x41, 0x4D, 0x45
+	private static final byte[] NAME_PROPERTY_TYPE_BYTES = {
+			(byte) 0xAC, (byte) 0xED, 0x00, 0x05, 0x73, 0x72, 0x00, 0x1B, 0x6F,
+			0x72, 0x67, 0x2E, 0x6F, 0x62, 0x72, 0x65, 0x6C, 0x2E, 0x63, 0x6F, 0x72,
+			0x65, 0x2E, 0x52, 0x65, 0x6C, 0x61, 0x74, 0x69, 0x6F, 0x6E, 0x54, 0x79,
+			0x70, 0x65, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x02, 0x00,
+			0x01, 0x4C, 0x00, 0x05, 0x73, 0x4E, 0x61, 0x6D, 0x65, 0x74, 0x00, 0x12,
+			0x4C, 0x6A, 0x61, 0x76, 0x61, 0x2F, 0x6C, 0x61, 0x6E, 0x67, 0x2F, 0x53,
+			0x74, 0x72, 0x69, 0x6E, 0x67, 0x3B, 0x78, 0x70, 0x74, 0x00, 0x04, 0x4E,
+			0x41, 0x4D, 0x45
 	};
 
-	static
-	{
+	static {
 		RelationTypes.init(SerializationTest.class);
 	}
 
-	//~ Instance fields --------------------------------------------------------
-
 	private ByteArrayOutputStream aByteOut;
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Helper method to create the 'NAME_PROPERTY_TYPE_BYTES' array. Only needed
 	 * when the serialized form of the {@link StandardTypes#NAME} relation type
 	 * changes. Remove the comment of the {@link BeforeClass} annotation to
 	 * print the serialized data to the console, then copy it into the array.
 	 */
-//	@BeforeClass
-	public static void createNameRelationTypeBytes()
-	{
-		try
-		{
-			ByteArrayOutputStream aOut    = new ByteArrayOutputStream();
-			ObjectOutputStream    aObjOut = new ObjectOutputStream(aOut);
+	// @BeforeClass
+	public static void createNameRelationTypeBytes() {
+		try {
+			ByteArrayOutputStream aOut = new ByteArrayOutputStream();
+			ObjectOutputStream aObjOut = new ObjectOutputStream(aOut);
 
 			aObjOut.writeObject(StandardTypes.NAME);
 			aObjOut.close();
@@ -94,17 +77,13 @@ public class SerializationTest
 			byte[] aBytes = aOut.toByteArray();
 
 			System.out.printf("0x%s\n", TextUtil.hexString(aBytes, ", 0x"));
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			System.out.println("ERR: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Reads the relation type instance {@link StandardTypes#NAME} from the
 	 * 'NAME_PROPERTY_TYPE_BYTES' array. The name of this test method starts
 	 * with an underscore because it must be run first to test the
@@ -118,30 +97,27 @@ public class SerializationTest
 	 */
 	@Test
 	public void _deserializeNameType() throws IOException,
-											  ClassNotFoundException
-	{
-		ObjectInputStream in =
-			new ObjectInputStream(new ByteArrayInputStream(NAME_PROPERTY_TYPE_BYTES));
+			ClassNotFoundException {
+		ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(NAME_PROPERTY_TYPE_BYTES));
 
 		in.readObject();
 	}
 
-	/***************************************
+	/**
 	 * Test serialization of alias relations.
 	 *
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
 	public void serializeAliasRelations() throws IOException,
-												 ClassNotFoundException
-	{
-		RelatedObject	   obj = new SerializableRelatedObject();
+			ClassNotFoundException {
+		RelatedObject obj = new SerializableRelatedObject();
 		ObjectOutputStream out = createOutputStream();
 
 		obj.set(StandardTypes.NAME, "TESTNAME")
-		   .viewAs(RelationTest.TEST_ID, obj);
+				.viewAs(RelationTest.TEST_ID, obj);
 		obj.set(StandardTypes.DESCRIPTION, "TESTDESC")
-		   .aliasAs(StandardTypes.INFO, obj);
+				.aliasAs(StandardTypes.INFO, obj);
 
 		out.writeObject(obj);
 
@@ -159,18 +135,15 @@ public class SerializationTest
 		assertEquals("NEWDESC", obj.get(StandardTypes.DESCRIPTION));
 		assertEquals("NEWDESC", obj.get(StandardTypes.INFO));
 
-		try
-		{
+		try {
 			obj.set(RelationTest.TEST_ID, "NEWNAME");
 			assertTrue(false);
-		}
-		catch (UnsupportedOperationException e)
-		{
+		} catch (UnsupportedOperationException e) {
 			// This is expected because ID is a view which is readonly
 		}
 	}
 
-	/***************************************
+	/**
 	 * Test serialization of relations that contain (meta-)relations.
 	 *
 	 * @throws IOException
@@ -178,11 +151,10 @@ public class SerializationTest
 	 */
 	@Test
 	public void serializeRelationRelations() throws IOException,
-													ClassNotFoundException
-	{
-		RelatedObject	   obj = new SerializableRelatedObject();
+			ClassNotFoundException {
+		RelatedObject obj = new SerializableRelatedObject();
 		ObjectOutputStream out = createOutputStream();
-		Relation<String>   rel = obj.set(StandardTypes.NAME, "TESTNAME");
+		Relation<String> rel = obj.set(StandardTypes.NAME, "TESTNAME");
 
 		rel.set(StandardTypes.DESCRIPTION, "TESTDESC");
 		rel.get(TEST_STRINGS).add("TEST1");
@@ -205,16 +177,15 @@ public class SerializationTest
 		assertEquals("TEST2", aTestStrings.get(1));
 	}
 
-	/***************************************
+	/**
 	 * Test serialization of simple relations.
 	 *
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
 	@Test
-	public void serializeRelations() throws IOException, ClassNotFoundException
-	{
-		RelatedObject	   obj = new SerializableRelatedObject();
+	public void serializeRelations() throws IOException, ClassNotFoundException {
+		RelatedObject obj = new SerializableRelatedObject();
 		ObjectOutputStream out = createOutputStream();
 
 		obj.set(StandardTypes.NAME, "TESTNAME");
@@ -239,7 +210,7 @@ public class SerializationTest
 		assertEquals("TEST2", aTestStrings.get(1));
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @throws IOException
@@ -247,8 +218,7 @@ public class SerializationTest
 	 */
 	@Test
 	public void serializeRelationTypes() throws IOException,
-												ClassNotFoundException
-	{
+			ClassNotFoundException {
 		ObjectOutputStream out = createOutputStream();
 
 		out.writeObject(StandardTypes.NAME);
@@ -258,7 +228,7 @@ public class SerializationTest
 		assertEquals(StandardTypes.NAME, in.readObject());
 	}
 
-	/***************************************
+	/**
 	 * Returns a new {@link ObjectInputStream} that reads from the byte array
 	 * that had been created by {@link #createOutputStream()}.
 	 *
@@ -266,13 +236,12 @@ public class SerializationTest
 	 *
 	 * @throws IOException On errors
 	 */
-	ObjectInputStream createInputStream() throws IOException
-	{
+	ObjectInputStream createInputStream() throws IOException {
 		return new ObjectInputStream(new ByteArrayInputStream(aByteOut
-															  .toByteArray()));
+				.toByteArray()));
 	}
 
-	/***************************************
+	/**
 	 * Returns a new {@link ObjectOutputStream} that writes to a byte array
 	 * through {@link ByteArrayOutputStream}.
 	 *
@@ -280,8 +249,7 @@ public class SerializationTest
 	 *
 	 * @throws IOException On errors
 	 */
-	ObjectOutputStream createOutputStream() throws IOException
-	{
+	ObjectOutputStream createOutputStream() throws IOException {
 		aByteOut = new ByteArrayOutputStream();
 
 		return new ObjectOutputStream(aByteOut);

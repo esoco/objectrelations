@@ -16,43 +16,34 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
-import de.esoco.lib.event.EventDispatcher;
-import de.esoco.lib.event.EventHandler;
-
-import org.junit.Test;
-
-import org.obrel.type.ListenerTypes;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.obrel.type.StandardTypes.COUNT;
 import static org.obrel.type.StandardTypes.NAME;
 import static org.obrel.type.StandardTypes.ORDINAL;
 import static org.obrel.type.StandardTypes.SIZE;
 
+import org.junit.jupiter.api.Test;
+import org.obrel.type.ListenerTypes;
 
-/********************************************************************
+import de.esoco.lib.event.EventDispatcher;
+import de.esoco.lib.event.EventHandler;
+
+/**
  * Test of relation listener functionality.
  *
  * @author eso
  */
-public class RelationListenerTest
-{
-	//~ Instance fields --------------------------------------------------------
-
+public class RelationListenerTest {
 	private Object rRelationTarget;
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Test relation listener on a related object.
 	 */
 	@Test
-	public void testObjectRelationListener()
-	{
+	public void testObjectRelationListener() {
 		RelatedObject aTest1 = new RelatedObject();
 		RelatedObject aTest2 = new RelatedObject();
 
@@ -73,18 +64,16 @@ public class RelationListenerTest
 
 		aTest1.get(ListenerTypes.RELATION_LISTENERS).remove(aListener);
 		assertTrue(
-			aTest1.get(ListenerTypes.RELATION_LISTENERS).getEventHandlerCount() ==
-			0);
+				aTest1.get(ListenerTypes.RELATION_LISTENERS).getEventHandlerCount() == 0);
 	}
 
-	/***************************************
+	/**
 	 * Test relation listener on a particular relation.
 	 */
 	@SuppressWarnings("boxing")
 	@Test
-	public void testRelationOnUpdateAndChangeListener()
-	{
-		RelatedObject     o = new RelatedObject();
+	public void testRelationOnUpdateAndChangeListener() {
+		RelatedObject o = new RelatedObject();
 		Relation<Integer> r = o.set(ORDINAL, 0);
 
 		r.onUpdate(i -> o.set(COUNT, o.get(COUNT) + 1));
@@ -104,12 +93,11 @@ public class RelationListenerTest
 		assertEquals(Integer.valueOf(2), o.get(SIZE));
 	}
 
-	/***************************************
+	/**
 	 * Test relation listener on a particular relation.
 	 */
 	@Test
-	public void testRelationUpdateListener()
-	{
+	public void testRelationUpdateListener() {
 		RelatedObject aTest1 = new RelatedObject();
 		RelatedObject aTest2 = new RelatedObject();
 
@@ -119,8 +107,8 @@ public class RelationListenerTest
 		aTest1.set(NAME, "TEST1");
 		assertEquals("TEST1", rRelationTarget);
 		aTest1.getRelation(NAME)
-			  .get(ListenerTypes.RELATION_UPDATE_LISTENERS)
-			  .remove(aListener);
+				.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
+				.remove(aListener);
 		aTest1.set(NAME, "TEST1X");
 		assertEquals("TEST1", rRelationTarget);
 
@@ -129,12 +117,11 @@ public class RelationListenerTest
 		assertEquals("TEST2", rRelationTarget);
 	}
 
-	/***************************************
+	/**
 	 * Test relation listener on a relation type.
 	 */
 	@Test
-	public void testTypeRelationListener()
-	{
+	public void testTypeRelationListener() {
 		RelatedObject aTest1 = new RelatedObject();
 		RelatedObject aTest2 = new RelatedObject();
 
@@ -161,32 +148,28 @@ public class RelationListenerTest
 		aTest2.deleteRelation(NAME);
 		assertNull(rRelationTarget);
 
-		EventDispatcher<RelationEvent<?>> rTypeEventDispatcher =
-			NAME.get(ListenerTypes.RELATION_TYPE_LISTENERS);
+		EventDispatcher<RelationEvent<?>> rTypeEventDispatcher = NAME.get(ListenerTypes.RELATION_TYPE_LISTENERS);
 
 		rTypeEventDispatcher.remove(aListener);
 
 		// disabled because of inconsistent behavior on OpenJDK
-//		assertTrue(rTypeEventDispatcher.getEventHandlerCount() == 0);
+		// assertTrue(rTypeEventDispatcher.getEventHandlerCount() == 0);
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
+	// ~ Inner Classes ----------------------------------------------------------
 
-	/********************************************************************
+	/*******************************
 	 * A test event listener
 	 */
-	class TestListener<T> implements EventHandler<RelationEvent<T>>
-	{
-		//~ Methods ------------------------------------------------------------
+	class TestListener<T> implements EventHandler<RelationEvent<T>> {
+		// ~ Methods ------------------------------------------------------------
 
-		/***************************************
+		/**
 		 * @see EventHandler#handleEvent(de.esoco.lib.event.Event)
 		 */
 		@Override
-		public void handleEvent(RelationEvent<T> rEvent)
-		{
-			switch (rEvent.getType())
-			{
+		public void handleEvent(RelationEvent<T> rEvent) {
+			switch (rEvent.getType()) {
 				case ADD:
 					rRelationTarget = rEvent.getElement().getTarget();
 					break;
@@ -200,7 +183,7 @@ public class RelationListenerTest
 					break;
 
 				default:
-					assertFalse("Unknown relation event: " + rEvent, true);
+					fail("Unknown relation event: " + rEvent);
 					break;
 			}
 		}

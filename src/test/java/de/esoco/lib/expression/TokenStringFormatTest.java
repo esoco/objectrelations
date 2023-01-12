@@ -16,39 +16,35 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-import junit.framework.TestCase;
-
-import de.esoco.lib.expression.function.TokenStringFormat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
 
+import org.junit.jupiter.api.Test;
 
-/********************************************************************
+import de.esoco.lib.expression.function.TokenStringFormat;
+
+/**
  * TokenStringFormat Test
  *
  * @author eso
  */
-public class TokenStringFormatTest extends TestCase
-{
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+public class TokenStringFormatTest {
+	/**
 	 * Test of TokenStringFormat instances.
 	 */
-	public void testTokenStringFormat()
-	{
+	@Test
+	void testTokenStringFormat() {
 		TokenStringFormat<Object> tsf;
-		String					  s = "1234567890";
-		String					  f = "yy-MM-dd HH:mm.ss";
-		Date					  d = new Date();
-		Integer					  n = new Integer(42);
+		String s = "1234567890";
+		String f = "yy-MM-dd HH:mm.ss";
+		Date d = new Date();
+		Integer n = Integer.valueOf(42);
 
-		tsf =
-			new TokenStringFormat<Object>("{#}: {length():F%03d}, " +
-										  "{substring(0,5):&{substring(2,4):F%-4s]}}");
+		tsf = new TokenStringFormat<Object>("{#}: {length():F%03d}, " +
+				"{substring(0,5):&{substring(2,4):F%-4s]}}");
 		assertEquals("1234567890: 010, 34  ]", tsf.evaluate(s));
 
 		Object[] arr = new Object[] { "a", "b", "c" };
@@ -59,12 +55,12 @@ public class TokenStringFormatTest extends TestCase
 		tsf = new TokenStringFormat<Object>("{#:D" + f + "}");
 		assertEquals(new SimpleDateFormat(f).format(d), tsf.evaluate(d));
 
-		f   = "000.00";
+		f = "000.00";
 		tsf = new TokenStringFormat<Object>("{#:N" + f + "}");
 
 		assertEquals(new DecimalFormat(f).format(n), tsf.evaluate(n));
 
-		f   = "1#Test 1|2#Test 2|42#Test 42";
+		f = "1#Test 1|2#Test 2|42#Test 42";
 		tsf = new TokenStringFormat<Object>("{#:C" + f + "}");
 
 		assertEquals("Test 42", tsf.evaluate(n));

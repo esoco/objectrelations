@@ -16,56 +16,41 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.space;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.obrel.type.StandardTypes.NAME;
+import static org.obrel.type.StandardTypes.PORT;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypes;
 import org.obrel.type.StandardTypes;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import static org.obrel.type.StandardTypes.NAME;
-import static org.obrel.type.StandardTypes.PORT;
-
-
-/********************************************************************
+/**
  * Test of basic object space functionality.
  *
  * @author eso
  */
-public class ObjectSpaceTest
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class ObjectSpaceTest {
+	private static final RelationType<ObjectSpace<Object>> SUBSPACE1 = RelationTypes.newType();
+	private static final RelationType<ObjectSpace<Object>> SUBSPACE2 = RelationTypes.newType();
 
-	private static final RelationType<ObjectSpace<Object>> SUBSPACE1 =
-		RelationTypes.newType();
-	private static final RelationType<ObjectSpace<Object>> SUBSPACE2 =
-		RelationTypes.newType();
-
-	static
-	{
+	static {
 		RelationTypes.init(ObjectSpaceTest.class, StandardTypes.class);
 	}
-
-	//~ Instance fields --------------------------------------------------------
 
 	private ObjectSpace<Object> aTestSpace;
 	private ObjectSpace<Object> aSubSpace1;
 	private ObjectSpace<Object> aSubSpace2;
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates the test object space.
 	 */
-	@Before
-	@SuppressWarnings("boxing")
-	public void setup()
-	{
+	@BeforeEach
+	public void setup() {
 		aTestSpace = new RelationSpace<>(true);
 		aSubSpace1 = new RelationSpace<>(true);
 		aSubSpace2 = new RelationSpace<>(true);
@@ -81,12 +66,11 @@ public class ObjectSpaceTest
 		aTestSpace.put("subspace2/port", 2222);
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link ObjectSpace#delete(String)}
 	 */
 	@Test
-	public void testDelete()
-	{
+	public void testDelete() {
 		aTestSpace.delete("subspace1/name");
 		aTestSpace.delete("subspace1/port");
 		assertFalse(aSubSpace1.hasRelation(NAME));
@@ -96,23 +80,19 @@ public class ObjectSpaceTest
 		assertFalse(aTestSpace.hasRelation(SUBSPACE1));
 		assertTrue(aTestSpace.hasRelation(SUBSPACE2));
 
-		try
-		{
+		try {
 			aTestSpace.get("subspace1/name");
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			// expected
 		}
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link ObjectSpace#get(String)}
 	 */
 	@Test
-	public void testGet()
-	{
+	public void testGet() {
 		assertEquals("Test", aTestSpace.get("name"));
 		assertEquals(Integer.valueOf(1234), aTestSpace.get("port"));
 		assertEquals("Sub1", aTestSpace.get("subspace1/name"));

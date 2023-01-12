@@ -16,18 +16,22 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
-import de.esoco.lib.collection.CollectionUtil;
-import de.esoco.lib.text.TextConvert.IdentifierStyle;
+import static de.esoco.lib.datatype.Pair.t;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.obrel.type.StandardTypes.CHILDREN;
+import static org.obrel.type.StandardTypes.INFO;
+import static org.obrel.type.StandardTypes.NAME;
+import static org.obrel.type.StandardTypes.PORT;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Map;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
@@ -35,125 +39,102 @@ import org.obrel.core.RelationTypes;
 import org.obrel.type.MetaTypes;
 import org.obrel.type.StandardTypes;
 
-import static de.esoco.lib.datatype.Pair.t;
+import de.esoco.lib.collection.CollectionUtil;
+import de.esoco.lib.text.TextConvert.IdentifierStyle;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import static org.obrel.type.StandardTypes.CHILDREN;
-import static org.obrel.type.StandardTypes.INFO;
-import static org.obrel.type.StandardTypes.NAME;
-import static org.obrel.type.StandardTypes.PORT;
-
-
-/********************************************************************
+/**
  * Test method
  *
  * @author eso
  */
-public class JsonBuilderTest
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class JsonBuilderTest {
+	private static final RelationType<String> TEST_RELATION = RelationTypes.newType();
 
-	private static final RelationType<String> TEST_RELATION =
-		RelationTypes.newType();
-
-	static
-	{
+	static {
 		RelationTypes.init(JsonBuilderTest.class);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Test method
 	 */
 	@Test
-	public void testAppendArray()
-	{
+	public void testAppendArray() {
 	}
 
-	/***************************************
+	/**
 	 * Test method
 	 */
 	@Test
-	public void testAppendName()
-	{
+	public void testAppendName() {
 		assertEquals("\"Testname\"",
-					 new JsonBuilder().append("Testname").toString());
+				new JsonBuilder().append("Testname").toString());
 	}
 
-	/***************************************
+	/**
 	 * Test method
 	 */
 	@Test
-	public void testAppendObjectFromMap()
-	{
+	public void testAppendObjectFromMap() {
 		@SuppressWarnings("boxing")
-		Map<String, Object> aData =
-			CollectionUtil.orderedMapOf(t("name", "Name"),
-										t("value", 42),
-										t("flag", true),
-										t("nothing", null),
-										t("array",
-										  Arrays.asList("a1", "a2", "a3")),
-										t("map",
-										  CollectionUtil.orderedMapOf(t("m1",
-																		"v1"))));
+		Map<String, Object> aData = CollectionUtil.orderedMapOf(t("name", "Name"),
+				t("value", 42),
+				t("flag", true),
+				t("nothing", null),
+				t("array",
+						Arrays.asList("a1", "a2", "a3")),
+				t("map",
+						CollectionUtil.orderedMapOf(t("m1",
+								"v1"))));
 
 		JsonBuilder aJsonBuilder = new JsonBuilder().compact();
 
 		assertEquals("{\"name\":\"Name\",\"value\":42,\"flag\":true," +
-					 "\"nothing\":null,\"array\":[\"a1\",\"a2\",\"a3\"]," +
-					 "\"map\":{\"m1\":\"v1\"}}",
-					 aJsonBuilder.append(aData).toString());
+				"\"nothing\":null,\"array\":[\"a1\",\"a2\",\"a3\"]," +
+				"\"map\":{\"m1\":\"v1\"}}",
+				aJsonBuilder.append(aData).toString());
 	}
 
-	/***************************************
+	/**
 	 * Test method
 	 */
 	@Test
-	public void testAppendRelatable()
-	{
+	public void testAppendRelatable() {
 		JsonBuilder aJson = new JsonBuilder().compact();
 
 		aJson.appendRelatable(createTestRelatable(), null, true);
 
 		assertEquals("{\"NAME\":\"TEST\",\"INFO\":\"JSON\",\"PORT\":12345,\"MODIFIED\":true," +
-					 "\"PARENT\":{\"NAME\":\"PARENT\",\"INFO\":\"JSON_OBJECT\"}," +
-					 "\"CHILDREN\":[{\"NAME\":\"CHILD1\"},{\"NAME\":\"CHILD2\"}]}",
-					 aJson.toString());
+				"\"PARENT\":{\"NAME\":\"PARENT\",\"INFO\":\"JSON_OBJECT\"}," +
+				"\"CHILDREN\":[{\"NAME\":\"CHILD1\"},{\"NAME\":\"CHILD2\"}]}",
+				aJson.toString());
 	}
 
-	/***************************************
+	/**
 	 * Test method
 	 */
 	@Test
-	public void testAppendRelatableWithSerializedTypes()
-	{
+	public void testAppendRelatableWithSerializedTypes() {
 		JsonBuilder aJson = new JsonBuilder().compact();
 
 		Relatable aTestObj = createTestRelatable();
 
 		aTestObj.set(Json.JSON_PROPERTY_NAMING, IdentifierStyle.UPPERCASE);
 		aTestObj.set(Json.JSON_SERIALIZED_TYPES,
-					 Arrays.asList(NAME, INFO, PORT, CHILDREN));
+				Arrays.asList(NAME, INFO, PORT, CHILDREN));
 
 		aJson.appendRelatable(aTestObj, null, true);
 
 		assertEquals("{\"NAME\":\"TEST\",\"INFO\":\"JSON\",\"PORT\":12345," +
-					 "\"CHILDREN\":[{\"NAME\":\"CHILD1\"},{\"NAME\":\"CHILD2\"}]}",
-					 aJson.toString());
+				"\"CHILDREN\":[{\"NAME\":\"CHILD1\"},{\"NAME\":\"CHILD2\"}]}",
+				aJson.toString());
 	}
 
-	/***************************************
+	/**
 	 * Test of {@link JsonBuilder#append(org.obrel.core.Relation, boolean,
 	 * boolean)}
 	 */
 	@Test
-	public void testAppendRelation()
-	{
+	public void testAppendRelation() {
 		RelatedObject r = new RelatedObject();
 
 		r.set(TEST_RELATION, "Test");
@@ -161,104 +142,102 @@ public class JsonBuilderTest
 		JsonBuilder jb = new JsonBuilder();
 
 		assertTrue(jb.append(r.getRelation(TEST_RELATION),
-							 IdentifierStyle.UPPERCASE,
-							 false));
+				IdentifierStyle.UPPERCASE,
+				false));
 		assertEquals(String.format("\"%s\": \"Test\"",
-								   TEST_RELATION.getSimpleName()),
-					 jb.toString());
+				TEST_RELATION.getSimpleName()),
+				jb.toString());
 
 		jb = new JsonBuilder().withNamespaces();
 
 		assertTrue(jb.append(r.getRelation(TEST_RELATION),
-							 IdentifierStyle.UPPERCASE,
-							 false));
+				IdentifierStyle.UPPERCASE,
+				false));
 		assertEquals(String.format("\"%s\": \"Test\"", TEST_RELATION.getName()),
-					 jb.toString());
+				jb.toString());
 
 		jb = new JsonBuilder();
 		assertTrue(jb.append(r.getRelation(TEST_RELATION),
-							 IdentifierStyle.CAMELCASE,
-							 false));
+				IdentifierStyle.CAMELCASE,
+				false));
 		assertEquals("\"TestRelation\": \"Test\"", jb.toString());
 
 		jb = new JsonBuilder();
 		assertTrue(jb.append(r.getRelation(TEST_RELATION),
-							 IdentifierStyle.LOWER_CAMELCASE,
-							 false));
+				IdentifierStyle.LOWER_CAMELCASE,
+				false));
 		assertEquals("\"testRelation\": \"Test\"", jb.toString());
 
 		r.set(TEST_RELATION, null);
 		jb = new JsonBuilder();
 		assertTrue(jb.append(r.getRelation(TEST_RELATION),
-							 IdentifierStyle.UPPERCASE,
-							 true));
+				IdentifierStyle.UPPERCASE,
+				true));
 		assertEquals(String.format("\"%s\": null",
-								   TEST_RELATION.getSimpleName()),
-					 jb.toString());
+				TEST_RELATION.getSimpleName()),
+				jb.toString());
 
 		jb = new JsonBuilder();
 		assertFalse(jb.append(r.getRelation(TEST_RELATION),
-							  IdentifierStyle.UPPERCASE,
-							  false));
+				IdentifierStyle.UPPERCASE,
+				false));
 		assertEquals("", jb.toString());
 	}
 
-	/***************************************
+	/**
 	 * Test method
 	 */
 	@SuppressWarnings("boxing")
 	@Test
-	public void testAppendValue()
-	{
+	public void testAppendValue() {
 		assertEquals("null", new JsonBuilder().append(null).toString());
 		assertEquals("true", new JsonBuilder().append(Boolean.TRUE).toString());
 		assertEquals("false",
-					 new JsonBuilder().append(Boolean.FALSE).toString());
+				new JsonBuilder().append(Boolean.FALSE).toString());
 
 		assertEquals("42", new JsonBuilder().append(42).toString());
 		assertEquals(Integer.toString(Integer.MIN_VALUE),
-					 new JsonBuilder().append(Integer.MIN_VALUE).toString());
+				new JsonBuilder().append(Integer.MIN_VALUE).toString());
 		assertEquals(Integer.toString(Integer.MAX_VALUE),
-					 new JsonBuilder().append(Integer.MAX_VALUE).toString());
+				new JsonBuilder().append(Integer.MAX_VALUE).toString());
 		assertEquals(Long.toString(Long.MIN_VALUE),
-					 new JsonBuilder().append(Long.MIN_VALUE).toString());
+				new JsonBuilder().append(Long.MIN_VALUE).toString());
 		assertEquals(Long.toString(Long.MAX_VALUE),
-					 new JsonBuilder().append(Long.MAX_VALUE).toString());
+				new JsonBuilder().append(Long.MAX_VALUE).toString());
 		assertEquals("123456789012345678901234567890",
-					 new JsonBuilder().append(new BigInteger("123456789012345678901234567890"))
-					 .toString());
+				new JsonBuilder().append(new BigInteger("123456789012345678901234567890"))
+						.toString());
 		assertEquals("0.123", new JsonBuilder().append(0.123).toString());
 		assertEquals("1.23", new JsonBuilder().append(1.23).toString());
 		assertEquals("12300.0", new JsonBuilder().append(1.23e4).toString());
 		assertEquals("1.23", new JsonBuilder().append(1.23d).toString());
 		assertEquals("12300.0", new JsonBuilder().append(1.23e4d).toString());
 		assertEquals("1.23E+4",
-					 new JsonBuilder().append(new BigDecimal("1.23e4"))
-					 .toString());
+				new JsonBuilder().append(new BigDecimal("1.23e4"))
+						.toString());
 
 		testAppendDate();
 
 		assertEquals("\"NAME\"",
-					 new JsonBuilder().append(StandardTypes.NAME).toString());
+				new JsonBuilder().append(StandardTypes.NAME).toString());
 
 		assertEquals("\"test string\"",
-					 new JsonBuilder().append("test string").toString());
+				new JsonBuilder().append("test string").toString());
 		assertEquals("\"\\ttest string\\n\\r\\tmultiline \u011F\"",
-					 new JsonBuilder().append("\ttest string\n\r\tmultiline \u011f")
-					 .toString());
+				new JsonBuilder().append("\ttest string\n\r\tmultiline \u011f")
+						.toString());
 	}
 
-	/***************************************
+	/**
 	 * Creates a {@link Relatable} object with test data.
 	 *
 	 * @return
 	 */
-	protected Relatable createTestRelatable()
-	{
+	protected Relatable createTestRelatable() {
 		RelatedObject aTestObj = new RelatedObject();
-		RelatedObject aParent  = new RelatedObject();
-		RelatedObject aChild1  = new RelatedObject();
-		RelatedObject aChild2  = new RelatedObject();
+		RelatedObject aParent = new RelatedObject();
+		RelatedObject aChild1 = new RelatedObject();
+		RelatedObject aChild2 = new RelatedObject();
 
 		aParent.set(StandardTypes.NAME, "PARENT");
 		aParent.set(StandardTypes.INFO, "JSON_OBJECT");
@@ -272,16 +251,15 @@ public class JsonBuilderTest
 		aTestObj.set(MetaTypes.MODIFIED);
 		aTestObj.set(StandardTypes.PARENT, aParent);
 		aTestObj.set(StandardTypes.CHILDREN,
-					 Arrays.asList(aChild1, aChild2));
+				Arrays.asList(aChild1, aChild2));
 
 		return aTestObj;
 	}
 
-	/***************************************
+	/**
 	 * Tests appending a date value.
 	 */
-	private void testAppendDate()
-	{
+	private void testAppendDate() {
 		Calendar cal = Calendar.getInstance();
 
 		cal.set(Calendar.YEAR, 2000);
@@ -293,7 +271,7 @@ public class JsonBuilderTest
 		cal.set(Calendar.MILLISECOND, 123);
 
 		assertEquals(String.format("\"%s\"",
-								   Json.JSON_DATE_FORMAT.format(cal.getTime())),
-					 new JsonBuilder().append(cal.getTime()).toString());
+				Json.JSON_DATE_FORMAT.format(cal.getTime())),
+				new JsonBuilder().append(cal.getTime()).toString());
 	}
 }

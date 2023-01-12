@@ -16,58 +16,45 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.type;
 
-import de.esoco.lib.event.ElementEvent.EventType;
-import de.esoco.lib.expression.Predicates;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.obrel.type.StandardTypes.INFO;
+import static org.obrel.type.StandardTypes.NAME;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelatedObject;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import de.esoco.lib.event.ElementEvent.EventType;
+import de.esoco.lib.expression.Predicates;
 
-import static org.obrel.type.StandardTypes.INFO;
-import static org.obrel.type.StandardTypes.NAME;
-
-
-/********************************************************************
+/**
  * Test of {@link CounterType}.
  *
  * @author eso
  */
-public class CounterTypeTest
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class CounterTypeTest {
+	private static final RelationType<Integer> INT_COUNTER = CounterType.newIntCounter(Predicates.alwaysTrue());
 
-	private static final RelationType<Integer> INT_COUNTER =
-		CounterType.newIntCounter(Predicates.alwaysTrue());
-
-	private static final RelationType<Integer> FINAL_INT_COUNTER  =
-		CounterType.newIntCounter(Predicates.alwaysTrue(),
-								  RelationTypeModifier.FINAL);
+	private static final RelationType<Integer> FINAL_INT_COUNTER = CounterType.newIntCounter(Predicates.alwaysTrue(),
+			RelationTypeModifier.FINAL);
 	@SuppressWarnings("boxing")
-	private static final RelationType<Integer> SHORT_NAME_COUNTER =
-		CounterType.newIntCounter(e ->
-								  e.getType() != EventType.REMOVE &&
-								  e.getElement().getType() == NAME);
+	private static final RelationType<Integer> SHORT_NAME_COUNTER = CounterType
+			.newIntCounter(e -> e.getType() != EventType.REMOVE &&
+					e.getElement().getType() == NAME);
 
-	static
-	{
+	static {
 		RelationTypes.init(CounterTypeTest.class);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Test of an final integer counter.
 	 */
 	@Test
-	public void testFinalIntCounter()
-	{
+	public void testFinalIntCounter() {
 		Relatable o = new RelatedObject();
 
 		o.set(FINAL_INT_COUNTER, 5);
@@ -75,23 +62,19 @@ public class CounterTypeTest
 		o.set(NAME, "Test1");
 		assertEquals(6, o.get(FINAL_INT_COUNTER).intValue());
 
-		try
-		{
+		try {
 			o.set(FINAL_INT_COUNTER, 0);
 			fail();
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
 			// expected
 		}
 	}
 
-	/***************************************
+	/**
 	 * Test of an (non-final) integer counter.
 	 */
 	@Test
-	public void testIntCounter()
-	{
+	public void testIntCounter() {
 		Relatable o = new RelatedObject();
 
 		assertEquals(0, o.get(INT_COUNTER).intValue());
@@ -115,12 +98,11 @@ public class CounterTypeTest
 		assertEquals(1, o.get(INT_COUNTER).intValue());
 	}
 
-	/***************************************
+	/**
 	 * Test of a short counter of name relation accesses.
 	 */
 	@Test
-	public void testShortNameCounter()
-	{
+	public void testShortNameCounter() {
 		Relatable o = new RelatedObject();
 
 		o.init(SHORT_NAME_COUNTER);
