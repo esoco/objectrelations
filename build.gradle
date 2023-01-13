@@ -18,6 +18,8 @@ project.description = 'Functor and monad implementations'
 dependencies
 {
 	api 'de.esoco:esoco-monads:1.0.1'
+  
+  implementation "jakarta.validation:jakarta.validation-api:$jakartaValidationVersion"
 	
 	testImplementation platform("org.junit:junit-bom:$junitVersion")
 	testImplementation 'org.junit.jupiter:junit-jupiter'
