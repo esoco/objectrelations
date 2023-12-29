@@ -5,39 +5,41 @@ plugins {
 }
 
 repositories {
-	mavenLocal()
-	mavenCentral()
+    mavenLocal()
+    mavenCentral()
 }
 
-scmVersion { tag { prefix.set("") }}
+scmVersion { tag { prefix.set("") } }
 
 project.version = scmVersion.version
 project.group = 'org.obrel'
 project.description = 'Functor and monad implementations'
 
-sourceCompatibility = 1.8
-
-dependencies
-{
-	api 'de.esoco:esoco-monads:1.0.1'
-  
-  implementation "jakarta.validation:jakarta.validation-api:$jakartaValidationVersion"
-	
-	testImplementation platform("org.junit:junit-bom:$junitVersion")
-	testImplementation 'org.junit.jupiter:junit-jupiter'
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
+dependencies
+        {
+            api 'de.esoco:esoco-monads:1.0.1'
+
+            implementation "jakarta.validation:jakarta.validation-api:$jakartaValidationVersion"
+
+            testImplementation platform("org.junit:junit-bom:$junitVersion")
+            testImplementation 'org.junit.jupiter:junit-jupiter'
+        }
+
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
 }
 
@@ -47,31 +49,31 @@ artifacts {
 }
 
 mavenPublishing {
-  coordinates("$project.group", "$project.name", "$project.version")
+    coordinates("$project.group", "$project.name", "$project.version")
 
-  pom {
-    name = "$project.name"
-    description = "$project.description"
-    inceptionYear = "2016"
-    url = "https://github.com/esoco/${project.name}"
-    licenses {
-      license {
-        name = "The Apache License, Version 2.0"
-        url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-        distribution = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-      }
+    pom {
+        name = "$project.name"
+        description = "$project.description"
+        inceptionYear = "2016"
+        url = "https://github.com/esoco/${project.name}"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                distribution = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = "esoco"
+                name = "esoco GmbH"
+                url = "https://esoco.de/"
+            }
+        }
+        scm {
+            url = "https://github.com/esoco/${project.name}/"
+            connection = "scm:git:git://github.com/esoco/${project.name}.git"
+            developerConnection = "scm:git:ssh://git@github.com/esoco/${project.name}.git"
+        }
     }
-    developers {
-      developer {
-        id = "esoco"
-        name = "esoco GmbH"
-        url = "https://esoco.de/"
-      }
-    }
-    scm {
-      url = "https://github.com/esoco/${project.name}/"
-      connection = "scm:git:git://github.com/esoco/${project.name}.git"
-      developerConnection = "scm:git:ssh://git@github.com/esoco/${project.name}.git"
-    }
-  }
 }
