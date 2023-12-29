@@ -65,34 +65,33 @@ public class HtmlSpace extends RelationSpace<String> {
 		RelationTypes.init(HtmlSpace.class);
 	}
 
-	private final ObjectSpace<?> rDataSpace;
+	private final ObjectSpace<?> dataSpace;
 
-	private final String sBaseUrl;
+	private final String baseUrl;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rDataSpace The object space that provides the data to be rendered
-	 *                   as HTML
-	 * @param sBaseUrl   The base URL to be prepended to all space-relative
-	 *                   URLs
+	 * @param dataSpace The object space that provides the data to be rendered
+	 *                  as HTML
+	 * @param baseUrl   The base URL to be prepended to all space-relative URLs
 	 */
-	public HtmlSpace(ObjectSpace<?> rDataSpace, String sBaseUrl) {
-		this.rDataSpace = rDataSpace;
-		this.sBaseUrl = checkUrl(sBaseUrl);
+	public HtmlSpace(ObjectSpace<?> dataSpace, String baseUrl) {
+		this.dataSpace = dataSpace;
+		this.baseUrl = checkUrl(baseUrl);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String get(String sUrl) {
-		Object rValue = rDataSpace.get(sUrl);
+	public String get(String url) {
+		Object value = dataSpace.get(url);
 
-		if (rValue != null) {
-			return renderAsHtml(sUrl, rValue);
+		if (value != null) {
+			return renderAsHtml(url, value);
 		} else {
-			throw new IllegalArgumentException("Not found: " + sUrl);
+			throw new IllegalArgumentException("Not found: " + url);
 		}
 	}
 
@@ -100,7 +99,7 @@ public class HtmlSpace extends RelationSpace<String> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void put(String sUrl, String sValue) {
+	public void put(String url, String value) {
 	}
 
 	/**
@@ -110,19 +109,19 @@ public class HtmlSpace extends RelationSpace<String> {
 	 */
 	@Override
 	public String toString() {
-		return renderAsHtml("", rDataSpace);
+		return renderAsHtml("", dataSpace);
 	}
 
 	/**
 	 * A builder-style method to set a certain relation and then return this
 	 * instance for concatenation.
 	 *
-	 * @param rType  The type of the relation to set
-	 * @param rValue The relation value
+	 * @param type  The type of the relation to set
+	 * @param value The relation value
 	 * @return This instance for method concatenation
 	 */
-	public <T> HtmlSpace with(RelationType<T> rType, T rValue) {
-		set(rType, rValue);
+	public <T> HtmlSpace with(RelationType<T> type, T value) {
+		set(type, value);
 
 		return this;
 	}
@@ -130,136 +129,134 @@ public class HtmlSpace extends RelationSpace<String> {
 	/**
 	 * Checks a URL for correct termination with a forward slash '/'.
 	 *
-	 * @param sUrl The URL to check
+	 * @param url The URL to check
 	 * @return The URL, modified if necessary
 	 */
-	protected String checkUrl(String sUrl) {
-		if (sUrl.length() > 0 && !sUrl.endsWith("/")) {
-			sUrl += "/";
+	protected String checkUrl(String url) {
+		if (url.length() > 0 && !url.endsWith("/")) {
+			url += "/";
 		}
 
-		return sUrl;
+		return url;
 	}
 
 	/**
 	 * Returns the title for a certain page.
 	 *
-	 * @param rPageObject The relatable object from which the page is rendered
+	 * @param pageObject The relatable object from which the page is rendered
 	 * @return The page title
 	 */
-	protected String getPageTitle(Relatable rPageObject) {
-		String sTitle = rPageObject.get(NAME);
+	protected String getPageTitle(Relatable pageObject) {
+		String title = pageObject.get(NAME);
 
-		if (sTitle == null) {
-			sTitle = rPageObject.getClass().getSimpleName();
+		if (title == null) {
+			title = pageObject.getClass().getSimpleName();
 		}
 
-		return sTitle;
+		return title;
 	}
 
 	/**
 	 * Renders a value with an HTML representation.
 	 *
-	 * @param sUrl    The URL the value has been read from
-	 * @param rObject The value to map
+	 * @param url    The URL the value has been read from
+	 * @param object The value to map
 	 * @return The HTML to display for the value
 	 */
-	protected String renderAsHtml(String sUrl, Object rObject) {
-		String sHtml;
+	protected String renderAsHtml(String url, Object object) {
+		String html;
 
-		if (rObject instanceof HtmlSpace) {
-			sHtml = rObject.toString();
+		if (object instanceof HtmlSpace) {
+			html = object.toString();
 		} else {
-			Object sTitle;
-			String sBody;
+			Object title;
+			String body;
 
-			if (rObject instanceof Relatable) {
-				Relatable rPageObject = (Relatable) rObject;
+			if (object instanceof Relatable) {
+				Relatable pageObject = (Relatable) object;
 
-				sTitle =
-					getPageTitle(rObject == rDataSpace ? this : rPageObject);
-				sBody = renderRelations(sBaseUrl + checkUrl(sUrl),
-					rPageObject);
+				title = getPageTitle(object == dataSpace ? this : pageObject);
+				body = renderRelations(baseUrl + checkUrl(url), pageObject);
 			} else {
-				sTitle = sUrl.substring(sUrl.lastIndexOf('/') + 1);
-				sBody = renderDisplayValue(rObject);
+				title = url.substring(url.lastIndexOf('/') + 1);
+				body = renderDisplayValue(object);
 			}
 
-			sHtml = String.format(get(PAGE_TEMPLATE), sTitle, sBody);
+			html = String.format(get(PAGE_TEMPLATE), title, body);
 		}
 
-		return sHtml;
+		return html;
 	}
 
 	/**
 	 * Renders a single relation as HTML.
 	 *
-	 * @param sUrl      The parent URL of the relation
-	 * @param rRelation The relation to render
+	 * @param url      The parent URL of the relation
+	 * @param relation The relation to render
 	 * @return The HTML representing the relation
 	 */
-	protected String renderRelation(String sUrl, Relation<?> rRelation) {
-		Object rValue = rRelation.getTarget();
-		String sHtml = null;
+	protected String renderRelation(String url, Relation<?> relation) {
+		Object value = relation.getTarget();
+		String html = null;
 
-		if (rValue instanceof Relatable) {
-			String sType = rRelation.getType().getSimpleName().toLowerCase();
+		if (value instanceof Relatable) {
+			String type = relation.getType().getSimpleName().toLowerCase();
 
-			sHtml = String.format(get(INTERNAL_LINK_TEMPLATE), sType, sType);
+			html = String.format(get(INTERNAL_LINK_TEMPLATE), type, type);
 		} else {
-			String sLabel = rRelation.getType().getSimpleName();
-			String sValue = renderDisplayValue(rValue);
+			String label = relation.getType().getSimpleName();
+			String displayValue = renderDisplayValue(value);
 
-			if (sValue != null) {
-				sLabel = TextConvert.capitalize(sLabel, " ");
-				sHtml =
-					String.format(get(TEXT_DISPLAY_TEMPLATE), sLabel, sValue);
+			if (displayValue != null) {
+				label = TextConvert.capitalize(label, " ");
+				html = String.format(get(TEXT_DISPLAY_TEMPLATE), label,
+					displayValue);
 			}
 		}
 
-		return sHtml;
+		return html;
 	}
 
 	/**
 	 * Renders the relations of an object as HTML.
 	 *
-	 * @param sUrl       The parent URL of the relations
-	 * @param rRelatable The object to render the relations of
+	 * @param url       The parent URL of the relations
+	 * @param relatable The object to render the relations of
 	 * @return An HTML string
 	 */
-	protected String renderRelations(String sUrl, Relatable rRelatable) {
-		StringBuilder aHtml = new StringBuilder();
+	protected String renderRelations(String url, Relatable relatable) {
+		StringBuilder html = new StringBuilder();
 
-		rRelatable
+		relatable
 			.getRelations(null)
 			.stream()
 			.filter(r -> r.getType() != NAME)
-			.forEach(rRelation -> {
-				String sRelation = renderRelation(sUrl, rRelation);
+			.forEach(relation -> {
+				String rendered = renderRelation(url, relation);
 
-				if (sRelation != null) {
-					aHtml.append(sRelation).append("<br>");
+				if (rendered != null) {
+					html.append(rendered).append("<br>");
 				}
 			});
 
-		return aHtml.toString();
+		return html.toString();
 	}
 
 	/**
 	 * Renders a value into a HTML representation.
 	 *
-	 * @param rValue The value to render
+	 * @param value The value to render
 	 * @return The resulting HTML string
 	 */
-	private String renderDisplayValue(Object rValue) {
-		String sHtml = null;
+	private String renderDisplayValue(Object value) {
+		String html = null;
 
-		if (rValue instanceof Date) {
-			sHtml = DateFormat.getDateTimeInstance().format(rValue);
-		} else if (rValue != null) {
-			sHtml = rValue.toString();
+		if (value instanceof Date) {
+			html = DateFormat.getDateTimeInstance().format(value);
+		} else if (value != null) {
+			html = value.toString();
 		}
 
-		return sHtml;
+		return html;
 	}
 }

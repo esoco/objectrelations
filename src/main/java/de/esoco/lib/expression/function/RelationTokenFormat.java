@@ -30,27 +30,27 @@ public class RelationTokenFormat extends TokenStringFormat<Relatable> {
 	/**
 	 * Creates a new instance for a certain token string.
 	 *
-	 * @param sTokenString The token string this format is based on
+	 * @param tokenString The token string this format is based on
 	 */
-	public RelationTokenFormat(String sTokenString) {
-		super(sTokenString);
+	public RelationTokenFormat(String tokenString) {
+		super(tokenString);
 	}
 
 	/**
 	 * @see TokenStringFormat#getToken(String)
 	 */
 	@Override
-	protected Token<? super Relatable> getToken(String sToken) {
-		RelationType<?> rType = RelationType.valueOf(sToken);
-		Token<? super Relatable> rResult;
+	protected Token<? super Relatable> getToken(String token) {
+		RelationType<?> type = RelationType.valueOf(token);
+		Token<? super Relatable> result;
 
-		if (rType != null) {
-			rResult = new RelationToken(this, rType);
+		if (type != null) {
+			result = new RelationToken(this, type);
 		} else {
-			rResult = super.getToken(sToken);
+			result = super.getToken(token);
 		}
 
-		return rResult;
+		return result;
 	}
 
 	/**
@@ -61,19 +61,19 @@ public class RelationTokenFormat extends TokenStringFormat<Relatable> {
 	 */
 	public static class RelationToken extends Token<Relatable> {
 
-		private final RelationType<?> rRelationType;
+		private final RelationType<?> relationType;
 
 		/**
 		 * Creates a new instance for a certain relation type.
 		 *
-		 * @param rParent The parent relation token format
-		 * @param rType   The relation type for this instance
+		 * @param parent The parent relation token format
+		 * @param type   The relation type for this instance
 		 */
-		protected RelationToken(RelationTokenFormat rParent,
-			RelationType<?> rType) {
-			super(rParent, rType.getName(), null);
+		protected RelationToken(RelationTokenFormat parent,
+			RelationType<?> type) {
+			super(parent, type.getName(), null);
 
-			rRelationType = rType;
+			relationType = type;
 		}
 
 		/**
@@ -82,8 +82,8 @@ public class RelationTokenFormat extends TokenStringFormat<Relatable> {
 		 * @see de.esoco.lib.expression.function.TokenStringFormat.Token#extractValue(Object)
 		 */
 		@Override
-		protected Object extractValue(Relatable rInput) {
-			return rInput.get(rRelationType);
+		protected Object extractValue(Relatable input) {
+			return input.get(relationType);
 		}
 	}
 }

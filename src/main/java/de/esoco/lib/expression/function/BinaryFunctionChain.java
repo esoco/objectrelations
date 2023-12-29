@@ -57,16 +57,15 @@ public abstract class BinaryFunctionChain<L, R, V, O>
 	 */
 	@Override
 	public String toString() {
-		String sResult = getOuter().toString();
+		String result = getOuter().toString();
 
-		if (sResult.indexOf(INPUT_PLACEHOLDER) >= 0) {
-			sResult = sResult.replace(INPUT_PLACEHOLDER,
-				getInner().toString());
+		if (result.indexOf(INPUT_PLACEHOLDER) >= 0) {
+			result = result.replace(INPUT_PLACEHOLDER, getInner().toString());
 		} else {
-			sResult += "(" + getInner().toString() + ")";
+			result += "(" + getInner().toString() + ")";
 		}
 
-		return sResult;
+		return result;
 	}
 
 	/**
@@ -75,12 +74,12 @@ public abstract class BinaryFunctionChain<L, R, V, O>
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
-		BinaryFunctionChain<?, ?, ?, ?> rOtherFunction =
-			(BinaryFunctionChain<?, ?, ?, ?>) rOther;
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
+		BinaryFunctionChain<?, ?, ?, ?> otherFunction =
+			(BinaryFunctionChain<?, ?, ?, ?>) other;
 
-		return getOuter().equals(rOtherFunction.getOuter()) &&
-			getInner().equals(rOtherFunction.getInner());
+		return getOuter().equals(otherFunction.getOuter()) &&
+			getInner().equals(otherFunction.getInner());
 	}
 
 	/**
@@ -102,29 +101,29 @@ public abstract class BinaryFunctionChain<L, R, V, O>
 	public static class LeftFunctionChain<L, R, V, O>
 		extends BinaryFunctionChain<L, R, V, O> {
 
-		private final BinaryFunction<V, R, O> rOuter;
+		private final BinaryFunction<V, R, O> outer;
 
-		private final BinaryFunction<L, R, ? extends V> rInner;
+		private final BinaryFunction<L, R, ? extends V> inner;
 
 		/**
 		 * Creates a new instance that chains two functions together.
 		 *
-		 * @param rOuter The binary outer function
-		 * @param rInner The binary inner function
+		 * @param outer The binary outer function
+		 * @param inner The binary inner function
 		 */
-		public LeftFunctionChain(BinaryFunction<V, R, O> rOuter,
-			BinaryFunction<L, R, ? extends V> rInner) {
-			this.rOuter = rOuter;
-			this.rInner = rInner;
+		public LeftFunctionChain(BinaryFunction<V, R, O> outer,
+			BinaryFunction<L, R, ? extends V> inner) {
+			this.outer = outer;
+			this.inner = inner;
 		}
 
 		/**
 		 * @see BinaryFunctionChain#evaluate(Object, Object)
 		 */
 		@Override
-		public O evaluate(L rLeftValue, R rRightValue) {
-			return rOuter.evaluate(rInner.evaluate(rLeftValue, rRightValue),
-				rRightValue);
+		public O evaluate(L leftValue, R rightValue) {
+			return outer.evaluate(inner.evaluate(leftValue, rightValue),
+				rightValue);
 		}
 
 		/**
@@ -132,7 +131,7 @@ public abstract class BinaryFunctionChain<L, R, V, O>
 		 */
 		@Override
 		public BinaryFunction<L, R, ? extends V> getInner() {
-			return rInner;
+			return inner;
 		}
 
 		/**
@@ -140,7 +139,7 @@ public abstract class BinaryFunctionChain<L, R, V, O>
 		 */
 		@Override
 		public BinaryFunction<V, R, O> getOuter() {
-			return rOuter;
+			return outer;
 		}
 	}
 
@@ -153,29 +152,29 @@ public abstract class BinaryFunctionChain<L, R, V, O>
 	public static class RightFunctionChain<L, R, V, O>
 		extends BinaryFunctionChain<L, R, V, O> {
 
-		private final BinaryFunction<L, V, O> rOuter;
+		private final BinaryFunction<L, V, O> outer;
 
-		private final BinaryFunction<L, R, ? extends V> rInner;
+		private final BinaryFunction<L, R, ? extends V> inner;
 
 		/**
 		 * Creates a new instance that chains two functions together.
 		 *
-		 * @param rOuter The binary outer function
-		 * @param rInner The binary inner function
+		 * @param outer The binary outer function
+		 * @param inner The binary inner function
 		 */
-		public RightFunctionChain(BinaryFunction<L, V, O> rOuter,
-			BinaryFunction<L, R, ? extends V> rInner) {
-			this.rOuter = rOuter;
-			this.rInner = rInner;
+		public RightFunctionChain(BinaryFunction<L, V, O> outer,
+			BinaryFunction<L, R, ? extends V> inner) {
+			this.outer = outer;
+			this.inner = inner;
 		}
 
 		/**
 		 * @see BinaryFunctionChain#evaluate(Object, Object)
 		 */
 		@Override
-		public O evaluate(L rLeftValue, R rRightValue) {
-			return rOuter.evaluate(rLeftValue,
-				rInner.evaluate(rLeftValue, rRightValue));
+		public O evaluate(L leftValue, R rightValue) {
+			return outer.evaluate(leftValue,
+				inner.evaluate(leftValue, rightValue));
 		}
 
 		/**
@@ -183,7 +182,7 @@ public abstract class BinaryFunctionChain<L, R, V, O>
 		 */
 		@Override
 		public BinaryFunction<L, R, ? extends V> getInner() {
-			return rInner;
+			return inner;
 		}
 
 		/**
@@ -191,7 +190,7 @@ public abstract class BinaryFunctionChain<L, R, V, O>
 		 */
 		@Override
 		public BinaryFunction<L, V, O> getOuter() {
-			return rOuter;
+			return outer;
 		}
 	}
 }

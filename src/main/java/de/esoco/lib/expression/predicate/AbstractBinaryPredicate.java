@@ -35,32 +35,32 @@ public abstract class AbstractBinaryPredicate<L, R>
 	/**
 	 * @see AbstractBinaryFunction#AbstractBinaryFunction(Object, String)
 	 */
-	public AbstractBinaryPredicate(R rRightValue, String sToken) {
-		super(rRightValue, sToken);
+	public AbstractBinaryPredicate(R rightValue, String token) {
+		super(rightValue, token);
 	}
 
 	/**
 	 * @see Predicate#and(Predicate)
 	 */
 	@Override
-	public <O extends L> Predicate<O> and(Predicate<? super L> rOther) {
-		return Predicates.and(this, rOther);
+	public <O extends L> Predicate<O> and(Predicate<? super L> other) {
+		return Predicates.and(this, other);
 	}
 
 	/**
 	 * @see Predicate#from(Function)
 	 */
 	@Override
-	public <I> Predicate<I> from(Function<I, ? extends L> rFunction) {
-		return Predicates.chain(this, rFunction);
+	public <I> Predicate<I> from(Function<I, ? extends L> function) {
+		return Predicates.chain(this, function);
 	}
 
 	/**
 	 * @see Predicate#or(Predicate)
 	 */
 	@Override
-	public <O extends L> Predicate<O> or(Predicate<? super L> rOther) {
-		return Predicates.or(this, rOther);
+	public <O extends L> Predicate<O> or(Predicate<? super L> other) {
+		return Predicates.or(this, other);
 	}
 
 	/**

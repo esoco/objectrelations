@@ -31,24 +31,24 @@ import java.util.function.Supplier;
  */
 public class CachingSupplier<T> implements ThrowingSupplier<T> {
 
-	private final ThrowingSupplier<T> fSupplyValue;
+	private final ThrowingSupplier<T> supplyValue;
 
-	private final Predicate<? super T> pCheckInvalid;
+	private final Predicate<? super T> checkInvalid;
 
-	private T rCachedValue = null;
+	private T cachedValue = null;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param fSupplyValue  The value-providing supplier to wrap
-	 * @param pCheckInvalid A predicate that determines whether the currently
-	 *                      cached value is no longer valid and needs to be
-	 *                      re-queried from the wrapped supplier
+	 * @param supplyValue  The value-providing supplier to wrap
+	 * @param checkInvalid A predicate that determines whether the currently
+	 *                     cached value is no longer valid and needs to be
+	 *                     re-queried from the wrapped supplier
 	 */
-	private CachingSupplier(ThrowingSupplier<T> fSupplyValue,
-		Predicate<? super T> pCheckInvalid) {
-		this.fSupplyValue = fSupplyValue;
-		this.pCheckInvalid = pCheckInvalid;
+	private CachingSupplier(ThrowingSupplier<T> supplyValue,
+		Predicate<? super T> checkInvalid) {
+		this.supplyValue = supplyValue;
+		this.checkInvalid = checkInvalid;
 	}
 
 	/**
@@ -60,11 +60,11 @@ public class CachingSupplier<T> implements ThrowingSupplier<T> {
 	 * modified by setting an expiration condition of the last acquired value
 	 * with {@link #until(Predicate)}.
 	 *
-	 * @param fSupplyValue The value-providing supplier to wrap
+	 * @param supplyValue The value-providing supplier to wrap
 	 * @return The new instance
 	 */
-	public static <T> CachingSupplier<T> cached(Supplier<T> fSupplyValue) {
-		return new CachingSupplier<>(() -> fSupplyValue.get(),
+	public static <T> CachingSupplier<T> cached(Supplier<T> supplyValue) {
+		return new CachingSupplier<>(() -> supplyValue.get(),
 			Predicates.alwaysFalse());
 	}
 
@@ -76,12 +76,12 @@ public class CachingSupplier<T> implements ThrowingSupplier<T> {
 	 * invoked. This can be modified by setting an expiration condition of the
 	 * last acquired value with {@link #until(Predicate)}.
 	 *
-	 * @param fSupplyValue The value-providing supplier to wrap
+	 * @param supplyValue The value-providing supplier to wrap
 	 * @return The new instance
 	 */
 	public static <T> CachingSupplier<T> cached(
-		ThrowingSupplier<T> fSupplyValue) {
-		return new CachingSupplier<>(fSupplyValue, Predicates.alwaysFalse());
+		ThrowingSupplier<T> supplyValue) {
+		return new CachingSupplier<>(supplyValue, Predicates.alwaysFalse());
 	}
 
 	/**
@@ -89,23 +89,23 @@ public class CachingSupplier<T> implements ThrowingSupplier<T> {
 	 */
 	@Override
 	public T tryGet() throws Exception {
-		if (rCachedValue == null || pCheckInvalid.test(rCachedValue)) {
-			rCachedValue = fSupplyValue.tryGet();
+		if (cachedValue == null || checkInvalid.test(cachedValue)) {
+			cachedValue = supplyValue.tryGet();
 		}
 
-		return rCachedValue;
+		return cachedValue;
 	}
 
 	/**
 	 * Returns a new instance that caches the value that is returned by the
 	 * wrapped supplier until a certain condition is met.
 	 *
-	 * @param pCheckInvalid A predicate that determines whether the currently
-	 *                      cached value is no longer valid and needs to be
-	 *                      re-queried from the wrapped supplier
+	 * @param checkInvalid A predicate that determines whether the currently
+	 *                     cached value is no longer valid and needs to be
+	 *                     re-queried from the wrapped supplier
 	 * @return The new instance
 	 */
-	public CachingSupplier<T> until(Predicate<? super T> pCheckInvalid) {
-		return new CachingSupplier<>(fSupplyValue, pCheckInvalid);
+	public CachingSupplier<T> until(Predicate<? super T> checkInvalid) {
+		return new CachingSupplier<>(supplyValue, checkInvalid);
 	}
 }

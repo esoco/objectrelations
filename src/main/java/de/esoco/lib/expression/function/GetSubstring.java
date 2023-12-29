@@ -23,32 +23,32 @@ package de.esoco.lib.expression.function;
  */
 public class GetSubstring extends AbstractFunction<String, String> {
 
-	private final int nBeginIndex;
+	private final int beginIndex;
 
-	private final int nEndIndex;
+	private final int endIndex;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param nBeginIndex The index of the first char of the substring
-	 * @param nEndIndex   The index of the char after the last char of the
-	 *                    substring or -1 for the end of the string
+	 * @param beginIndex The index of the first char of the substring
+	 * @param endIndex   The index of the char after the last char of the
+	 *                   substring or -1 for the end of the string
 	 */
-	public GetSubstring(int nBeginIndex, int nEndIndex) {
+	public GetSubstring(int beginIndex, int endIndex) {
 		super(GetSubstring.class.getSimpleName());
 
-		this.nBeginIndex = nBeginIndex;
-		this.nEndIndex = nEndIndex;
+		this.beginIndex = beginIndex;
+		this.endIndex = endIndex;
 	}
 
 	/**
 	 * @see AbstractFunction#evaluate(Object)
 	 */
 	@Override
-	public String evaluate(String sValue) {
-		return nEndIndex != -1 ?
-		       sValue.substring(nBeginIndex, nEndIndex) :
-		       sValue.substring(nBeginIndex);
+	public String evaluate(String value) {
+		return endIndex != -1 ?
+		       value.substring(beginIndex, endIndex) :
+		       value.substring(beginIndex);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class GetSubstring extends AbstractFunction<String, String> {
 	 * @return The first char index
 	 */
 	public final int getBeginIndex() {
-		return nBeginIndex;
+		return beginIndex;
 	}
 
 	/**
@@ -67,6 +67,6 @@ public class GetSubstring extends AbstractFunction<String, String> {
 	 * @return The last char index
 	 */
 	public final int getEndIndex() {
-		return nEndIndex;
+		return endIndex;
 	}
 }

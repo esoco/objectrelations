@@ -30,31 +30,31 @@ public class RelationData<T> extends Pair<RelationType<T>, T> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rType  The relation type
-	 * @param rValue The relation value
+	 * @param type  The relation type
+	 * @param value The relation value
 	 */
-	public RelationData(RelationType<T> rType, T rValue) {
-		super(rType, rValue);
+	public RelationData(RelationType<T> type, T value) {
+		super(type, value);
 	}
 
 	/**
 	 * Factory method to create a new instance. Intended to be used with static
 	 * imports.
 	 *
-	 * @param rType  The relation type
-	 * @param rValue The relation value
+	 * @param type  The relation type
+	 * @param value The relation value
 	 * @return A new relation data instance
 	 */
-	public static <T> RelationData<T> r(RelationType<T> rType, T rValue) {
-		return new RelationData<T>(rType, rValue);
+	public static <T> RelationData<T> r(RelationType<T> type, T value) {
+		return new RelationData<T>(type, value);
 	}
 
 	/**
 	 * Sets the relation defined by this instance on the given object.
 	 *
-	 * @param rObject The target relatable
+	 * @param object The target relatable
 	 */
-	public void applyTo(Relatable rObject) {
-		rObject.set(first(), second());
+	public void applyTo(Relatable object) {
+		object.set(first(), second());
 	}
 }

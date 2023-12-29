@@ -56,25 +56,25 @@ public class SerializableRelatedObject extends RelatedObject
 	 * Deserializes this instance by reading it's state from the given input
 	 * stream.
 	 *
-	 * @param rIn The source input stream
+	 * @param in The source input stream
 	 * @throws IOException            If reading data fails
 	 * @throws ClassNotFoundException If the class couldn't be found
 	 */
-	private void readObject(ObjectInputStream rIn)
+	private void readObject(ObjectInputStream in)
 		throws IOException, ClassNotFoundException {
-		rIn.defaultReadObject();
-		readRelations(rIn);
+		in.defaultReadObject();
+		readRelations(in);
 	}
 
 	/**
 	 * Serializes this instance by writing it's fields to the given output
 	 * stream.
 	 *
-	 * @param rOut The target output stream
+	 * @param out The target output stream
 	 * @throws IOException If writing data fails
 	 */
-	private void writeObject(ObjectOutputStream rOut) throws IOException {
-		rOut.defaultWriteObject();
-		writeRelations(rOut);
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		out.defaultWriteObject();
+		writeRelations(out);
 	}
 }

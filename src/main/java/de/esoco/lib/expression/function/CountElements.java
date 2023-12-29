@@ -33,20 +33,20 @@ import java.util.Map;
  */
 public class CountElements<E, K> extends AbstractFunction<E, Void> {
 
-	private final Map<K, Integer> aCountMap = new HashMap<>();
+	private final Map<K, Integer> countMap = new HashMap<>();
 
-	private final Function<? super E, K> fGetKey;
+	private final Function<? super E, K> getKey;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param fGetElementKey A function that generates the key for the count
-	 *                       map
+	 * @param getElementKey A function that generates the key for the count
+	 *                      map
 	 */
-	public CountElements(Function<? super E, K> fGetElementKey) {
+	public CountElements(Function<? super E, K> getElementKey) {
 		super(CountElements.class.getSimpleName());
 
-		this.fGetKey = fGetElementKey;
+		this.getKey = getElementKey;
 	}
 
 	/**
@@ -54,11 +54,11 @@ public class CountElements<E, K> extends AbstractFunction<E, Void> {
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	public Void evaluate(E rElement) {
-		K rKey = fGetKey.evaluate(rElement);
-		Integer rCount = aCountMap.get(rKey);
+	public Void evaluate(E element) {
+		K key = getKey.evaluate(element);
+		Integer count = countMap.get(key);
 
-		aCountMap.put(rKey, rCount != null ? rCount + 1 : 1);
+		countMap.put(key, count != null ? count + 1 : 1);
 
 		return null;
 	}
@@ -69,6 +69,6 @@ public class CountElements<E, K> extends AbstractFunction<E, Void> {
 	 * @return The countMap value
 	 */
 	public final Map<K, Integer> getElementCounts() {
-		return aCountMap;
+		return countMap;
 	}
 }

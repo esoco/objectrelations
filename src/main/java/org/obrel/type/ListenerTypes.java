@@ -96,8 +96,8 @@ public class ListenerTypes {
 	 * @see ListenerType#ListenerType(BiConsumer, RelationTypeModifier...)
 	 */
 	public static <L, E> ListenerType<L, E> newListenerType(
-		RelationTypeModifier... rModifiers) {
-		return newListenerType(null, rModifiers);
+		RelationTypeModifier... modifiers) {
+		return newListenerType(null, modifiers);
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class ListenerTypes {
 	 * @see ListenerType#ListenerType(BiConsumer, RelationTypeModifier...)
 	 */
 	public static <L, E> ListenerType<L, E> newListenerType(
-		BiConsumer<L, E> fDispatcher, RelationTypeModifier... rModifiers) {
-		return new ListenerType<>(fDispatcher, rModifiers);
+		BiConsumer<L, E> dispatcher, RelationTypeModifier... modifiers) {
+		return new ListenerType<>(dispatcher, modifiers);
 	}
 }

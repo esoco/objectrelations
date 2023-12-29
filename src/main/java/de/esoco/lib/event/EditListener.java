@@ -30,15 +30,15 @@ public interface EditListener<T> {
 	 * Will be invoked after the editing of an object has been finished with a
 	 * certain action.
 	 *
-	 * @param rObject       The edited object
-	 * @param eFinishAction The edit action that caused the finishing
+	 * @param object       The edited object
+	 * @param finishAction The edit action that caused the finishing
 	 */
-	void editFinished(T rObject, EditAction eFinishAction);
+	void editFinished(T object, EditAction finishAction);
 
 	/**
 	 * Will be invoked when the editing of a TLD begins.
 	 *
-	 * @param rObject The edited object
+	 * @param object The edited object
 	 */
-	void editStarted(T rObject);
+	void editStarted(T object);
 }

@@ -25,19 +25,19 @@ package de.esoco.lib.event;
  */
 public class EventMulticaster<E extends Event<?>> implements EventHandler<E> {
 
-	private final EventHandler<E> rFirst;
+	private final EventHandler<E> first;
 
-	private final EventHandler<E> rSecond;
+	private final EventHandler<E> second;
 
 	/**
 	 * Creates a new instance that wraps two event listeners.
 	 *
-	 * @param rFirst  The first listener of this multicaster
-	 * @param rSecond The second listener of this multicaster
+	 * @param first  The first listener of this multicaster
+	 * @param second The second listener of this multicaster
 	 */
-	public EventMulticaster(EventHandler<E> rFirst, EventHandler<E> rSecond) {
-		this.rFirst = rFirst;
-		this.rSecond = rSecond;
+	public EventMulticaster(EventHandler<E> first, EventHandler<E> second) {
+		this.first = first;
+		this.second = second;
 	}
 
 	/**
@@ -45,21 +45,21 @@ public class EventMulticaster<E extends Event<?>> implements EventHandler<E> {
 	 * multicaster instances, thus building a tree of multicaster instances and
 	 * listeners.
 	 *
-	 * @param rFirst  The first listener to concatenate (may be NULL)
-	 * @param rSecond The second listener to concatenate (may be NULL)
+	 * @param first  The first listener to concatenate (may be NULL)
+	 * @param second The second listener to concatenate (may be NULL)
 	 * @return The resulting event listener which may be a multicaster instance
 	 */
 	public static <E extends Event<?>> EventHandler<E> add(
-		EventHandler<E> rFirst, EventHandler<E> rSecond) {
-		if (rFirst == null) {
-			return rSecond;
+		EventHandler<E> first, EventHandler<E> second) {
+		if (first == null) {
+			return second;
 		}
 
-		if (rSecond == null) {
-			return rFirst;
+		if (second == null) {
+			return first;
 		}
 
-		return new EventMulticaster<E>(rFirst, rSecond);
+		return new EventMulticaster<E>(first, second);
 	}
 
 	/**
@@ -68,18 +68,18 @@ public class EventMulticaster<E extends Event<?>> implements EventHandler<E> {
 	 * instances. If the given listener isn't part of the tree the call will
 	 * have no effect.
 	 *
-	 * @param rListener The listener (tree) to remove the other listener from
-	 * @param rToRemove The listener to remove (NULL will be ignored)
+	 * @param listener The listener (tree) to remove the other listener from
+	 * @param toRemove The listener to remove (NULL will be ignored)
 	 * @return The resulting event listener which may be a multicaster instance
 	 */
 	public static <E extends Event<?>> EventHandler<E> remove(
-		EventHandler<E> rListener, EventHandler<E> rToRemove) {
-		if (rListener == rToRemove) {
+		EventHandler<E> listener, EventHandler<E> toRemove) {
+		if (listener == toRemove) {
 			return null;
-		} else if (rListener instanceof EventMulticaster<?>) {
-			return ((EventMulticaster<E>) rListener).remove(rToRemove);
+		} else if (listener instanceof EventMulticaster<?>) {
+			return ((EventMulticaster<E>) listener).remove(toRemove);
 		} else {
-			return rListener;
+			return listener;
 		}
 	}
 
@@ -90,9 +90,9 @@ public class EventMulticaster<E extends Event<?>> implements EventHandler<E> {
 	 * @see EventHandler#handleEvent(Event)
 	 */
 	@Override
-	public void handleEvent(E rEvent) {
-		rFirst.handleEvent(rEvent);
-		rSecond.handleEvent(rEvent);
+	public void handleEvent(E event) {
+		first.handleEvent(event);
+		second.handleEvent(event);
 	}
 
 	/**
@@ -100,23 +100,23 @@ public class EventMulticaster<E extends Event<?>> implements EventHandler<E> {
 	 * (sub)tree and returns the resulting event listener (which may be a
 	 * multicaster).
 	 *
-	 * @param rToRemove The listener to remove
+	 * @param toRemove The listener to remove
 	 * @return The resulting event listener which may be a multicaster instance
 	 */
-	protected EventHandler<E> remove(EventHandler<E> rToRemove) {
-		if (rFirst == rToRemove) {
-			return rSecond;
+	protected EventHandler<E> remove(EventHandler<E> toRemove) {
+		if (first == toRemove) {
+			return second;
 		}
 
-		if (rSecond == rToRemove) {
-			return rFirst;
+		if (second == toRemove) {
+			return first;
 		}
 
-		EventHandler<E> rRemoveFirst = remove(rFirst, rToRemove);
-		EventHandler<E> rRemoveSecond = remove(rSecond, rToRemove);
+		EventHandler<E> removeFirst = remove(first, toRemove);
+		EventHandler<E> removeSecond = remove(second, toRemove);
 
-		if (rRemoveFirst != rFirst || rRemoveSecond != rSecond) {
-			return add(rRemoveFirst, rRemoveSecond);
+		if (removeFirst != first || removeSecond != second) {
+			return add(removeFirst, removeSecond);
 		}
 
 		return this;

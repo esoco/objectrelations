@@ -36,46 +36,46 @@ public class BinaryPredicateChain<L, R, V, W>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rOuter The predicate that evaluates the results of the left and
-	 *               right functions
-	 * @param rLeft  The function that produces the left predicate input
-	 * @param rRight The function that produces the right predicate input
+	 * @param outer The predicate that evaluates the results of the left and
+	 *              right functions
+	 * @param left  The function that produces the left predicate input
+	 * @param right The function that produces the right predicate input
 	 */
-	public BinaryPredicateChain(BinaryPredicate<V, W> rOuter,
-		Function<L, ? extends V> rLeft, Function<R, ? extends W> rRight) {
-		super(rOuter, rLeft, rRight);
+	public BinaryPredicateChain(BinaryPredicate<V, W> outer,
+		Function<L, ? extends V> left, Function<R, ? extends W> right) {
+		super(outer, left, right);
 	}
 
 	/**
 	 * @see Predicate#and(Predicate)
 	 */
 	@Override
-	public <O extends L> Predicate<O> and(Predicate<? super L> rOther) {
-		return Predicates.and(this, rOther);
+	public <O extends L> Predicate<O> and(Predicate<? super L> other) {
+		return Predicates.and(this, other);
 	}
 
 	/**
 	 * @see Predicate#from(Function)
 	 */
 	@Override
-	public <I> Predicate<I> from(Function<I, ? extends L> rFunction) {
-		return Predicates.chain(this, rFunction);
+	public <I> Predicate<I> from(Function<I, ? extends L> function) {
+		return Predicates.chain(this, function);
 	}
 
 	/**
 	 * @see BinaryPredicate#from(Function, Function)
 	 */
 	@Override
-	public <A, B> BinaryPredicate<A, B> from(Function<A, ? extends L> rLeft,
-		Function<B, ? extends R> rRight) {
-		return Predicates.chain(this, rLeft, rRight);
+	public <A, B> BinaryPredicate<A, B> from(Function<A, ? extends L> left,
+		Function<B, ? extends R> right) {
+		return Predicates.chain(this, left, right);
 	}
 
 	/**
 	 * @see Predicate#or(Predicate)
 	 */
 	@Override
-	public <O extends L> Predicate<O> or(Predicate<? super L> rOther) {
-		return Predicates.or(this, rOther);
+	public <O extends L> Predicate<O> or(Predicate<? super L> other) {
+		return Predicates.or(this, other);
 	}
 }

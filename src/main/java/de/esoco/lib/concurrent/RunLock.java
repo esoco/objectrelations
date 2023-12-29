@@ -41,21 +41,21 @@ public class RunLock extends ReentrantLock {
 	/**
 	 * @see ReentrantLock#ReentrantLock(boolean)
 	 */
-	public RunLock(boolean bFair) {
-		super(bFair);
+	public RunLock(boolean fair) {
+		super(fair);
 	}
 
 	/**
 	 * Runs the given function inside a lock-try-finally-unlock block with the
 	 * lock acquired on this instance.
 	 *
-	 * @param fCode The code function to execute
+	 * @param code The code function to execute
 	 */
-	public void runLocked(Runnable fCode) {
+	public void runLocked(Runnable code) {
 		lock();
 
 		try {
-			fCode.run();
+			code.run();
 		} finally {
 			unlock();
 		}
@@ -65,14 +65,14 @@ public class RunLock extends ReentrantLock {
 	 * Returns a value that has been supplied by the given function inside a
 	 * lock-try-finally-unlock block with the lock acquired on this instance.
 	 *
-	 * @param fCode The code function to execute
+	 * @param code The code function to execute
 	 * @return The supplied value
 	 */
-	public <T> T supplyLocked(Supplier<T> fCode) {
+	public <T> T supplyLocked(Supplier<T> code) {
 		lock();
 
 		try {
-			return fCode.get();
+			return code.get();
 		} finally {
 			unlock();
 		}

@@ -32,15 +32,15 @@ public class DirectRelation<T> extends Relation<T> {
 	/**
 	 *
 	 */
-	private T rTarget;
+	private T target;
 
 	/**
 	 * @see Relation#Relation(RelationType)
 	 */
-	public DirectRelation(RelationType<T> rType, T rTarget) {
-		super(rType);
+	public DirectRelation(RelationType<T> type, T target) {
+		super(type);
 
-		this.rTarget = rTarget;
+		this.target = target;
 	}
 
 	/**
@@ -48,28 +48,28 @@ public class DirectRelation<T> extends Relation<T> {
 	 */
 	@Override
 	public T getTarget() {
-		return rTarget;
+		return target;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	Relation<T> copyTo(Relatable rTarget) {
-		return rTarget.set(getType(), getTarget());
+	Relation<T> copyTo(Relatable target) {
+		return target.set(getType(), getTarget());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	boolean dataEqual(Relation<?> rOther) {
-		DirectRelation<?> rOtherRelation = (DirectRelation<?>) rOther;
+	boolean dataEqual(Relation<?> other) {
+		DirectRelation<?> otherRelation = (DirectRelation<?>) other;
 
-		if (rTarget == null) {
-			return rOtherRelation.rTarget == null;
+		if (target == null) {
+			return otherRelation.target == null;
 		} else {
-			return rTarget.equals(rOtherRelation.rTarget);
+			return target.equals(otherRelation.target);
 		}
 	}
 
@@ -78,15 +78,15 @@ public class DirectRelation<T> extends Relation<T> {
 	 */
 	@Override
 	int dataHashCode() {
-		return 17 + (rTarget != null ? rTarget.hashCode() : 0);
+		return 17 + (target != null ? target.hashCode() : 0);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	void setTarget(T rNewTarget) {
-		rTarget = rNewTarget;
+	void setTarget(T newTarget) {
+		target = newTarget;
 	}
 
 	/**
@@ -96,17 +96,17 @@ public class DirectRelation<T> extends Relation<T> {
 	 * safeguards
 	 * to ensure relation consistency.
 	 *
-	 * @param rIn The input stream
+	 * @param in The input stream
 	 * @throws IOException            If reading data fails
 	 * @throws ClassNotFoundException If the class couldn't be found
 	 */
-	private void readObject(ObjectInputStream rIn)
+	private void readObject(ObjectInputStream in)
 		throws IOException, ClassNotFoundException {
-		rIn.defaultReadObject();
+		in.defaultReadObject();
 
-		if (!getType().isValidTarget(rTarget)) {
+		if (!getType().isValidTarget(target)) {
 			throw new InvalidObjectException(
-				"Target value invalid for type: " + rTarget + "/" + getType());
+				"Target value invalid for type: " + target + "/" + getType());
 		}
 	}
 }

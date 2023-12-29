@@ -40,16 +40,21 @@ import org.obrel.core.RelationType;
  * @author eso
  */
 public class RelationCouplingTest {
-	private static final List<RelationType<?>> ALL_TEST_TYPES = Arrays.asList(NAME, COUNT);
+	private static final List<RelationType<?>> ALL_TEST_TYPES =
+		Arrays.asList(NAME, COUNT);
 
 	Relatable o = new RelatedObject();
-	private String sTarget = null;
-	private int nCount = 0;
 
-	private final RelationCoupling<String> c1 = couple(o, NAME, v -> sTarget = v, () -> sTarget);
+	private String target = null;
+
+	private final RelationCoupling<String> c1 =
+		couple(o, NAME, v -> target = v, () -> target);
+
+	private int count = 0;
 
 	@SuppressWarnings({ "boxing", "unused" })
-	private final RelationCoupling<Integer> c2 = couple(o, COUNT, n -> nCount = n, () -> nCount);
+	private final RelationCoupling<Integer> c2 =
+		couple(o, COUNT, n -> count = n, () -> count);
 
 	/**
 	 * Test of {@link RelationCoupling#couple(Relatable,
@@ -61,7 +66,7 @@ public class RelationCouplingTest {
 		assertTrue(o.hasRelation(NAME));
 		assertTrue(o.getRelation(NAME).hasAnnotation(COUPLINGS));
 		assertEquals(null, o.get(NAME));
-		assertEquals(null, sTarget);
+		assertEquals(null, target);
 		assertEquals(1, o.getRelation(NAME).get(COUPLINGS).size());
 	}
 
@@ -70,7 +75,7 @@ public class RelationCouplingTest {
 	 */
 	@Test
 	public void testGet() {
-		sTarget = "TEST_GET";
+		target = "TEST_GET";
 		c1.get();
 		assertEquals("TEST_GET", o.get(NAME));
 	}
@@ -80,8 +85,8 @@ public class RelationCouplingTest {
 	 */
 	@Test
 	public void testGetAll() {
-		sTarget = "TEST_GET_ALL";
-		nCount = 43;
+		target = "TEST_GET_ALL";
+		count = 43;
 
 		getAll(o, ALL_TEST_TYPES);
 		assertEquals("TEST_GET_ALL", o.get(NAME));
@@ -95,11 +100,11 @@ public class RelationCouplingTest {
 	public void testRemove() {
 		o.set(NAME, "TEST_REMOVE");
 		c1.remove();
-		sTarget = "REMOVED";
+		target = "REMOVED";
 		c1.get();
 		assertEquals("TEST_REMOVE", o.get(NAME));
 		c1.set();
-		assertEquals("REMOVED", sTarget);
+		assertEquals("REMOVED", target);
 	}
 
 	/**
@@ -111,15 +116,15 @@ public class RelationCouplingTest {
 		o.set(NAME, "TEST_REMOVE_ALL");
 		o.set(COUNT, 123);
 		removeAll(o, ALL_TEST_TYPES);
-		sTarget = "REMOVED_ALL";
-		nCount = 321;
+		target = "REMOVED_ALL";
+		count = 321;
 
 		getAll(o, ALL_TEST_TYPES);
 		assertEquals("TEST_REMOVE_ALL", o.get(NAME));
 		assertEquals(123, o.get(COUNT).intValue());
 		setAll(o, ALL_TEST_TYPES);
-		assertEquals("REMOVED_ALL", sTarget);
-		assertEquals(321, nCount);
+		assertEquals("REMOVED_ALL", target);
+		assertEquals(321, count);
 	}
 
 	/**
@@ -128,9 +133,9 @@ public class RelationCouplingTest {
 	@Test
 	public void testSet() {
 		o.set(NAME, "TEST_SET");
-		assertEquals(null, sTarget);
+		assertEquals(null, target);
 		c1.set();
-		assertEquals("TEST_SET", sTarget);
+		assertEquals("TEST_SET", target);
 	}
 
 	/**
@@ -141,7 +146,7 @@ public class RelationCouplingTest {
 		o.set(NAME, "TEST_SET_ALL");
 		o.set(COUNT, 42);
 		setAll(o, ALL_TEST_TYPES);
-		assertEquals("TEST_SET_ALL", sTarget);
-		assertEquals(42, nCount);
+		assertEquals("TEST_SET_ALL", target);
+		assertEquals(42, count);
 	}
 }

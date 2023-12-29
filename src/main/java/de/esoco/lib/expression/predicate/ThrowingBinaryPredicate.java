@@ -35,12 +35,12 @@ public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R> {
 	 * inner class expression would be needed because of the similar signatures
 	 * of throwing and non-throwing predicate.
 	 *
-	 * @param fThrowing The throwing predicate expression
+	 * @param throwing The throwing predicate expression
 	 * @return The resulting predicate
 	 */
 	static <L, R> BinaryPredicate<L, R> of(
-		ThrowingBinaryPredicate<L, R> fThrowing) {
-		return fThrowing;
+		ThrowingBinaryPredicate<L, R> throwing) {
+		return throwing;
 	}
 
 	/**
@@ -52,9 +52,9 @@ public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R> {
 	 * @see BinaryPredicate#evaluate(Object, Object)
 	 */
 	@Override
-	default Boolean evaluate(L rLeft, R rRight) {
+	default Boolean evaluate(L left, R right) {
 		try {
-			return tryTest(rLeft, rRight);
+			return tryTest(left, right);
 		} catch (Throwable e) {
 			throw (e instanceof RuntimeException) ?
 			      (RuntimeException) e :
@@ -67,10 +67,10 @@ public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R> {
 	 * throw an
 	 * exception.
 	 *
-	 * @param rLeft  The first argument
-	 * @param rRight The second argument
+	 * @param left  The first argument
+	 * @param right The second argument
 	 * @return The function result
 	 * @throws Throwable On errors
 	 */
-	Boolean tryTest(L rLeft, R rRight) throws Throwable;
+	Boolean tryTest(L left, R right) throws Throwable;
 }

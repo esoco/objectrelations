@@ -51,15 +51,15 @@ public interface ObjectSpaceResolver
 	 * ObjectSpaceResolver)} for the remaining URL if the URL traversal
 	 * encounters an object space element.
 	 *
-	 * @param rSpace       The object space to resolve the URL in
-	 * @param sRelativeUrl The space-relative URL to resolve
+	 * @param space       The object space to resolve the URL in
+	 * @param relativeUrl The space-relative URL to resolve
 	 * @return The resolved object (NULL for none)
 	 */
-	Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl);
+	Object resolve(ObjectSpace<?> space, String relativeUrl);
 
 	/**
-	 * An object space resolver implementation that invokes {@link
-	 * ObjectSpace#delete(String)}.
+	 * An object space resolver implementation that invokes
+	 * {@link ObjectSpace#delete(String)}.
 	 *
 	 * @author eso
 	 */
@@ -70,16 +70,16 @@ public interface ObjectSpaceResolver
 		 * {@inheritDoc}
 		 */
 		@Override
-		default Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl) {
-			rSpace.delete(sRelativeUrl);
+		default Object resolve(ObjectSpace<?> space, String relativeUrl) {
+			space.delete(relativeUrl);
 
 			return null;
 		}
 	}
 
 	/**
-	 * An object space resolver implementation that invokes {@link
-	 * ObjectSpace#get(String)}.
+	 * An object space resolver implementation that invokes
+	 * {@link ObjectSpace#get(String)}.
 	 *
 	 * @author eso
 	 */
@@ -90,28 +90,28 @@ public interface ObjectSpaceResolver
 		 * {@inheritDoc}
 		 */
 		@Override
-		default Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl) {
-			return rSpace.get(sRelativeUrl);
+		default Object resolve(ObjectSpace<?> space, String relativeUrl) {
+			return space.get(relativeUrl);
 		}
 	}
 
 	/**
-	 * An object space resolver implementation that invokes {@link
-	 * ObjectSpace#delete(String)}.
+	 * An object space resolver implementation that invokes
+	 * {@link ObjectSpace#delete(String)}.
 	 *
 	 * @author eso
 	 */
 	class PutResolver<T> implements ObjectSpaceResolver {
 
-		private final T rValue;
+		private final T value;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rValue The value to put
+		 * @param value The value to put
 		 */
-		public PutResolver(T rValue) {
-			this.rValue = rValue;
+		public PutResolver(T value) {
+			this.value = value;
 		}
 
 		/**
@@ -119,18 +119,18 @@ public interface ObjectSpaceResolver
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		public Object evaluate(Relatable rRelatable, RelationType<?> rType) {
-			Object rValue = getValue();
+		public Object evaluate(Relatable relatable, RelationType<?> type) {
+			Object value = getValue();
 
-			if (!rType.getTargetType().isAssignableFrom(rValue.getClass())) {
-				String sMessage =
-					String.format("Invalid value for type '%s': %s", rType,
-						rValue);
+			if (!type.getTargetType().isAssignableFrom(value.getClass())) {
+				String message =
+					String.format("Invalid value for type '%s': %s", type,
+						value);
 
-				throw new IllegalArgumentException(sMessage);
+				throw new IllegalArgumentException(message);
 			}
 
-			rRelatable.set((RelationType<Object>) rType, rValue);
+			relatable.set((RelationType<Object>) type, value);
 
 			return null;
 		}
@@ -141,7 +141,7 @@ public interface ObjectSpaceResolver
 		 * @return The put value
 		 */
 		public T getValue() {
-			return rValue;
+			return value;
 		}
 
 		/**
@@ -149,8 +149,8 @@ public interface ObjectSpaceResolver
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		public Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl) {
-			((ObjectSpace<Object>) rSpace).put(sRelativeUrl, rValue);
+		public Object resolve(ObjectSpace<?> space, String relativeUrl) {
+			((ObjectSpace<Object>) space).put(relativeUrl, value);
 
 			return null;
 		}

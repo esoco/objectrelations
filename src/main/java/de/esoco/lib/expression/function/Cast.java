@@ -26,21 +26,21 @@ public class Cast<I, O> extends AbstractBinaryFunction<I, Class<O>, O> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rCastType The class of the datatype to cast to
+	 * @param castType The class of the datatype to cast to
 	 */
-	public Cast(Class<O> rCastType) {
-		super(rCastType, Cast.class.getSimpleName());
+	public Cast(Class<O> castType) {
+		super(castType, Cast.class.getSimpleName());
 	}
 
 	/**
 	 * Casts the target object to a certain class.
 	 *
-	 * @param rTarget The target object
-	 * @param rClass  The class to cast the target to
+	 * @param target The target object
+	 * @param type   The class to cast the target to
 	 * @return The target object, casted to the class
 	 */
 	@Override
-	public O evaluate(I rTarget, Class<O> rClass) {
-		return rClass.cast(rTarget);
+	public O evaluate(I target, Class<O> type) {
+		return type.cast(target);
 	}
 }

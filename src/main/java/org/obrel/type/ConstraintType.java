@@ -34,20 +34,20 @@ public class ConstraintType<T> extends RelationType<T>
 
 	private static final long serialVersionUID = 1L;
 
-	private final Predicate<Object> rTargetPredicate;
+	private final Predicate<Object> targetPredicate;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName            The name of the constraint type
-	 * @param rDatatype        The datatype of the constraint value
-	 * @param rTargetPredicate The predicate to apply to relation targets
-	 * @param rFlags           The optional relation type flags
+	 * @param name            The name of the constraint type
+	 * @param datatype        The datatype of the constraint value
+	 * @param targetPredicate The predicate to apply to relation targets
+	 * @param flags           The optional relation type flags
 	 */
-	public ConstraintType(String sName, Class<? super T> rDatatype,
-		Predicate<Object> rTargetPredicate, RelationTypeModifier... rFlags) {
-		super(sName, rDatatype, rFlags);
-		this.rTargetPredicate = rTargetPredicate;
+	public ConstraintType(String name, Class<? super T> datatype,
+		Predicate<Object> targetPredicate, RelationTypeModifier... flags) {
+		super(name, datatype, flags);
+		this.targetPredicate = targetPredicate;
 	}
 
 	/**
@@ -55,14 +55,14 @@ public class ConstraintType<T> extends RelationType<T>
 	 * type and throws an IllegalArgumentException if the evaluation yields
 	 * FALSE.
 	 *
-	 * @param rEvent The relation event
+	 * @param event The relation event
 	 * @throws IllegalArgumentException If the predicate evaluation yields
 	 *                                  FALSE
 	 */
 	@Override
 	@SuppressWarnings({ "boxing" })
-	public void handleEvent(RelationEvent<?> rEvent) {
-		if (!rTargetPredicate.evaluate(rEvent.getElement().getTarget())) {
+	public void handleEvent(RelationEvent<?> event) {
+		if (!targetPredicate.evaluate(event.getElement().getTarget())) {
 			throw new IllegalArgumentException();
 		}
 	}
@@ -74,13 +74,12 @@ public class ConstraintType<T> extends RelationType<T>
 	 * @see RelationType#addRelation(Relatable, Relation)
 	 */
 	@Override
-	protected Relation<T> addRelation(Relatable rParent,
-		Relation<T> rRelation) {
-		super.addRelation(rParent, rRelation);
+	protected Relation<T> addRelation(Relatable parent, Relation<T> relation) {
+		super.addRelation(parent, relation);
 
-		rParent.get(ListenerTypes.RELATION_LISTENERS).add(this);
+		parent.get(ListenerTypes.RELATION_LISTENERS).add(this);
 
-		return rRelation;
+		return relation;
 	}
 
 	/**
@@ -90,8 +89,8 @@ public class ConstraintType<T> extends RelationType<T>
 	 * @see RelationType#deleteRelation(Relatable, Relation)
 	 */
 	@Override
-	protected void deleteRelation(Relatable rParent, Relation<?> rRelation) {
-		rParent.get(ListenerTypes.RELATION_LISTENERS).remove(this);
-		super.deleteRelation(rParent, rRelation);
+	protected void deleteRelation(Relatable parent, Relation<?> relation) {
+		parent.get(ListenerTypes.RELATION_LISTENERS).remove(this);
+		super.deleteRelation(parent, relation);
 	}
 }

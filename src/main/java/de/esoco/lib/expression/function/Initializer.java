@@ -26,8 +26,8 @@ public interface Initializer<T> {
 	/**
 	 * Initializes the given object.
 	 *
-	 * @param rInitObject The object to initialize
+	 * @param initObject The object to initialize
 	 * @throws Exception If the initialization fails
 	 */
-	void init(T rInitObject) throws Exception;
+	void init(T initObject) throws Exception;
 }

@@ -27,51 +27,49 @@ import java.io.PrintWriter;
  */
 public class Print<I> extends AbstractBinaryFunction<I, PrintWriter, I> {
 
-	private final String sFormat;
+	private final String format;
 
-	private final boolean bWithLinefeed;
+	private final boolean withLinefeed;
 
 	/**
 	 * Creates a new instance that prints input values to System.out with a
 	 * trailing linefeed.
 	 *
-	 * @param sFormat The format string to be applied to input values with
-	 *                {@link String#format(String, Object...)}
+	 * @param format The format string to be applied to input values with
+	 *               {@link String#format(String, Object...)}
 	 */
-	public Print(String sFormat) {
-		this(System.out, sFormat, true);
+	public Print(String format) {
+		this(System.out, format, true);
 	}
 
 	/**
 	 * Creates a new instance that prints input values to a certain stream.
 	 *
-	 * @param rOut          The stream to print to
-	 * @param sFormat       The format string to be applied to input values
-	 *                      with
-	 *                      {@link String#format(String, Object...)}
-	 * @param bWithLinefeed TRUE to print a linefeed after the text on each
-	 *                      invocation
+	 * @param out          The stream to print to
+	 * @param format       The format string to be applied to input values with
+	 *                     {@link String#format(String, Object...)}
+	 * @param withLinefeed TRUE to print a linefeed after the text on each
+	 *                     invocation
 	 */
-	public Print(OutputStream rOut, String sFormat, boolean bWithLinefeed) {
-		this(new PrintWriter(rOut, true), sFormat, bWithLinefeed);
+	public Print(OutputStream out, String format, boolean withLinefeed) {
+		this(new PrintWriter(out, true), format, withLinefeed);
 	}
 
 	/**
 	 * Creates a new instance that prints input values to a certain
 	 * PrintWriter.
 	 *
-	 * @param rWriter       The writer to print to
-	 * @param sFormat       The format string to be applied to input values
-	 *                      with
-	 *                      {@link String#format(String, Object...)}
-	 * @param bWithLinefeed TRUE to print a linefeed after the text on each
-	 *                      invocation
+	 * @param writer       The writer to print to
+	 * @param format       The format string to be applied to input values with
+	 *                     {@link String#format(String, Object...)}
+	 * @param withLinefeed TRUE to print a linefeed after the text on each
+	 *                     invocation
 	 */
-	public Print(PrintWriter rWriter, String sFormat, boolean bWithLinefeed) {
-		super(rWriter, bWithLinefeed ? "println" : "print");
+	public Print(PrintWriter writer, String format, boolean withLinefeed) {
+		super(writer, withLinefeed ? "println" : "print");
 
-		this.sFormat = sFormat;
-		this.bWithLinefeed = bWithLinefeed;
+		this.format = format;
+		this.withLinefeed = withLinefeed;
 	}
 
 	/**
@@ -79,32 +77,32 @@ public class Print<I> extends AbstractBinaryFunction<I, PrintWriter, I> {
 	 * NULL objects) to this instance's PrintWriter. At the end the writer's
 	 * flush() method will be invoked.
 	 *
-	 * @param rInput  The input value to print
-	 * @param rWriter The print writer to print to
+	 * @param input  The input value to print
+	 * @param writer The print writer to print to
 	 * @return The unchanged input object to allow function chaining
 	 */
 	@Override
-	public I evaluate(I rInput, PrintWriter rWriter) {
-		rWriter.print(String.format(sFormat, rInput));
+	public I evaluate(I input, PrintWriter writer) {
+		writer.print(String.format(format, input));
 
-		if (bWithLinefeed) {
-			rWriter.println();
+		if (withLinefeed) {
+			writer.println();
 		}
 
-		rWriter.flush();
+		writer.flush();
 
-		return rInput;
+		return input;
 	}
 
 	/**
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
-		Print<?> rOtherPrint = (Print<?>) rOther;
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
+		Print<?> otherPrint = (Print<?>) other;
 
-		return bWithLinefeed == rOtherPrint.bWithLinefeed &&
-			sFormat.equals(rOtherPrint.sFormat) && super.paramsEqual(rOther);
+		return withLinefeed == otherPrint.withLinefeed &&
+			format.equals(otherPrint.format) && super.paramsEqual(other);
 	}
 
 	/**
@@ -112,7 +110,7 @@ public class Print<I> extends AbstractBinaryFunction<I, PrintWriter, I> {
 	 */
 	@Override
 	protected int paramsHashCode() {
-		return ((super.paramsHashCode() * 37) + sFormat.hashCode()) * 37 +
-			(bWithLinefeed ? 1 : 0);
+		return ((super.paramsHashCode() * 37) + format.hashCode()) * 37 +
+			(withLinefeed ? 1 : 0);
 	}
 }

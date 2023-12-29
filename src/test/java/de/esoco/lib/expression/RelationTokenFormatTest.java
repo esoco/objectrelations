@@ -16,22 +16,21 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.obrel.type.StandardTypes.CHILDREN;
-import static org.obrel.type.StandardTypes.DATE;
-import static org.obrel.type.StandardTypes.NAME;
-import static org.obrel.type.StandardTypes.PORT;
+import de.esoco.lib.expression.function.RelationTokenFormat;
+import org.junit.jupiter.api.Test;
+import org.obrel.core.Relatable;
+import org.obrel.core.RelatedObject;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 
-import org.junit.jupiter.api.Test;
-import org.obrel.core.Relatable;
-import org.obrel.core.RelatedObject;
-
-import de.esoco.lib.expression.function.RelationTokenFormat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.obrel.type.StandardTypes.CHILDREN;
+import static org.obrel.type.StandardTypes.DATE;
+import static org.obrel.type.StandardTypes.NAME;
+import static org.obrel.type.StandardTypes.PORT;
 
 /**
  * TokenStringFormat Test
@@ -44,53 +43,53 @@ public class RelationTokenFormatTest {
 	 */
 	@Test
 	void testTokenStringFormat() {
-		Date aDate = new Date();
-		Integer aInt = Integer.valueOf(42);
-		Relatable aRelatable = newRelatedObject(aDate, aInt);
-		RelationTokenFormat aFormat;
-		String sFormat;
+		Date date = new Date();
+		Integer testInt = Integer.valueOf(42);
+		Relatable relatable = newRelatedObject(date, testInt);
+		RelationTokenFormat tokenFormat;
+		String formatString;
 
-		aRelatable.set(CHILDREN,
-				Arrays.asList(newRelatedObject(aDate, 1),
-						newRelatedObject(aDate, 2)));
+		relatable.set(CHILDREN, Arrays.asList(newRelatedObject(date, 1),
+			newRelatedObject(date, 2)));
 
-		aFormat = new RelationTokenFormat("{NAME}: {NAME:&{length():F%03d}}, " +
+		tokenFormat = new RelationTokenFormat(
+			"{NAME}: {NAME:&{length():F%03d}}," + " " +
 				"{NAME:&{substring(0,5):&{substring(2,4):F%-4s]}}}");
-		assertEquals("1234567890: 010, 34  ]", aFormat.evaluate(aRelatable));
+		assertEquals("1234567890: 010, 34  ]",
+			tokenFormat.evaluate(relatable));
 
-		sFormat = "yy-MM-dd HH:mm.ss";
-		aFormat = new RelationTokenFormat("{DATE:D" + sFormat + "}");
+		formatString = "yy-MM-dd HH:mm.ss";
+		tokenFormat = new RelationTokenFormat("{DATE:D" + formatString + "}");
 
-		assertEquals(new SimpleDateFormat(sFormat).format(aDate),
-				aFormat.evaluate(aRelatable));
+		assertEquals(new SimpleDateFormat(formatString).format(date),
+			tokenFormat.evaluate(relatable));
 
-		sFormat = "000.00";
-		aFormat = new RelationTokenFormat("{PORT:N" + sFormat + "}");
+		formatString = "000.00";
+		tokenFormat = new RelationTokenFormat("{PORT:N" + formatString + "}");
 
-		assertEquals(new DecimalFormat(sFormat).format(aInt),
-				aFormat.evaluate(aRelatable));
+		assertEquals(new DecimalFormat(formatString).format(testInt),
+			tokenFormat.evaluate(relatable));
 
-		aFormat = new RelationTokenFormat("{CHILDREN:&{size()}}-" +
-				"{CHILDREN:&{get(0):&{PORT}}}-" +
+		tokenFormat = new RelationTokenFormat(
+			"{CHILDREN:&{size()}}-" + "{CHILDREN:&{get(0):&{PORT}}}-" +
 				"{CHILDREN:&{get(1):&{PORT}}}");
-		assertEquals("2-1-2", aFormat.evaluate(aRelatable));
+		assertEquals("2-1-2", tokenFormat.evaluate(relatable));
 	}
 
 	/**
 	 * Creates a new test object.
 	 *
-	 * @param aDate The date
-	 * @param aInt  The int
-	 *
+	 * @param testDate The date
+	 * @param testInt  The int
 	 * @return The new object
 	 */
-	private Relatable newRelatedObject(Date aDate, Integer aInt) {
-		Relatable aRelatable = new RelatedObject();
+	private Relatable newRelatedObject(Date testDate, Integer testInt) {
+		Relatable relatable = new RelatedObject();
 
-		aRelatable.set(NAME, "1234567890");
-		aRelatable.set(DATE, aDate);
-		aRelatable.set(PORT, aInt);
+		relatable.set(NAME, "1234567890");
+		relatable.set(DATE, testDate);
+		relatable.set(PORT, testInt);
 
-		return aRelatable;
+		return relatable;
 	}
 }

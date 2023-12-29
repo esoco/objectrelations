@@ -52,7 +52,7 @@ import static org.obrel.type.MetaTypes.ERROR_HANDLING;
  */
 public class JsonParser {
 
-	private int nDepth;
+	private int depth;
 
 	/**
 	 * Creates a new instance that parses the full hierarchy of a JSON string
@@ -73,16 +73,15 @@ public class JsonParser {
 	 * <p>Limiting the depth allows to prevent unnecessary parsing if only
 	 * sub-structures of JSON data need to be evaluated. For example, in JSON
 	 * RPC requests and responses only the params and result properties are of
-	 * interest and should be parsed. By parsing such a record with {@link
-	 * #parseObject(String)} or {@link #parseObjectMap(String)} and a depth
-	 * of 1
-	 * these properties can then be queried from the returned object as strings
-	 * and parsed into a typed object.</p>
+	 * interest and should be parsed. By parsing such a record with
+	 * {@link #parseObject(String)} or {@link #parseObjectMap(String)} and a
+	 * depth of 1 these properties can then be queried from the returned object
+	 * as strings and parsed into a typed object.</p>
 	 *
-	 * @param nDepth The maximum depth of properties to parse
+	 * @param depth The maximum depth of properties to parse
 	 */
-	public JsonParser(int nDepth) {
-		this.nDepth = nDepth;
+	public JsonParser(int depth) {
+		this.depth = depth;
 	}
 
 	/**
@@ -93,7 +92,7 @@ public class JsonParser {
 	 * @return A function that parses JSON string into objects
 	 */
 	public static Function<String, Object> parseJson() {
-		return sJson -> new JsonParser().parse(sJson);
+		return json -> new JsonParser().parse(json);
 	}
 
 	/**
@@ -101,23 +100,23 @@ public class JsonParser {
 	 * with a
 	 * certain datatype by invoking {@link #parse(String, Class)}.
 	 *
-	 * @param rDatatype The preset datatype for unary function invocation
+	 * @param datatype The preset datatype for unary function invocation
 	 * @return The parsing function
 	 */
-	public static <T> Function<String, T> parseJson(Class<T> rDatatype) {
-		return sJson -> new JsonParser().parse(sJson, rDatatype);
+	public static <T> Function<String, T> parseJson(Class<T> datatype) {
+		return json -> new JsonParser().parse(json, datatype);
 	}
 
 	/**
 	 * Returns a function that parses a JSON array into a list with a specific
 	 * element type.
 	 *
-	 * @param rElementType The datatype of the list elements
+	 * @param elementType The datatype of the list elements
 	 * @return The parsing function
 	 */
 	public static <T> Function<String, List<T>> parseJsonArray(
-		Class<T> rElementType) {
-		return sJson -> new JsonParser().parseArray(sJson, rElementType);
+		Class<T> elementType) {
+		return json -> new JsonParser().parseArray(json, elementType);
 	}
 
 	/**
@@ -129,213 +128,211 @@ public class JsonParser {
 	 * @return The parsing function
 	 */
 	public static Function<String, Map<String, Object>> parseJsonMap() {
-		return sJson -> new JsonParser().parseObjectMap(sJson);
+		return json -> new JsonParser().parseObjectMap(json);
 	}
 
 	/**
 	 * Parses a JSON string value according to it's JSON datatype. For more
 	 * enhanced datatype parsing see {@link #parse(String, Class)}.
 	 *
-	 * @param sJson The JSON value string
+	 * @param json The JSON value string
 	 * @return The parsed value (NULL if input is NULL or empty)
 	 * @throws RuntimeException If the input string is not valid JSON
 	 */
-	public Object parse(String sJson) {
-		Object aValue;
+	public Object parse(String json) {
+		Object value;
 
-		if (sJson == null || sJson.isEmpty()) {
-			aValue = null;
-		} else if (nDepth <= 0) {
-			aValue = sJson;
-		} else if (sJson.charAt(0) == JsonStructure.STRING.cOpen) {
-			aValue = Json.restore(sJson.substring(1, sJson.length() - 1));
-		} else if (sJson.charAt(0) == JsonStructure.OBJECT.cOpen) {
-			aValue = parseObject(sJson);
-		} else if (sJson.charAt(0) == JsonStructure.ARRAY.cOpen) {
-			aValue = parseArray(sJson, new ArrayList<>());
-		} else if (sJson.equals("null")) {
-			aValue = null;
-		} else if (sJson.equals("true") || sJson.equals("false")) {
-			aValue = Boolean.valueOf(sJson);
+		if (json == null || json.isEmpty()) {
+			value = null;
+		} else if (depth <= 0) {
+			value = json;
+		} else if (json.charAt(0) == JsonStructure.STRING.getOpenChar()) {
+			value = Json.restore(json.substring(1, json.length() - 1));
+		} else if (json.charAt(0) == JsonStructure.OBJECT.getOpenChar()) {
+			value = parseObject(json);
+		} else if (json.charAt(0) == JsonStructure.ARRAY.getOpenChar()) {
+			value = parseArray(json, new ArrayList<>());
+		} else if (json.equals("null")) {
+			value = null;
+		} else if (json.equals("true") || json.equals("false")) {
+			value = Boolean.valueOf(json);
 		} else {
-			aValue = parseNumber(sJson);
+			value = parseNumber(json);
 		}
 
-		return aValue;
+		return value;
 	}
 
 	/**
 	 * Parses a JSON string value into a certain datatype.
 	 *
-	 * @param sJsonValue The JSON value string
-	 * @param rDatatype  The target datatype
+	 * @param jsonValue The JSON value string
+	 * @param datatype  The target datatype
 	 * @return The parsed value
 	 * @throws RuntimeException If the input string is not valid JSON or
-	 *                          doesn't
+	 * doesn't
 	 *                          match the given datatype
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> T parse(String sJsonValue, Class<? extends T> rDatatype) {
-		Object rValue;
+	public <T> T parse(String jsonValue, Class<? extends T> datatype) {
+		Object value;
 
-		if ("null".equals(sJsonValue)) {
-			rValue = null;
-		} else if (JsonSerializable.class.isAssignableFrom(rDatatype)) {
-			rValue = ReflectUtil.newInstance(rDatatype);
+		if ("null".equals(jsonValue)) {
+			value = null;
+		} else if (JsonSerializable.class.isAssignableFrom(datatype)) {
+			value = ReflectUtil.newInstance(datatype);
 
-			((JsonSerializable<?>) rValue).fromJson(sJsonValue);
-		} else if (rDatatype == Boolean.class || rDatatype == boolean.class) {
-			rValue = Boolean.valueOf(sJsonValue);
-		} else if (rDatatype.isPrimitive()) {
+			((JsonSerializable<?>) value).fromJson(jsonValue);
+		} else if (datatype == Boolean.class || datatype == boolean.class) {
+			value = Boolean.valueOf(jsonValue);
+		} else if (datatype.isPrimitive()) {
 			// all non-boolean primitives must be numbers as character values
 			// are not supported in JSON
-			rValue = parseNumber(sJsonValue,
-				(Class<? extends Number>) ReflectUtil.getWrapperType(
-					rDatatype));
-		} else if (Number.class.isAssignableFrom(rDatatype)) {
-			rValue =
-				parseNumber(sJsonValue, (Class<? extends Number>) rDatatype);
-		} else if (rDatatype.isArray()) {
-			rValue = parseIntoArray(sJsonValue, rDatatype);
-		} else if (Collection.class.isAssignableFrom(rDatatype)) {
-			Collection<Object> aCollection =
-				Set.class.isAssignableFrom(rDatatype) ?
+			value = parseNumber(jsonValue,
+				(Class<? extends Number>) ReflectUtil.getWrapperType(datatype));
+		} else if (Number.class.isAssignableFrom(datatype)) {
+			value = parseNumber(jsonValue, (Class<? extends Number>) datatype);
+		} else if (datatype.isArray()) {
+			value = parseIntoArray(jsonValue, datatype);
+		} else if (Collection.class.isAssignableFrom(datatype)) {
+			Collection<Object> collection =
+				Set.class.isAssignableFrom(datatype) ?
 				new HashSet<>() :
 				new ArrayList<>();
 
-			rValue = parseArray(sJsonValue, aCollection);
-		} else if (Map.class.isAssignableFrom(rDatatype)) {
-			rValue = parseObject(sJsonValue);
-		} else if (Date.class.isAssignableFrom(rDatatype)) {
-			rValue = parseDate(sJsonValue);
-		} else if (Relatable.class.isAssignableFrom(rDatatype)) {
-			rValue = parseRelatable(sJsonValue, rDatatype);
+			value = parseArray(jsonValue, collection);
+		} else if (Map.class.isAssignableFrom(datatype)) {
+			value = parseObject(jsonValue);
+		} else if (Date.class.isAssignableFrom(datatype)) {
+			value = parseDate(jsonValue);
+		} else if (Relatable.class.isAssignableFrom(datatype)) {
+			value = parseRelatable(jsonValue, datatype);
 		} else {
-			sJsonValue = getContent(sJsonValue, JsonStructure.STRING);
-			sJsonValue = Json.restore(sJsonValue);
-			rValue = Conversions.parseValue(sJsonValue, rDatatype);
+			jsonValue = getContent(jsonValue, JsonStructure.STRING);
+			jsonValue = Json.restore(jsonValue);
+			value = Conversions.parseValue(jsonValue, datatype);
 		}
 
-		return (T) rValue;
+		return (T) value;
 	}
 
 	/**
 	 * Parses the values from a JSON array into a list.
 	 *
-	 * @param sJsonArray The JSON array string
+	 * @param jsonArray The JSON array string
 	 * @return A new list containing the parsed array values
 	 */
-	public List<Object> parseArray(String sJsonArray) {
-		return parseArray(sJsonArray, new ArrayList<>());
+	public List<Object> parseArray(String jsonArray) {
+		return parseArray(jsonArray, new ArrayList<>());
 	}
 
 	/**
 	 * Parses a JSON array into an existing collection. The collection elements
 	 * will be parsed by {@link #parse(String)}. For better control of the
-	 * element datatype the method {@link #parseArray(String, Collection,
-	 * Class)} can be used.
+	 * element datatype the method
+	 * {@link #parseArray(String, Collection, Class)} can be used.
 	 *
-	 * @param sJsonArray        The JSON array string
-	 * @param rTargetCollection The target collection
+	 * @param jsonArray        The JSON array string
+	 * @param targetCollection The target collection
 	 * @return The input collection containing the parsed array values
 	 */
-	public <C extends Collection<Object>> C parseArray(String sJsonArray,
-		C rTargetCollection) {
-		parseStructure(sJsonArray, JsonStructure.ARRAY,
-			sArrayElement -> rTargetCollection.add(parse(sArrayElement)));
+	public <C extends Collection<Object>> C parseArray(String jsonArray,
+		C targetCollection) {
+		parseStructure(jsonArray, JsonStructure.ARRAY,
+			arrayElement -> targetCollection.add(parse(arrayElement)));
 
-		return rTargetCollection;
+		return targetCollection;
 	}
 
 	/**
 	 * Parses the values from a JSON array into a collection with a specific
 	 * datatype.
 	 *
-	 * @param sJsonArray   The JSON array string
-	 * @param rElementType The data type of the collection elements
+	 * @param jsonArray   The JSON array string
+	 * @param elementType The data type of the collection elements
 	 * @return The input collection containing the parsed array values
 	 */
-	public <T> List<T> parseArray(String sJsonArray, Class<T> rElementType) {
-		return parseArray(sJsonArray, new ArrayList<>(), rElementType);
+	public <T> List<T> parseArray(String jsonArray, Class<T> elementType) {
+		return parseArray(jsonArray, new ArrayList<>(), elementType);
 	}
 
 	/**
 	 * Parses a JSON array into an existing collection of a certain datatype.
 	 * The collection elements will be parsed by {@link #parse(String, Class)}.
 	 *
-	 * @param sJsonArray        The JSON array string
-	 * @param rTargetCollection The target collection
-	 * @param rElementType      The data type of the collection elements
+	 * @param jsonArray        The JSON array string
+	 * @param targetCollection The target collection
+	 * @param elementType      The data type of the collection elements
 	 * @return The input collection containing the parsed array values
 	 */
-	public <T, C extends Collection<T>> C parseArray(String sJsonArray,
-		C rTargetCollection, Class<T> rElementType) {
-		parseStructure(sJsonArray, JsonStructure.ARRAY,
-			sArrayElement -> rTargetCollection.add(
-				parse(sArrayElement, rElementType)));
+	public <T, C extends Collection<T>> C parseArray(String jsonArray,
+		C targetCollection, Class<T> elementType) {
+		parseStructure(jsonArray, JsonStructure.ARRAY,
+			arrayElement -> targetCollection.add(
+				parse(arrayElement, elementType)));
 
-		return rTargetCollection;
+		return targetCollection;
 	}
 
 	/**
 	 * Parses a numeric value from a JSON string.
 	 *
-	 * @param sJsonNumber The JSON value to parse
+	 * @param jsonNumber The JSON value to parse
 	 * @return The corresponding {@link Number} subclass for the input value
 	 */
 	@SuppressWarnings("boxing")
-	public Number parseNumber(String sJsonNumber) {
-		Number aNumber;
+	public Number parseNumber(String jsonNumber) {
+		Number number;
 
-		if (sJsonNumber.indexOf('.') > 0) {
-			aNumber = new BigDecimal(sJsonNumber);
+		if (jsonNumber.indexOf('.') > 0) {
+			number = new BigDecimal(jsonNumber);
 		} else {
-			BigInteger aBigInt = new BigInteger(sJsonNumber);
-			int nBitLength = aBigInt.bitLength();
+			BigInteger bigInt = new BigInteger(jsonNumber);
+			int bitLength = bigInt.bitLength();
 
-			if (nBitLength <= 32) {
-				aNumber = aBigInt.intValue();
-			} else if (nBitLength <= 64) {
-				aNumber = aBigInt.longValue();
+			if (bitLength <= 32) {
+				number = bigInt.intValue();
+			} else if (bitLength <= 64) {
+				number = bigInt.longValue();
 			} else {
-				aNumber = aBigInt;
+				number = bigInt;
 			}
 		}
 
-		return aNumber;
+		return number;
 	}
 
 	/**
 	 * Parses a JSON number string into a Java {@link Number} subclass
 	 * instance.
 	 *
-	 * @param sJsonNumber The JSON number value
-	 * @param rDatatype   The target datatype
+	 * @param jsonNumber The JSON number value
+	 * @param datatype   The target datatype
 	 * @return The resulting value or NULL if no mapping exists
 	 */
-	public Number parseNumber(String sJsonNumber,
-		Class<? extends Number> rDatatype) {
-		Number rValue = null;
+	public Number parseNumber(String jsonNumber,
+		Class<? extends Number> datatype) {
+		Number value = null;
 
-		if (rDatatype == Integer.class) {
-			rValue = Integer.valueOf(sJsonNumber);
-		} else if (rDatatype == Long.class) {
-			rValue = Long.valueOf(sJsonNumber);
-		} else if (rDatatype == Short.class) {
-			rValue = Short.valueOf(sJsonNumber);
-		} else if (rDatatype == Byte.class) {
-			rValue = Byte.valueOf(sJsonNumber);
-		} else if (rDatatype == BigInteger.class) {
-			rValue = new BigInteger(sJsonNumber);
-		} else if (rDatatype == BigDecimal.class) {
-			rValue = new BigDecimal(sJsonNumber);
-		} else if (rDatatype == Float.class) {
-			rValue = Float.valueOf(sJsonNumber);
-		} else if (rDatatype == Double.class) {
-			rValue = Double.valueOf(sJsonNumber);
+		if (datatype == Integer.class) {
+			value = Integer.valueOf(jsonNumber);
+		} else if (datatype == Long.class) {
+			value = Long.valueOf(jsonNumber);
+		} else if (datatype == Short.class) {
+			value = Short.valueOf(jsonNumber);
+		} else if (datatype == Byte.class) {
+			value = Byte.valueOf(jsonNumber);
+		} else if (datatype == BigInteger.class) {
+			value = new BigInteger(jsonNumber);
+		} else if (datatype == BigDecimal.class) {
+			value = new BigDecimal(jsonNumber);
+		} else if (datatype == Float.class) {
+			value = Float.valueOf(jsonNumber);
+		} else if (datatype == Double.class) {
+			value = Double.valueOf(jsonNumber);
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
@@ -343,45 +340,46 @@ public class JsonParser {
 	 * same as invoking {@link JsonObject#fromJson(String)} on the input
 	 * string.
 	 *
-	 * @param sJsonObject The JSON object string
+	 * @param jsonObject The JSON object string
 	 * @return A new map containing the parsed object attributes
 	 */
-	public JsonObject parseObject(String sJsonObject) {
-		return new JsonObject(parseObjectMap(sJsonObject));
+	public JsonObject parseObject(String jsonObject) {
+		return new JsonObject(parseObjectMap(jsonObject));
 	}
 
 	/**
 	 * Parses a JSON object structure into a map. The map will preserve the
 	 * order in which the object attributes in the JSON string.
 	 *
-	 * @param sJsonObject The JSON object string
+	 * @param jsonObject The JSON object string
 	 * @return A new map containing the parsed object attributes
 	 */
-	public Map<String, Object> parseObjectMap(String sJsonObject) {
-		Map<String, Object> aMap = new LinkedHashMap<>();
+	public Map<String, Object> parseObjectMap(String jsonObject) {
+		Map<String, Object> map = new LinkedHashMap<>();
 
-		parseStructure(sJsonObject, JsonStructure.OBJECT,
-			sMapping -> parseMapping(sMapping, aMap));
+		parseStructure(jsonObject, JsonStructure.OBJECT,
+			mapping -> parseMapping(mapping, map));
 
-		return aMap;
+		return map;
 	}
 
 	/**
 	 * Parses a JSON object from a string into the relations of a relatable
 	 * target object.
 	 *
-	 * @param sJsonObject sJson The string containing a JSON object
-	 * @param rTarget     The relatable target object to set the parsed
-	 *                    relations on
+	 * @param jsonObject json The string containing a JSON object
+	 * @param target     The relatable target object to set the parsed
+	 *                      relations
+	 *                   on
 	 * @return The input relatable, containing the parsed relations
 	 * @see #parseRelation(String, Relatable)
 	 */
-	public <R extends Relatable> R parseRelatable(String sJsonObject,
-		R rTarget) {
-		parseStructure(sJsonObject, JsonStructure.OBJECT,
-			sObjectElement -> parseRelation(sObjectElement, rTarget));
+	public <R extends Relatable> R parseRelatable(String jsonObject,
+		R target) {
+		parseStructure(jsonObject, JsonStructure.OBJECT,
+			objectElement -> parseRelation(objectElement, target));
 
-		return rTarget;
+		return target;
 	}
 
 	/**
@@ -393,92 +391,88 @@ public class JsonParser {
 	 * in the JSON must have their full namespace and must have been created as
 	 * instances or else their lookup will fail.
 	 *
-	 * @param sJson   The JSON input string
-	 * @param rTarget The related object to set the relation in
+	 * @param json   The JSON input string
+	 * @param target The related object to set the relation in
 	 */
 	@SuppressWarnings("unchecked")
-	public void parseRelation(String sJson, Relatable rTarget) {
-		int nColon = sJson.indexOf(':');
-		String sTypeName = sJson.substring(1, nColon - 1).trim();
-		String sJsonValue = sJson.substring(nColon + 1).trim();
-		RelationType<?> rRelationType = null;
+	public void parseRelation(String json, Relatable target) {
+		int colon = json.indexOf(':');
+		String typeName = json.substring(1, colon - 1).trim();
+		String jsonValue = json.substring(colon + 1).trim();
+		RelationType<?> relationType = null;
 
-		Collection<RelationType<?>> rJsonTypes =
-			rTarget.get(Json.JSON_SERIALIZED_TYPES);
+		Collection<RelationType<?>> jsonTypes =
+			target.get(Json.JSON_SERIALIZED_TYPES);
 
-		if (rJsonTypes != null) {
-			sTypeName = TextConvert.uppercaseIdentifier(sTypeName);
+		if (jsonTypes != null) {
+			typeName = TextConvert.uppercaseIdentifier(typeName);
 
-			for (RelationType<?> rType : rJsonTypes) {
-				if (rType.getSimpleName().equalsIgnoreCase(sTypeName)) {
-					rRelationType = rType;
+			for (RelationType<?> type : jsonTypes) {
+				if (type.getSimpleName().equalsIgnoreCase(typeName)) {
+					relationType = type;
 
 					break;
 				}
 			}
 		} else {
-			rRelationType = RelationType.valueOf(sTypeName);
+			relationType = RelationType.valueOf(typeName);
 		}
 
-		if (rRelationType != null) {
-			Class<?> rValueType = rRelationType.getTargetType();
-			Object rValue;
+		if (relationType != null) {
+			Class<?> valueType = relationType.getTargetType();
+			Object value;
 
-			if (List.class.isAssignableFrom(rValueType)) {
-				Class<?> rElementType = rRelationType.get(ELEMENT_DATATYPE);
+			if (List.class.isAssignableFrom(valueType)) {
+				Class<?> elementType = relationType.get(ELEMENT_DATATYPE);
 
-				if (rElementType != null) {
-					rValue = parseArray(sJsonValue, rElementType);
+				if (elementType != null) {
+					value = parseArray(jsonValue, elementType);
 				} else {
-					rValue = parseArray(sJsonValue);
+					value = parseArray(jsonValue);
 				}
 			} else {
-				rValue = parse(sJsonValue, rValueType);
+				value = parse(jsonValue, valueType);
 			}
 
-			rTarget.set((RelationType<Object>) rRelationType, rValue);
+			target.set((RelationType<Object>) relationType, value);
 		} else {
-			ErrorHandling eErrorHandling = rTarget.get(ERROR_HANDLING);
+			ErrorHandling errorHandling = target.get(ERROR_HANDLING);
 
-			if (eErrorHandling == ErrorHandling.THROW) {
+			if (errorHandling == ErrorHandling.THROW) {
 				throw new IllegalArgumentException(
-					"Unknown RelationType: " + sTypeName);
-			} else if (eErrorHandling == ErrorHandling.LOG) {
+					"Unknown RelationType: " + typeName);
+			} else if (errorHandling == ErrorHandling.LOG) {
 				System.out.printf("Warning: unknown RelationType %s\n",
-					sTypeName);
+					typeName);
 			}
 		}
 	}
 
 	/**
-	 * Extracts the content from a JSON structure (object, array, or string)
-	 * . If
-	 * the structure doesn't match the expected format an exception will be
+	 * Extracts the content from a JSON structure (object, array, or string) .
+	 * If the structure doesn't match the expected format an exception will be
 	 * thrown.
 	 *
-	 * @param sJsonStructure The string containing the JSON structure
-	 * @param eStructure     sStructureDelimiters A string that is exactly 2
-	 *                       characters long and contains the delimiters of
-	 *                       the
-	 *                       JSON structure (brackets, braces, quotation
-	 *                       marks)
+	 * @param jsonStructure The string containing the JSON structure
+	 * @param structure     structureDelimiters A string that is exactly 2
+	 *                      characters long and contains the delimiters of the
+	 *                      JSON structure (brackets, braces, quotation marks)
 	 * @return The extracted structure content
 	 * @throws IllegalArgumentException If the content doesn't represent the
 	 *                                  expected structure
 	 */
-	private String getContent(String sJsonStructure,
-		JsonStructure eStructure) {
-		sJsonStructure = sJsonStructure.trim();
+	private String getContent(String jsonStructure, JsonStructure structure) {
+		jsonStructure = jsonStructure.trim();
 
-		if (sJsonStructure.charAt(0) != eStructure.cOpen ||
-			sJsonStructure.charAt(sJsonStructure.length() - 1) !=
-				eStructure.cClose) {
+		if (jsonStructure.charAt(0) != structure.getOpenChar() ||
+			jsonStructure.charAt(jsonStructure.length() - 1) !=
+				structure.getCloseChar()) {
 			throw new IllegalArgumentException(
-				"Not a JSON " + eStructure.name().toLowerCase() + ": " +
-					sJsonStructure);
+				"Not a JSON " + structure.name().toLowerCase() + ": " +
+					jsonStructure);
 		}
 
-		return sJsonStructure.substring(1, sJsonStructure.length() - 1).trim();
+		return jsonStructure.substring(1, jsonStructure.length() - 1).trim();
 	}
 
 	/**
@@ -486,16 +480,16 @@ public class JsonParser {
 	 * date
 	 * format defined by {@link Json#JSON_DATE_FORMAT}.
 	 *
-	 * @param sJsonDate The JSON date value
+	 * @param jsonDate The JSON date value
 	 * @return A {@link Date} instance
 	 * @throws IllegalArgumentException If the given JSON string cannot be
 	 *                                  parsed
 	 */
-	private Date parseDate(String sJsonDate) {
-		sJsonDate = getContent(sJsonDate, JsonStructure.STRING);
+	private Date parseDate(String jsonDate) {
+		jsonDate = getContent(jsonDate, JsonStructure.STRING);
 
 		try {
-			return JSON_DATE_FORMAT.parse(sJsonDate);
+			return JSON_DATE_FORMAT.parse(jsonDate);
 		} catch (ParseException e) {
 			throw new IllegalArgumentException("Invalid JSON date", e);
 		}
@@ -506,152 +500,152 @@ public class JsonParser {
 	 * be an
 	 * array of primitive values.
 	 *
-	 * @param sJsonArray The JSON array string
-	 * @param rArrayType The target datatype
+	 * @param jsonArray The JSON array string
+	 * @param arrayType The target datatype
 	 * @return A new array of the given target type
 	 */
-	private Object parseIntoArray(String sJsonArray, Class<?> rArrayType) {
-		Class<?> rComponentType = rArrayType.getComponentType();
+	private Object parseIntoArray(String jsonArray, Class<?> arrayType) {
+		Class<?> componentType = arrayType.getComponentType();
 
-		List<?> rArrayValues = parseArray(sJsonArray, rComponentType);
+		List<?> arrayValues = parseArray(jsonArray, componentType);
 
-		int nCount = rArrayValues.size();
-		Object rValue = Array.newInstance(rComponentType, nCount);
+		int count = arrayValues.size();
+		Object value = Array.newInstance(componentType, count);
 
-		for (int i = 0; i < nCount; i++) {
-			Array.set(rValue, i, rArrayValues.get(i));
+		for (int i = 0; i < count; i++) {
+			Array.set(value, i, arrayValues.get(i));
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
 	 * Parses a JSON key-value mapping into a map.
 	 *
-	 * @param sMapping The raw mapping string
-	 * @param rMap     The target map
+	 * @param mapping The raw mapping string
+	 * @param map     The target map
 	 */
-	private void parseMapping(String sMapping, Map<String, Object> rMap) {
-		int nPos = sMapping.indexOf(':');
-		String sKey = sMapping.substring(1, nPos - 1).trim();
-		String sJsonValue = sMapping.substring(nPos + 1).trim();
+	private void parseMapping(String mapping, Map<String, Object> map) {
+		int pos = mapping.indexOf(':');
+		String key = mapping.substring(1, pos - 1).trim();
+		String jsonValue = mapping.substring(pos + 1).trim();
 
-		rMap.put(sKey, parse(sJsonValue));
+		map.put(key, parse(jsonValue));
 	}
 
 	/**
 	 * Handles the parsing into {@link Relatable} instances.
 	 *
-	 * @param sJsonValue The JSON value to parse
-	 * @param rDatatype  The target datatype (must be a subclass of {@link
-	 *                   Relatable})
+	 * @param jsonValue The JSON value to parse
+	 * @param datatype  The target datatype (must be a subclass of
+	 *                  {@link Relatable})
 	 * @return The parsed object
 	 */
-	private <T> Object parseRelatable(String sJsonValue,
-		Class<? extends T> rDatatype) {
-		Object rValue;
+	private <T> Object parseRelatable(String jsonValue,
+		Class<? extends T> datatype) {
+		Object value;
 
-		if (RelationType.class.isAssignableFrom(rDatatype)) {
-			rValue = RelationType.valueOf(sJsonValue);
+		if (RelationType.class.isAssignableFrom(datatype)) {
+			value = RelationType.valueOf(jsonValue);
 		} else {
-			Relatable aRelatable;
+			Relatable relatable;
 
-			if (rDatatype == Relatable.class) {
-				aRelatable = new RelatedObject();
+			if (datatype == Relatable.class) {
+				relatable = new RelatedObject();
 			} else {
-				aRelatable = (Relatable) ReflectUtil.newInstance(rDatatype);
+				relatable = (Relatable) ReflectUtil.newInstance(datatype);
 			}
 
-			rValue = parseRelatable(sJsonValue, aRelatable);
+			value = parseRelatable(jsonValue, relatable);
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
 	 * Parses a JSON structure and executes an action for each element.
 	 *
-	 * @param sJsonData       The JSON string to parse
-	 * @param eStructure      The type of the JSON structure
-	 * @param fProcessElement The action to execute for each structure element
+	 * @param jsonData       The JSON string to parse
+	 * @param structure      The type of the JSON structure
+	 * @param processElement The action to execute for each structure element
 	 */
-	private void parseStructure(String sJsonData, JsonStructure eStructure,
-		Action<String> fProcessElement) {
-		String sJson = getContent(sJsonData, eStructure);
-		int nMax = sJson.length() - 1;
-		int nElementStart = 0;
-		int nElementEnd = 0;
+	private void parseStructure(String jsonData, JsonStructure structure,
+		Action<String> processElement) {
+		String json = getContent(jsonData, structure);
+		int max = json.length() - 1;
+		int elementStart = 0;
+		int elementEnd = 0;
 
-		nDepth--;
+		depth--;
 
-		while (nElementEnd <= nMax) {
-			JsonStructure eSkippedStructure = null;
-			int nStructureLevel = 0;
-			boolean bInString = false;
-			char cCurrentChar;
+		while (elementEnd <= max) {
+			JsonStructure skippedStructure = null;
+			int structureLevel = 0;
+			boolean inString = false;
+			char currentChar;
 
 			do {
-				cCurrentChar = sJson.charAt(nElementEnd++);
+				currentChar = json.charAt(elementEnd++);
 
 				// toggle string but consider escaped string delimiters
-				if (cCurrentChar == JsonStructure.STRING.cOpen &&
-					(!bInString || sJson.charAt(nElementEnd - 2) != '\\')) {
-					bInString = !bInString;
+				if (currentChar == JsonStructure.STRING.getOpenChar() &&
+					(!inString || json.charAt(elementEnd - 2) != '\\')) {
+					inString = !inString;
 				}
 
-				if (!bInString) {
-					if (cCurrentChar == JsonStructure.ARRAY.cOpen) {
-						if (eSkippedStructure == null) {
-							eSkippedStructure = JsonStructure.ARRAY;
+				if (!inString) {
+					if (currentChar == JsonStructure.ARRAY.getOpenChar()) {
+						if (skippedStructure == null) {
+							skippedStructure = JsonStructure.ARRAY;
 						}
 
-						if (eSkippedStructure == JsonStructure.ARRAY) {
-							nStructureLevel++;
+						if (skippedStructure == JsonStructure.ARRAY) {
+							structureLevel++;
 						}
-					} else if (cCurrentChar == JsonStructure.OBJECT.cOpen) {
-						if (eSkippedStructure == null) {
-							eSkippedStructure = JsonStructure.OBJECT;
+					} else if (currentChar ==
+						JsonStructure.OBJECT.getOpenChar()) {
+						if (skippedStructure == null) {
+							skippedStructure = JsonStructure.OBJECT;
 						}
 
-						if (eSkippedStructure == JsonStructure.OBJECT) {
-							nStructureLevel++;
+						if (skippedStructure == JsonStructure.OBJECT) {
+							structureLevel++;
 						}
-					} else if (eSkippedStructure != null &&
-						cCurrentChar == eSkippedStructure.cClose) {
-						nStructureLevel--;
+					} else if (skippedStructure != null &&
+						currentChar == skippedStructure.getCloseChar()) {
+						structureLevel--;
 
-						if (nStructureLevel == 0) {
-							eSkippedStructure = null;
+						if (structureLevel == 0) {
+							skippedStructure = null;
 						}
 					}
 				}
 			} // loop until mapping separator (,) or string end is found
-			while ((bInString || eSkippedStructure != null ||
-				cCurrentChar != ',') && nElementEnd <= nMax);
+			while (
+				(inString || skippedStructure != null || currentChar != ',') &&
+					elementEnd <= max);
 
-			if (eSkippedStructure != null || bInString) {
-				if (bInString) {
-					eSkippedStructure = JsonStructure.STRING;
+			if (skippedStructure != null || inString) {
+				if (inString) {
+					skippedStructure = JsonStructure.STRING;
 				}
 
 				throw new IllegalArgumentException(
 					String.format("Unclosed JSON " + "%s in %s",
-						eSkippedStructure.name().toLowerCase(), sJson));
+						skippedStructure.name().toLowerCase(), json));
 			}
 
 			// exclude separator except for last structure element
-			if (nElementEnd <= nMax) {
-				nElementEnd--;
+			if (elementEnd <= max) {
+				elementEnd--;
 			}
 
-			String sElement =
-				sJson.substring(nElementStart, nElementEnd).trim();
+			String element = json.substring(elementStart, elementEnd).trim();
 
-			fProcessElement.execute(sElement);
+			processElement.execute(element);
 
-			nElementStart = ++nElementEnd;
+			elementStart = ++elementEnd;
 		}
-
-		nDepth++;
+		depth++;
 	}
 }

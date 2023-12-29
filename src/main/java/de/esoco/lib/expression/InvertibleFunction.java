@@ -16,6 +16,8 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
+import java.io.Serializable;
+
 /**
  * An extended function interface for invertible functions. Invoking the method
  * {@link #invert(Object)} with a particular output value of a previous
@@ -30,28 +32,28 @@ package de.esoco.lib.expression;
  *
  * @author eso
  */
-public interface InvertibleFunction<I, O> extends Function<I, O> {
+public interface InvertibleFunction<I, O> extends Function<I, O>, Serializable {
 
 	/**
 	 * A factory method that returns an new instance for two distinct functions
 	 * that perform the evaluation and inversion, respectively. This allows to
 	 * construct a new invertible function from two lambda expressions.
 	 *
-	 * @param fEvaluate The evaluating function
-	 * @param fInvert   The inverting function
+	 * @param evaluate The evaluating function
+	 * @param invert   The inverting function
 	 * @return The new instance
 	 */
-	static <I, O> InvertibleFunction<I, O> of(Function<I, O> fEvaluate,
-		Function<O, I> fInvert) {
+	static <I, O> InvertibleFunction<I, O> of(Function<I, O> evaluate,
+		Function<O, I> invert) {
 		return new InvertibleFunction<I, O>() {
 			@Override
-			public O evaluate(I rValue) {
-				return fEvaluate.apply(rValue);
+			public O evaluate(I value) {
+				return evaluate.apply(value);
 			}
 
 			@Override
-			public I invert(O rValue) {
-				return fInvert.evaluate(rValue);
+			public I invert(O value) {
+				return invert.evaluate(value);
 			}
 		};
 	}
@@ -64,8 +66,8 @@ public interface InvertibleFunction<I, O> extends Function<I, O> {
 	 * not required but possible to provide an identity relation so that even
 	 * the expression {@code invert(evaluate(I)) == I} is valid.
 	 *
-	 * @param rValue The evaluation output value to invert
+	 * @param value The evaluation output value to invert
 	 * @return The inverted output value
 	 */
-	I invert(O rValue);
+	I invert(O value);
 }

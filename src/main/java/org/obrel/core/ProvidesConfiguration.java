@@ -30,21 +30,21 @@ public interface ProvidesConfiguration {
 	 * default if
 	 * no relation with the given type exists.
 	 *
-	 * @param rType         The relation type
-	 * @param rDefaultValue The default value to return if no relation exists
+	 * @param type         The relation type
+	 * @param defaultValue The default value to return if no relation exists
 	 * @return The relation value or the default
 	 */
-	<T> T getConfigValue(RelationType<T> rType, T rDefaultValue);
+	<T> T getConfigValue(RelationType<T> type, T defaultValue);
 
 	/**
 	 * Sets a configuration value. The default implementation always throws an
 	 * unsupported operation exception. If a mutable configuration is needed
 	 * this method must be overridden by a subclass.
 	 *
-	 * @param rType  The relation type
-	 * @param rValue The value to set
+	 * @param type  The relation type
+	 * @param value The value to set
 	 */
-	default <T> void setConfigValue(RelationType<T> rType, T rValue) {
+	default <T> void setConfigValue(RelationType<T> type, T value) {
 		throw new UnsupportedOperationException("Modifications not supported");
 	}
 }

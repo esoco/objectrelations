@@ -31,11 +31,11 @@ public interface Predicate<T>
 	 * another instance. The other predicate will only be evaluated if this
 	 * predicate yields TRUE.
 	 *
-	 * @param rOther The other instance
+	 * @param other The other instance
 	 * @return A new predicate with a logical AND expression
 	 */
-	default <O extends T> Predicate<O> and(Predicate<? super T> rOther) {
-		return Predicates.and(this, rOther);
+	default <O extends T> Predicate<O> and(Predicate<? super T> other) {
+		return Predicates.and(this, other);
 	}
 
 	/**
@@ -44,14 +44,14 @@ public interface Predicate<T>
 	 * instead of a function so that the result can still be used as a
 	 * predicate.
 	 *
-	 * @param rFunction A function that produces input for this predicate
+	 * @param function A function that produces input for this predicate
 	 * @return A new predicate that first applies the argument function to
 	 * input
 	 * values and then evaluates the result with this predicate
 	 */
 	@Override
-	default <V> Predicate<V> from(Function<V, ? extends T> rFunction) {
-		return Predicates.chain(this, rFunction);
+	default <V> Predicate<V> from(Function<V, ? extends T> function) {
+		return Predicates.chain(this, function);
 	}
 
 	/**
@@ -60,11 +60,11 @@ public interface Predicate<T>
 	 * instance. The other predicate will only be evaluated if this predicate
 	 * yields FALSE.
 	 *
-	 * @param rOther The other instance
+	 * @param other The other instance
 	 * @return A new predicate with a logical OR expression
 	 */
-	default <O extends T> Predicate<O> or(Predicate<? super T> rOther) {
-		return Predicates.or(this, rOther);
+	default <O extends T> Predicate<O> or(Predicate<? super T> other) {
+		return Predicates.or(this, other);
 	}
 
 	/**
@@ -73,7 +73,7 @@ public interface Predicate<T>
 	 * @see java.util.function.Predicate#test(Object)
 	 */
 	@Override
-	default boolean test(T rValue) {
-		return evaluate(rValue);
+	default boolean test(T value) {
+		return evaluate(value);
 	}
 }

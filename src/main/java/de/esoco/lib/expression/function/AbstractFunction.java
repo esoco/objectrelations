@@ -19,6 +19,7 @@ package de.esoco.lib.expression.function;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Functions;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
@@ -28,19 +29,20 @@ import java.util.Objects;
  *
  * @author eso
  */
-public abstract class AbstractFunction<I, O> implements Function<I, O> {
+public abstract class AbstractFunction<I, O>
+	implements Function<I, O>, Serializable {
 
-	private String sToken;
+	private String token;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sToken A text describing this function class
+	 * @param token A text describing this function class
 	 */
-	public AbstractFunction(String sToken) {
+	public AbstractFunction(String token) {
 		// do not store in relation to prevent initialization cycle
 		// with StandardProperties
-		this.sToken = sToken;
+		this.token = token;
 	}
 
 	/**
@@ -50,30 +52,28 @@ public abstract class AbstractFunction<I, O> implements Function<I, O> {
 	 * {@link #paramsEqual(AbstractFunction)}).
 	 *
 	 * <p>The description string of a function is not taken into account by
-	 * this
-	 * method and it is strongly advised that the description text is always
-	 * the
-	 * same for a certain function class. If subclasses need to generate
-	 * instance-specific descriptions (e.g. based on function parameters) the
-	 * description string should contain a template that is identical for all
-	 * instances. This template can then be formatted accordingly in the
-	 * toString() method, for example.</p>
+	 * this method and it is strongly advised that the description text is
+	 * always the same for a certain function class. If subclasses need to
+	 * generate instance-specific descriptions (e.g. based on function
+	 * parameters) the description string should contain a template that is
+	 * identical for all instances. This template can then be formatted
+	 * accordingly in the toString() method, for example.</p>
 	 *
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public boolean equals(Object rObject) {
-		if (this == rObject) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (rObject == null || getClass() != rObject.getClass()) {
+		if (object == null || getClass() != object.getClass()) {
 			return false;
 		}
 
-		AbstractFunction<?, ?> rOther = (AbstractFunction<?, ?>) rObject;
+		AbstractFunction<?, ?> other = (AbstractFunction<?, ?>) object;
 
-		return Objects.equals(getToken(), getToken()) && paramsEqual(rOther);
+		return Objects.equals(getToken(), getToken()) && paramsEqual(other);
 	}
 
 	/**
@@ -83,11 +83,11 @@ public abstract class AbstractFunction<I, O> implements Function<I, O> {
 	 */
 	@Override
 	public String getToken() {
-		if (sToken == null) {
-			sToken = getClass().getSimpleName();
+		if (token == null) {
+			token = getClass().getSimpleName();
 		}
 
-		return sToken;
+		return token;
 	}
 
 	/**
@@ -124,10 +124,10 @@ public abstract class AbstractFunction<I, O> implements Function<I, O> {
 	 * is not NULL and of exactly the same class as itself. The default
 	 * implementation always returns TRUE.
 	 *
-	 * @param rOther The other function to compare the parameters with
+	 * @param other The other function to compare the parameters with
 	 * @return TRUE if all parameters are equal to that of the other function
 	 */
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
 		return true;
 	}
 

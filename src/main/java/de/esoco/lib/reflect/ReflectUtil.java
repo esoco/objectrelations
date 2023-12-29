@@ -29,7 +29,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,25 +44,30 @@ import java.util.Set;
  * @author eso
  */
 public final class ReflectUtil {
-	private static final String THIS_CLASS_NAME = ReflectUtil.class.getName();
-	private static final String THREAD_CLASS_NAME = Thread.class.getName();
-
-	/** Constant to signal no-argument methods */
+	/**
+	 * Constant to signal no-argument methods
+	 */
 	public static final Class<?>[] NO_ARGS = new Class<?>[0];
 
-	private static final Map<Class<?>, Class<?>> aInterfaceImplementationMap = new HashMap<Class<?>, Class<?>>();
+	private static final String THIS_CLASS_NAME = ReflectUtil.class.getName();
 
-	private static final BidirectionalMap<Class<?>, Class<?>> aWrapperPrimitiveMap = new BidirectionalMap<Class<?>, Class<?>>();
+	private static final String THREAD_CLASS_NAME = Thread.class.getName();
+
+	private static final Map<Class<?>, Class<?>> interfaceImplementationMap =
+		new HashMap<Class<?>, Class<?>>();
+
+	private static final BidirectionalMap<Class<?>, Class<?>>
+		wrapperPrimitiveMap = new BidirectionalMap<Class<?>, Class<?>>();
 
 	static {
-		aWrapperPrimitiveMap.put(Boolean.class, boolean.class);
-		aWrapperPrimitiveMap.put(Character.class, char.class);
-		aWrapperPrimitiveMap.put(Byte.class, byte.class);
-		aWrapperPrimitiveMap.put(Short.class, short.class);
-		aWrapperPrimitiveMap.put(Integer.class, int.class);
-		aWrapperPrimitiveMap.put(Long.class, long.class);
-		aWrapperPrimitiveMap.put(Float.class, float.class);
-		aWrapperPrimitiveMap.put(Double.class, double.class);
+		wrapperPrimitiveMap.put(Boolean.class, boolean.class);
+		wrapperPrimitiveMap.put(Character.class, char.class);
+		wrapperPrimitiveMap.put(Byte.class, byte.class);
+		wrapperPrimitiveMap.put(Short.class, short.class);
+		wrapperPrimitiveMap.put(Integer.class, int.class);
+		wrapperPrimitiveMap.put(Long.class, long.class);
+		wrapperPrimitiveMap.put(Float.class, float.class);
+		wrapperPrimitiveMap.put(Double.class, double.class);
 
 		registerImplementation(List.class, ArrayList.class);
 		registerImplementation(Set.class, HashSet.class);
@@ -80,43 +84,38 @@ public final class ReflectUtil {
 	 * public no-argument method with the given name.
 	 *
 	 * <p>
-	 * This method will not check the superclasses of the declaring class.
-	 * The names of the constants may include namespaces which will be ignored
-	 * in the name comparisons.
+	 * This method will not check the superclasses of the declaring class. The
+	 * names of the constants may include namespaces which will be ignored in
+	 * the name comparisons.
 	 * </p>
 	 *
 	 * <p>
 	 * This method is intended to be used at development time and therefore
-	 * uses assertions to perform it's checks. It returns a boolean value which
-	 * will always be TRUE so that it can be invoked in an assert statement
-	 * (which is the recommended way to use it). By doing so the constant
-	 * assertions will only be performed if assertions are enabled and not in
-	 * production code. A typical invocation should be done in a static
-	 * initialization block after the constant declarations and would look like
-	 * this:
+	 * uses
+	 * assertions to perform it's checks. It returns a boolean value which will
+	 * always be TRUE so that it can be invoked in an assert statement
+	 * (which is
+	 * the recommended way to use it). By doing so the constant assertions will
+	 * only be performed if assertions are enabled and not in production
+	 * code. A
+	 * typical invocation should be done in a static initialization block after
+	 * the constant declarations and would look like this:
 	 * </p>
 	 * <code>assert ReflectUtil.assertConstantDeclarations(AppConstants.class,
 	 * TestEnum.class, "getName", false);</code>
 	 *
-	 * @param rDeclaringClass     The class to check the declared fields of
-	 * @param rConstantClass      The (base) class of the constants to check
-	 * @param sNameMethod         The method to query the constant names with
-	 * @param bAllAccessModifiers TRUE to check constants with all access
-	 *                            modifiers, FALSE for public constants only
-	 *
+	 * @param declaringClass     The class to check the declared fields of
+	 * @param constantClass      The (base) class of the constants to check
+	 * @param nameMethod         The method to query the constant names with
+	 * @param allAccessModifiers TRUE to check constants with all access
+	 *                           modifiers, FALSE for public constants only
 	 * @return Always TRUE
 	 */
 	public static <T> boolean assertConstantDeclarations(
-			Class<?> rDeclaringClass,
-			Class<? super T> rConstantClass,
-			String sNameMethod,
-			boolean bAllAccessModifiers) {
-		collectConstants(rDeclaringClass,
-				rConstantClass,
-				sNameMethod,
-				bAllAccessModifiers,
-				false,
-				true);
+		Class<?> declaringClass, Class<? super T> constantClass,
+		String nameMethod, boolean allAccessModifiers) {
+		collectConstants(declaringClass, constantClass, nameMethod,
+			allAccessModifiers, false, true);
 
 		return true;
 	}
@@ -126,28 +125,28 @@ public final class ReflectUtil {
 	 * {@link AccessibleObject#setAccessible(boolean)} will be invoked on it to
 	 * make it accessible.
 	 *
-	 * @param rMember The member to check
-	 *
+	 * @param member The member to check
 	 * @return The input member to allow call concatenation
 	 */
-	public static <T extends Member> T checkAccessible(T rMember) {
-		if (rMember instanceof AccessibleObject) {
-			Class<?> rMemberClass = rMember.getDeclaringClass();
+	public static <T extends Member> T checkAccessible(T member) {
+		if (member instanceof AccessibleObject) {
+			Class<?> membetype = member.getDeclaringClass();
 
-			if (!Modifier.isPublic(rMember.getModifiers()) ||
-					!Modifier.isPublic(rMemberClass.getModifiers())) {
-				((AccessibleObject) rMember).setAccessible(true);
+			if (!Modifier.isPublic(member.getModifiers()) ||
+				!Modifier.isPublic(membetype.getModifiers())) {
+				((AccessibleObject) member).setAccessible(true);
 			}
 		}
 
-		return rMember;
+		return member;
 	}
 
 	/**
 	 * Collects all constants of a certain type from a declaring class and
 	 * returns them in a list. The constants must be declared as public static
 	 * final and must not be NULL. Non-public fields will be ignored and the
-	 * static final modifiers will be checked with assertions so that errors can
+	 * static final modifiers will be checked with assertions so that errors
+	 * can
 	 * be detected at development time. If a constant is NULL or an exception
 	 * occurs during the reflective access to a field an {@link AssertionError}
 	 * will be thrown. Because of these checks no fields of the constant type
@@ -163,120 +162,121 @@ public final class ReflectUtil {
 	 * </p>
 	 *
 	 * <p>
-	 * This method is intended to be used during the initialization of
-	 * classes that want to keep a list of their declared constants, and should
-	 * not be used in instance methods. Therefore using assertions to signal
-	 * uncritical errors is sufficient. If a class needs to verify the constants
-	 * only without the need to access a list of them it can use the method
+	 * This method is intended to be used during the initialization of classes
+	 * that want to keep a list of their declared constants, and should not be
+	 * used in instance methods. Therefore using assertions to signal
+	 * uncritical
+	 * errors is sufficient. If a class needs to verify the constants only
+	 * without the need to access a list of them it can use the method
 	 * {@link #assertConstantDeclarations(Class, Class, String, boolean)}
 	 * instead.
 	 * </p>
 	 *
-	 * @param rDeclaringClass     The class that declares the constants to
+	 * @param declaringClass      The class that declares the constants to
 	 *                            collect
-	 * @param rConstantClass      The datatype (super)class of the constants
+	 * @param constantClass       The datatype (super)class of the constants
 	 *                            (relaxed to '? super T' to prevent conversion
 	 *                            conflicts with generic types)
-	 * @param sCheckNameMethod    The name of the method to check the instance
+	 * @param checkNameMethodName The name of the method to check the instance
 	 *                            names with or NULL to omit this check
-	 * @param bAllAccessModifiers TRUE to check constants with all access
+	 * @param allAccessModifiers  TRUE to check constants with all access
 	 *                            modifiers, FALSE for public constants only
-	 * @param bWithSuperclasses   TRUE to collect all fields, including that of
+	 * @param withSuperclasses    TRUE to collect all fields, including that of
 	 *                            superclasses; FALSE to collect the fields of
 	 *                            the given declaring class only
-	 * @param bAllowNamespace     TRUE to allow the instance names to begin
-	 *                            with a namespace string, separated by the '.'
-	 *                            char
-	 *
+	 * @param allowNamespace      TRUE to allow the instance names to begin
+	 *                               with
+	 *                            a namespace string, separated by the '.' char
 	 * @return A list of all constants of the given base type that are declared
-	 *         in the declaring class
+	 * in the declaring class
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> List<T> collectConstants(
-			Class<?> rDeclaringClass,
-			Class<? super T> rConstantClass,
-			String sCheckNameMethod,
-			boolean bAllAccessModifiers,
-			boolean bWithSuperclasses,
-			boolean bAllowNamespace) {
-		List<T> aConstants = new ArrayList<T>();
-		List<Field> rFields;
+	public static <T> List<T> collectConstants(Class<?> declaringClass,
+		Class<? super T> constantClass, String checkNameMethodName,
+		boolean allAccessModifiers, boolean withSuperclasses,
+		boolean allowNamespace) {
+		List<T> constants = new ArrayList<T>();
+		List<Field> fields;
 
 		try {
-			if (bWithSuperclasses) {
-				rFields = bAllAccessModifiers
-						? getAllFields(rDeclaringClass)
-						: Arrays.asList(rDeclaringClass.getFields());
+			if (withSuperclasses) {
+				fields = allAccessModifiers ?
+				         getAllFields(declaringClass) :
+				         Arrays.asList(declaringClass.getFields());
 			} else {
-				rFields = Arrays.asList(rDeclaringClass.getDeclaredFields());
+				fields = Arrays.asList(declaringClass.getDeclaredFields());
 			}
 
-			Method rCheckNameMethod = sCheckNameMethod != null
-					? rConstantClass.getMethod(sCheckNameMethod)
-					: null;
+			Method checkNameMethod = checkNameMethodName != null ?
+			                         constantClass.getMethod(
+				                         checkNameMethodName) :
+			                         null;
 
-			for (Field rField : rFields) {
-				int nModifiers = rField.getModifiers();
+			for (Field field : fields) {
+				int modifiers = field.getModifiers();
 
-				if (Modifier.isStatic(nModifiers) &&
-						(bAllAccessModifiers || Modifier.isPublic(nModifiers)) &&
-						rConstantClass.isAssignableFrom(rField.getType())) {
-					if (bAllAccessModifiers) {
-						checkAccessible(rField);
+				if (Modifier.isStatic(modifiers) &&
+					(allAccessModifiers || Modifier.isPublic(modifiers)) &&
+					constantClass.isAssignableFrom(field.getType())) {
+					if (allAccessModifiers) {
+						checkAccessible(field);
 					}
 
-					String sFieldName = rField.getName();
-					Object rFieldValue = rField.get(null);
+					String fieldName = field.getName();
+					Object fieldValue = field.get(null);
 
-					assert Modifier.isFinal(nModifiers) : "Instance not final static: " +
-							sFieldName;
+					assert Modifier.isFinal(modifiers) :
+						"Instance not final static: " + fieldName;
 
-					if (rCheckNameMethod != null) {
-						String sName = rCheckNameMethod.invoke(rFieldValue).toString();
+					if (checkNameMethod != null) {
+						String name =
+							checkNameMethod.invoke(fieldValue).toString();
 
-						if (bAllowNamespace) {
+						if (allowNamespace) {
 							// remove namespace if exists
-							sName = sName.substring(sName.lastIndexOf('.') + 1);
+							name = name.substring(name.lastIndexOf('.') + 1);
 						}
 
 						// check if enum string and instance names match
-						assert sFieldName.equals(sName) : "Name mismatch of " +
-								rDeclaringClass.getSimpleName() + " constant " +
-								sFieldName + " (wrong name: " + sName + ")";
+						assert fieldName.equals(name) : "Name mismatch of " +
+							declaringClass.getSimpleName() + " constant " +
+							fieldName + " (wrong name: " + name + ")";
 					}
 
-					if (rFieldValue != null) {
-						aConstants.add((T) rFieldValue);
+					if (fieldValue != null) {
+						constants.add((T) fieldValue);
 					} else {
-						throw new AssertionError("Field is NULL: " + rField);
+						throw new AssertionError("Field is NULL: " + field);
 					}
 				}
 			}
 		} catch (Exception e) {
-			String sMessage = String.format("Could not collect %s constants from %s",
-					rConstantClass.getSimpleName(),
-					rDeclaringClass.getSimpleName());
+			String message =
+				String.format("Could not collect %s constants from %s",
+					constantClass.getSimpleName(),
+					declaringClass.getSimpleName());
 
-			throw new IllegalArgumentException(sMessage, e);
+			throw new IllegalArgumentException(message, e);
 		}
 
-		return aConstants;
+		return constants;
 	}
 
 	/**
-	 * Tries to find an arbitrary public method with a certain name in the given
+	 * Tries to find an arbitrary public method with a certain name in the
+	 * given
 	 * class. Returns the first method (in the classes' declaration order) with
 	 * the given name or NULL if no such method exists.
 	 *
-	 * @param rClass  The class in which to search for the method
-	 * @param sMethod The name of the public method to search for
-	 *
+	 * @param type       The class in which to search for the method
+	 * @param methodName The name of the public method to search for
 	 * @return The corresponding method instance or NULL if none could be found
 	 */
-	public static Method findAnyPublicMethod(Class<?> rClass, String sMethod) {
-		for (Method rMethod : rClass.getMethods()) {
-			if (rMethod.getName().equals(sMethod)) {
-				return rMethod;
+	public static Method findAnyPublicMethod(Class<?> type,
+		String methodName) {
+		for (Method method : type.getMethods()) {
+			if (method.getName().equals(methodName)) {
+				return method;
 			}
 		}
 
@@ -285,53 +285,54 @@ public final class ReflectUtil {
 
 	/**
 	 * Tries to find a matching method with certain parameters in a list of
-	 * methods. The method collection argument will be searched for methods that
-	 * have a parameter list that is capable of accepting arguments of the types
-	 * contained in the rArgTypes argument. That means that each parameter of a
+	 * methods. The method collection argument will be searched for methods
+	 * that
+	 * have a parameter list that is capable of accepting arguments of the
+	 * types
+	 * contained in the argTypes argument. That means that each parameter of a
 	 * matching method must be of a type that is either the same as, or is a
-	 * supertype of the corresponding type in the rArgTypes array.
+	 * supertype of the corresponding type in the argTypes array.
 	 *
 	 * <p>
-	 * If the rArgTypes array contains NULL values these will be considered
-	 * as matching any parameter type at the same position. The application is
-	 * then responsible of providing the correct argument value (i.e. NULL or of
-	 * a type matching the method's parameter) on method invocation.
+	 * If the argTypes array contains NULL values these will be considered as
+	 * matching any parameter type at the same position. The application is
+	 * then
+	 * responsible of providing the correct argument value (i.e. NULL or of a
+	 * type matching the method's parameter) on method invocation.
 	 * </p>
 	 *
 	 * <p>
-	 * This method will not distinguish between multiple variants of the
-	 * method with compatible parameter lists. It will choose and return the
-	 * first compatible method that can be found in the collection argument.
+	 * This method will not distinguish between multiple variants of the method
+	 * with compatible parameter lists. It will choose and return the first
+	 * compatible method that can be found in the collection argument.
 	 * </p>
 	 *
-	 * @param rMethods  A collection containing the methods to search
-	 * @param rArgTypes An array containing the classes of the argument types
-	 *                  (may either be NULL, NO_ARGS, or empty for no-argument
-	 *                  methods)
-	 *
+	 * @param methods  A collection containing the methods to search
+	 * @param argTypes An array containing the classes of the argument types
+	 *                 (may either be NULL, NO_ARGS, or empty for no-argument
+	 *                 methods)
 	 * @return The corresponding method instance or NULL if none could be found
 	 */
-	public static Method findMethod(
-			Collection<Method> rMethods,
-			Class<?>... rArgTypes) {
-		if (rArgTypes == null) {
-			rArgTypes = NO_ARGS;
+	public static Method findMethod(Collection<Method> methods,
+		Class<?>... argTypes) {
+		if (argTypes == null) {
+			argTypes = NO_ARGS;
 		}
 
-		for (Method m : rMethods) {
-			Class<?>[] rParamTypes = m.getParameterTypes();
+		for (Method m : methods) {
+			Class<?>[] paramTypes = m.getParameterTypes();
 
-			if (rParamTypes.length == rArgTypes.length) {
-				boolean bMatch = true;
+			if (paramTypes.length == argTypes.length) {
+				boolean match = true;
 				int i = 0;
 
-				while (bMatch && i < rParamTypes.length) {
-					bMatch = rArgTypes[i] == null ||
-							rParamTypes[i].isAssignableFrom(rArgTypes[i]);
+				while (match && i < paramTypes.length) {
+					match = argTypes[i] == null ||
+						paramTypes[i].isAssignableFrom(argTypes[i]);
 					i++;
 				}
 
-				if (bMatch) {
+				if (match) {
 					return m;
 				}
 			}
@@ -341,33 +342,33 @@ public final class ReflectUtil {
 	}
 
 	/**
-	 * A variant of {@link #findMethod(Collection, Class...)} for method arrays.
+	 * A variant of {@link #findMethod(Collection, Class...)} for method
+	 * arrays.
 	 *
 	 * @see #findMethod(Collection, Class...)
 	 */
-	public static Method findMethod(Method[] rMethods, Class<?>... rArgTypes) {
-		return findMethod(Arrays.asList(rMethods), rArgTypes);
+	public static Method findMethod(Method[] methods, Class<?>... argTypes) {
+		return findMethod(Arrays.asList(methods), argTypes);
 	}
 
 	/**
 	 * Tries to find a method with a certain name in the complete hierarchy of
-	 * the given class. Determines all declared methods with the given name with
+	 * the given class. Determines all declared methods with the given name
+	 * with
 	 * {@link #getAllMethods(Class, String) getDeclaredMethods()} and uses
 	 * {@link #findMethod(Collection, Class[]) getMethod()} to select a method
 	 * with a matching parameter list.
 	 *
-	 * @param rClass    The class from which to return the method
-	 * @param sMethod   The name of the method to search for
-	 * @param rArgTypes An array containing the classes of the argument types
-	 *                  (may either be NULL, NO_ARGS, or empty for no-argument
-	 *                  methods)
-	 *
+	 * @param type     The class from which to return the method
+	 * @param method   The name of the method to search for
+	 * @param argTypes An array containing the classes of the argument types
+	 *                 (may either be NULL, NO_ARGS, or empty for no-argument
+	 *                 methods)
 	 * @return The corresponding method instance or NULL if none could be found
 	 */
-	public static Method findMethod(Class<?> rClass,
-			String sMethod,
-			Class<?>... rArgTypes) {
-		return findMethod(getAllMethods(rClass, sMethod), rArgTypes);
+	public static Method findMethod(Class<?> type, String method,
+		Class<?>... argTypes) {
+		return findMethod(getAllMethods(type, method), argTypes);
 	}
 
 	/**
@@ -377,31 +378,30 @@ public final class ReflectUtil {
 	 * uses {@link #findMethod(Collection, Class[]) getMethod()} to select a
 	 * method with a matching parameter list.
 	 *
-	 * @param rClass    The class from which to return the method
-	 * @param sMethod   The name of the public method to search for
-	 * @param rArgTypes An array containing the classes of the argument types
-	 *                  (may either be NULL, NO_ARGS, or empty for no-argument
-	 *                  methods)
-	 *
+	 * @param type     The class from which to return the method
+	 * @param method   The name of the public method to search for
+	 * @param argTypes An array containing the classes of the argument types
+	 *                 (may either be NULL, NO_ARGS, or empty for no-argument
+	 *                 methods)
 	 * @return The corresponding method instance or NULL if none could be found
 	 */
-	public static Method findPublicMethod(Class<?> rClass,
-			String sMethod,
-			Class<?>... rArgTypes) {
-		return findMethod(getPublicMethods(rClass, sMethod), rArgTypes);
+	public static Method findPublicMethod(Class<?> type, String method,
+		Class<?>... argTypes) {
+		return findMethod(getPublicMethods(type, method), argTypes);
 	}
 
 	/**
 	 * Forces the initialization of a certain class. Starting with Java 5
 	 * classes that are referred to with class literals are not automatically
-	 * initialized (see http://java.sun.com/j2se/1.5.0/compatibility.html). This
+	 * initialized (see http://java.sun.com/j2se/1.5.0/compatibility.html).
+	 * This
 	 * method can be invoked to ensure that a class is initialized.
 	 *
-	 * @param rClass The class to force the initialization of
+	 * @param type The class to force the initialization of
 	 */
-	public static void forceInit(Class<?> rClass) {
+	public static void forceInit(Class<?> type) {
 		try {
-			Class.forName(rClass.getName(), true, rClass.getClassLoader());
+			Class.forName(type.getName(), true, type.getClassLoader());
 		} catch (ClassNotFoundException e) {
 			// Can't happen
 			throw new AssertionError(e);
@@ -413,20 +413,19 @@ public final class ReflectUtil {
 	 * fields of the given class and all it's superclasses (but not any
 	 * interfaces) with any access modifier.
 	 *
-	 * @param rClass The class to return the fields of
-	 *
+	 * @param type The class to return the fields of
 	 * @return A list containing the fields (may be empty but will never be
-	 *         NULL)
+	 * NULL)
 	 */
-	public static List<Field> getAllFields(Class<?> rClass) {
-		List<Field> aFields = new ArrayList<Field>();
+	public static List<Field> getAllFields(Class<?> type) {
+		List<Field> fields = new ArrayList<Field>();
 
-		while (rClass != null) {
-			aFields.addAll(Arrays.asList(rClass.getDeclaredFields()));
-			rClass = rClass.getSuperclass();
+		while (type != null) {
+			fields.addAll(Arrays.asList(type.getDeclaredFields()));
+			type = type.getSuperclass();
 		}
 
-		return aFields;
+		return fields;
 	}
 
 	/**
@@ -440,30 +439,27 @@ public final class ReflectUtil {
 	 * hierarchy will be ignored.
 	 * </p>
 	 *
-	 * @param rClass      The class to get the methods from
-	 * @param sMethodName The method name to search for
-	 *
+	 * @param type       The class to get the methods from
+	 * @param methodName The method name to search for
 	 * @return A new list containing all methods with the given in name in the
-	 *         argument class; will be empty if no matching methods could be
-	 *         found
+	 * argument class; will be empty if no matching methods could be found
 	 */
-	public static List<Method> getAllMethods(
-			Class<?> rClass,
-			String sMethodName) {
-		List<Method> aMethodList = new ArrayList<Method>();
+	public static List<Method> getAllMethods(Class<?> type,
+		String methodName) {
+		List<Method> methodList = new ArrayList<Method>();
 
-		while (rClass != null) {
-			for (Method rMethod : rClass.getDeclaredMethods()) {
-				if (rMethod.getName().equals(sMethodName)) {
-					aMethodList.add(rMethod);
+		while (type != null) {
+			for (Method method : type.getDeclaredMethods()) {
+				if (method.getName().equals(methodName)) {
+					methodList.add(method);
 				}
 			}
 
 			// TODO: consider interfaces too!
-			rClass = rClass.getSuperclass();
+			type = type.getSuperclass();
 		}
 
-		return aMethodList;
+		return methodList;
 	}
 
 	/**
@@ -471,48 +467,45 @@ public final class ReflectUtil {
 	 * values. If a value is NULL the type in the result array will also be
 	 * NULL.
 	 *
-	 * @param rArgs The argument values (may be NULL)
-	 *
+	 * @param args The argument values (may be NULL)
 	 * @return An array of the argument type classes; will be the constant
-	 *         NO_ARGS for no arguments
+	 * NO_ARGS for no arguments
 	 */
-	public static Class<?>[] getArgumentTypes(Object[] rArgs) {
-		return getArgumentTypes(rArgs, false);
+	public static Class<?>[] getArgumentTypes(Object[] args) {
+		return getArgumentTypes(args, false);
 	}
 
 	/**
 	 * Returns an array containing the argument types of an array of argument
 	 * values. If a value is NULL the type in the result array will also be
-	 * NULL. If bUseNativeTypes is TRUE any type class that has a corresponding
+	 * NULL. If useNativeTypes is TRUE any type class that has a corresponding
 	 * native type will be replaced with the latter one (e.g. Integer.class
 	 * becomes int.class).
 	 *
-	 * @param rArgs          The argument values (may be NULL)
-	 * @param bUsePrimitives TRUE to convert type classes to the corresponding
-	 *                       primitive types
-	 *
+	 * @param args          The argument values (may be NULL)
+	 * @param usePrimitives TRUE to convert type classes to the corresponding
+	 *                      primitive types
 	 * @return An array of the argument type classes; will be the constant
-	 *         NO_ARGS for no arguments
+	 * NO_ARGS for no arguments
 	 */
-	public static Class<?>[] getArgumentTypes(
-			Object[] rArgs,
-			boolean bUsePrimitives) {
-		if (rArgs == null || rArgs.length == 0) {
+	public static Class<?>[] getArgumentTypes(Object[] args,
+		boolean usePrimitives) {
+		if (args == null || args.length == 0) {
 			return NO_ARGS;
 		}
 
-		Class<?>[] argTypes = new Class<?>[rArgs.length];
+		Class<?>[] argTypes = new Class<?>[args.length];
 
-		for (int i = 0; i < rArgs.length; i++) {
-			if (rArgs[i] != null) {
-				Class<?> rArgType = rArgs[i].getClass();
+		for (int i = 0; i < args.length; i++) {
+			if (args[i] != null) {
+				Class<?> argType = args[i].getClass();
 
-				if (bUsePrimitives) {
-					Class<?> rPrimitive = getPrimitiveType(rArgType);
+				if (usePrimitives) {
+					Class<?> primitive = getPrimitiveType(argType);
 
-					argTypes[i] = (rPrimitive != null ? rPrimitive : rArgType);
+					argTypes[i] = (primitive != null ? primitive : argType);
 				} else {
-					argTypes[i] = rArgType;
+					argTypes[i] = argType;
 				}
 			} else {
 				argTypes[i] = null;
@@ -525,16 +518,14 @@ public final class ReflectUtil {
 	/**
 	 * Returns the class that called the caller of this method.
 	 *
-	 * @param bDifferentClass TRUE if the first different caller class should
-	 *                        be returned
-	 *
+	 * @param differentClass TRUE if the first different caller class should be
+	 *                       returned
 	 * @return The class of the caller of the calling method
-	 *
-	 * @see #getCallerClassName(boolean)
+	 * @see #getCalletypeName(boolean)
 	 */
-	public static Class<?> getCallerClass(boolean bDifferentClass) {
+	public static Class<?> getCalletype(boolean differentClass) {
 		try {
-			return Class.forName(getCallerClassName(bDifferentClass));
+			return Class.forName(getCalletypeName(differentClass));
 		} catch (ClassNotFoundException e) {
 			// this should normally not be possible
 			throw new IllegalStateException(e);
@@ -544,38 +535,38 @@ public final class ReflectUtil {
 	/**
 	 * Returns the name of the class that called the caller of this method The
 	 * boolean parameter controls whether the calling class of the calling
-	 * method will be returned or if the first different class will be returned.
+	 * method will be returned or if the first different class will be
+	 * returned.
 	 * The latter will make a difference if the calling method had been called
 	 * from another method in it's own class. In that case a value of TRUE will
 	 * cause the first different class to be returned, indepent from the call
 	 * chain in the class that called this method.
 	 *
-	 * @param bDifferentClass TRUE if the name of the first different caller
-	 *                        class should be returned
-	 *
+	 * @param differentClass TRUE if the name of the first different caller
+	 *                       class should be returned
 	 * @return The name of the class of the caller of the calling method
 	 */
-	public static String getCallerClassName(boolean bDifferentClass) {
-		StackTraceElement[] aStack = Thread.currentThread().getStackTrace();
+	public static String getCalletypeName(boolean differentClass) {
+		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 
-		String sCaller = null;
+		String caller = null;
 
-		for (StackTraceElement rElement : aStack) {
-			String sElementClass = rElement.getClassName();
+		for (StackTraceElement element : stack) {
+			String elementClass = element.getClassName();
 
-			if (!sElementClass.equals(THIS_CLASS_NAME) &&
-					sElementClass.indexOf(THREAD_CLASS_NAME) != 0) {
-				if (sCaller == null) {
-					sCaller = sElementClass;
-				} else if (!bDifferentClass || (!sCaller.equals(sElementClass))) {
-					sCaller = sElementClass;
+			if (!elementClass.equals(THIS_CLASS_NAME) &&
+				elementClass.indexOf(THREAD_CLASS_NAME) != 0) {
+				if (caller == null) {
+					caller = elementClass;
+				} else if (!differentClass || (!caller.equals(elementClass))) {
+					caller = elementClass;
 
 					break;
 				}
 			}
 		}
 
-		return sCaller;
+		return caller;
 	}
 
 	/**
@@ -584,115 +575,112 @@ public final class ReflectUtil {
 	 * {@link Class#forName(String)} method in cases where a NULL check is more
 	 * appropriate than a try-catch block.
 	 *
-	 * @param sClassName The name of the class to return
-	 *
+	 * @param className The name of the class to return
 	 * @return The corresponding class object or NULL for none
 	 */
-	public static Class<?> getClass(String sClassName) {
-		Class<?> rClass;
+	public static Class<?> getClass(String className) {
+		Class<?> type;
 
 		try {
-			rClass = Class.forName(sClassName);
+			type = Class.forName(className);
 		} catch (ClassNotFoundException e) {
-			rClass = null;
+			type = null;
 		}
 
-		return rClass;
+		return type;
 	}
 
 	/**
 	 * Tries to find a certain field in a class hierarchy. This includes all
-	 * declared fields of the given class and all it's superclasses (but not any
+	 * declared fields of the given class and all it's superclasses (but not
+	 * any
 	 * interfaces).
 	 *
-	 * @param rClass     The class to search the field in
-	 * @param sFieldName The name of the field to return
-	 *
-	 * @return The matching field instance or NULL if no matching field could be
-	 *         found
+	 * @param type      The class to search the field in
+	 * @param fieldName The name of the field to return
+	 * @return The matching field instance or NULL if no matching field
+	 * could be
+	 * found
 	 */
-	public static Field getField(Class<?> rClass, String sFieldName) {
-		while (rClass != null) {
-			for (Field rField : rClass.getDeclaredFields()) {
-				if (rField.getName().equals(sFieldName)) {
-					return rField;
+	public static Field getField(Class<?> type, String fieldName) {
+		while (type != null) {
+			for (Field field : type.getDeclaredFields()) {
+				if (field.getName().equals(fieldName)) {
+					return field;
 				}
 			}
 
-			rClass = rClass.getSuperclass();
+			type = type.getSuperclass();
 		}
 
 		return null;
 	}
 
 	/**
-	 * Returns the value of a particular field in an object. The actual field is
+	 * Returns the value of a particular field in an object. The actual
+	 * field is
 	 * determined by means of the {@link #getField(Class, String)} method. Then
 	 * the method {@link #getFieldValue(Field, Object)} will invoked and it's
 	 * result returned.
 	 *
-	 * @param sFieldName The name of the field to return the value of
-	 * @param rObject    The object to read the field value from
-	 *
+	 * @param fieldName The name of the field to return the value of
+	 * @param object    The object to read the field value from
 	 * @return The value of the given field
-	 *
 	 * @throws IllegalArgumentException If the field doesn't exist or accessing
 	 *                                  the field value fails
 	 */
-	public static Object getFieldValue(String sFieldName, Object rObject) {
-		return getFieldValue(getField(rObject.getClass(), sFieldName), rObject);
+	public static Object getFieldValue(String fieldName, Object object) {
+		return getFieldValue(getField(object.getClass(), fieldName), object);
 	}
 
 	/**
 	 * Returns the value of a particular field in an object. If the field or
 	 * it's class is not public this method will try to make it accessible by
 	 * invoking {@link AccessibleObject#setAccessible(boolean)} on it. This
-	 * requires that the caller's context has sufficient rights to do so, else a
+	 * requires that the caller's context has sufficient rights to do so,
+	 * else a
 	 * {@link SecurityException} will be thrown.
 	 *
-	 * @param rField  The field to return the value of
-	 * @param rObject The object to read the field value from
-	 *
+	 * @param field  The field to return the value of
+	 * @param object The object to read the field value from
 	 * @return The value of the given field
-	 *
 	 * @throws IllegalArgumentException If the field doesn't exist or accessing
 	 *                                  the field value fails
 	 */
-	public static Object getFieldValue(Field rField, Object rObject) {
-		if (rField != null) {
+	public static Object getFieldValue(Field field, Object object) {
+		if (field != null) {
 			try {
-				return checkAccessible(rField).get(rObject);
+				return checkAccessible(field).get(object);
 			} catch (Exception e) {
-				throw new IllegalArgumentException("Field access failed: " +
-						rObject.getClass() + "." +
-						rField,
-						e);
+				throw new IllegalArgumentException(
+					"Field access failed: " + object.getClass() + "." + field,
+					e);
 			}
 		} else {
-			throw new IllegalArgumentException("Invalid field: " + rField);
+			throw new IllegalArgumentException("Invalid field: " + field);
 		}
 	}
 
 	/**
 	 * Returns a standard implementation class for an abstract class or an
 	 * interface. If the given class neither represents an interface nor an
-	 * abstract class it will be returned unchanged. Otherwise an implementation
+	 * abstract class it will be returned unchanged. Otherwise an
+	 * implementation
 	 * class will be returned if it had been registered previously. Several
 	 * standard mappings (e.g. for collection classes) are registered
 	 * automatically, others can be registered by the application. This can be
 	 * done with the {@link #registerImplementation(Class, Class)} method.
 	 *
-	 * @param rClass The class to return the implementation for
-	 *
+	 * @param type The class to return the implementation for
 	 * @return The implementation for the given class or NULL if no mapping
-	 *         exists
+	 * exists
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Class<? extends T> getImplementationClass(Class<T> rClass) {
-		if (rClass.isInterface() || Modifier.isAbstract(rClass.getModifiers())) {
-			return (Class<? extends T>) aInterfaceImplementationMap.get(rClass);
+	public static <T> Class<? extends T> getImplementationClass(Class<T> type) {
+		if (type.isInterface() || Modifier.isAbstract(type.getModifiers())) {
+			return (Class<? extends T>) interfaceImplementationMap.get(type);
 		} else {
-			return rClass;
+			return type;
 		}
 	}
 
@@ -702,65 +690,60 @@ public final class ReflectUtil {
 	 * enclosing class. Otherwise it returns the name of the enclosing (parent)
 	 * package.
 	 *
-	 * @param sTypeName The name of the class or package to determine the
-	 *                  parent package of
-	 *
-	 * @return The namespace of the type or NULL if the name denotes a top-level
-	 *         element
-	 *
+	 * @param typeName The name of the class or package to determine the parent
+	 *                 package of
+	 * @return The namespace of the type or NULL if the name denotes a
+	 * top-level
+	 * element
 	 * @throws NullPointerException If the argument is NULL
 	 */
-	public static String getNamespace(String sTypeName) {
-		int nPos = sTypeName.lastIndexOf('$');
-		String sNamespace = null;
+	public static String getNamespace(String typeName) {
+		int pos = typeName.lastIndexOf('$');
+		String namespace = null;
 
-		if (nPos > 0) {
-			sNamespace = sTypeName.substring(0, nPos);
+		if (pos > 0) {
+			namespace = typeName.substring(0, pos);
 		} else {
-			nPos = sTypeName.lastIndexOf('.');
+			pos = typeName.lastIndexOf('.');
 
-			if (nPos > 0) {
-				sNamespace = sTypeName.substring(0, nPos);
+			if (pos > 0) {
+				namespace = typeName.substring(0, pos);
 			}
 		}
 
-		return sNamespace;
+		return namespace;
 	}
 
 	/**
 	 * Returns the corresponding primitive type class (e.g. int.class,
-	 * char.class) for a certain wrapper class (Integer.class, Character.class).
+	 * char.class) for a certain wrapper class (Integer.class, Character
+	 * .class).
 	 *
-	 * @param rWrapperClass The class to return the corresponding primitive
-	 *                      type for
-	 *
+	 * @param wrappetype The class to return the corresponding primitive type
+	 *                   for
 	 * @return The corresponding primitive type or NULL if the argument is not
-	 *         an instance of a wrapper class
+	 * an instance of a wrapper class
 	 */
-	public static Class<?> getPrimitiveType(Class<?> rWrapperClass) {
-		return aWrapperPrimitiveMap.get(rWrapperClass);
+	public static Class<?> getPrimitiveType(Class<?> wrappetype) {
+		return wrapperPrimitiveMap.get(wrappetype);
 	}
 
 	/**
 	 * Returns the public constructor of a class with the given argument types.
 	 * If a checked exception occurs it will be mapped to a runtime exception.
 	 *
-	 * @param rClass    The class to return the constructor of
-	 * @param rArgTypes The classes of the argument types
-	 *
+	 * @param type     The class to return the constructor of
+	 * @param argTypes The classes of the argument types
 	 * @return The public constructor
 	 */
-	public static <T> Constructor<T> getPublicConstructor(
-			Class<T> rClass,
-			Class<?>... rArgTypes) {
+	public static <T> Constructor<T> getPublicConstructor(Class<T> type,
+		Class<?>... argTypes) {
 		try {
-			return rClass.getConstructor(rArgTypes);
+			return type.getConstructor(argTypes);
 		} catch (NoSuchMethodException e) {
-			throw new IllegalArgumentException("No constructor " +
-					rClass.getSimpleName() +
-					"(" + Arrays.asList(rArgTypes) +
-					")",
-					e);
+			throw new IllegalArgumentException(
+				"No constructor " + type.getSimpleName() + "(" +
+					Arrays.asList(argTypes) + ")", e);
 		}
 	}
 
@@ -770,135 +753,127 @@ public final class ReflectUtil {
 	 * method and therefore must be invoked with either the exactly matching
 	 * argument types from the method signature or with argument values that
 	 * have exactly these types. Else the method will not be found by the Class
-	 * method. In such cases, the method {@link #findPublicMethod(Class, String,
-	 * Class[])} can be used instead because it considers the class hierarchy of
-	 * method parameters.
+	 * method. In such cases, the method
+	 * {@link #findPublicMethod(Class, String, Class[])} can be used instead
+	 * because it considers the class hierarchy of method parameters.
 	 *
-	 * @param rClass    The class from which to return the method
-	 * @param sMethod   The name of the public method to search for
-	 * @param rArgs     The arguments of the method call (NULL for none)
-	 * @param rArgTypes The classes of the argument types or NULL if they shall
-	 *                  be determined from the argument values (only possible
-	 *                  if these are not NULL and have the exact types)
-	 *
+	 * @param type     The class from which to return the method
+	 * @param method   The name of the public method to search for
+	 * @param args     The arguments of the method call (NULL for none)
+	 * @param argTypes The classes of the argument types or NULL if they shall
+	 *                 be determined from the argument values (only possible if
+	 *                 these are not NULL and have the exact types)
 	 * @return The corresponding method instance
-	 *
 	 * @throws IllegalArgumentException If no matching method could be found or
 	 *                                  if the invocation fails
 	 */
-	public static Method getPublicMethod(Class<?> rClass,
-			String sMethod,
-			Object[] rArgs,
-			Class<?>[] rArgTypes) {
-		if (rArgTypes == null) {
-			rArgTypes = getArgumentTypes(rArgs);
+	public static Method getPublicMethod(Class<?> type, String method,
+		Object[] args, Class<?>[] argTypes) {
+		if (argTypes == null) {
+			argTypes = getArgumentTypes(args);
 		}
 
 		try {
-			return rClass.getMethod(sMethod, rArgTypes);
+			return type.getMethod(method, argTypes);
 		} catch (NoSuchMethodException e) {
-			throw new IllegalArgumentException("Method not found: " + sMethod +
-					"(" + Arrays.asList(rArgTypes) +
-					")",
-					e);
+			throw new IllegalArgumentException(
+				"Method not found: " + method + "(" + Arrays.asList(argTypes) +
+					")", e);
 		}
 	}
 
 	/**
 	 * Returns all public methods with the given name from the argument class.
 	 * The method arguments are ignored, only the method names are compared.
-	 * That means if multiple overloaded methods with the same name exist all of
+	 * That means if multiple overloaded methods with the same name exist
+	 * all of
 	 * them will be returned. When invoking one of the returned method the
 	 * caller must make sure to use the correct count and type of parameters.
 	 *
-	 * @param rClass      The class to search the method in
-	 * @param sMethodName The method name to search for
-	 *
+	 * @param type       The class to search the method in
+	 * @param methodName The method name to search for
 	 * @return A new list containing the matching public methods; will be empty
-	 *         if no such methods could be found
+	 * if no such methods could be found
 	 */
-	public static List<Method> getPublicMethods(
-			Class<?> rClass,
-			String sMethodName) {
-		List<Method> aMethodList = new ArrayList<Method>();
+	public static List<Method> getPublicMethods(Class<?> type,
+		String methodName) {
+		List<Method> methodList = new ArrayList<Method>();
 
-		for (Method m : rClass.getMethods()) {
-			if (m.getName().equals(sMethodName)) {
-				aMethodList.add(m);
+		for (Method m : type.getMethods()) {
+			if (m.getName().equals(methodName)) {
+				methodList.add(m);
 			}
 		}
 
-		return aMethodList;
+		return methodList;
 	}
 
 	/**
 	 * Returns the raw type class for a certain reflection {@link Type}.
 	 *
-	 * @param rType The reflection type
-	 *
+	 * @param type The reflection type
 	 * @return The raw type class for the given type
-	 *
-	 * @throws IllegalArgumentException If the given type cannot be mapped to an
+	 * @throws IllegalArgumentException If the given type cannot be mapped
+	 * to an
 	 *                                  unambiguous raw type
 	 */
-	public static Class<?> getRawType(Type rType) {
-		Class<?> rRawType;
+	public static Class<?> getRawType(Type type) {
+		Class<?> rawType;
 
-		if (rType instanceof Class) {
-			rRawType = (Class<?>) rType;
-		} else if (rType instanceof ParameterizedType) {
-			rRawType = (Class<?>) ((ParameterizedType) rType).getRawType();
-		} else if (rType instanceof WildcardType) {
-			rRawType = getRawType(((WildcardType) rType).getUpperBounds()[0]);
-		} else if (rType instanceof GenericArrayType) {
-			Type rComponentType = ((GenericArrayType) rType).getGenericComponentType();
+		if (type instanceof Class) {
+			rawType = (Class<?>) type;
+		} else if (type instanceof ParameterizedType) {
+			rawType = (Class<?>) ((ParameterizedType) type).getRawType();
+		} else if (type instanceof WildcardType) {
+			rawType = getRawType(((WildcardType) type).getUpperBounds()[0]);
+		} else if (type instanceof GenericArrayType) {
+			Type componentType =
+				((GenericArrayType) type).getGenericComponentType();
 
-			rRawType = Array.newInstance(getRawType(rComponentType), 0).getClass();
+			rawType =
+				Array.newInstance(getRawType(componentType), 0).getClass();
 		} else {
-			throw new IllegalArgumentException(String.format("Unsupported type: %s",
-					rType));
+			throw new IllegalArgumentException(
+				String.format("Unsupported type: %s", type));
 		}
 
-		return rRawType;
+		return rawType;
 	}
 
 	/**
 	 * Returns the corresponding wrapper type class (e.g. Integer.class,
 	 * Character.class) for a certain primitive class (int.class, char.class).
 	 *
-	 * @param rPrimitiveClass The class to return the corresponding wrapper
-	 *                        type for
-	 *
+	 * @param primitiveClass The class to return the corresponding wrapper type
+	 *                       for
 	 * @return The corresponding wrapper type or NULL if the argument is not an
-	 *         instance of a primitive class
+	 * instance of a primitive class
 	 */
-	public static Class<?> getWrapperType(Class<?> rPrimitiveClass) {
-		return aWrapperPrimitiveMap.getKey(rPrimitiveClass);
+	public static Class<?> getWrapperType(Class<?> primitiveClass) {
+		return wrapperPrimitiveMap.getKey(primitiveClass);
 	}
 
 	/**
 	 * Invokes a particular method on a target object. If the invocation fails
 	 * an IllegalArgumentException will be thrown. If the method or it's class
 	 * is not public this method will try to make it accessible by invoking
-	 * {@link AccessibleObject#setAccessible(boolean)} on it. This requires that
-	 * the caller's context has sufficient rights to do so, else a {@link
-	 * SecurityException} will be thrown.
+	 * {@link AccessibleObject#setAccessible(boolean)} on it. This requires
+	 * that
+	 * the caller's context has sufficient rights to do so, else a
+	 * {@link SecurityException} will be thrown.
 	 *
-	 * @param rTarget The target object to invoke the method on
-	 * @param rMethod The method instance to invoke
-	 * @param rArgs   The arguments of the method call
-	 *
+	 * @param target The target object to invoke the method on
+	 * @param method The method instance to invoke
+	 * @param args   The arguments of the method call
 	 * @return The return value of the method call
-	 *
 	 * @throws IllegalArgumentException If the invocation fails
 	 */
-	public static Object invoke(Object rTarget, Method rMethod, Object... rArgs) {
+	public static Object invoke(Object target, Method method, Object... args) {
 		try {
-			return checkAccessible(rMethod).invoke(rTarget, rArgs);
+			return checkAccessible(method).invoke(target, args);
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Method invocation failed: " +
-					rMethod.getName(),
-					e);
+			throw new IllegalArgumentException(
+				"Method invocation failed: " + method.getName(), e);
 		}
 	}
 
@@ -907,44 +882,42 @@ public final class ReflectUtil {
 	 *
 	 * @see #invokeAny(Object, String, Object[], Class[])
 	 */
-	public static Object invokeAny(Object rTarget, String sMethod) {
-		return invokeAny(rTarget, sMethod, null, NO_ARGS);
+	public static Object invokeAny(Object target, String method) {
+		return invokeAny(target, method, null, NO_ARGS);
 	}
 
 	/**
-	 * Invokes any kind of declared method on a target object. If the method is
-	 * not found in the target object itself it's class hierarchy will be
-	 * searched for it. The actual method invocation is then performed by
-	 * calling {@link #invoke(Object, Method, Object...)}
+	 * Invokes any kind of declared methodName on a target object. If the
+	 * methodName is not found in the target object itself it's class hierarchy
+	 * will be searched for it. The actual methodName invocation is then
+	 * performed by calling {@link #invoke(Object, Method, Object...)}
 	 *
-	 * @param rTarget   The target object to invoke the method on
-	 * @param sMethod   The name of the public method to invoke
-	 * @param rArgs     The arguments of the method call (NULL for none)
-	 * @param rArgTypes The classes of the argument types or NULL if they shall
-	 *                  be determined from the argument values (only possible
-	 *                  if these are not NULL and do not span class
-	 *                  hierarchies)
-	 *
-	 * @return The return value of the method call
-	 *
-	 * @throws IllegalArgumentException If no matching method could be found or
-	 *                                  if the invocation fails
+	 * @param target     The target object to invoke the methodName on
+	 * @param methodName The name of the public methodName to invoke
+	 * @param args       The arguments of the methodName call (NULL for none)
+	 * @param argTypes   The classes of the argument types or NULL if they
+	 *                      shall
+	 *                   be determined from the argument values (only possible
+	 *                   if these are not NULL and do not span class
+	 *                   hierarchies)
+	 * @return The return value of the methodName call
+	 * @throws IllegalArgumentException If no matching methodName could be
+	 * found
+	 *                                  or if the invocation fails
 	 */
-	public static Object invokeAny(Object rTarget,
-			String sMethod,
-			Object[] rArgs,
-			Class<?>[] rArgTypes) {
-		if (rArgTypes == null) {
-			rArgTypes = getArgumentTypes(rArgs);
+	public static Object invokeAny(Object target, String methodName,
+		Object[] args, Class<?>[] argTypes) {
+		if (argTypes == null) {
+			argTypes = getArgumentTypes(args);
 		}
 
-		Method rMethod = findMethod(rTarget.getClass(), sMethod, rArgTypes);
+		Method method = findMethod(target.getClass(), methodName, argTypes);
 
-		if (rMethod == null) {
-			throw new IllegalArgumentException("Method not found: " + sMethod);
+		if (method == null) {
+			throw new IllegalArgumentException("Method not found: " + method);
 		}
 
-		return invoke(rTarget, rMethod, rArgs);
+		return invoke(target, method, args);
 	}
 
 	/**
@@ -952,37 +925,34 @@ public final class ReflectUtil {
 	 * caller's context has sufficient rights to do so if the method is not
 	 * public.
 	 *
-	 * @param rTarget   The target object to invoke the method on
-	 * @param sMethod   The name of the public method to invoke
-	 * @param rArgs     The arguments of the method call (NULL for none)
-	 * @param rArgTypes The classes of the argument types or NULL if they shall
-	 *                  be determined from the argument values (only possible
-	 *                  if these are not NULL and do not span class
-	 *                  hierarchies)
-	 *
+	 * @param target     The target object to invoke the method on
+	 * @param methodName The name of the public method to invoke
+	 * @param args       The arguments of the method call (NULL for none)
+	 * @param argTypes   The classes of the argument types or NULL if they
+	 *                   should be determined from the argument values (only
+	 *                   possible if these are not NULL and do not span class
+	 *                   hierarchies)
 	 * @return The return value of the method call
-	 *
 	 * @throws IllegalArgumentException If no matching method could be found or
 	 *                                  if the invocation fails
 	 */
-	public static Object invokeDeclared(Object rTarget,
-			String sMethod,
-			Object[] rArgs,
-			Class<?>[] rArgTypes) {
-		Method rMethod;
+	public static Object invokeDeclared(Object target, String methodName,
+		Object[] args, Class<?>[] argTypes) {
+		Method method;
 
-		if (rArgTypes == null) {
-			rArgTypes = getArgumentTypes(rArgs);
+		if (argTypes == null) {
+			argTypes = getArgumentTypes(args);
 		}
 
 		try {
-			rMethod = rTarget.getClass().getDeclaredMethod(sMethod, rArgTypes);
+			return invoke(target,
+				target.getClass().getDeclaredMethod(methodName, argTypes),
+				args);
 		} catch (NoSuchMethodException e) {
-			throw new IllegalArgumentException("Method not found: " + sMethod,
-					e);
+			throw new IllegalArgumentException(
+				"Method not found: " + methodName, e);
 		}
 
-		return invoke(rTarget, rMethod, rArgs);
 	}
 
 	/**
@@ -990,34 +960,30 @@ public final class ReflectUtil {
 	 *
 	 * @see #invokePublic(Object, String, Object[], Class[])
 	 */
-	public static Object invokePublic(Object rTarget, String sMethod) {
-		return invokePublic(rTarget, sMethod, null, NO_ARGS);
+	public static Object invokePublic(Object target, String method) {
+		return invokePublic(target, method, null, NO_ARGS);
 	}
 
 	/**
-	 * Invokes a public method on a target object. Uses the method {@link
-	 * #getPublicMethod(Class, String, Object[], Class[])} to determine the
-	 * corresponding Method instance.
+	 * Invokes a public method on a target object. Uses the method
+	 * {@link #getPublicMethod(Class, String, Object[], Class[])} to determine
+	 * the corresponding Method instance.
 	 *
-	 * @param rTarget   The target object to invoke the method on
-	 * @param sMethod   The name of the public method to invoke
-	 * @param rArgs     The arguments of the method call (NULL for none)
-	 * @param rArgTypes The classes of the argument types or NULL if they shall
-	 *                  be determined from the argument values (only possible
-	 *                  if these are not NULL and have the exact types)
-	 *
+	 * @param target   The target object to invoke the method on
+	 * @param method   The name of the public method to invoke
+	 * @param args     The arguments of the method call (NULL for none)
+	 * @param argTypes The classes of the argument types or NULL if they shall
+	 *                 be determined from the argument values (only possible if
+	 *                 these are not NULL and have the exact types)
 	 * @return The return value of the method call
-	 *
 	 * @throws IllegalArgumentException If no matching method could be found or
 	 *                                  if the invocation fails
 	 */
-	public static Object invokePublic(Object rTarget,
-			String sMethod,
-			Object[] rArgs,
-			Class<?>[] rArgTypes) {
-		Method m = getPublicMethod(rTarget.getClass(), sMethod, rArgs, rArgTypes);
+	public static Object invokePublic(Object target, String method,
+		Object[] args, Class<?>[] argTypes) {
+		Method m = getPublicMethod(target.getClass(), method, args, argTypes);
 
-		return invoke(rTarget, m, rArgs);
+		return invoke(target, m, args);
 	}
 
 	/**
@@ -1025,53 +991,46 @@ public final class ReflectUtil {
 	 *
 	 * @see #invokeStatic(Class, String, Object[], Class[])
 	 */
-	public static Object invokeStatic(Class<?> rClass, String sMethod) {
-		return invokeStatic(rClass, sMethod, null, NO_ARGS);
+	public static Object invokeStatic(Class<?> type, String method) {
+		return invokeStatic(type, method, null, NO_ARGS);
 	}
 
 	/**
-	 * Invokes a public static method on a target class. Uses the method {@link
-	 * #getPublicMethod(Class, String, Object[], Class[])} to determine the
-	 * corresponding Method instance.
+	 * Invokes a public static method on a target class. Uses the method
+	 * {@link #getPublicMethod(Class, String, Object[], Class[])} to determine
+	 * the corresponding Method instance.
 	 *
-	 * @param rClass    The target class to invoke the static method on
-	 * @param sMethod   The name of the public method to invoke
-	 * @param rArgs     The arguments of the method call (NULL for none)
-	 * @param rArgTypes The classes of the argument types or NULL if they shall
-	 *                  be determined from the argument values (only possible
-	 *                  if these are not NULL and have the exact types)
-	 *
+	 * @param type     The target class to invoke the static method on
+	 * @param method   The name of the public method to invoke
+	 * @param args     The arguments of the method call (NULL for none)
+	 * @param argTypes The classes of the argument types or NULL if they shall
+	 *                 be determined from the argument values (only possible if
+	 *                 these are not NULL and have the exact types)
 	 * @return The return value of the method call
-	 *
 	 * @throws IllegalArgumentException If no matching method could be found or
 	 *                                  if the invocation fails
 	 */
-	public static Object invokeStatic(Class<?> rClass,
-			String sMethod,
-			Object[] rArgs,
-			Class<?>[] rArgTypes) {
-		Method m = getPublicMethod(rClass, sMethod, rArgs, rArgTypes);
+	public static Object invokeStatic(Class<?> type, String method,
+		Object[] args, Class<?>[] argTypes) {
+		Method m = getPublicMethod(type, method, args, argTypes);
 
-		return invoke(null, m, rArgs);
+		return invoke(null, m, args);
 	}
 
 	/**
 	 * A convenience method to invoke {@link Class#newInstance()} without the
 	 * need for explicit exception handling.
 	 *
-	 * @param rClass The class to invoke the no-argument constructor of
-	 *
+	 * @param type The class to invoke the no-argument constructor of
 	 * @return A new instance of the given class
-	 *
 	 * @throws IllegalArgumentException If the instantiation fails
 	 */
-	public static <T> T newInstance(Class<T> rClass) {
+	public static <T> T newInstance(Class<T> type) {
 		try {
-			return rClass.getConstructor().newInstance();
+			return type.getConstructor().newInstance();
 		} catch (Exception e) {
-			throw new IllegalArgumentException("Could not create instance of " +
-					rClass,
-					e);
+			throw new IllegalArgumentException(
+				"Could not create instance of " + type, e);
 		}
 	}
 
@@ -1080,19 +1039,18 @@ public final class ReflectUtil {
 	 * number of arguments. If the invocation fails an IllegalArgumentException
 	 * will be thrown, initialized with the causing exception.
 	 *
-	 * @param rConstructor The constructor to invoke
-	 * @param rArgs        The arguments of the call (NULL for none)
-	 *
+	 * @param constructor The constructor to invoke
+	 * @param args        The arguments of the call (NULL for none)
 	 * @return The new instance created by the constructor
-	 *
 	 * @throws IllegalArgumentException If the invocation fails
 	 */
-	public static <T> T newInstance(Constructor<T> rConstructor, Object[] rArgs) {
+	public static <T> T newInstance(Constructor<T> constructor,
+		Object[] args) {
 		try {
-			return rConstructor.newInstance(rArgs);
+			return constructor.newInstance(args);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Constructor invocation failed",
-					e);
+				e);
 		}
 	}
 
@@ -1100,32 +1058,28 @@ public final class ReflectUtil {
 	 * Creates a new instance by invoking a public constructor of a target
 	 * class.
 	 *
-	 * @param rClass    The target class to invoke the constructor of
-	 * @param rArgs     The arguments of the constructor call (NULL for none)
-	 * @param rArgTypes The classes of the argument types or NULL if they shall
-	 *                  be determined from the argument values (only possible
-	 *                  if these are not NULL and do not span class
-	 *                  hierarchies)
-	 *
+	 * @param type     The target class to invoke the constructor of
+	 * @param args     The arguments of the constructor call (NULL for none)
+	 * @param argTypes The classes of the argument types or NULL if they shall
+	 *                 be determined from the argument values (only possible if
+	 *                 these are not NULL and do not span class hierarchies)
 	 * @return The new instance created by the constructor
-	 *
 	 * @throws IllegalArgumentException If no matching constructor could be
 	 *                                  found or if the invocation fails
 	 */
-	public static <T> T newInstance(Class<T> rClass,
-			Object[] rArgs,
-			Class<?>[] rArgTypes) {
-		if (rArgTypes == null) {
-			rArgTypes = getArgumentTypes(rArgs);
+	public static <T> T newInstance(Class<T> type, Object[] args,
+		Class<?>[] argTypes) {
+		if (argTypes == null) {
+			argTypes = getArgumentTypes(args);
 		}
 
 		try {
-			Constructor<T> c = rClass.getConstructor(rArgTypes);
+			Constructor<T> c = type.getConstructor(argTypes);
 
-			return c.newInstance(rArgs);
+			return c.newInstance(args);
 		} catch (NoSuchMethodException e) {
-			throw new IllegalArgumentException("No matching constructor: " +
-					rClass);
+			throw new IllegalArgumentException(
+				"No matching constructor: " + type);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Method invocation failed", e);
 		}
@@ -1139,13 +1093,12 @@ public final class ReflectUtil {
 	 * allow the easy reflective creation of instances for which only the
 	 * interface type is known.
 	 *
-	 * @param rInterface      The interface class
-	 * @param rImplementation The implementation class to be associated with the
-	 *                        interface
+	 * @param interfaceType      The interface class
+	 * @param implementationType The implementation class to be associated with
+	 *                           the interface
 	 */
-	public static <I> void registerImplementation(
-			Class<I> rInterface,
-			Class<? extends I> rImplementation) {
-		aInterfaceImplementationMap.put(rInterface, rImplementation);
+	public static <I> void registerImplementation(Class<I> interfaceType,
+		Class<? extends I> implementationType) {
+		interfaceImplementationMap.put(interfaceType, implementationType);
 	}
 }

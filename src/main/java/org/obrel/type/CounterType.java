@@ -35,71 +35,70 @@ public class CounterType<N extends Number> extends AutomaticType<N> {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Predicate<RelationEvent<?>> pCount;
+	private final Predicate<RelationEvent<?>> count;
 
-	private final Function<N, N> fIncrement;
+	private final Function<N, N> increment;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName         The name of this type
-	 * @param rInitialValue The value to start counting at
-	 * @param pCount        A predicate that determines what to count
-	 * @param fIncrement    A function that increments the number value
-	 * @param rModifiers    The relation type modifiers
+	 * @param name         The name of this type
+	 * @param initialValue The value to start counting at
+	 * @param count        A predicate that determines what to count
+	 * @param increment    A function that increments the number value
+	 * @param modifiers    The relation type modifiers
 	 */
 	@SuppressWarnings("unchecked")
-	public CounterType(String sName, N rInitialValue,
-		Predicate<RelationEvent<?>> pCount, Function<N, N> fIncrement,
-		RelationTypeModifier... rModifiers) {
-		super(sName, (Class<N>) rInitialValue.getClass(), value(rInitialValue),
-			rModifiers);
+	public CounterType(String name, N initialValue,
+		Predicate<RelationEvent<?>> count, Function<N, N> increment,
+		RelationTypeModifier... modifiers) {
+		super(name, (Class<N>) initialValue.getClass(), value(initialValue),
+			modifiers);
 
-		this.pCount = pCount;
-		this.fIncrement = fIncrement;
+		this.count = count;
+		this.increment = increment;
 	}
 
 	/**
 	 * Factory method for a counter with an arbitrary number type that is
 	 * initialized by {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param rInitialValue The value to start counting at
-	 * @param pCount        A predicate that determines what to count
-	 * @param fIncrement    A function that increments the number value
-	 * @param rModifiers    The relation type modifiers
+	 * @param initialValue The value to start counting at
+	 * @param count        A predicate that determines what to count
+	 * @param increment    A function that increments the number value
+	 * @param modifiers    The relation type modifiers
 	 * @return The new instance
 	 */
-	public static <N extends Number> CounterType<N> newCounter(N rInitialValue,
-		Predicate<RelationEvent<?>> pCount, Function<N, N> fIncrement,
-		RelationTypeModifier... rModifiers) {
-		return new CounterType<>(null, rInitialValue, pCount, fIncrement,
-			rModifiers);
+	public static <N extends Number> CounterType<N> newCounter(N initialValue,
+		Predicate<RelationEvent<?>> count, Function<N, N> increment,
+		RelationTypeModifier... modifiers) {
+		return new CounterType<>(null, initialValue, count, increment,
+			modifiers);
 	}
 
 	/**
 	 * Factory method for an integer counter that starts at zero and is
 	 * initialized by {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param pCount     A predicate that determines what to count
-	 * @param rModifiers The relation type modifiers
+	 * @param count     A predicate that determines what to count
+	 * @param modifiers The relation type modifiers
 	 * @return The new instance
 	 */
 	public static CounterType<Integer> newIntCounter(
-		Predicate<RelationEvent<?>> pCount,
-		RelationTypeModifier... rModifiers) {
-		return newCounter(Integer.valueOf(0), pCount, MathFunctions.add(1),
-			rModifiers);
+		Predicate<RelationEvent<?>> count, RelationTypeModifier... modifiers) {
+		return newCounter(Integer.valueOf(0), count, MathFunctions.add(1),
+			modifiers);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void processEvent(RelationEvent<?> rEvent) {
-		if (pCount.test(rEvent)) {
-			Relation<N> rCount = rEvent.getEventScope().getRelation(this);
+	protected void processEvent(RelationEvent<?> event) {
+		if (count.test(event)) {
+			Relation<N> count = event.getEventScope().getRelation(this);
 
-			setRelationTarget(rCount, fIncrement.apply(rCount.getTarget()));
+			setRelationTarget(count, increment.apply(count.getTarget()));
 		}
 	}
 }

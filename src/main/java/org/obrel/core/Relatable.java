@@ -56,9 +56,9 @@ public interface Relatable {
 	/**
 	 * Deletes a certain relation from this instance.
 	 *
-	 * @param rRelation The relation to be removed from this instance
+	 * @param relation The relation to be removed from this instance
 	 */
-	void deleteRelation(Relation<?> rRelation);
+	void deleteRelation(Relation<?> relation);
 
 	/**
 	 * Deletes a particular relation from this object. This will also cause all
@@ -67,16 +67,16 @@ public interface Relatable {
 	 * alias relation type) because aliases won't work without the original
 	 * relation.
 	 *
-	 * @param rType The type of the relation to delete
+	 * @param type The type of the relation to delete
 	 * @throws UnsupportedOperationException If the relation type has the flag
 	 *                                       {@link RelationTypeModifier#FINAL}
 	 *                                       set
 	 */
-	default void deleteRelation(RelationType<?> rType) {
-		Relation<?> rRelation = getRelation(rType);
+	default void deleteRelation(RelationType<?> type) {
+		Relation<?> relation = getRelation(type);
 
-		if (rRelation != null) {
-			deleteRelation(rRelation);
+		if (relation != null) {
+			deleteRelation(relation);
 		}
 	}
 
@@ -85,11 +85,11 @@ public interface Relatable {
 	 * filter. See the method {@link #deleteRelation(RelationType)} for more
 	 * details.
 	 *
-	 * @param rFilter The relation filter or NULL for all relations
+	 * @param filter The relation filter or NULL for all relations
 	 */
-	default void deleteRelations(Predicate<? super Relation<?>> rFilter) {
-		for (Relation<?> rRelation : getRelations(rFilter)) {
-			deleteRelation(rRelation);
+	default void deleteRelations(Predicate<? super Relation<?>> filter) {
+		for (Relation<?> relation : getRelations(filter)) {
+			deleteRelation(relation);
 		}
 	}
 
@@ -104,22 +104,22 @@ public interface Relatable {
 	 * NULL by default).
 	 *
 	 * <p>The initial and default value mechanisms imply that this method
-	 * cannot
-	 * be used to check the existence of relations in an object. If a type
-	 * provides an initial value relations will be created automatically when
-	 * queried through this method. If it returns a default value the relation
-	 * doesn't exist at all although a value is available. Therefore, to check
-	 * for relations the method {@link #hasRelation(RelationType)} must be
-	 * invoked instead. This will also avoid the automatic creation of the
+	 * cannot be used to check the existence of relations in an object. If a
+	 * type provides an initial value relations will be created automatically
+	 * when queried through this method. If it returns a default value the
+	 * relation doesn't exist at all although a value is available. Therefore,
+	 * to check for relations the method {@link #hasRelation(RelationType)}
+	 * must
+	 * be invoked instead. This will also avoid the automatic creation of the
 	 * relations that are queried. In addition, other relation query methods
 	 * like {@link #getAll(Predicate)} and {@link #getRelation(RelationType)}
 	 * will ignore initial and default values.</p>
 	 *
-	 * @param rType The relation type to return the target of
+	 * @param type The relation type to return the target of
 	 * @return The resolved target object or NULL if no relation with the given
 	 * type exists
 	 */
-	<T> T get(RelationType<T> rType);
+	<T> T get(RelationType<T> type);
 
 	/**
 	 * Returns a list of all resolved target objects of an object's public
@@ -128,58 +128,58 @@ public interface Relatable {
 	 * this
 	 * method. The returned list can be freely modified by the caller.
 	 *
-	 * @param rFilter The relation filter or NULL for all relation values
+	 * @param filter The relation filter or NULL for all relation values
 	 * @return A list containing the resolved targets of all matching relations
 	 * (may be empty but will never be NULL)
 	 */
-	default List<Object> getAll(Predicate<? super Relation<?>> rFilter) {
-		List<Relation<?>> rRelations = getRelations(rFilter);
-		List<Object> aResult = new ArrayList<Object>(rRelations.size());
+	default List<Object> getAll(Predicate<? super Relation<?>> filter) {
+		List<Relation<?>> relations = getRelations(filter);
+		List<Object> result = new ArrayList<Object>(relations.size());
 
-		for (Relation<?> rRelation : rRelations) {
-			aResult.add(rRelation.getTarget());
+		for (Relation<?> relation : relations) {
+			result.add(relation.getTarget());
 		}
 
-		return aResult;
+		return result;
 	}
 
 	/**
-	 * Returns an {@link Option} for the value of a certain relation or {@link
-	 * Option#none()} if the value is NULL or no relation exists. In the latter
-	 * case no relation with an initial value will be created even if such is
-	 * provided by the relation type.
+	 * Returns an {@link Option} for the value of a certain relation or
+	 * {@link Option#none()} if the value is NULL or no relation exists. In the
+	 * latter case no relation with an initial value will be created even if
+	 * such is provided by the relation type.
 	 *
 	 * <p>This method is only indirectly related to {@link
 	 * #setOption(RelationType, Object)} which expects a relation type with an
-	 * {@link Option} datatype. Such types can be queried directly with {@link
-	 * #get(RelationType)} as they return an option. This method instead
+	 * {@link Option} datatype. Such types can be queried directly with
+	 * {@link #get(RelationType)} as they return an option. This method instead
 	 * provides a NULL-safe access to relations that refer to arbitrary
 	 * targets.
 	 * </p>
 	 *
-	 * @param rType The relation type
+	 * @param type The relation type
 	 * @return The option representing the relation value
 	 */
-	default <T> Option<T> getOption(RelationType<T> rType) {
-		return hasRelation(rType) ? Option.of(get(rType)) : Option.none();
+	default <T> Option<T> getOption(RelationType<T> type) {
+		return hasRelation(type) ? Option.of(get(type)) : Option.none();
 	}
 
 	/**
 	 * Returns a certain relation of this instance.
 	 *
-	 * @param rType The relation type to return the relation of
+	 * @param type The relation type to return the relation of
 	 * @return The corresponding relation or NULL if no such relation exists
 	 */
-	<T> Relation<T> getRelation(RelationType<T> rType);
+	<T> Relation<T> getRelation(RelationType<T> type);
 
 	/**
 	 * Returns the number of public relations that match a certain filter.
 	 *
-	 * @param rFilter The relation filter
+	 * @param filter The relation filter
 	 * @return The number of relations that match the filter
 	 */
-	default int getRelationCount(Predicate<? super Relation<?>> rFilter) {
-		return getRelations(rFilter).size();
+	default int getRelationCount(Predicate<? super Relation<?>> filter) {
+		return getRelations(filter).size();
 	}
 
 	/**
@@ -189,11 +189,11 @@ public interface Relatable {
 	 * multiple invocations of this method. The returned list can be freely
 	 * modified by the caller.
 	 *
-	 * @param rFilter The relation filter or NULL for all relations
+	 * @param filter The relation filter or NULL for all relations
 	 * @return A list containing the matching relations (may be empty but will
 	 * never be NULL)
 	 */
-	List<Relation<?>> getRelations(Predicate<? super Relation<?>> rFilter);
+	List<Relation<?>> getRelations(Predicate<? super Relation<?>> filter);
 
 	/**
 	 * Returns all relations.
@@ -212,27 +212,26 @@ public interface Relatable {
 	 * method doesn't perform an automatic initialization of relations with the
 	 * given type.
 	 *
-	 * @param rType A relation type that resolves to a boolean value
+	 * @param type A relation type that resolves to a boolean value
 	 * @return TRUE if this instance has a relation for the given type which is
-	 * set to TRUE; FALSE if no relation exists of if it's value is
-	 * FALSE
+	 * set to TRUE; FALSE if no relation exists of if it's value is FALSE
 	 */
-	default boolean hasFlag(RelationType<Boolean> rType) {
-		Relation<Boolean> rRelation = getRelation(rType);
+	default boolean hasFlag(RelationType<Boolean> type) {
+		Relation<Boolean> relation = getRelation(type);
 
-		return rRelation != null && rRelation.getTarget() == Boolean.TRUE;
+		return relation != null && relation.getTarget() == Boolean.TRUE;
 	}
 
 	/**
 	 * A shortcut method that checks whether this instance contains a relation
-	 * with the given relation type. This call is equivalent to {@code
-	 * (rObj.getRelationCount(rType) > 0)}.
+	 * with the given relation type. This call is equivalent to
+	 * {@code (obj.getRelationCount(type) > 0)}.
 	 *
-	 * @param rType The relation type to check the
+	 * @param type The relation type to check the
 	 * @return TRUE if this instance has a relation for the given type
 	 */
-	default boolean hasRelation(RelationType<?> rType) {
-		return getRelation(rType) != null;
+	default boolean hasRelation(RelationType<?> type) {
+		return getRelation(type) != null;
 	}
 
 	/**
@@ -240,14 +239,14 @@ public interface Relatable {
 	 * one
 	 * public relation that matches a certain filter. This call is
 	 * equivalent to
-	 * {@code (rObj.getRelationCount(rFilter) > 0)}.
+	 * {@code (obj.getRelationCount(filter) > 0)}.
 	 *
-	 * @param rFilter The relation filter to search matching relations for
+	 * @param filter The relation filter to search matching relations for
 	 * @return TRUE if this instance has at least one public relation that
 	 * matches the given filter
 	 */
-	default boolean hasRelations(Predicate<? super Relation<?>> rFilter) {
-		return getRelations(rFilter).size() > 0;
+	default boolean hasRelations(Predicate<? super Relation<?>> filter) {
+		return getRelations(filter).size() > 0;
 	}
 
 	/**
@@ -258,19 +257,19 @@ public interface Relatable {
 	 * invokes {@link #set(RelationType, Object)} with a NULL value to create a
 	 * new creation. the given relation type to set it's initial value.
 	 *
-	 * @param rType The type of the relation to initialize
+	 * @param type The type of the relation to initialize
 	 * @return The relation for the given type
 	 */
-	default <T> Relation<T> init(RelationType<T> rType) {
-		Relation<T> rRelation;
+	default <T> Relation<T> init(RelationType<T> type) {
+		Relation<T> relation;
 
-		if (get(rType) == null) {
-			rRelation = set(rType, null);
+		if (get(type) == null) {
+			relation = set(type, null);
 		} else {
-			rRelation = getRelation(rType);
+			relation = getRelation(type);
 		}
 
-		return rRelation;
+		return relation;
 	}
 
 	/**
@@ -278,13 +277,13 @@ public interface Relatable {
 	 * to this instance. If this is the first call for the given type a new
 	 * relation with that type will be created.
 	 *
-	 * @param rType   The relation type
-	 * @param rTarget The unresolved target object of the relation
+	 * @param type   The relation type
+	 * @param target The unresolved target object of the relation
 	 * @return Returns the relation that has been modified or created
 	 * @throws IllegalArgumentException If the given type is not applicable for
 	 *                                  the object
 	 */
-	<T> Relation<T> set(RelationType<T> rType, T rTarget);
+	<T> Relation<T> set(RelationType<T> type, T target);
 
 	/**
 	 * Creates a relation that initially stores the target value in an
@@ -294,9 +293,8 @@ public interface Relatable {
 	 * allows to lazily initialize relations only when they are really needed.
 	 *
 	 * <p>If a relation with the given type exists already this method will
-	 * throw an exception to prevent the inadvertent overriding of relations
-	 * . If
-	 * the caller explicitly wants to replace an existing relation it must
+	 * throw an exception to prevent the inadvertent overriding of relations .
+	 * If the caller explicitly wants to replace an existing relation it must
 	 * delete the previous relation before invoking this method.</p>
 	 *
 	 * <p>The serialized format of an intermediate relation depends on the
@@ -311,18 +309,18 @@ public interface Relatable {
 	 * persistence framework that wants to perform lazy loading of child
 	 * objects.</p>
 	 *
-	 * @param rType               The relation type
-	 * @param fTargetResolver     The function that must be applied to the
-	 *                            intermediate target value to resolve the
-	 *                            final target value
-	 * @param rIntermediateTarget The intermediate target value (must not be
-	 *                            NULL)
+	 * @param type               The relation type
+	 * @param targetResolver     The function that must be applied to the
+	 *                           intermediate target value to resolve the final
+	 *                           target value
+	 * @param intermediateTarget The intermediate target value (must not be
+	 *                           NULL)
 	 * @return The new intermediate relation
 	 * @throws IllegalStateException If a relation with the given type exists
 	 *                               already
 	 */
-	<T, I> Relation<T> set(RelationType<T> rType,
-		Function<I, T> fTargetResolver, I rIntermediateTarget);
+	<T, I> Relation<T> set(RelationType<T> type, Function<I, T> targetResolver,
+		I intermediateTarget);
 
 	/**
 	 * A convenience method that sets a relation with a type that has a boolean
@@ -330,11 +328,11 @@ public interface Relatable {
 	 * shortcut for invoking {@link #set(RelationType, Object)} with a target
 	 * value of TRUE.
 	 *
-	 * @param rFlagType A relation type with a boolean target
+	 * @param flagType A relation type with a boolean target
 	 * @return Returns the relation that has been modified or created
 	 */
-	default Relation<Boolean> set(RelationType<Boolean> rFlagType) {
-		return set(rFlagType, Boolean.TRUE);
+	default Relation<Boolean> set(RelationType<Boolean> flagType) {
+		return set(flagType, Boolean.TRUE);
 	}
 
 	/**
@@ -343,12 +341,12 @@ public interface Relatable {
 	 * method {@link RelationData#r(RelationType, Object)} it allows a compact
 	 * assignment of multiple relations at once.
 	 *
-	 * @param rRelations rRelationDatas The relation data objects to set the
-	 *                   relations from
+	 * @param relations relationDatas The relation data objects to set the
+	 *                  relations from
 	 */
-	default void set(RelationData<?>... rRelations) {
-		for (RelationData<?> rData : rRelations) {
-			rData.applyTo(this);
+	default void set(RelationData<?>... relations) {
+		for (RelationData<?> data : relations) {
+			data.applyTo(this);
 		}
 	}
 
@@ -356,12 +354,12 @@ public interface Relatable {
 	 * A convenience method to set integer relations from an int value without
 	 * auto-boxing.
 	 *
-	 * @param rIntType The integer relation type
-	 * @param nValue   The int value to set
+	 * @param intType The integer relation type
+	 * @param value   The int value to set
 	 * @return The relation that has been created or updated
 	 */
-	default Relation<Integer> set(RelationType<Integer> rIntType, int nValue) {
-		return set(rIntType, Integer.valueOf(nValue));
+	default Relation<Integer> set(RelationType<Integer> intType, int value) {
+		return set(intType, Integer.valueOf(value));
 	}
 
 	/**
@@ -375,13 +373,13 @@ public interface Relatable {
 	 * types into options. This method instead requires a relation type with an
 	 * {@link Option} datatype.</p>
 	 *
-	 * @param rType  The type of the optional relation
-	 * @param rValue The optional value
+	 * @param type  The type of the optional relation
+	 * @param value The optional value
 	 * @return The resulting relation
 	 */
-	default <T> Relation<Option<T>> setOption(RelationType<Option<T>> rType,
-		T rValue) {
-		return set(rType, Option.of(rValue));
+	default <T> Relation<Option<T>> setOption(RelationType<Option<T>> type,
+		T value) {
+		return set(type, Option.of(value));
 	}
 
 	/**
@@ -415,12 +413,12 @@ public interface Relatable {
 	 * a way to store relations in a specific format. A possible application
 	 * would be a framework that encrypts relations.</p>
 	 *
-	 * @param rType           The relation type
-	 * @param fTransformation The transformation to apply to target values
+	 * @param type           The relation type
+	 * @param transformation The transformation to apply to target values
 	 * @return The new transformed relation
 	 * @throws IllegalStateException If the relation to be transformed is an
 	 *                               alias or view
 	 */
-	<T, D> TransformedRelation<T, D> transform(RelationType<T> rType,
-		InvertibleFunction<T, D> fTransformation);
+	<T, D> TransformedRelation<T, D> transform(RelationType<T> type,
+		InvertibleFunction<T, D> transformation);
 }

@@ -37,7 +37,7 @@ import de.esoco.lib.event.EventHandler;
  * @author eso
  */
 public class RelationListenerTest {
-	private Object rRelationTarget;
+	private Object relationTarget;
 
 	/**
 	 * Test relation listener on a related object.
@@ -47,22 +47,22 @@ public class RelationListenerTest {
 		RelatedObject aTest1 = new RelatedObject();
 		RelatedObject aTest2 = new RelatedObject();
 
-		TestListener<?> aListener = new TestListener<>();
+		TestListener<?> listener = new TestListener<>();
 
-		aTest1.get(ListenerTypes.RELATION_LISTENERS).add(aListener);
+		aTest1.get(ListenerTypes.RELATION_LISTENERS).add(listener);
 
 		aTest1.set(NAME, "TEST1");
 		aTest2.set(NAME, "TEST2");
 
-		assertEquals("TEST1", rRelationTarget);
+		assertEquals("TEST1", relationTarget);
 
 		aTest1.set(NAME, "TEST1A");
-		assertEquals("TEST1A", rRelationTarget);
+		assertEquals("TEST1A", relationTarget);
 
 		aTest1.deleteRelation(NAME);
-		assertNull(rRelationTarget);
+		assertNull(relationTarget);
 
-		aTest1.get(ListenerTypes.RELATION_LISTENERS).remove(aListener);
+		aTest1.get(ListenerTypes.RELATION_LISTENERS).remove(listener);
 		assertTrue(aTest1
 			.get(ListenerTypes.RELATION_LISTENERS)
 			.getEventHandlerCount() == 0);
@@ -102,21 +102,21 @@ public class RelationListenerTest {
 		RelatedObject aTest1 = new RelatedObject();
 		RelatedObject aTest2 = new RelatedObject();
 
-		TestListener<String> aListener = new TestListener<String>();
+		TestListener<String> listener = new TestListener<String>();
 
-		aTest1.set(NAME, null).addUpdateListener(aListener);
+		aTest1.set(NAME, null).addUpdateListener(listener);
 		aTest1.set(NAME, "TEST1");
-		assertEquals("TEST1", rRelationTarget);
+		assertEquals("TEST1", relationTarget);
 		aTest1
 			.getRelation(NAME)
 			.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
-			.remove(aListener);
+			.remove(listener);
 		aTest1.set(NAME, "TEST1X");
-		assertEquals("TEST1", rRelationTarget);
+		assertEquals("TEST1", relationTarget);
 
-		aTest2.set(NAME, null).addUpdateListener(aListener);
+		aTest2.set(NAME, null).addUpdateListener(listener);
 		aTest2.set(NAME, "TEST2");
-		assertEquals("TEST2", rRelationTarget);
+		assertEquals("TEST2", relationTarget);
 	}
 
 	/**
@@ -127,36 +127,36 @@ public class RelationListenerTest {
 		RelatedObject aTest1 = new RelatedObject();
 		RelatedObject aTest2 = new RelatedObject();
 
-		TestListener<String> aListener = new TestListener<>();
+		TestListener<String> listener = new TestListener<>();
 
-		NAME.addTypeListener(aListener);
+		NAME.addTypeListener(listener);
 
 		aTest1.set(NAME, "TEST1");
-		assertEquals("TEST1", rRelationTarget);
+		assertEquals("TEST1", relationTarget);
 
 		aTest2.set(NAME, "TEST2");
-		assertEquals("TEST2", rRelationTarget);
+		assertEquals("TEST2", relationTarget);
 
 		aTest1.set(NAME, "TEST1A");
-		assertEquals("TEST1A", rRelationTarget);
+		assertEquals("TEST1A", relationTarget);
 
 		aTest2.set(NAME, "TEST2A");
-		assertEquals("TEST2A", rRelationTarget);
+		assertEquals("TEST2A", relationTarget);
 
 		aTest1.deleteRelation(NAME);
-		assertNull(rRelationTarget);
+		assertNull(relationTarget);
 
-		rRelationTarget = "";
+		relationTarget = "";
 		aTest2.deleteRelation(NAME);
-		assertNull(rRelationTarget);
+		assertNull(relationTarget);
 
-		EventDispatcher<RelationEvent<?>> rTypeEventDispatcher =
+		EventDispatcher<RelationEvent<?>> typeEventDispatcher =
 			NAME.get(ListenerTypes.RELATION_TYPE_LISTENERS);
 
-		rTypeEventDispatcher.remove(aListener);
+		typeEventDispatcher.remove(listener);
 
 		// disabled because of inconsistent behavior on OpenJDK
-		// assertTrue(rTypeEventDispatcher.getEventHandlerCount() == 0);
+		// assertTrue(typeEventDispatcher.getEventHandlerCount() == 0);
 	}
 
 	// ~ Inner Classes
@@ -173,22 +173,22 @@ public class RelationListenerTest {
 		 * @see EventHandler#handleEvent(de.esoco.lib.event.Event)
 		 */
 		@Override
-		public void handleEvent(RelationEvent<T> rEvent) {
-			switch (rEvent.getType()) {
+		public void handleEvent(RelationEvent<T> event) {
+			switch (event.getType()) {
 				case ADD:
-					rRelationTarget = rEvent.getElement().getTarget();
+					relationTarget = event.getElement().getTarget();
 					break;
 
 				case REMOVE:
-					rRelationTarget = null;
+					relationTarget = null;
 					break;
 
 				case UPDATE:
-					rRelationTarget = rEvent.getUpdateValue();
+					relationTarget = event.getUpdateValue();
 					break;
 
 				default:
-					fail("Unknown relation event: " + rEvent);
+					fail("Unknown relation event: " + event);
 					break;
 			}
 		}

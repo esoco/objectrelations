@@ -29,15 +29,15 @@ public class RelationView<T, V> extends RelationWrapper<T, V, Function<V, T>> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent         The parent relatable of the view relation
-	 * @param rViewType       The relation type of this view relation
-	 * @param rViewedRelation The relation to be viewed
-	 * @param fViewConversion A conversion function that produces the target
-	 *                        value of the view
+	 * @param parent         The parent relatable of the view relation
+	 * @param viewType       The relation type of this view relation
+	 * @param viewedRelation The relation to be viewed
+	 * @param viewConversion A conversion function that produces the target
+	 *                       value of the view
 	 */
-	RelationView(Relatable rParent, RelationType<T> rViewType,
-		Relation<V> rViewedRelation, Function<V, T> fViewConversion) {
-		super(rParent, rViewType, rViewedRelation, fViewConversion);
+	RelationView(Relatable parent, RelationType<T> viewType,
+		Relation<V> viewedRelation, Function<V, T> viewConversion) {
+		super(parent, viewType, viewedRelation, viewConversion);
 	}
 
 	/**
@@ -47,8 +47,7 @@ public class RelationView<T, V> extends RelationWrapper<T, V, Function<V, T>> {
 	 * @see RelationWrapper#copyTo(Relatable)
 	 */
 	@Override
-	Relation<T> copyTo(Relatable rTarget) {
-		return getWrappedRelation().viewAs(getType(), rTarget,
-			getConversion());
+	Relation<T> copyTo(Relatable target) {
+		return getWrappedRelation().viewAs(getType(), target, getConversion());
 	}
 }

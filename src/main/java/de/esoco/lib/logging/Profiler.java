@@ -18,35 +18,39 @@ package de.esoco.lib.logging;
 
 import de.esoco.lib.expression.monad.Option;
 import de.esoco.lib.text.TextUtil;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypes;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypes;
-
 import static org.obrel.core.RelationTypes.newOptionType;
 
 /**
- * A class that collects performance measurements that are added through {@link
- * #measure(String, long)}.
+ * A class that collects performance measurements that are added through
+ * {@link #measure(String, long)}.
  *
  * @author eso
  */
 public class Profiler {
-	/** A relation that stores an optional profiler reference. */
-	public static final RelationType<Option<Profiler>> PROFILER = newOptionType();
+	/**
+	 * A relation that stores an optional profiler reference.
+	 */
+	public static final RelationType<Option<Profiler>> PROFILER =
+		newOptionType();
 
 	static {
 		RelationTypes.init(Profiler.class);
 	}
 
-	String sDescription;
+	private final long creationTime = System.currentTimeMillis();
 
-	private final long nCreationTime = System.currentTimeMillis();
-	private long nStartTime = System.currentTimeMillis();
+	private final Map<String, Measurement> measurements =
+		new LinkedHashMap<>();
 
-	private final Map<String, Measurement> aMeasurements = new LinkedHashMap<>();
+	String description;
+
+	private long startTime = System.currentTimeMillis();
 
 	/**
 	 * Creates a new instance.
@@ -58,13 +62,14 @@ public class Profiler {
 	/**
 	 * Creates a new instance with a default description.
 	 *
-	 * @param sDescription The default description of this instance
+	 * @param description The default description of this instance
 	 */
-	public Profiler(String sDescription) {
-		this.sDescription = sDescription;
+	public Profiler(String description) {
+		this.description = description;
 	}
 
-	// ~ Methods ----------------------------------------------------------------
+	// ~ Methods
+	// ----------------------------------------------------------------
 
 	/**
 	 * Returns the time in milliseconds when this instance has been created.
@@ -72,18 +77,17 @@ public class Profiler {
 	 * @return The creation time in milliseconds
 	 */
 	public final long getCreationTime() {
-		return nCreationTime;
+		return creationTime;
 	}
 
 	/**
 	 * Returns a certain result.
 	 *
-	 * @param sDescription The description of the result
-	 *
+	 * @param description The description of the result
 	 * @return The result measurement or NULL for none
 	 */
-	public Measurement getResult(String sDescription) {
-		return aMeasurements.get(sDescription);
+	public Measurement getResult(String description) {
+		return measurements.get(description);
 	}
 
 	/**
@@ -92,104 +96,99 @@ public class Profiler {
 	 * @return The results
 	 */
 	public Map<String, Measurement> getResults() {
-		return aMeasurements;
+		return measurements;
 	}
 
 	/**
 	 * Measures the time that a certain execution has taken from the last
 	 * measurement until now.
 	 *
-	 * @param sDescription The description of the measured execution
-	 *
+	 * @param description The description of the measured execution
 	 * @return The current time in milliseconds (for concatenation of
-	 *         measurements)
+	 * measurements)
 	 */
-	public long measure(String sDescription) {
-		return measure(sDescription, nStartTime);
+	public long measure(String description) {
+		return measure(description, startTime);
 	}
 
 	/**
 	 * Measures the time from a certain starting time until now.
 	 *
-	 * @param sDescription The description of the measured execution
-	 * @param nFromTime    The starting time of the measurement in milliseconds
-	 *
+	 * @param description The description of the measured execution
+	 * @param fromTime    The starting time of the measurement in milliseconds
 	 * @return The current time in milliseconds (for concatenation of
-	 *         measurements)
+	 * measurements)
 	 */
-	public long measure(String sDescription, long nFromTime) {
-		Measurement aMeasurement = aMeasurements.get(sDescription);
-		long nNow = System.currentTimeMillis();
-		long nDuration = nNow - nFromTime;
+	public long measure(String description, long fromTime) {
+		Measurement measurement = measurements.get(description);
+		long now = System.currentTimeMillis();
+		long duration = now - fromTime;
 
-		if (aMeasurement == null) {
-			aMeasurements.put(sDescription, new Measurement(nDuration));
+		if (measurement == null) {
+			measurements.put(description, new Measurement(duration));
 		} else {
-			aMeasurement.add(nDuration);
+			measurement.add(duration);
 		}
 
-		nStartTime = nNow;
+		startTime = now;
 
-		return nNow;
+		return now;
 	}
 
 	/**
 	 * Prints all measurements to {@link System#out}.
 	 *
-	 * @param sIndent The indentation to print with
+	 * @param indent The indentation to print with
 	 */
-	public void printResults(String sIndent) {
-		for (String sDescription : aMeasurements.keySet()) {
-			System.out.printf(
-					"%sTotal time for %s: %s\n",
-					sIndent,
-					sDescription,
-					aMeasurements.get(sDescription));
+	public void printResults(String indent) {
+		for (String description : measurements.keySet()) {
+			System.out.printf("%sTotal time for %s: %s\n", indent, description,
+				measurements.get(description));
 		}
 	}
 
 	/**
-	 * Prints the description of this instance, the total time since creation in
+	 * Prints the description of this instance, the total time since
+	 * creation in
 	 * seconds, and all measurements to {@link System#out}.
 	 */
 	@SuppressWarnings("boxing")
 	public void printSummary() {
-		printSummary(sDescription + ":", "", 1);
+		printSummary(description + ":", "", 1);
 	}
 
 	/**
-	 * Prints the given title, the total time since creation in seconds, and all
+	 * Prints the given title, the total time since creation in seconds, and
+	 * all
 	 * measurements to {@link System#out}. If the number of elements processed
-	 * is larger than 1 the time the processing of a single element took will be
+	 * is larger than 1 the time the processing of a single element took
+	 * will be
 	 * displayed too.
 	 *
-	 * @param sTitle       The title string
-	 * @param sElementName The name of an element if nCount &gt; 1
-	 * @param nCount       The number of elements processed (must be &gt;= 1)
+	 * @param title       The title string
+	 * @param elementName The name of an element if count &gt; 1
+	 * @param count       The number of elements processed (must be &gt;= 1)
 	 */
 	@SuppressWarnings("boxing")
-	public void printSummary(String sTitle, String sElementName, long nCount) {
-		long nTime = System.currentTimeMillis() - nCreationTime;
+	public void printSummary(String title, String elementName, long count) {
+		long time = System.currentTimeMillis() - creationTime;
 
-		String sHeader = String.format(
-				"====== %s %s ======",
-				sTitle,
-				TextUtil.formatDuration(nTime));
+		String header = String.format("====== %s %s ======", title,
+			TextUtil.formatDuration(time));
 
-		System.out.println(sHeader);
+		System.out.println(header);
 
-		if (nCount > 1) {
-			String sElementTime = String.format(
-					" Time per %s: %s ",
-					sElementName,
-					TextUtil.formatDuration(nTime / nCount));
+		if (count > 1) {
+			String elementTime = String.format(" Time per %s: %s ",
+				elementName,
+				TextUtil.formatDuration(time / count));
 
 			System.out.println(
-					TextUtil.padCenter(sElementTime, sHeader.length(), '-'));
+				TextUtil.padCenter(elementTime, header.length(), '-'));
 		}
 
 		printResults("");
-		System.out.printf("%s\n", sHeader.replaceAll(".", "="));
+		System.out.printf("%s\n", header.replaceAll(".", "="));
 	}
 
 	/**
@@ -198,26 +197,25 @@ public class Profiler {
 	 * @author eso
 	 */
 	public static class Measurement {
-		private long nTotalTime;
-		private int nCount;
+		private long totalTime;
+
+		private int count;
 
 		/**
 		 * Creates a new instance.
-		 *
-		 * @param nTime
 		 */
-		private Measurement(long nTime) {
-			nTotalTime = nTime;
+		private Measurement(long time) {
+			totalTime = time;
 		}
 
 		/**
-		 * Returns the average measured time in milliseconds (i.e. {@link
-		 * #getTotalTime()} / {@link #getCount()}).
+		 * Returns the average measured time in milliseconds (i.e.
+		 * {@link #getTotalTime()} / {@link #getCount()}).
 		 *
 		 * @return The average time
 		 */
 		public long getAverageTime() {
-			return nCount > 0 ? nTotalTime / nCount : nTotalTime;
+			return count > 0 ? totalTime / count : totalTime;
 		}
 
 		/**
@@ -226,7 +224,7 @@ public class Profiler {
 		 * @return The number of measurements
 		 */
 		public final int getCount() {
-			return nCount;
+			return count;
 		}
 
 		/**
@@ -235,7 +233,7 @@ public class Profiler {
 		 * @return The total time
 		 */
 		public long getTotalTime() {
-			return nTotalTime;
+			return totalTime;
 		}
 
 		/**
@@ -245,17 +243,17 @@ public class Profiler {
 		 */
 		@Override
 		public String toString() {
-			return TextUtil.formatDuration(nTotalTime) + "s";
+			return TextUtil.formatDuration(totalTime) + "s";
 		}
 
 		/**
 		 * Adds time in milliseconds to this record.
 		 *
-		 * @param nTime The time to add
+		 * @param time The time to add
 		 */
-		private void add(long nTime) {
-			nTotalTime += nTime;
-			nCount++;
+		private void add(long time) {
+			totalTime += time;
+			count++;
 		}
 	}
 }

@@ -66,21 +66,21 @@ public class IntermediateRelation<T, I> extends DirectRelation<T> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rType               The type of this relation
-	 * @param fTargetConversion   The conversion to apply to the intermediate
-	 *                            target value
-	 * @param rIntermediateTarget The intermediate target value (must not be
-	 *                            NULL)
+	 * @param type               The type of this relation
+	 * @param targetConversion   The conversion to apply to the intermediate
+	 *                           target value
+	 * @param intermediateTarget The intermediate target value (must not be
+	 *                           NULL)
 	 */
-	public IntermediateRelation(RelationType<T> rType,
-		Function<I, T> fTargetConversion, I rIntermediateTarget) {
-		super(rType, null);
+	public IntermediateRelation(RelationType<T> type,
+		Function<I, T> targetConversion, I intermediateTarget) {
+		super(type, null);
 
-		assert fTargetConversion != null;
-		assert rIntermediateTarget != null;
+		assert targetConversion != null;
+		assert intermediateTarget != null;
 
-		set(TARGET_CONVERSION, fTargetConversion);
-		set(INTERMEDIATE_TARGET, rIntermediateTarget);
+		set(TARGET_CONVERSION, targetConversion);
+		set(INTERMEDIATE_TARGET, intermediateTarget);
 	}
 
 	/**
@@ -101,26 +101,26 @@ public class IntermediateRelation<T, I> extends DirectRelation<T> {
 	 */
 	@Override
 	public T getTarget() {
-		T rTarget = super.getTarget();
-		Function<I, T> fConversion = (Function<I, T>) get(TARGET_CONVERSION);
+		T target = super.getTarget();
+		Function<I, T> conversion = (Function<I, T>) get(TARGET_CONVERSION);
 
-		if (fConversion != null && rTarget == null) {
-			rTarget = fConversion.evaluate((I) get(INTERMEDIATE_TARGET));
-			setTarget(rTarget);
+		if (conversion != null && target == null) {
+			target = conversion.evaluate((I) get(INTERMEDIATE_TARGET));
+			setTarget(target);
 		}
 
-		return rTarget;
+		return target;
 	}
 
 	/**
 	 * @see Relation#dataEqual(Relation)
 	 */
 	@Override
-	boolean dataEqual(Relation<?> rOther) {
+	boolean dataEqual(Relation<?> other) {
 		// the intermediate target must be resolved to prevent inconsistencies
 		getTarget();
 
-		return super.dataEqual(rOther);
+		return super.dataEqual(other);
 	}
 
 	/**
@@ -140,11 +140,11 @@ public class IntermediateRelation<T, I> extends DirectRelation<T> {
 	 * @see DirectRelation#setTarget(Object)
 	 */
 	@Override
-	void setTarget(T rNewTarget) {
+	void setTarget(T newTarget) {
 		deleteRelation(TARGET_CONVERSION);
 		deleteRelation(INTERMEDIATE_TARGET);
 
-		super.setTarget(rNewTarget);
+		super.setTarget(newTarget);
 	}
 
 	/**
@@ -152,10 +152,10 @@ public class IntermediateRelation<T, I> extends DirectRelation<T> {
 	 * writing this instance to the stream if either the conversion function or
 	 * the intermediate target are not serializable.
 	 *
-	 * @param rOut The output stream
+	 * @param out The output stream
 	 * @throws IOException If the serialization fails
 	 */
-	private void writeObject(ObjectOutputStream rOut) throws IOException {
+	private void writeObject(ObjectOutputStream out) throws IOException {
 		if (!(get(TARGET_CONVERSION) instanceof Serializable &&
 			get(INTERMEDIATE_TARGET) instanceof Serializable)) {
 			// if the intermediate data is not serializable convert it to
@@ -163,6 +163,6 @@ public class IntermediateRelation<T, I> extends DirectRelation<T> {
 			getTarget();
 		}
 
-		rOut.defaultWriteObject();
+		out.defaultWriteObject();
 	}
 }

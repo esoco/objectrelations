@@ -33,8 +33,8 @@ public interface BinaryPredicate<L, R>
 	 * @see Function#evaluate(Object)
 	 */
 	@Override
-	default Boolean evaluate(L rLeftValue) {
-		return evaluate(rLeftValue, getRightValue());
+	default Boolean evaluate(L leftValue) {
+		return evaluate(leftValue, getRightValue());
 	}
 
 	/**
@@ -44,15 +44,15 @@ public interface BinaryPredicate<L, R>
 	 * still
 	 * be used as a predicate.
 	 *
-	 * @param rLeft  A function that produces the left value of this predicate
-	 * @param rRight A function that produces the right value of this
-	 *               predicate
+	 * @param left  A function that produces the left value of this predicate
+	 * @param right A function that produces the right value of this
+	 *              predicate
 	 * @return A new predicate that first applies the argument functions to
 	 * input values and then evaluates the result with this predicate
 	 */
 	@Override
-	default <A, B> BinaryPredicate<A, B> from(Function<A, ? extends L> rLeft,
-		Function<B, ? extends R> rRight) {
-		return Predicates.chain(this, rLeft, rRight);
+	default <A, B> BinaryPredicate<A, B> from(Function<A, ? extends L> left,
+		Function<B, ? extends R> right) {
+		return Predicates.chain(this, left, right);
 	}
 }

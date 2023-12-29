@@ -28,7 +28,7 @@ public interface SelectionListener<T> {
 	 * This method will be invoked when the selection of the watched object
 	 * changes.
 	 *
-	 * @param rNewSelection The new selection or NULL for no selection
+	 * @param newSelection The new selection or NULL for no selection
 	 */
-	void selectionChanged(T rNewSelection);
+	void selectionChanged(T newSelection);
 }

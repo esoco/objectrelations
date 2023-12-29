@@ -16,11 +16,12 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.datatype;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * Test of the object ID class.
@@ -34,17 +35,17 @@ public class ObjectIdTest {
 	 */
 	@Test
 	public void testEquals() {
-		ObjectId<Object> aStringId = ObjectId.stringId("42");
-		ObjectId<Object> aIntegerId = ObjectId.intId(42);
+		ObjectId<Object> stringId = ObjectId.stringId("42");
+		ObjectId<Object> integerId = ObjectId.intId(42);
 
-		assertFalse(aStringId.equals(aIntegerId));
-		assertFalse(aIntegerId.equals(aStringId));
+		assertNotEquals(stringId, integerId);
+		assertNotEquals(integerId, stringId);
 
-		aStringId = ObjectId.stringId("TestId");
-		aIntegerId = ObjectId.intId(42);
+		stringId = ObjectId.stringId("TestId");
+		integerId = ObjectId.intId(42);
 
-		assertFalse(aStringId.equals(aIntegerId));
-		assertFalse(aIntegerId.equals(aStringId));
+		assertNotEquals(stringId, integerId);
+		assertNotEquals(integerId, stringId);
 	}
 
 	/**
@@ -52,11 +53,11 @@ public class ObjectIdTest {
 	 */
 	@Test
 	public void testGetIdInt() {
-		int nId = 42;
-		ObjectId<Object> aId = ObjectId.intId(nId);
+		int id = 42;
+		ObjectId<Object> objId = ObjectId.intId(id);
 
-		assertTrue(aId.internalValue() instanceof Integer);
-		assertTrue(nId == ((Integer) aId.internalValue()).intValue());
+		assertInstanceOf(Integer.class, objId.internalValue());
+		assertEquals(id, ((Integer) objId.internalValue()).intValue());
 	}
 
 	/**
@@ -64,10 +65,10 @@ public class ObjectIdTest {
 	 */
 	@Test
 	public void testGetIdString() {
-		String sId = "TestId";
-		ObjectId<Object> aId = ObjectId.stringId(sId);
+		String id = "TestId";
+		ObjectId<Object> objId = ObjectId.stringId(id);
 
-		assertTrue(sId == aId.internalValue());
+		assertSame(id, objId.internalValue());
 	}
 
 	/**
@@ -75,10 +76,10 @@ public class ObjectIdTest {
 	 */
 	@Test
 	public void testHashCode() {
-		ObjectId<Object> aStringId = ObjectId.stringId("42");
-		ObjectId<Object> aIntegerId = ObjectId.intId(42);
+		ObjectId<Object> stringId = ObjectId.stringId("42");
+		ObjectId<Object> integerId = ObjectId.intId(42);
 
-		assertTrue(aStringId.hashCode() == aIntegerId.hashCode());
+		assertEquals(stringId.hashCode(), integerId.hashCode());
 	}
 
 	/**
@@ -86,12 +87,12 @@ public class ObjectIdTest {
 	 */
 	@Test
 	public void testToString() {
-		ObjectId<Object> aStringId = ObjectId.stringId("42");
-		ObjectId<Object> aIntegerId = ObjectId.intId(42);
-		ObjectId<Object> aLongId = ObjectId.longId(42);
+		ObjectId<Object> stringId = ObjectId.stringId("42");
+		ObjectId<Object> integerId = ObjectId.intId(42);
+		ObjectId<Object> longId = ObjectId.longId(42);
 
-		assertEquals("42", aStringId.toString());
-		assertEquals("42", aIntegerId.toString());
-		assertEquals("42", aLongId.toString());
+		assertEquals("42", stringId.toString());
+		assertEquals("42", integerId.toString());
+		assertEquals("42", longId.toString());
 	}
 }

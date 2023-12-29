@@ -48,7 +48,8 @@ import java.util.regex.Pattern;
  * Instances cannot be created directly but must be created through one of the
  * factory methods in the class {@link RelationTypes}.
  *
- * <p>The names of all relation types must be unique. If an application tries to
+ * <p>The names of all relation types must be unique. If an application tries
+ * to
  * create a new type instance with a name that already exists an exception will
  * be thrown. To avoid name conflicts or to reuse the names of existing types in
  * a different context applications should prepend type names with a namespace.
@@ -94,23 +95,23 @@ public class RelationType<T> extends RelatedObject
 
 	private static final long serialVersionUID = 1L;
 
-	private static final Map<String, RelationType<?>> aTypeRegistry =
+	private static final Map<String, RelationType<?>> typeRegistry =
 		new HashMap<String, RelationType<?>>();
 
-	private final transient Set<RelationTypeModifier> aModifiers;
+	private final transient Set<RelationTypeModifier> modifiers;
 
 	/**
 	 *
 	 */
-	private String sName = INIT_TYPE;
+	private String name = INIT_TYPE;
 
-	private transient Class<? super T> rTargetType;
+	private transient Class<? super T> targetType;
 
 	// ? super T necessary to support nested generic types
-	private transient Function<? super Relatable, ? super T> fDefaultValue =
+	private transient Function<? super Relatable, ? super T> defaultValue =
 		null;
 
-	private transient Function<? super Relatable, ? super T> fInitialValue =
+	private transient Function<? super Relatable, ? super T> initialValue =
 		null;
 
 	/**
@@ -118,19 +119,19 @@ public class RelationType<T> extends RelatedObject
 	 *
 	 * @see #RelationType(String, Class, Function, RelationTypeModifier...)
 	 */
-	public RelationType(String sName, Class<? super T> rTargetType,
-		RelationTypeModifier... rModifiers) {
-		this(sName, rTargetType, null, rModifiers);
+	public RelationType(String name, Class<? super T> targetType,
+		RelationTypeModifier... modifiers) {
+		this(name, targetType, null, modifiers);
 	}
 
 	/**
 	 * @see #RelationType(String, Class, Function, Function,
 	 * RelationTypeModifier...)
 	 */
-	public RelationType(String sName, Class<? super T> rTargetType,
-		Function<? super Relatable, ? super T> fInitialValue,
-		RelationTypeModifier... rModifiers) {
-		this(sName, rTargetType, null, fInitialValue, rModifiers);
+	public RelationType(String name, Class<? super T> targetType,
+		Function<? super Relatable, ? super T> initialValue,
+		RelationTypeModifier... modifiers) {
+		this(name, targetType, null, initialValue, modifiers);
 	}
 
 	/**
@@ -149,32 +150,31 @@ public class RelationType<T> extends RelatedObject
 	 * the
 	 * most specific type possible.</p>
 	 *
-	 * @param sName         The name of the type instance or NULL for
-	 *                      automatic
-	 *                      name initialization by {@link
-	 *                      RelationTypes#init(Class...)}
-	 * @param rTargetType   The class of the target value datatype
-	 * @param fDefaultValue The default value
-	 * @param fInitialValue A function that returns the initial value for
-	 *                      relations of this type
-	 * @param rModifiers    The modifiers to be set on this instance
+	 * @param name         The name of the type instance or NULL for automatic
+	 *                     name initialization by
+	 *                     {@link RelationTypes#init(Class...)}
+	 * @param targetType   The class of the target value datatype
+	 * @param defaultValue The default value
+	 * @param initialValue A function that returns the initial value for
+	 *                     relations of this type
+	 * @param modifiers    The modifiers to be set on this instance
 	 * @throws IllegalArgumentException If the type name is invalid or if a
-	 *                                  type
+	 * type
 	 *                                  with the given name exists already
 	 */
-	public RelationType(String sName, Class<? super T> rTargetType,
-		Function<? super Relatable, ? super T> fDefaultValue,
-		Function<? super Relatable, ? super T> fInitialValue,
-		RelationTypeModifier... rModifiers) {
-		init(sName != null ? sName : INIT_TYPE, rTargetType, null);
+	public RelationType(String name, Class<? super T> targetType,
+		Function<? super Relatable, ? super T> defaultValue,
+		Function<? super Relatable, ? super T> initialValue,
+		RelationTypeModifier... modifiers) {
+		init(name != null ? name : INIT_TYPE, targetType, null);
 
-		this.fDefaultValue = fDefaultValue;
-		this.fInitialValue = fInitialValue;
+		this.defaultValue = defaultValue;
+		this.initialValue = initialValue;
 
-		if (rModifiers.length > 0) {
-			aModifiers = EnumSet.copyOf(Arrays.asList(rModifiers));
+		if (modifiers.length > 0) {
+			this.modifiers = EnumSet.copyOf(Arrays.asList(modifiers));
 		} else {
-			aModifiers = EnumSet.noneOf(RelationTypeModifier.class);
+			this.modifiers = EnumSet.noneOf(RelationTypeModifier.class);
 		}
 	}
 
@@ -193,16 +193,16 @@ public class RelationType<T> extends RelatedObject
 	 * the
 	 * most specific type possible.</p>
 	 *
-	 * @param rModifiers The modifiers to be set on this instance
+	 * @param modifiers The modifiers to be set on this instance
 	 * @throws IllegalArgumentException If the type name is invalid or if a
-	 *                                  type
+	 * type
 	 *                                  with the given name exists already
 	 */
-	protected RelationType(RelationTypeModifier... rModifiers) {
-		if (rModifiers.length > 0) {
-			aModifiers = EnumSet.copyOf(Arrays.asList(rModifiers));
+	protected RelationType(RelationTypeModifier... modifiers) {
+		if (modifiers.length > 0) {
+			this.modifiers = EnumSet.copyOf(Arrays.asList(modifiers));
 		} else {
-			aModifiers = EnumSet.noneOf(RelationTypeModifier.class);
+			this.modifiers = EnumSet.noneOf(RelationTypeModifier.class);
 		}
 	}
 
@@ -221,21 +221,21 @@ public class RelationType<T> extends RelatedObject
 	 * the
 	 * most specific type possible.</p>
 	 *
-	 * @param fDefaultValue The default value
-	 * @param fInitialValue A function that returns the initial value for
-	 *                      relations of this type
-	 * @param rModifiers    The modifiers to be set on this instance
+	 * @param defaultValue The default value
+	 * @param initialValue A function that returns the initial value for
+	 *                     relations of this type
+	 * @param modifiers    The modifiers to be set on this instance
 	 * @throws IllegalArgumentException If the type name is invalid or if a
-	 *                                  type
+	 * type
 	 *                                  with the given name exists already
 	 */
-	protected RelationType(Function<? super Relatable, ? super T> fDefaultValue,
-		Function<? super Relatable, ? super T> fInitialValue,
-		RelationTypeModifier... rModifiers) {
-		this(rModifiers);
+	protected RelationType(Function<? super Relatable, ? super T> defaultValue,
+		Function<? super Relatable, ? super T> initialValue,
+		RelationTypeModifier... modifiers) {
+		this(modifiers);
 
-		this.fDefaultValue = fDefaultValue;
-		this.fInitialValue = fInitialValue;
+		this.defaultValue = defaultValue;
+		this.initialValue = initialValue;
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class RelationType<T> extends RelatedObject
 	 * {@link ObjectRelations#shutdown()}.
 	 */
 	static void clearTypeRegistry() {
-		aTypeRegistry.clear();
+		typeRegistry.clear();
 	}
 
 	/**
@@ -252,20 +252,20 @@ public class RelationType<T> extends RelatedObject
 	 * @return The collection of registered relation types
 	 */
 	public static Collection<RelationType<?>> getRegisteredRelationTypes() {
-		return Collections.unmodifiableCollection(aTypeRegistry.values());
+		return Collections.unmodifiableCollection(typeRegistry.values());
 	}
 
 	/**
 	 * Returns a collection of all registered relation types that fulfill
 	 * certain criteria.
 	 *
-	 * @param pCriteria A predicate defining the search criteria
+	 * @param criteria A predicate defining the search criteria
 	 * @return A new collection of relation types matching the criteria (empty
 	 * for none)
 	 */
 	public static Collection<RelationType<?>> getRelationTypes(
-		Predicate<? super RelationType<?>> pCriteria) {
-		return CollectionUtil.collect(aTypeRegistry.values(), pCriteria);
+		Predicate<? super RelationType<?>> criteria) {
+		return CollectionUtil.collect(typeRegistry.values(), criteria);
 	}
 
 	/**
@@ -275,33 +275,33 @@ public class RelationType<T> extends RelatedObject
 	 * needed by an application. Caution: using a unregistered relation type
 	 * afterwards will have undefined results.
 	 *
-	 * @param rType The relation type to unregister
+	 * @param type The relation type to unregister
 	 */
-	public static void unregisterRelationType(RelationType<?> rType) {
-		aTypeRegistry.remove(rType.getName());
+	public static void unregisterRelationType(RelationType<?> type) {
+		typeRegistry.remove(type.getName());
 	}
 
 	/**
 	 * Returns the relation type instance with a certain name.
 	 *
-	 * @param sName The name of the instance to return
+	 * @param name The name of the instance to return
 	 * @return The instance with the given name or NULL if no such instance
 	 * exists
 	 */
-	public static RelationType<?> valueOf(String sName) {
-		RelationType<?> rRelationType = aTypeRegistry.get(sName);
+	public static RelationType<?> valueOf(String name) {
+		RelationType<?> relationType = typeRegistry.get(name);
 
-		if (rRelationType == null) {
+		if (relationType == null) {
 			try {
 				// try to load enclosing class
-				Class.forName(sName.substring(0, sName.lastIndexOf('.')));
-				rRelationType = aTypeRegistry.get(sName);
+				Class.forName(name.substring(0, name.lastIndexOf('.')));
+				relationType = typeRegistry.get(name);
 			} catch (Exception e) {
 				// just return NULL if unsuccessful
 			}
 		}
 
-		return rRelationType;
+		return relationType;
 	}
 
 	/**
@@ -312,10 +312,10 @@ public class RelationType<T> extends RelatedObject
 	 * remove a listener that relation can be modified directly because type
 	 * safety is not needed then.
 	 *
-	 * @param rListener The relation event listener to add
+	 * @param listener The relation event listener to add
 	 */
-	public void addTypeListener(EventHandler<RelationEvent<T>> rListener) {
-		get(ListenerTypes.RELATION_TYPE_LISTENERS).add(rListener);
+	public void addTypeListener(EventHandler<RelationEvent<T>> listener) {
+		get(ListenerTypes.RELATION_TYPE_LISTENERS).add(listener);
 	}
 
 	/**
@@ -325,9 +325,9 @@ public class RelationType<T> extends RelatedObject
 	 */
 	@SafeVarargs
 	public final RelationType<T> annotate(
-		RelationType<Boolean>... rAdditionalFlags) {
-		for (RelationType<Boolean> rFlag : rAdditionalFlags) {
-			annotate(rFlag, Boolean.TRUE);
+		RelationType<Boolean>... additionalFlags) {
+		for (RelationType<Boolean> flag : additionalFlags) {
+			annotate(flag, Boolean.TRUE);
 		}
 
 		return this;
@@ -342,14 +342,14 @@ public class RelationType<T> extends RelatedObject
 	 * the created (meta-) relation to allow the concatenation of annotation
 	 * calls.
 	 *
-	 * @param rAnnotationType The relation type of the annotation
-	 * @param rValue          The annotation value
+	 * @param annotationType The relation type of the annotation
+	 * @param value          The annotation value
 	 * @return Returns this instance to allow concatenation of annotation
 	 * setting
 	 */
-	public final <V> RelationType<T> annotate(RelationType<V> rAnnotationType,
-		V rValue) {
-		set(rAnnotationType, rValue);
+	public final <V> RelationType<T> annotate(RelationType<V> annotationType,
+		V value) {
+		set(annotationType, value);
 
 		return this;
 	}
@@ -371,12 +371,12 @@ public class RelationType<T> extends RelatedObject
 	 * separate
 	 * instances for default values if the value class is not immutable.</p>
 	 *
-	 * @param rParent The parent object to return the default value for
+	 * @param parent The parent object to return the default value for
 	 * @return The default value for non-existing relations of this type
 	 */
 	@SuppressWarnings("unchecked")
-	public T defaultValue(Relatable rParent) {
-		return fDefaultValue != null ? (T) fDefaultValue.apply(rParent) : null;
+	public T defaultValue(Relatable parent) {
+		return defaultValue != null ? (T) defaultValue.apply(parent) : null;
 	}
 
 	/**
@@ -386,16 +386,16 @@ public class RelationType<T> extends RelatedObject
 	 * @see Function#evaluate(Object)
 	 */
 	@Override
-	public T evaluate(Relatable rObject) {
-		return rObject != null ? rObject.get(this) : null;
+	public T evaluate(Relatable object) {
+		return object != null ? object.get(this) : null;
 	}
 
 	/**
 	 * @see Function#from(Function)
 	 */
 	@Override
-	public <I> Function<I, T> from(Function<I, ? extends Relatable> rOther) {
-		return Functions.chain(this, rOther);
+	public <I> Function<I, T> from(Function<I, ? extends Relatable> other) {
+		return Functions.chain(this, other);
 	}
 
 	/**
@@ -405,7 +405,7 @@ public class RelationType<T> extends RelatedObject
 	 * @return The initial value function or NULL for none
 	 */
 	public final Function<? super Relatable, ? super T> getDefaultValueFunction() {
-		return fDefaultValue;
+		return defaultValue;
 	}
 
 	/**
@@ -426,7 +426,7 @@ public class RelationType<T> extends RelatedObject
 	 * @return The initial value function or NULL for none
 	 */
 	public final Function<? super Relatable, ? super T> getInitialValueFunction() {
-		return fInitialValue;
+		return initialValue;
 	}
 
 	/**
@@ -435,7 +435,7 @@ public class RelationType<T> extends RelatedObject
 	 * @return The type name
 	 */
 	public final String getName() {
-		return sName;
+		return name;
 	}
 
 	/**
@@ -445,10 +445,10 @@ public class RelationType<T> extends RelatedObject
 	 * @return The namespace of this type
 	 */
 	public final String getNamespace() {
-		int nPos = sName.lastIndexOf('.');
+		int pos = name.lastIndexOf('.');
 
-		if (nPos > 0) {
-			return sName.substring(0, nPos);
+		if (pos > 0) {
+			return name.substring(0, pos);
 		} else {
 			return DEFAULT_NAMESPACE;
 		}
@@ -461,7 +461,7 @@ public class RelationType<T> extends RelatedObject
 	 * @return The namespace of this type
 	 */
 	public final String getSimpleName() {
-		return sName.substring(sName.lastIndexOf('.') + 1);
+		return name.substring(name.lastIndexOf('.') + 1);
 	}
 
 	/**
@@ -470,7 +470,7 @@ public class RelationType<T> extends RelatedObject
 	 * @return The datatype of target objects
 	 */
 	public final Class<? super T> getTargetType() {
-		return rTargetType;
+		return targetType;
 	}
 
 	/**
@@ -486,11 +486,11 @@ public class RelationType<T> extends RelatedObject
 	/**
 	 * Checks if this type has a specific modifier set.
 	 *
-	 * @param rModifier The modifier to check for
+	 * @param modifier The modifier to check for
 	 * @return TRUE if the argument modifier is set in this type
 	 */
-	public final boolean hasModifier(RelationTypeModifier rModifier) {
-		return aModifiers.contains(rModifier);
+	public final boolean hasModifier(RelationTypeModifier modifier) {
+		return modifiers.contains(modifier);
 	}
 
 	/**
@@ -506,13 +506,13 @@ public class RelationType<T> extends RelatedObject
 	 * separate
 	 * instances for initial values if the value class is not immutable.</p>
 	 *
-	 * @param rParent The parent object of the relation to be initialized
+	 * @param parent The parent object of the relation to be initialized
 	 * @return The initial value for new relations of this type or NULL to
 	 * suppress the creation of new relations on querying
 	 */
 	@SuppressWarnings("unchecked")
-	public T initialValue(Relatable rParent) {
-		return fInitialValue != null ? (T) fInitialValue.apply(rParent) : null;
+	public T initialValue(Relatable parent) {
+		return initialValue != null ? (T) initialValue.apply(parent) : null;
 	}
 
 	/**
@@ -523,8 +523,8 @@ public class RelationType<T> extends RelatedObject
 	 */
 	@Override
 	public <O extends Relatable> Predicate<O> is(
-		Predicate<? super T> pComparison) {
-		return Predicates.ifRelation(this, pComparison);
+		Predicate<? super T> comparison) {
+		return Predicates.ifRelation(this, comparison);
 	}
 
 	/**
@@ -545,13 +545,12 @@ public class RelationType<T> extends RelatedObject
 	 * @return TRUE if the type is fully initialized
 	 */
 	public final boolean isInitialized() {
-		return sName != INIT_TYPE;
+		return name != INIT_TYPE;
 	}
 
 	/**
-	 * Checks the {@link RelationTypeModifier#PRIVATE} modifier of this type
-	 * . If
-	 * this modifier is set relations of this type will not be listed when
+	 * Checks the {@link RelationTypeModifier#PRIVATE} modifier of this type .
+	 * If this modifier is set relations of this type will not be listed when
 	 * relations are queried through the methods in the {@link Relatable}
 	 * interface with predicate arguments.
 	 *
@@ -590,20 +589,19 @@ public class RelationType<T> extends RelatedObject
 	/**
 	 * Check whether a certain object is a valid target for this relation type.
 	 *
-	 * @param rTarget The object to check
+	 * @param target The object to check
 	 * @return TRUE if the given object is a valid target
 	 */
-	public boolean isValidTarget(Object rTarget) {
-		return rTarget == null ||
-			rTargetType.isAssignableFrom(rTarget.getClass());
+	public boolean isValidTarget(Object target) {
+		return target == null || targetType.isAssignableFrom(target.getClass());
 	}
 
 	/**
 	 * @see Function#then(Function)
 	 */
 	@Override
-	public <O> Function<Relatable, O> then(Function<? super T, O> fFollowUp) {
-		return Functions.chain(fFollowUp, this);
+	public <O> Function<Relatable, O> then(Function<? super T, O> followUp) {
+		return Functions.chain(followUp, this);
 	}
 
 	/**
@@ -613,7 +611,7 @@ public class RelationType<T> extends RelatedObject
 	 */
 	@Override
 	public final String toString() {
-		return sName;
+		return name;
 	}
 
 	/**
@@ -627,13 +625,12 @@ public class RelationType<T> extends RelatedObject
 	 * <p>Subclasses should always invoke the superclass method. The default
 	 * implementation currently just returns the input relation.</p>
 	 *
-	 * @param rParent   The parent object of the new relation
-	 * @param rRelation The relation to be added to the parent
+	 * @param parent   The parent object of the new relation
+	 * @param relation The relation to be added to the parent
 	 * @return The relation to add
 	 */
-	protected Relation<T> addRelation(Relatable rParent,
-		Relation<T> rRelation) {
-		return rRelation;
+	protected Relation<T> addRelation(Relatable parent, Relation<T> relation) {
+		return relation;
 	}
 
 	/**
@@ -643,15 +640,14 @@ public class RelationType<T> extends RelatedObject
 	 * subclass may throw an exception.
 	 *
 	 * <p>Subclasses should normally always invoke the superclass method
-	 * because
-	 * it will notify the relation event listeners of this type.</p>
+	 * because it will notify the relation event listeners of this type.</p>
 	 *
-	 * @param rParent   The parent object of the relation
-	 * @param rRelation The relation to be deleted
+	 * @param parent   The parent object of the relation
+	 * @param relation The relation to be deleted
 	 * @throws UnsupportedOperationException If this relation type is final
 	 */
-	protected void deleteRelation(Relatable rParent, Relation<?> rRelation) {
-		assert rRelation.getType() == this;
+	protected void deleteRelation(Relatable parent, Relation<?> relation) {
+		assert relation.getType() == this;
 	}
 
 	/**
@@ -660,30 +656,30 @@ public class RelationType<T> extends RelatedObject
 	 * is queried for the first time. The default implementation returns a new
 	 * instance of {@link IntermediateRelation}.
 	 *
-	 * @param rParent             The parent object of the new relation
-	 * @param fTargetResolver     The function that must be applied to the
-	 *                            intermediate target value to resolve the
-	 *                            final target value
-	 * @param rIntermediateTarget The intermediate target value (must not be
-	 *                            NULL)
+	 * @param parent             The parent object of the new relation
+	 * @param targetResolver     The function that must be applied to the
+	 *                           intermediate target value to resolve the final
+	 *                           target value
+	 * @param intermediateTarget The intermediate target value (must not be
+	 *                           NULL)
 	 * @return The new relation
 	 */
-	protected <I> Relation<T> newIntermediateRelation(RelatedObject rParent,
-		Function<I, T> fTargetResolver, I rIntermediateTarget) {
-		return new IntermediateRelation<T, I>(this, fTargetResolver,
-			rIntermediateTarget);
+	protected <I> Relation<T> newIntermediateRelation(RelatedObject parent,
+		Function<I, T> targetResolver, I intermediateTarget) {
+		return new IntermediateRelation<T, I>(this, targetResolver,
+			intermediateTarget);
 	}
 
 	/**
 	 * Returns a new relation for this type in the given parent object. The
 	 * default implementation returns a new instance of {@link DirectRelation}.
 	 *
-	 * @param rParent The parent object of the new relation
-	 * @param rTarget The target value of the relation
+	 * @param parent The parent object of the new relation
+	 * @param target The target value of the relation
 	 * @return The new relation
 	 */
-	protected Relation<T> newRelation(RelatedObject rParent, T rTarget) {
-		return new DirectRelation<T>(this, rTarget);
+	protected Relation<T> newRelation(RelatedObject parent, T target) {
+		return new DirectRelation<T>(this, target);
 	}
 
 	/**
@@ -691,13 +687,13 @@ public class RelationType<T> extends RelatedObject
 	 * stores the relation target in a transformed format. The default
 	 * implementation returns a new instance of {@link TransformedRelation}.
 	 *
-	 * @param rParent         The parent object of the new relation
-	 * @param fTransformation The transformation to apply to target values
+	 * @param parent         The parent object of the new relation
+	 * @param transformation The transformation to apply to target values
 	 * @return The new relation
 	 */
 	protected <D> TransformedRelation<T, D> newTransformedRelation(
-		RelatedObject rParent, InvertibleFunction<T, D> fTransformation) {
-		return new TransformedRelation<>(this, fTransformation);
+		RelatedObject parent, InvertibleFunction<T, D> transformation) {
+		return new TransformedRelation<>(this, transformation);
 	}
 
 	/**
@@ -713,15 +709,14 @@ public class RelationType<T> extends RelatedObject
 	 * added.
 	 *
 	 * <p>Subclasses should normally always invoke the superclass method
-	 * because
-	 * it will notify the relation event listeners of this type.</p>
+	 * because it will notify the relation event listeners of this type.</p>
 	 *
-	 * @param rRelation  The relation to be deleted
-	 * @param rNewTarget The new target object
+	 * @param relation  The relation to be deleted
+	 * @param newTarget The new target object
 	 * @throws UnsupportedOperationException If this relation type is final
 	 */
-	protected void prepareRelationUpdate(Relation<T> rRelation, T rNewTarget) {
-		assert rRelation.getType() == this;
+	protected void prepareRelationUpdate(Relation<T> relation, T newTarget) {
+		assert relation.getType() == this;
 	}
 
 	/**
@@ -734,14 +729,14 @@ public class RelationType<T> extends RelatedObject
 	 *                               deserialized name
 	 */
 	protected final Object readResolve() throws ObjectStreamException {
-		RelationType<?> rType = aTypeRegistry.get(sName);
+		RelationType<?> type = typeRegistry.get(name);
 
-		if (rType == null) {
+		if (type == null) {
 			throw new InvalidObjectException(
-				"Undefined relation type: " + sName);
+				"Undefined relation type: " + name);
 		}
 
-		return rType;
+		return type;
 	}
 
 	/**
@@ -751,16 +746,16 @@ public class RelationType<T> extends RelatedObject
 	 * targets with immutable ones). The code checks that the type of the
 	 * relations is this instance or else throws an exception.
 	 *
-	 * @param rRelation The relation to set the target of
-	 * @param rValue    The new relation target
+	 * @param relation The relation to set the target of
+	 * @param value    The new relation target
 	 */
-	protected void setRelationTarget(Relation<T> rRelation, T rValue) {
-		if (rRelation.getType() != this) {
+	protected void setRelationTarget(Relation<T> relation, T value) {
+		if (relation.getType() != this) {
 			throw new IllegalArgumentException(
 				"Relation must be for type " + this);
 		}
 
-		rRelation.setTarget(rValue);
+		relation.setTarget(value);
 	}
 
 	/**
@@ -794,37 +789,37 @@ public class RelationType<T> extends RelatedObject
 	/**
 	 * Package-internal method to initialize a relation type after creation.
 	 *
-	 * @param sName       The name of the type instance
-	 * @param rTargetType The class of the target value datatype
-	 * @param fInitAction An optional initialization function to be invoked on
-	 *                    this instance or NULL for none
+	 * @param name       The name of the type instance
+	 * @param targetType The class of the target value datatype
+	 * @param initAction An optional initialization function to be invoked on
+	 *                   this instance or NULL for none
 	 * @throws IllegalArgumentException If the type name is invalid or if a
-	 *                                  type
+	 * type
 	 *                                  with the given name exists already
 	 */
-	final void init(String sName, Class<? super T> rTargetType,
-		Action<RelationType<?>> fInitAction) {
-		this.sName = sName;
-		this.rTargetType = rTargetType;
+	final void init(String name, Class<? super T> targetType,
+		Action<RelationType<?>> initAction) {
+		this.name = name;
+		this.targetType = targetType;
 
-		if (sName != INIT_TYPE) {
-			if (!NAME_PATTERN.matcher(sName).matches()) {
+		if (name != INIT_TYPE) {
+			if (!NAME_PATTERN.matcher(name).matches()) {
 				throw new IllegalArgumentException(
-					"Invalid relation type name: " + sName);
+					"Invalid relation type name: " + name);
 			}
 
-			if (aTypeRegistry.containsKey(sName)) {
+			if (typeRegistry.containsKey(name)) {
 				throw new IllegalArgumentException(String.format(
 					"Duplicate relation type name %s; " +
-						"already defined in %s", sName,
-					aTypeRegistry.get(sName)));
+						"already defined in %s", name,
+					typeRegistry.get(name)));
 			}
 
-			if (fInitAction != null) {
-				fInitAction.execute(this);
+			if (initAction != null) {
+				initAction.execute(this);
 			}
 
-			aTypeRegistry.put(sName, this);
+			typeRegistry.put(name, this);
 		}
 	}
 }

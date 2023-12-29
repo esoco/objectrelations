@@ -32,7 +32,7 @@ import static org.obrel.space.ObjectSpaceResolver.URL_GET;
  */
 public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T> {
 
-	private final boolean bModificationAllowed;
+	private final boolean modificationAllowed;
 
 	/**
 	 * Creates a new instance that doesn't allow modifications through the
@@ -45,21 +45,21 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param bModificationAllowed TRUE if modifications through the methods
-	 *                             {@link #put(String, Object)} or {@link
-	 *                             #delete(String)} are allowed
+	 * @param modificationAllowed TRUE if modifications through the methods
+	 *                            {@link #put(String, Object)} or {@link
+	 *                            #delete(String)} are allowed
 	 */
-	public RelationSpace(boolean bModificationAllowed) {
-		this.bModificationAllowed = bModificationAllowed;
+	public RelationSpace(boolean modificationAllowed) {
+		this.modificationAllowed = modificationAllowed;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void delete(String sUrl) {
-		if (bModificationAllowed) {
-			ObjectRelations.urlResolve(this, sUrl, false, URL_DELETE);
+	public void delete(String url) {
+		if (modificationAllowed) {
+			ObjectRelations.urlResolve(this, url, false, URL_DELETE);
 		} else {
 			throw new UnsupportedOperationException(
 				"Modification not " + "allowed");
@@ -71,18 +71,18 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T> {
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public T get(String sUrl) {
-		return (T) ObjectRelations.urlResolve(this, sUrl, false, URL_GET);
+	public T get(String url) {
+		return (T) ObjectRelations.urlResolve(this, url, false, URL_GET);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void put(String sUrl, T rValue) {
-		if (bModificationAllowed) {
-			ObjectRelations.urlResolve(this, sUrl, false,
-				new PutResolver<T>(rValue));
+	public void put(String url, T value) {
+		if (modificationAllowed) {
+			ObjectRelations.urlResolve(this, url, false,
+				new PutResolver<T>(value));
 		} else {
 			throw new UnsupportedOperationException(
 				"Modification not " + "allowed");

@@ -38,20 +38,20 @@ public class ReflectUtilTest {
 	public void testCollectConstants() {
 		ConstantTestBaseClass bc = new ConstantTestBaseClass();
 
-		assertEquals(2, bc.aConstants.size());
-		assertTrue(bc.aConstants.contains(ConstantTestBaseClass.TC1));
-		assertTrue(bc.aConstants.contains(ConstantTestBaseClass.TC2));
-		assertFalse(bc.aConstants.contains(ConstantTestSubclass.TC3));
+		assertEquals(2, bc.constants.size());
+		assertTrue(bc.constants.contains(ConstantTestBaseClass.TC1));
+		assertTrue(bc.constants.contains(ConstantTestBaseClass.TC2));
+		assertFalse(bc.constants.contains(ConstantTestSubclass.TC3));
 
 		ConstantTestSubclass sc = new ConstantTestSubclass();
 
-		assertEquals(2, sc.aConstants.size());
-		assertFalse(sc.aConstants.contains(ConstantTestBaseClass.TC1));
-		assertTrue(sc.aConstants.contains(ConstantTestSubclass.TC3));
+		assertEquals(2, sc.constants.size());
+		assertFalse(sc.constants.contains(ConstantTestBaseClass.TC1));
+		assertTrue(sc.constants.contains(ConstantTestSubclass.TC3));
 
-		assertEquals(4, sc.aAllConstants.size());
-		assertTrue(sc.aAllConstants.contains(ConstantTestBaseClass.TC1));
-		assertTrue(sc.aConstants.contains(ConstantTestSubclass.TC3));
+		assertEquals(4, sc.allConstants.size());
+		assertTrue(sc.allConstants.contains(ConstantTestBaseClass.TC1));
+		assertTrue(sc.constants.contains(ConstantTestSubclass.TC3));
 	}
 
 	// ~ Inner Classes
@@ -77,7 +77,7 @@ public class ReflectUtilTest {
 		// ~ Instance fields
 		// ----------------------------------------------------
 
-		List<String> aConstants;
+		List<String> constants;
 
 		// ~ Constructors
 		// -------------------------------------------------------
@@ -86,7 +86,7 @@ public class ReflectUtilTest {
 		 * Creates a new instance.
 		 */
 		public ConstantTestBaseClass() {
-			aConstants = ReflectUtil.collectConstants(getClass(), String.class,
+			constants = ReflectUtil.collectConstants(getClass(), String.class,
 				"toString", false, true, false);
 		}
 	}
@@ -111,9 +111,9 @@ public class ReflectUtilTest {
 		// ~ Instance fields
 		// ----------------------------------------------------
 
-		List<String> aConstants;
+		List<String> constants;
 
-		List<String> aAllConstants;
+		List<String> allConstants;
 
 		// ~ Constructors
 		// -------------------------------------------------------
@@ -122,9 +122,9 @@ public class ReflectUtilTest {
 		 * Creates a new instance.
 		 */
 		public ConstantTestSubclass() {
-			aConstants = ReflectUtil.collectConstants(getClass(), String.class,
+			constants = ReflectUtil.collectConstants(getClass(), String.class,
 				"toString", false, false, false);
-			aAllConstants =
+			allConstants =
 				ReflectUtil.collectConstants(getClass(), String.class,
 					"toString", false, true, false);
 		}

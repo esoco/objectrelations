@@ -26,30 +26,30 @@ import de.esoco.lib.expression.Function;
  */
 public class FunctionChain<I, V, O> extends AbstractFunction<I, O> {
 
-	private final Function<V, O> rOuter;
+	private final Function<V, O> outer;
 
-	private final Function<I, ? extends V> rInner;
+	private final Function<I, ? extends V> inner;
 
 	/**
 	 * Creates a new instance that chains two functions together.
 	 *
-	 * @param rOuter The left function
-	 * @param rInner The right function
+	 * @param outer The left function
+	 * @param inner The right function
 	 */
-	public FunctionChain(Function<V, O> rOuter,
-		Function<I, ? extends V> rInner) {
+	public FunctionChain(Function<V, O> outer,
+		Function<I, ? extends V> inner) {
 		super(".");
 
-		this.rOuter = rOuter;
-		this.rInner = rInner;
+		this.outer = outer;
+		this.inner = inner;
 	}
 
 	/**
 	 * @see Function#evaluate(Object)
 	 */
 	@Override
-	public O evaluate(I rInput) {
-		return rOuter.evaluate(rInner.evaluate(rInput));
+	public O evaluate(I input) {
+		return outer.evaluate(inner.evaluate(input));
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class FunctionChain<I, V, O> extends AbstractFunction<I, O> {
 	 * @return The inner function
 	 */
 	public final Function<I, ? extends V> getInner() {
-		return rInner;
+		return inner;
 	}
 
 	/**
@@ -70,7 +70,7 @@ public class FunctionChain<I, V, O> extends AbstractFunction<I, O> {
 	 * @return The outer function
 	 */
 	public final Function<V, O> getOuter() {
-		return rOuter;
+		return outer;
 	}
 
 	/**
@@ -80,15 +80,15 @@ public class FunctionChain<I, V, O> extends AbstractFunction<I, O> {
 	 */
 	@Override
 	public String toString() {
-		String sResult = rOuter.toString();
+		String result = outer.toString();
 
-		if (sResult.indexOf(INPUT_PLACEHOLDER) >= 0) {
-			sResult = sResult.replace(INPUT_PLACEHOLDER, rInner.toString());
+		if (result.indexOf(INPUT_PLACEHOLDER) >= 0) {
+			result = result.replace(INPUT_PLACEHOLDER, inner.toString());
 		} else {
-			sResult += "(" + rInner.toString() + ")";
+			result += "(" + inner.toString() + ")";
 		}
 
-		return sResult;
+		return result;
 	}
 
 	/**
@@ -97,12 +97,11 @@ public class FunctionChain<I, V, O> extends AbstractFunction<I, O> {
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
-		FunctionChain<?, ?, ?> rOtherFunction =
-			(FunctionChain<?, ?, ?>) rOther;
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
+		FunctionChain<?, ?, ?> otherFunction = (FunctionChain<?, ?, ?>) other;
 
-		return rOuter.equals(rOtherFunction.rOuter) &&
-			rInner.equals(rOtherFunction.rInner);
+		return outer.equals(otherFunction.outer) &&
+			inner.equals(otherFunction.inner);
 	}
 
 	/**
@@ -112,6 +111,6 @@ public class FunctionChain<I, V, O> extends AbstractFunction<I, O> {
 	 */
 	@Override
 	protected int paramsHashCode() {
-		return 31 * rOuter.hashCode() + rInner.hashCode();
+		return 31 * outer.hashCode() + inner.hashCode();
 	}
 }

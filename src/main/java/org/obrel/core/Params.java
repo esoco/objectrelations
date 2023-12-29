@@ -36,43 +36,43 @@ public class Params extends RelatedObject
 	 * initialized
 	 * with the given relations.
 	 *
-	 * @param rRelations The initial relations of this instance
+	 * @param relations The initial relations of this instance
 	 * @return The new instance
 	 */
-	public static Params params(RelationData<?>... rRelations) {
-		return new Params().with(rRelations);
+	public static Params params(RelationData<?>... relations) {
+		return new Params().with(relations);
 	}
 
 	/**
 	 * Copies the relations of this instance to another relatable.
 	 *
-	 * @param rTarget          The target relatable
-	 * @param bReplaceExisting TRUE to overwrite existing relations in the
-	 *                         target, FALSE to keep them
+	 * @param target          The target relatable
+	 * @param replaceExisting TRUE to overwrite existing relations in the
+	 *                        target, FALSE to keep them
 	 */
-	public void applyTo(Relatable rTarget, boolean bReplaceExisting) {
-		ObjectRelations.copyRelations(this, rTarget, bReplaceExisting);
+	public void applyTo(Relatable target, boolean replaceExisting) {
+		ObjectRelations.copyRelations(this, target, replaceExisting);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> T getConfigValue(RelationType<T> rType, T rDefaultValue) {
-		T rValue = rDefaultValue;
+	public <T> T getConfigValue(RelationType<T> type, T defaultValue) {
+		T value = defaultValue;
 
-		if (hasRelation(rType)) {
-			rValue = get(rType);
+		if (hasRelation(type)) {
+			value = get(type);
 		}
 
-		return rValue;
+		return value;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> void setConfigValue(RelationType<T> rType, T rValue) {
-		set(rType, rValue);
+	public <T> void setConfigValue(RelationType<T> type, T value) {
+		set(type, value);
 	}
 }

@@ -27,9 +27,9 @@ public interface EventSource<E extends Event<?>> {
 	 * Adds a new element listener to this list. All registered listeners will
 	 * be notified if the contents of this list will be notified.
 	 *
-	 * @param rListener The listener to add
+	 * @param listener The listener to add
 	 */
-	void addListener(EventHandler<? super E> rListener);
+	void addListener(EventHandler<? super E> listener);
 
 	/**
 	 * Returns the class of the events of this event source. This method be
@@ -49,7 +49,7 @@ public interface EventSource<E extends Event<?>> {
 	 * Adds a new element listener to this list. All registered listeners will
 	 * be notified if the contents of this list will be notified.
 	 *
-	 * @param rListener The listener to add
+	 * @param listener The listener to add
 	 */
-	void removeListener(EventHandler<? super E> rListener);
+	void removeListener(EventHandler<? super E> listener);
 }

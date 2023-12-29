@@ -66,14 +66,14 @@ public final class TextUtil extends TextConvert {
 	 * Checks whether a certain string contains at least one lower case
 	 * character as defined by {@link Character#isLowerCase(char)}.
 	 *
-	 * @param sText The text to check
+	 * @param text The text to check
 	 * @return TRUE if the text contains lower case characters
 	 */
-	public static boolean containsLowerCase(CharSequence sText) {
-		int l = sText.length();
+	public static boolean containsLowerCase(CharSequence text) {
+		int l = text.length();
 
 		for (int i = 0; i < l; i++) {
-			if (Character.isLowerCase(sText.charAt(i))) {
+			if (Character.isLowerCase(text.charAt(i))) {
 				return true;
 			}
 		}
@@ -85,14 +85,14 @@ public final class TextUtil extends TextConvert {
 	 * Checks whether a certain string contains at least one upper case
 	 * character as defined by {@link Character#isUpperCase(char)}.
 	 *
-	 * @param sText The text to check
+	 * @param text The text to check
 	 * @return TRUE if the text contains upper case characters
 	 */
-	public static boolean containsUpperCase(CharSequence sText) {
-		int l = sText.length();
+	public static boolean containsUpperCase(CharSequence text) {
+		int l = text.length();
 
 		for (int i = 0; i < l; i++) {
-			if (Character.isUpperCase(sText.charAt(i))) {
+			if (Character.isUpperCase(text.charAt(i))) {
 				return true;
 			}
 		}
@@ -103,30 +103,30 @@ public final class TextUtil extends TextConvert {
 	/**
 	 * Counts the occurrences of a certain regular expression in a string.
 	 *
-	 * @param sText  The text to search in
-	 * @param sRegEx The regular expression pattern to count
+	 * @param text  The text to search in
+	 * @param regEx The regular expression pattern to count
 	 * @return The number of occurrences
 	 */
-	public static int count(String sText, String sRegEx) {
-		return count(sText, Pattern.compile(sRegEx));
+	public static int count(String text, String regEx) {
+		return count(text, Pattern.compile(regEx));
 	}
 
 	/**
 	 * Counts the occurrences of a certain regular expression in a string.
 	 *
-	 * @param sText  The text to search in
-	 * @param rRegEx The compiled regular expression pattern to count
+	 * @param text  The text to search in
+	 * @param regEx The compiled regular expression pattern to count
 	 * @return The number of occurrences
 	 */
-	public static int count(String sText, Pattern rRegEx) {
-		Matcher aMatcher = rRegEx.matcher(sText);
-		int nCount = 0;
+	public static int count(String text, Pattern regEx) {
+		Matcher matcher = regEx.matcher(text);
+		int count = 0;
 
-		while (aMatcher.find()) {
-			nCount++;
+		while (matcher.find()) {
+			count++;
 		}
 
-		return nCount;
+		return count;
 	}
 
 	/**
@@ -137,16 +137,16 @@ public final class TextUtil extends TextConvert {
 	 * string or which are followed by a whitespace character will be ignored
 	 * and not removed. A double ampersand will be replaced by a single one.
 	 *
-	 * @param sText The string to extract the mnemonic character from
+	 * @param text The string to extract the mnemonic character from
 	 * @return A pair containing the mnemonic character as the first element
-	 * (NULL for none) and the resulting string stripped from all
-	 * mnemonics as the second element
+	 * (NULL for none) and the resulting string stripped from all mnemonics as
+	 * the second element
 	 */
 	@SuppressWarnings("boxing")
-	public static Pair<Character, String> extractMnemonic(String sText) {
-		StringBuilder sb = new StringBuilder(sText);
+	public static Pair<Character, String> extractMnemonic(String text) {
+		StringBuilder sb = new StringBuilder(text);
 		int pos = 0;
-		Character aMnemonic = null;
+		Character mnemonic = null;
 
 		while (true) {
 			pos = sb.indexOf("&", pos);
@@ -157,8 +157,8 @@ public final class TextUtil extends TextConvert {
 				if (!Character.isWhitespace(c)) {
 					sb.deleteCharAt(pos);
 
-					if (aMnemonic == null && c != '&') {
-						aMnemonic = c;
+					if (mnemonic == null && c != '&') {
+						mnemonic = c;
 					}
 				}
 			} else {
@@ -166,7 +166,7 @@ public final class TextUtil extends TextConvert {
 			}
 		}
 
-		return new Pair<Character, String>(aMnemonic, sb.toString());
+		return new Pair<Character, String>(mnemonic, sb.toString());
 	}
 
 	/**
@@ -174,8 +174,8 @@ public final class TextUtil extends TextConvert {
 	 *
 	 * @see #formatDuration(long, boolean)
 	 */
-	public static String formatDuration(long nDuration) {
-		return formatDuration(nDuration, true);
+	public static String formatDuration(long duration) {
+		return formatDuration(duration, true);
 	}
 
 	/**
@@ -184,36 +184,35 @@ public final class TextUtil extends TextConvert {
 	 * the digits necessary. All subsequent fragments will have leading zeros
 	 * for their maximum amount of digits.
 	 *
-	 * @param nDuration         The duration in milliseconds
-	 * @param bWithMilliseconds TRUE to include fractional milliseconds
+	 * @param duration         The duration in milliseconds
+	 * @param withMilliseconds TRUE to include fractional milliseconds
 	 * @return The formatted string
 	 */
-	public static String formatDuration(long nDuration,
-		boolean bWithMilliseconds) {
-		StringBuilder aFormattedTime = new StringBuilder();
-		String sFormat = "%d:";
+	public static String formatDuration(long duration,
+		boolean withMilliseconds) {
+		StringBuilder formattedTime = new StringBuilder();
+		String format = "%d:";
 
-		if (nDuration > 3_600_000) {
-			aFormattedTime.append(
-				String.format(sFormat, nDuration / 3_600_000));
-			sFormat = "%02d:";
+		if (duration > 3_600_000) {
+			formattedTime.append(String.format(format, duration / 3_600_000));
+			format = "%02d:";
 		}
 
-		if (nDuration > 60_000) {
-			aFormattedTime.append(
-				String.format(sFormat, nDuration / 60_000 % 60));
-			sFormat = "%02d";
+		if (duration > 60_000) {
+			formattedTime.append(String.format(format,
+				duration / 60_000 % 60));
+			format = "%02d";
 		} else {
-			sFormat = "%d";
+			format = "%d";
 		}
 
-		aFormattedTime.append(String.format(sFormat, nDuration / 1_000 % 60));
+		formattedTime.append(String.format(format, duration / 1_000 % 60));
 
-		if (bWithMilliseconds) {
-			aFormattedTime.append(String.format(".%03d", nDuration % 1_000));
+		if (withMilliseconds) {
+			formattedTime.append(String.format(".%03d", duration % 1_000));
 		}
 
-		return aFormattedTime.toString();
+		return formattedTime.toString();
 	}
 
 	/**
@@ -223,43 +222,43 @@ public final class TextUtil extends TextConvert {
 	 * for optional character that are only display for non-zero values while 0
 	 * stands for leading zeros.
 	 *
-	 * @param nDuration         The duration in milliseconds
-	 * @param bWithMilliseconds TRUE to include fractional milliseconds
+	 * @param duration         The duration in milliseconds
+	 * @param withMilliseconds TRUE to include fractional milliseconds
 	 * @return The formatted string
 	 */
 	@SuppressWarnings("boxing")
-	public static String formatLongDuration(long nDuration,
-		boolean bWithMilliseconds) {
-		StringBuilder aDuration = new StringBuilder();
+	public static String formatLongDuration(long duration,
+		boolean withMilliseconds) {
+		StringBuilder result = new StringBuilder();
 
-		if (bWithMilliseconds) {
-			aDuration.append(String.format("%d.%03ds", nDuration / 1000 % 60,
-				nDuration % 1000));
+		if (withMilliseconds) {
+			result.append(String.format("%d.%03ds", duration / 1000 % 60,
+				duration % 1000));
 		} else {
-			aDuration.append(nDuration / 1000 % 60);
-			aDuration.append("s");
+			result.append(duration / 1000 % 60);
+			result.append("s");
 		}
 
-		nDuration /= (60 * 1000);
+		duration /= (60 * 1000);
 
-		if (nDuration > 0) {
-			aDuration.insert(0, "m ");
-			aDuration.insert(0, nDuration % 60);
-			nDuration /= 60;
+		if (duration > 0) {
+			result.insert(0, "m ");
+			result.insert(0, duration % 60);
+			duration /= 60;
 
-			if (nDuration > 0) {
-				aDuration.insert(0, "h ");
-				aDuration.insert(0, nDuration % 24);
-				nDuration /= 24;
+			if (duration > 0) {
+				result.insert(0, "h ");
+				result.insert(0, duration % 24);
+				duration /= 24;
 
-				if (nDuration > 0) {
-					aDuration.insert(0, "d ");
-					aDuration.insert(0, nDuration);
+				if (duration > 0) {
+					result.insert(0, "d ");
+					result.insert(0, result);
 				}
 			}
 		}
 
-		return aDuration.toString();
+		return result.toString();
 	}
 
 	/**
@@ -279,14 +278,14 @@ public final class TextUtil extends TextConvert {
 	 * Checks whether a certain string contains only lower case characters as
 	 * defined by {@link Character#isLowerCase(char)}.
 	 *
-	 * @param sText The text to check
+	 * @param text The text to check
 	 * @return TRUE if the text contains only lower case characters
 	 */
-	public static boolean isLowerCase(CharSequence sText) {
-		int l = sText.length();
+	public static boolean isLowerCase(CharSequence text) {
+		int l = text.length();
 
 		for (int i = 0; i < l; i++) {
-			if (!Character.isLowerCase(sText.charAt(i))) {
+			if (!Character.isLowerCase(text.charAt(i))) {
 				return false;
 			}
 		}
@@ -298,14 +297,14 @@ public final class TextUtil extends TextConvert {
 	 * Checks whether a certain string contains only upper case character as
 	 * defined by {@link Character#isUpperCase(char)}.
 	 *
-	 * @param sText The text to check
+	 * @param text The text to check
 	 * @return TRUE if the text contains only upper case characters
 	 */
-	public static boolean isUpperCase(CharSequence sText) {
-		int l = sText.length();
+	public static boolean isUpperCase(CharSequence text) {
+		int l = text.length();
 
 		for (int i = 0; i < l; i++) {
-			if (!Character.isUpperCase(sText.charAt(i))) {
+			if (!Character.isUpperCase(text.charAt(i))) {
 				return false;
 			}
 		}
@@ -322,18 +321,18 @@ public final class TextUtil extends TextConvert {
 	 * remember that group indices start with 1, 0 refers to the complete match
 	 * expression.
 	 *
-	 * @param rMatcher The matcher to return the group from
-	 * @param nStart   The index of the group to start with
+	 * @param matcher The matcher to return the group from
+	 * @param start   The index of the group to start with
 	 * @return The index of the next valid group or -1 if no more exists
 	 */
-	public static int nextGroup(Matcher rMatcher, int nStart) {
-		int nGroups = rMatcher.groupCount();
+	public static int nextGroup(Matcher matcher, int start) {
+		int groups = matcher.groupCount();
 
-		while (nStart <= nGroups && rMatcher.group(nStart) == null) {
-			nStart++;
+		while (start <= groups && matcher.group(start) == null) {
+			start++;
 		}
 
-		return nStart <= nGroups ? nStart : -1;
+		return start <= groups ? start : -1;
 	}
 
 	/**
@@ -355,26 +354,26 @@ public final class TextUtil extends TextConvert {
 	 *   <li>null: value contains string 'null'</li>
 	 * </ul>
 	 *
-	 * @param sValue The string value that the object shall be parsed from
+	 * @param value The string value that the object shall be parsed from
 	 * @return The parsed object
 	 */
-	public static Object parseObject(String sValue) {
-		sValue = sValue.trim();
+	public static Object parseObject(String value) {
+		value = value.trim();
 
-		int nLength = sValue.length();
+		int length = value.length();
 
-		if (Pattern.matches("\".*\"|'.*'", sValue)) {
+		if (Pattern.matches("\".*\"|'.*'", value)) {
 			// string enclosed in quotes
-			return sValue.substring(1, nLength - 1);
-		} else if (Pattern.matches("-?[\\d]+", sValue)) {
+			return value.substring(1, length - 1);
+		} else if (Pattern.matches("-?[\\d]+", value)) {
 			// positive or negative (-?) integer
-			return Integer.valueOf(sValue);
-		} else if (Pattern.matches("(?i:true|false)", sValue)) {
-			return Boolean.valueOf(sValue);
-		} else if (sValue.equals("null")) {
+			return Integer.valueOf(value);
+		} else if (Pattern.matches("(?i:true|false)", value)) {
+			return Boolean.valueOf(value);
+		} else if (value.equals("null")) {
 			return null;
 		} else {
-			return sValue;
+			return value;
 		}
 	}
 
@@ -388,35 +387,36 @@ public final class TextUtil extends TextConvert {
 	 *   <li>? into .?</li>
 	 * </ul>
 	 *
-	 * @param sPattern The original simple pattern to convert
+	 * @param pattern The original simple pattern to convert
 	 * @return The converted pattern.
 	 */
-	public static String simplePatternToRegEx(String sPattern) {
-		sPattern = sPattern.replace(".", "\\.");
-		sPattern = sPattern.replace("*", ".*");
-		sPattern = sPattern.replace("?", ".?");
+	public static String simplePatternToRegEx(String pattern) {
+		pattern = pattern.replace(".", "\\.");
+		pattern = pattern.replace("*", ".*");
+		pattern = pattern.replace("?", ".?");
 
-		return sPattern;
+		return pattern;
 	}
 
 	/**
 	 * Converts a string that may contain non-ASCII characters to the
 	 * corresponding ASCII representation.
 	 *
-	 * @param sString The string to convert
+	 * @param string The string to convert
 	 * @return The non-ASCII representation of the input string
 	 */
-	public static String toAscii(String sString) {
-		if (sString != null) {
-			if (NON_ASCII_CHARS.matcher(sString.toLowerCase()).find()) {
-				for (Entry<String, String> rReplace :
+	public static String toAscii(String string) {
+		if (string != null) {
+			if (NON_ASCII_CHARS.matcher(string.toLowerCase()).find()) {
+				for (Entry<String, String> replace :
 					ASCII_REPLACE_MAP.entrySet()) {
-					sString = sString.replaceAll(rReplace.getKey(),
-						rReplace.getValue());
+					string =
+						string.replaceAll(replace.getKey(),
+							replace.getValue());
 				}
 			}
 		}
 
-		return sString;
+		return string;
 	}
 }

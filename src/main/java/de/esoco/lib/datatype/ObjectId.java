@@ -85,31 +85,31 @@ public abstract class ObjectId<T> implements Serializable {
 	/**
 	 * Factory method that returns an object ID for a certain integer value.
 	 *
-	 * @param nId The integer value
+	 * @param id The integer value
 	 * @return An object ID instance
 	 */
-	public static <T> ObjectId<T> intId(int nId) {
-		return new IntegerId<T>(nId);
+	public static <T> ObjectId<T> intId(int id) {
+		return new IntegerId<T>(id);
 	}
 
 	/**
 	 * Factory method that returns an object ID for a certain long value.
 	 *
-	 * @param nId The long value
+	 * @param id The long value
 	 * @return An object ID instance
 	 */
-	public static <T> ObjectId<T> longId(long nId) {
-		return new LongId<T>(nId);
+	public static <T> ObjectId<T> longId(long id) {
+		return new LongId<T>(id);
 	}
 
 	/**
 	 * Factory method that returns an object ID for a certain string value.
 	 *
-	 * @param sId The string value
+	 * @param id The string value
 	 * @return An object ID instance
 	 */
-	public static <T> ObjectId<T> stringId(String sId) {
-		return new StringId<T>(sId);
+	public static <T> ObjectId<T> stringId(String id) {
+		return new StringId<T>(id);
 	}
 
 	/**
@@ -119,16 +119,16 @@ public abstract class ObjectId<T> implements Serializable {
 	 * @see Object#equals(Object)
 	 */
 	@Override
-	public final boolean equals(Object rOther) {
-		if (this == rOther) {
+	public final boolean equals(Object other) {
+		if (this == other) {
 			return true;
 		}
 
-		if (rOther == null || getClass() != rOther.getClass()) {
+		if (other == null || getClass() != other.getClass()) {
 			return false;
 		}
 
-		return toString().equals(rOther.toString());
+		return toString().equals(other.toString());
 	}
 
 	/**
@@ -171,15 +171,15 @@ public abstract class ObjectId<T> implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		private final int nId;
+		private final int id;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param nId The ID value
+		 * @param id The ID value
 		 */
-		public IntegerId(int nId) {
-			this.nId = nId;
+		public IntegerId(int id) {
+			this.id = id;
 		}
 
 		/**
@@ -187,7 +187,7 @@ public abstract class ObjectId<T> implements Serializable {
 		 */
 		@Override
 		public Object internalValue() {
-			return Integer.valueOf(nId);
+			return Integer.valueOf(id);
 		}
 
 		/**
@@ -197,7 +197,7 @@ public abstract class ObjectId<T> implements Serializable {
 		 */
 		@Override
 		public String toString() {
-			return Integer.toString(nId);
+			return Integer.toString(id);
 		}
 	}
 
@@ -210,15 +210,15 @@ public abstract class ObjectId<T> implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		private final long nId;
+		private final long id;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param nId The ID value
+		 * @param id The ID value
 		 */
-		public LongId(long nId) {
-			this.nId = nId;
+		public LongId(long id) {
+			this.id = id;
 		}
 
 		/**
@@ -226,7 +226,7 @@ public abstract class ObjectId<T> implements Serializable {
 		 */
 		@Override
 		public Object internalValue() {
-			return Long.valueOf(nId);
+			return Long.valueOf(id);
 		}
 
 		/**
@@ -236,7 +236,7 @@ public abstract class ObjectId<T> implements Serializable {
 		 */
 		@Override
 		public String toString() {
-			return Long.toString(nId);
+			return Long.toString(id);
 		}
 	}
 
@@ -249,15 +249,15 @@ public abstract class ObjectId<T> implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		private final String sId;
+		private final String id;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param sId The ID string
+		 * @param id The ID string
 		 */
-		public StringId(String sId) {
-			this.sId = sId;
+		public StringId(String id) {
+			this.id = id;
 		}
 
 		/**
@@ -265,7 +265,7 @@ public abstract class ObjectId<T> implements Serializable {
 		 */
 		@Override
 		public Object internalValue() {
-			return sId;
+			return id;
 		}
 
 		/**
@@ -275,7 +275,7 @@ public abstract class ObjectId<T> implements Serializable {
 		 */
 		@Override
 		public String toString() {
-			return sId;
+			return id;
 		}
 	}
 }

@@ -31,17 +31,17 @@ public class RelationAlias<T, A>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rParent          The parent of this alias
-	 * @param rAliasType       The relation type of this alias relation
-	 * @param rAliasedRelation The relation to be aliased
-	 * @param fAliasConversion A conversion function that produces the target
-	 *                         value of the alias and can be inverted for the
-	 *                         setting of new targets
+	 * @param parent          The parent of this alias
+	 * @param aliasType       The relation type of this alias relation
+	 * @param aliasedRelation The relation to be aliased
+	 * @param aliasConversion A conversion function that produces the target
+	 *                        value of the alias and can be inverted for the
+	 *                        setting of new targets
 	 */
-	RelationAlias(Relatable rParent, RelationType<T> rAliasType,
-		Relation<A> rAliasedRelation,
-		InvertibleFunction<A, T> fAliasConversion) {
-		super(rParent, rAliasType, rAliasedRelation, fAliasConversion);
+	RelationAlias(Relatable parent, RelationType<T> aliasType,
+		Relation<A> aliasedRelation,
+		InvertibleFunction<A, T> aliasConversion) {
+		super(parent, aliasType, aliasedRelation, aliasConversion);
 	}
 
 	/**
@@ -51,8 +51,8 @@ public class RelationAlias<T, A>
 	 * @see RelationWrapper#copyTo(Relatable)
 	 */
 	@Override
-	Relation<T> copyTo(Relatable rTarget) {
-		return getWrappedRelation().aliasAs(getType(), rTarget,
+	Relation<T> copyTo(Relatable target) {
+		return getWrappedRelation().aliasAs(getType(), target,
 			getConversion());
 	}
 
@@ -62,13 +62,13 @@ public class RelationAlias<T, A>
 	 * @see Relation#updateTarget(Object)
 	 */
 	@Override
-	void setTarget(T rNewTarget) {
-		Relation<A> rWrapped = getWrappedRelation();
-		A rTarget = getConversion().invert(rNewTarget);
+	void setTarget(T newTarget) {
+		Relation<A> wrapped = getWrappedRelation();
+		A target = getConversion().invert(newTarget);
 
 		// check state of target type too to prevent illegal modifications
-		rWrapped.getType().checkUpdateAllowed();
-		rWrapped.getType().prepareRelationUpdate(rWrapped, rTarget);
-		rWrapped.updateTarget(rTarget);
+		wrapped.getType().checkUpdateAllowed();
+		wrapped.getType().prepareRelationUpdate(wrapped, target);
+		wrapped.updateTarget(target);
 	}
 }

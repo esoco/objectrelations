@@ -40,26 +40,26 @@ public class ListType<T> extends RelationType<List<T>> {
 	 * created with this constructor MUST be declared as static constants in a
 	 * class that is initialized with {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param rModifiers The optional relation type modifiers
+	 * @param modifiers The optional relation type modifiers
 	 */
-	public ListType(RelationTypeModifier... rModifiers) {
-		this(null, null, rModifiers);
+	public ListType(RelationTypeModifier... modifiers) {
+		this(null, null, modifiers);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName        The relation type name (NULL for automatic
-	 *                     initialization of static relation types)
-	 * @param rElementType The datatype of the list elements (can also be NULL
-	 *                     for static initialization)
-	 * @param rModifiers   The optional relation type modifiers
+	 * @param name        The relation type name (NULL for automatic
+	 *                    initialization of static relation types)
+	 * @param elementType The datatype of the list elements (can also be NULL
+	 *                    for static initialization)
+	 * @param modifiers   The optional relation type modifiers
 	 */
-	public ListType(String sName, Class<T> rElementType,
-		RelationTypeModifier... rModifiers) {
-		super(sName, List.class, initialValueFunction(), rModifiers);
+	public ListType(String name, Class<T> elementType,
+		RelationTypeModifier... modifiers) {
+		super(name, List.class, initialValueFunction(), modifiers);
 
-		annotate(MetaTypes.ELEMENT_DATATYPE, rElementType);
+		annotate(MetaTypes.ELEMENT_DATATYPE, elementType);
 	}
 
 	/**
@@ -69,9 +69,8 @@ public class ListType<T> extends RelationType<List<T>> {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Function<Object, List<T>> initialValueFunction() {
-		Class<List<T>> rListClass =
-			(Class<List<T>>) (Class<?>) ArrayList.class;
+		Class<List<T>> listClass = (Class<List<T>>) (Class<?>) ArrayList.class;
 
-		return ReflectionFuntions.newInstanceOf(rListClass);
+		return ReflectionFuntions.newInstanceOf(listClass);
 	}
 }

@@ -372,52 +372,52 @@ public class MetaTypes {
 		 */
 		@Override
 		@SuppressWarnings("boxing")
-		public Relation<Boolean> addRelation(Relatable rParent,
-			Relation<Boolean> rNewRelation) {
-			if (rNewRelation.getTarget() != Boolean.TRUE) {
+		public Relation<Boolean> addRelation(Relatable parent,
+			Relation<Boolean> newRelation) {
+			if (newRelation.getTarget() != Boolean.TRUE) {
 				throw new IllegalArgumentException(
 					getName() + " must always be set to TRUE");
 			}
 
-			super.addRelation(rParent, rNewRelation);
+			super.addRelation(parent, newRelation);
 
 			// first make all relations of the parent immutable
-			for (Relation<?> rRelation : rParent.getRelations(
+			for (Relation<?> relation : parent.getRelations(
 				r -> r.getType() != ListenerTypes.RELATION_LISTENERS)) {
-				rRelation.setImmutable();
+				relation.setImmutable();
 			}
 
-			if (rParent instanceof Immutability) {
-				((Immutability) rParent).setImmutable();
+			if (parent instanceof Immutability) {
+				((Immutability) parent).setImmutable();
 			}
 
 			// activate by adding listener after all changes have been made
-			EventDispatcher<RelationEvent<?>> rListeners =
-				rParent.get(ListenerTypes.RELATION_LISTENERS);
+			EventDispatcher<RelationEvent<?>> listeners =
+				parent.get(ListenerTypes.RELATION_LISTENERS);
 
-			rListeners.add(this);
-			rListeners.setImmutable();
+			listeners.add(this);
+			listeners.setImmutable();
 
-			return rNewRelation;
+			return newRelation;
 		}
 
 		/**
 		 * Implemented to throw an exception on any attempt to add, modify, or
 		 * delete a relation on the parent object.
 		 *
-		 * @param rEvent The relation event that occurred
+		 * @param event The relation event that occurred
 		 */
 		@Override
-		public void handleEvent(RelationEvent<?> rEvent) {
+		public void handleEvent(RelationEvent<?> event) {
 			// check if relation with this type has been finally set (listener
 			// will be invoked before the relation is added) or otherwise an
 			// exception would already occur on setting the immutability type
-			if (rEvent.getSource().hasRelation(this)) {
-				String sMessage = String.format(
+			if (event.getSource().hasRelation(this)) {
+				String message = String.format(
 					"Could not %s %s; " + "object is immutable: %s",
-					rEvent.getType(), rEvent.getElement(), rEvent.getSource());
+					event.getType(), event.getElement(), event.getSource());
 
-				throw new UnsupportedOperationException(sMessage);
+				throw new UnsupportedOperationException(message);
 			}
 		}
 	}

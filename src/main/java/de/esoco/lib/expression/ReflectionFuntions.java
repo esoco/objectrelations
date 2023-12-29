@@ -26,41 +26,44 @@ import de.esoco.lib.expression.function.Cast;
  * @author eso
  */
 public class ReflectionFuntions {
-	private static final Function<?, ?> GET_CLASS = new AbstractFunction<Object, Class<?>>("GetClass") {
-		@Override
-		public Class<?> evaluate(Object rObject) {
-			return rObject.getClass();
-		}
-	};
-
-	private static final Function<Class<?>, String> GET_CLASS_NAME = new AbstractFunction<Class<?>, String>(
-			"GetClassName") {
-		@Override
-		public String evaluate(Class<?> rClass) {
-			return rClass.getName();
-		}
-	};
-
-	private static final Function<Class<?>, String> GET_SIMPLE_NAME = new AbstractFunction<Class<?>, String>(
-			"GetSimpleName") {
-		@Override
-		public String evaluate(Class<?> rClass) {
-			return rClass.getSimpleName();
-		}
-	};
-
-	private static final Function<?, ?> NEW_INSTANCE = new AbstractFunction<Class<?>, Object>("NewInstance") {
-		@Override
-		public Object evaluate(Class<?> rClass) {
-			try {
-				return rClass.getConstructor().newInstance();
-			} catch (Exception e) {
-				throw new IllegalArgumentException(e);
+	private static final Function<?, ?> GET_CLASS =
+		new AbstractFunction<Object, Class<?>>("GetClass") {
+			@Override
+			public Class<?> evaluate(Object object) {
+				return object.getClass();
 			}
-		}
-	};
+		};
 
-	private static final Function<?, ?> NEW_INSTANCE_OF_CLASS = newInstance().from(getObjectClass());
+	private static final Function<Class<?>, String> GET_CLASS_NAME =
+		new AbstractFunction<Class<?>, String>("GetClassName") {
+			@Override
+			public String evaluate(Class<?> type) {
+				return type.getName();
+			}
+		};
+
+	private static final Function<Class<?>, String> GET_SIMPLE_NAME =
+		new AbstractFunction<Class<?>, String>("GetSimpleName") {
+			@Override
+			public String evaluate(Class<?> type) {
+				return type.getSimpleName();
+			}
+		};
+
+	private static final Function<?, ?> NEW_INSTANCE =
+		new AbstractFunction<Class<?>, Object>("NewInstance") {
+			@Override
+			public Object evaluate(Class<?> type) {
+				try {
+					return type.getConstructor().newInstance();
+				} catch (Exception e) {
+					throw new IllegalArgumentException(e);
+				}
+			}
+		};
+
+	private static final Function<?, ?> NEW_INSTANCE_OF_CLASS =
+		newInstance().from(getObjectClass());
 
 	/**
 	 * Private, only static use.
@@ -72,12 +75,12 @@ public class ReflectionFuntions {
 	 * Returns a new instance of the {@link Cast} function for a certain target
 	 * datatype.
 	 *
-	 * @param rCastType The type that the function shall cast input values to
-	 *
+	 * @param castType The type that the function shall cast input values to
 	 * @return A new function instance
 	 */
-	public static <I, O> BinaryFunction<I, Class<O>, O> cast(Class<O> rCastType) {
-		return new Cast<I, O>(rCastType);
+	public static <I, O> BinaryFunction<I, Class<O>, O> cast(
+		Class<O> castType) {
+		return new Cast<I, O>(castType);
 	}
 
 	/**
@@ -93,17 +96,16 @@ public class ReflectionFuntions {
 	 * Returns a new binary function instance that returns the instance of a
 	 * enum class for a certain name.
 	 *
-	 * @param rEnumClass The enum class (right value of the function)
-	 *
+	 * @param enumClass The enum class (right value of the function)
 	 * @return The new function instance
 	 */
 	public static <E extends Enum<E>> BinaryFunction<String, Class<E>, E> getEnumValue(
-			Class<E> rEnumClass) {
-		return new AbstractBinaryFunction<String, Class<E>, E>(rEnumClass,
-				"getEnumValue") {
+		Class<E> enumClass) {
+		return new AbstractBinaryFunction<String, Class<E>, E>(enumClass,
+			"getEnumValue") {
 			@Override
-			public E evaluate(String sName, Class<E> rEnumClass) {
-				return Enum.valueOf(rEnumClass, sName);
+			public E evaluate(String name, Class<E> enumClass) {
+				return Enum.valueOf(enumClass, name);
 			}
 		};
 	}
@@ -143,13 +145,11 @@ public class ReflectionFuntions {
 	 * class. This is a shortcut method for the concatenation of the methods
 	 * {@link #newInstance()} and {@link Functions#value(Object)}.
 	 *
-	 * @param rClass The class to create a new instance of
-	 *
+	 * @param type The class to create a new instance of
 	 * @return A new function instance
 	 */
-	public static <T> Function<Object, T> newInstanceOf(Class<T> rClass) {
-		return ReflectionFuntions.<T>newInstance()
-				.from(Functions.value(rClass));
+	public static <T> Function<Object, T> newInstanceOf(Class<T> type) {
+		return ReflectionFuntions.<T>newInstance().from(Functions.value(type));
 	}
 
 	/**

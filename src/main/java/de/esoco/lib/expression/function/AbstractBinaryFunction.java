@@ -31,40 +31,40 @@ import java.util.Objects;
 public abstract class AbstractBinaryFunction<L, R, O>
 	extends AbstractFunction<L, O> implements BinaryFunction<L, R, O> {
 
-	private final R rRightValue;
+	private final R rightValue;
 
 	/**
 	 * Creates a new instance with a particular right value and the class name
 	 * as the token.
 	 *
-	 * @param rRightValue The right value for unary evaluation
+	 * @param rightValue The right value for unary evaluation
 	 */
-	public AbstractBinaryFunction(R rRightValue) {
-		this(rRightValue, null);
+	public AbstractBinaryFunction(R rightValue) {
+		this(rightValue, null);
 	}
 
 	/**
 	 * Creates a new instance with a particular right value and function token.
 	 *
-	 * @param rRightValue The right value for unary evaluation
-	 * @param sToken      The function token
+	 * @param rightValue The right value for unary evaluation
+	 * @param token      The function token
 	 */
-	public AbstractBinaryFunction(R rRightValue, String sToken) {
-		super(sToken);
+	public AbstractBinaryFunction(R rightValue, String token) {
+		super(token);
 
-		this.rRightValue = rRightValue;
+		this.rightValue = rightValue;
 	}
 
 	/**
 	 * Implemented as final to delegate the evaluation of this function to the
 	 * binary method {@link BinaryFunction#evaluate(Object, Object)}.
 	 *
-	 * @param rLeftValue The left input value
+	 * @param leftValue The left input value
 	 * @return The result of evaluating the left and right values
 	 */
 	@Override
-	public final O evaluate(L rLeftValue) {
-		return evaluate(rLeftValue, rRightValue);
+	public final O evaluate(L leftValue) {
+		return evaluate(leftValue, rightValue);
 	}
 
 	/**
@@ -72,7 +72,7 @@ public abstract class AbstractBinaryFunction<L, R, O>
 	 */
 	@Override
 	public final R getRightValue() {
-		return rRightValue;
+		return rightValue;
 	}
 
 	/**
@@ -82,8 +82,8 @@ public abstract class AbstractBinaryFunction<L, R, O>
 	 * @see Functions#chainLeft(BinaryFunction, BinaryFunction)
 	 */
 	public <T> BinaryFunction<L, R, T> thenLeft(
-		BinaryFunction<? super O, R, T> rOther) {
-		return Functions.chainLeft(rOther, this);
+		BinaryFunction<? super O, R, T> other) {
+		return Functions.chainLeft(other, this);
 	}
 
 	/**
@@ -94,8 +94,8 @@ public abstract class AbstractBinaryFunction<L, R, O>
 	 * @see Functions#chainRight(BinaryFunction, BinaryFunction)
 	 */
 	public <T> BinaryFunction<L, R, T> thenRight(
-		BinaryFunction<L, ? super O, T> rOther) {
-		return Functions.chainRight(rOther, this);
+		BinaryFunction<L, ? super O, T> other) {
+		return Functions.chainRight(other, this);
 	}
 
 	/**
@@ -107,18 +107,18 @@ public abstract class AbstractBinaryFunction<L, R, O>
 	 */
 	@Override
 	public String toString() {
-		return getToken() + "(" + INPUT_PLACEHOLDER + ", " + rRightValue + ")";
+		return getToken() + "(" + INPUT_PLACEHOLDER + ", " + rightValue + ")";
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
-		AbstractBinaryFunction<?, ?, ?> rOtherFunction =
-			(AbstractBinaryFunction<?, ?, ?>) rOther;
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
+		AbstractBinaryFunction<?, ?, ?> otherFunction =
+			(AbstractBinaryFunction<?, ?, ?>) other;
 
-		return Objects.equals(rRightValue, rOtherFunction.rRightValue);
+		return Objects.equals(rightValue, otherFunction.rightValue);
 	}
 
 	/**
@@ -126,6 +126,6 @@ public abstract class AbstractBinaryFunction<L, R, O>
 	 */
 	@Override
 	protected int paramsHashCode() {
-		return rRightValue != null ? rRightValue.hashCode() : 0;
+		return rightValue != null ? rightValue.hashCode() : 0;
 	}
 }

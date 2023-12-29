@@ -45,18 +45,18 @@ public class CollectionFunctions {
 	/**
 	 * Returns a new binary function that adds a value to an input collection.
 	 *
-	 * @param rValue The default value to add for unary function invocations
-	 *
+	 * @param value The default value to add for unary function invocations
 	 * @return A new function instance
 	 */
-	public static <T, C extends Collection<? super T>> BinaryFunction<C, T, Boolean> add(T rValue) {
-		return new AbstractBinaryFunction<C, T, Boolean>(
-				rValue,
-				"AddToCollection") {
+	public static <T, C extends Collection<? super T>> BinaryFunction<C, T,
+		Boolean> add(
+		T value) {
+		return new AbstractBinaryFunction<C, T, Boolean>(value,
+			"AddToCollection") {
 			@Override
 			@SuppressWarnings("boxing")
-			public Boolean evaluate(C rCollection, T rValue) {
-				return rCollection.add(rValue);
+			public Boolean evaluate(C collection, T value) {
+				return collection.add(value);
 			}
 		};
 	}
@@ -71,37 +71,36 @@ public class CollectionFunctions {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> InvertibleFunction<T[], List<T>> asList() {
-		return InvertibleFunction.of(
-				a -> Arrays.asList(a),
-				l -> (T[]) l.toArray());
+		return InvertibleFunction.of(a -> Arrays.asList(a),
+			l -> (T[]) l.toArray());
 	}
 
 	/**
 	 * Returns a new function instance that collects elements of a collection.
 	 * Each element for which the given predicate evaluates to TRUE will be
-	 * collected into a new collection of the same type as the input collection.
+	 * collected into a new collection of the same type as the input
+	 * collection.
 	 *
-	 * @param pCollect The predicate to evaluate the collection elements with
-	 *
+	 * @param collect The predicate to evaluate the collection elements with
 	 * @return A new function instance
 	 */
-	public static <T, C extends Collection<T>> BinaryFunction<C, Predicate<? super T>, C> collect(
-			Predicate<? super T> pCollect) {
-		return new AbstractBinaryFunction<C, Predicate<? super T>, C>(
-				pCollect,
-				"Collect") {
+	public static <T, C extends Collection<T>> BinaryFunction<C, Predicate<?
+		super T>, C> collect(
+		Predicate<? super T> collect) {
+		return new AbstractBinaryFunction<C, Predicate<? super T>, C>(collect,
+			"Collect") {
 			@Override
 			@SuppressWarnings("boxing")
-			public C evaluate(C rCollection, Predicate<? super T> rPredicate) {
-				C aResult = CollectionUtil.newCollectionLike(rCollection);
+			public C evaluate(C collection, Predicate<? super T> predicate) {
+				C result = CollectionUtil.newCollectionLike(collection);
 
-				for (T rValue : rCollection) {
-					if (rPredicate.evaluate(rValue)) {
-						aResult.add(rValue);
+				for (T value : collection) {
+					if (predicate.evaluate(value)) {
+						result.add(value);
 					}
 				}
 
-				return aResult;
+				return result;
 			}
 		};
 	}
@@ -111,26 +110,25 @@ public class CollectionFunctions {
 	 * collections into a target collection of the same type. The function
 	 * returns the target collection to support concatenation.
 	 *
-	 * @param rTargetCollection The target collection
-	 *
+	 * @param targetCollection The target collection
 	 * @return A new function instance
 	 */
 	public static <E, T extends Collection<E>, C extends Collection<E>> Action<C> collectAllInto(
-			final T rTargetCollection) {
-		return c -> rTargetCollection.addAll(c);
+		final T targetCollection) {
+		return c -> targetCollection.addAll(c);
 	}
 
 	/**
 	 * Returns a new function instance that collects it's input values into a
-	 * collection. The function returns the collection to support concatenation.
+	 * collection. The function returns the collection to support
+	 * concatenation.
 	 *
-	 * @param rCollection The target collection
-	 *
+	 * @param collection The target collection
 	 * @return A new function instance
 	 */
 	public static <T, C extends Collection<T>> Action<T> collectInto(
-			final C rCollection) {
-		return v -> rCollection.add(v);
+		final C collection) {
+		return v -> collection.add(v);
 	}
 
 	/**
@@ -151,47 +149,34 @@ public class CollectionFunctions {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T, C extends Collection<T>> Function<C, C> copyOfCollection() {
-		return rInput -> {
-			C aOutput = (C) ReflectUtil.newInstance(rInput.getClass());
+		return input -> {
+			C output = (C) ReflectUtil.newInstance(input.getClass());
 
-			aOutput.addAll(rInput);
+			output.addAll(input);
 
-			return aOutput;
+			return output;
 		};
-	}
-
-	/**
-	 * @see #createList(Collection)
-	 */
-	@SafeVarargs
-	public static <I, O> Function<I, List<O>> createList(
-			final Function<? super I, O>... rFunctions) {
-		// separate variable needed to prevent Java compiler error
-		Collection<Function<? super I, O>> aFunctions = Arrays.asList(rFunctions);
-
-		return createList(aFunctions);
 	}
 
 	/**
 	 * Returns a new function that creates a list of values from the result of
 	 * applying several functions to an input object.
 	 *
-	 * @param rFunctions The functions to evaluate input objects with
-	 *
+	 * @param functions The functions to evaluate input objects with
 	 * @return A new function instance
 	 */
 	public static <I, O> Function<I, List<O>> createList(
-			final Collection<Function<? super I, O>> rFunctions) {
+		final Collection<Function<? super I, O>> functions) {
 		return new AbstractFunction<I, List<O>>("CreateList") {
 			@Override
-			public List<O> evaluate(I rInput) {
-				List<O> aResult = new ArrayList<O>(rFunctions.size());
+			public List<O> evaluate(I input) {
+				List<O> result = new ArrayList<O>(functions.size());
 
-				for (Function<? super I, O> rFunction : rFunctions) {
-					aResult.add(rFunction.evaluate(rInput));
+				for (Function<? super I, O> function : functions) {
+					result.add(function.evaluate(input));
 				}
 
-				return aResult;
+				return result;
 			}
 		};
 	}
@@ -202,74 +187,61 @@ public class CollectionFunctions {
 	 * evaluating them with a function. The entries in the resulting map will
 	 * have the same order as the elements in the input collection.
 	 *
-	 * @param fKey The function to generate the map keys with
-	 *
+	 * @param key The function to generate the map keys with
 	 * @return A new binary function instance
 	 */
-	public static <K, V> BinaryFunction<Collection<V>, Function<? super V, K>, Map<K, V>> createMap(
-			Function<? super V, K> fKey) {
-		return new AbstractBinaryFunction<Collection<V>, Function<? super V, K>, Map<K, V>>(
-				fKey,
-				"CreateMap") {
+	public static <K, V> BinaryFunction<Collection<V>, Function<? super V, K>,
+		Map<K, V>> createMap(
+		Function<? super V, K> key) {
+		return new AbstractBinaryFunction<Collection<V>, Function<? super V,
+			K>, Map<K, V>>(
+			key, "CreateMap") {
 			@Override
-			public Map<K, V> evaluate(
-					Collection<V> rInputCollection,
-					Function<? super V, K> rFunction) {
-				Map<K, V> aResult = new LinkedHashMap<K, V>(rInputCollection.size());
+			public Map<K, V> evaluate(Collection<V> inputCollection,
+				Function<? super V, K> function) {
+				Map<K, V> result =
+					new LinkedHashMap<K, V>(inputCollection.size());
 
-				for (V rValue : rInputCollection) {
-					aResult.put(rFunction.evaluate(rValue), rValue);
+				for (V value : inputCollection) {
+					result.put(function.evaluate(value), value);
 				}
 
-				return aResult;
+				return result;
 			}
 		};
 	}
 
 	/**
-	 * @see #createStringList(boolean, Collection)
-	 */
-	@SafeVarargs
-	public static <I> Function<I, List<String>> createStringList(
-			boolean bMapNull,
-			Function<? super I, ?>... rFunctions) {
-		// separate variable needed to prevent Java compiler error
-		Collection<Function<? super I, ?>> aFunctions = Arrays.asList(rFunctions);
-
-		return createStringList(bMapNull, aFunctions);
-	}
-
-	/**
 	 * Returns a new function that creates a list of strings from the result of
 	 * applying several functions to an input object. This is a convenience
-	 * variant of {@link #createList(Function...)} that performs a string
-	 * conversion on the result of each function evaluation. If the result of an
-	 * evaluation is NULL and the boolean parameter is TRUE it will be mapped to
+	 * variant of {@link #createList(Collection)} that performs a string
+	 * conversion on the result of each function evaluation. If the result
+	 * of an
+	 * evaluation is NULL and the boolean parameter is TRUE it will be
+	 * mapped to
 	 * an empty string, else the result will also contain NULL.
 	 *
-	 * @param bMapNull   TRUE to map NULL values to an empty string
-	 * @param rFunctions The functions to evaluate input objects with
-	 *
+	 * @param mapNull   TRUE to map NULL values to an empty string
+	 * @param functions The functions to evaluate input objects with
 	 * @return A new function instance
 	 */
 	public static <I> Function<I, List<String>> createStringList(
-			final boolean bMapNull,
-			final Collection<Function<? super I, ?>> rFunctions) {
+		final boolean mapNull,
+		final Collection<Function<? super I, ?>> functions) {
 		return new AbstractFunction<I, List<String>>("CreateStringList") {
 			@Override
-			public List<String> evaluate(I rInput) {
-				List<String> aResult = new ArrayList<String>(rFunctions.size());
+			public List<String> evaluate(I input) {
+				List<String> result = new ArrayList<String>(functions.size());
 
-				String sNullValue = bMapNull ? "" : null;
+				String nullValue = mapNull ? "" : null;
 
-				for (Function<? super I, ?> rFunction : rFunctions) {
-					Object rValue = rFunction.evaluate(rInput);
+				for (Function<? super I, ?> function : functions) {
+					Object value = function.evaluate(input);
 
-					aResult.add(
-							rValue != null ? rValue.toString() : sNullValue);
+					result.add(value != null ? value.toString() : nullValue);
 				}
 
-				return aResult;
+				return result;
 			}
 		};
 	}
@@ -280,42 +252,38 @@ public class CollectionFunctions {
 	 * Otherwise, if the given index is invalid for the input list a runtime
 	 * exception will be thrown.
 	 *
-	 * @param nIndex The index of the element to extract or -1 for the last
-	 *               element in the list
-	 *
+	 * @param index The index of the element to extract or -1 for the last
+	 *              element in the list
 	 * @return A new function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static <T> BinaryFunction<List<T>, Integer, T> extractListElement(
-			int nIndex) {
-		return new AbstractBinaryFunction<List<T>, Integer, T>(
-				nIndex,
-				"ExtractListElement") {
+		int index) {
+		return new AbstractBinaryFunction<List<T>, Integer, T>(index,
+			"ExtractListElement") {
 			@Override
-			public T evaluate(List<T> rList, Integer rIndex) {
-				int nIndex = rIndex.intValue();
-
-				return rList.remove(nIndex == -1 ? rList.size() - 1 : nIndex);
+			public T evaluate(List<T> list, Integer index) {
+				return list.remove(index == -1 ? list.size() - 1 : index);
 			}
 		};
 	}
 
 	/**
-	 * Returns a new function instance that extracts a certain value from a map.
+	 * Returns a new function instance that extracts a certain value from a
+	 * map.
 	 * If there is no mapping for the given key in the map the function will
 	 * evaluate to NULL.
 	 *
-	 * @param rKey The key of the value to extract
-	 *
+	 * @param key The key of the value to extract
 	 * @return A new function instance
 	 */
-	public static <K, V> BinaryFunction<Map<K, V>, K, V> extractMapValue(K rKey) {
-		return new AbstractBinaryFunction<Map<K, V>, K, V>(
-				rKey,
-				"ExtractMapValue") {
+	public static <K, V> BinaryFunction<Map<K, V>, K, V> extractMapValue(
+		K key) {
+		return new AbstractBinaryFunction<Map<K, V>, K, V>(key,
+			"ExtractMapValue") {
 			@Override
-			public V evaluate(Map<K, V> rMap, K rKey) {
-				return rMap.remove(rKey);
+			public V evaluate(Map<K, V> map, K key) {
+				return map.remove(key);
 			}
 		};
 	}
@@ -326,21 +294,20 @@ public class CollectionFunctions {
 	 * iteration order for which the given predicate evaluates to TRUE or NULL
 	 * if none could be found.
 	 *
-	 * @param rPredicate The predicate to evaluate the collection elements with
-	 *
+	 * @param predicate The predicate to evaluate the collection elements with
 	 * @return A new function instance
 	 */
-	public static <T, C extends Collection<T>> BinaryFunction<C, Predicate<? super T>, T> find(
-			Predicate<? super T> rPredicate) {
-		return new AbstractBinaryFunction<C, Predicate<? super T>, T>(
-				rPredicate,
-				"Find") {
+	public static <T, C extends Collection<T>> BinaryFunction<C, Predicate<?
+		super T>, T> find(
+		Predicate<? super T> predicate) {
+		return new AbstractBinaryFunction<C, Predicate<? super T>, T>(predicate,
+			"Find") {
 			@Override
 			@SuppressWarnings("boxing")
-			public T evaluate(C rCollection, Predicate<? super T> rPredicate) {
-				for (T rValue : rCollection) {
-					if (rPredicate.evaluate(rValue)) {
-						return rValue;
+			public T evaluate(C collection, Predicate<? super T> predicate) {
+				for (T value : collection) {
+					if (predicate.evaluate(value)) {
+						return value;
 					}
 				}
 
@@ -352,25 +319,25 @@ public class CollectionFunctions {
 	/**
 	 * Returns a new function instance that evaluates each element of a
 	 * collection with another function. The output value of the element
-	 * function will be ignored. The output of the returned function will be the
+	 * function will be ignored. The output of the returned function will be
+	 * the
 	 * unchanged input collection.
 	 *
-	 * @param rFunction The function to evaluate the collection elements with
-	 *
+	 * @param function The function to evaluate the collection elements with
 	 * @return A new function instance
 	 */
-	public static <T, C extends Collection<T>> BinaryFunction<C, Function<? super T, ?>, C> forEach(
-			Function<T, ?> rFunction) {
+	public static <T, C extends Collection<T>> BinaryFunction<C, Function<?
+		super T, ?>, C> forEach(
+		Function<T, ?> function) {
 		return new AbstractBinaryFunction<C, Function<? super T, ?>, C>(
-				rFunction,
-				"ForEach") {
+			function, "ForEach") {
 			@Override
-			public C evaluate(C rCollection, Function<? super T, ?> rFunction) {
-				for (T rValue : rCollection) {
-					rFunction.evaluate(rValue);
+			public C evaluate(C collection, Function<? super T, ?> function) {
+				for (T value : collection) {
+					function.evaluate(value);
 				}
 
-				return rCollection;
+				return collection;
 			}
 		};
 	}
@@ -382,13 +349,12 @@ public class CollectionFunctions {
 	 * use of variable indices. A variant of this function with a fixed list
 	 * parameter can be obtained from {@link #getListElementAt(List)}.
 	 *
-	 * @param nIndex The index of the element to return
-	 *
+	 * @param index The index of the element to return
 	 * @return A new function instance
 	 */
 	public static <T> BinaryFunction<List<T>, Integer, T> getListElement(
-			int nIndex) {
-		return new GetListElement<T>(nIndex);
+		int index) {
+		return new GetListElement<T>(index);
 	}
 
 	/**
@@ -396,28 +362,28 @@ public class CollectionFunctions {
 	 * list by it's index. This is a variant of {@link #getListElement(int)}
 	 * with swapped parameters.
 	 *
-	 * @param rList The list to return elements from
-	 *
+	 * @param list The list to return elements from
 	 * @return A new function instance
 	 */
 	public static <T> BinaryFunction<Integer, List<T>, T> getListElementAt(
-			List<T> rList) {
-		BinaryFunction<List<T>, Integer, T> rListElement = getListElement(0);
+		List<T> list) {
+		BinaryFunction<List<T>, Integer, T> listElement = getListElement(0);
 
-		return Functions.swapParams(rListElement, rList);
+		return Functions.swapParams(listElement, list);
 	}
 
 	/**
-	 * Returns a new function instance that returns the value that is associated
+	 * Returns a new function instance that returns the value that is
+	 * associated
 	 * with a certain key from a map. A variant with swapped left and right
-	 * parameters can be obtained from the method {@link #getMapValueFrom(Map)}.
+	 * parameters can be obtained from the method
+	 * {@link #getMapValueFrom(Map)}.
 	 *
-	 * @param rKey The map key of the value to return
-	 *
+	 * @param key The map key of the value to return
 	 * @return A new function instance
 	 */
-	public static <K, V> BinaryFunction<Map<K, V>, K, V> getMapValue(K rKey) {
-		return new GetMapValue<K, V>(rKey);
+	public static <K, V> BinaryFunction<Map<K, V>, K, V> getMapValue(K key) {
+		return new GetMapValue<K, V>(key);
 	}
 
 	/**
@@ -426,13 +392,12 @@ public class CollectionFunctions {
 	 * returned function. This is the swapped parameter version of the function
 	 * returned by {@link #getMapValue(Object)}.
 	 *
-	 * @param rMap The map to retrieve the value from
-	 *
+	 * @param map The map to retrieve the value from
 	 * @return A new function instance
 	 */
 	public static <K, V> BinaryFunction<K, Map<K, V>, V> getMapValueFrom(
-			Map<K, V> rMap) {
-		return Functions.swapParams(new GetMapValue<K, V>(null), rMap);
+		Map<K, V> map) {
+		return Functions.swapParams(new GetMapValue<K, V>(null), map);
 	}
 
 	/**
@@ -443,19 +408,18 @@ public class CollectionFunctions {
 	 * first parameter shall be determined.
 	 *
 	 * <p>
-	 * The function returned by {@link #indexOf(Object)} works similar but
-	 * with exchanged parameters.
+	 * The function returned by {@link #indexOf(Object)} works similar but with
+	 * exchanged parameters.
 	 * </p>
 	 *
-	 * @param rList The list to return the index of an element therein
-	 *
+	 * @param list The list to return the index of an element therein
 	 * @return A new function instance
 	 */
 	public static <T> BinaryFunction<T, List<? super T>, Integer> indexIn(
-			List<? super T> rList) {
-		BinaryFunction<List<? super T>, T, Integer> rIndexOf = indexOf(null);
+		List<? super T> list) {
+		BinaryFunction<List<? super T>, T, Integer> indexOf = indexOf(null);
 
-		return Functions.swapParams(rIndexOf, rList);
+		return Functions.swapParams(indexOf, list);
 	}
 
 	/**
@@ -469,47 +433,48 @@ public class CollectionFunctions {
 	 * exchanged parameters.
 	 * </p>
 	 *
-	 * @param rElement The element to return the index of
-	 *
+	 * @param element The element to return the index of
 	 * @return A new function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static <T> BinaryFunction<List<? super T>, T, Integer> indexOf(
-			T rElement) {
-		return new AbstractBinaryFunction<List<? super T>, T, Integer>(
-				rElement,
-				"IndexOf") {
+		T element) {
+		return new AbstractBinaryFunction<List<? super T>, T, Integer>(element,
+			"IndexOf") {
 			@Override
-			public Integer evaluate(List<? super T> rList, T rElement) {
-				return rList.indexOf(rElement);
+			public Integer evaluate(List<? super T> list, T element) {
+				return list.indexOf(element);
 			}
 		};
 	}
 
 	/**
-	 * Returns a new function instance that maps elements of a collection into a
+	 * Returns a new function instance that maps elements of a collection
+	 * into a
 	 * new collection by evaluating them with a function.
 	 *
-	 * @param fMap The function to evaluate the collection elements with
-	 *
+	 * @param map The function to evaluate the collection elements with
 	 * @return A new function instance
 	 */
-	public static <I, O, C extends Collection<I>> BinaryFunction<C, Function<? super I, O>, Collection<O>> map(
-			Function<? super I, O> fMap) {
-		return new AbstractBinaryFunction<C, Function<? super I, O>, Collection<O>>(fMap, "MapCollection") {
+	public static <I, O, C extends Collection<I>> BinaryFunction<C, Function<?
+		super I, O>, Collection<O>> map(
+		Function<? super I, O> map) {
+		return new AbstractBinaryFunction<C, Function<? super I, O>,
+			Collection<O>>(
+			map, "MapCollection") {
 			@Override
-			public Collection<O> evaluate(
-					C rInputCollection,
-					Function<? super I, O> rFunction) {
+			public Collection<O> evaluate(C inputCollection,
+				Function<? super I, O> function) {
 				@SuppressWarnings("unchecked")
-				Collection<O> aResult = (Collection<O>) CollectionUtil.newCollectionLike(
-						rInputCollection);
+				Collection<O> result =
+					(Collection<O>) CollectionUtil.newCollectionLike(
+						inputCollection);
 
-				for (I rValue : rInputCollection) {
-					aResult.add(rFunction.evaluate(rValue));
+				for (I value : inputCollection) {
+					result.add(function.evaluate(value));
 				}
 
-				return aResult;
+				return result;
 			}
 		};
 	}
@@ -521,32 +486,32 @@ public class CollectionFunctions {
 	 * @return A constant function instance
 	 */
 	public static <T> Function<List<T>, List<T>> newList() {
-		return rList -> new ArrayList<T>(rList);
+		return list -> new ArrayList<T>(list);
 	}
 
 	/**
 	 * Returns a new function instance that reduces a collection into a single
 	 * value by evaluating all collection elements with a function.
 	 *
-	 * @param fReduce The function to evaluate the collection elements with
-	 *
+	 * @param reduce The function to evaluate the collection elements with
 	 * @return A new function instance
 	 */
-	public static <T, C extends Collection<T>> BinaryFunction<C, BinaryFunction<T, T, T>, T> reduce(
-			BinaryFunction<T, T, T> fReduce) {
-		return new AbstractBinaryFunction<C, BinaryFunction<T, T, T>, T>(
-				fReduce,
-				"Reduce") {
+	public static <T, C extends Collection<T>> BinaryFunction<C,
+		BinaryFunction<T, T, T>, T> reduce(
+		BinaryFunction<T, T, T> reduce) {
+		return new AbstractBinaryFunction<C, BinaryFunction<T, T, T>, T>(reduce,
+			"Reduce") {
 			@Override
-			public T evaluate(C rCollection, BinaryFunction<T, T, T> rFunction) {
-				T aResult = null;
+			public T evaluate(C collection, BinaryFunction<T, T, T> function) {
+				T result = null;
 
-				for (T rValue : rCollection) {
-					aResult = aResult != null ? rFunction.evaluate(aResult, rValue)
-							: rValue;
+				for (T value : collection) {
+					result = result != null ?
+					         function.evaluate(result, value) :
+					         value;
 				}
 
-				return aResult;
+				return result;
 			}
 		};
 	}

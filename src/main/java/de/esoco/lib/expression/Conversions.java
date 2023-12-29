@@ -19,10 +19,11 @@ package de.esoco.lib.expression;
 import de.esoco.lib.property.HasOrder;
 import de.esoco.lib.reflect.ReflectUtil;
 import de.esoco.lib.text.TextConvert;
+import org.obrel.core.RelationType;
+import org.obrel.type.MetaTypes;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,9 +32,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
-
-import org.obrel.core.RelationType;
-import org.obrel.type.MetaTypes;
 
 import static org.obrel.type.MetaTypes.ELEMENT_DATATYPE;
 import static org.obrel.type.MetaTypes.KEY_DATATYPE;
@@ -49,7 +47,7 @@ import static org.obrel.type.MetaTypes.VALUE_DATATYPE;
  */
 public class Conversions {
 	private static Map<Class<?>, InvertibleFunction<?, String>>
-		aStringConversions;
+		stringConversions;
 
 	/**
 	 * Private, only static use.
@@ -67,43 +65,43 @@ public class Conversions {
 	 * <p>
 	 * Collections and maps will also be converted by invoking this method
 	 * recursively on the elements or keys and values. They will be separated
-	 * with the default strings in {@link
-	 * TextConvert#DEFAULT_COLLECTION_SEPARATOR} and {@link
-	 * TextConvert#DEFAULT_KEY_VALUE_SEPARATOR}.
+	 * with the default strings in
+	 * {@link TextConvert#DEFAULT_COLLECTION_SEPARATOR} and
+	 * {@link TextConvert#DEFAULT_KEY_VALUE_SEPARATOR}.
 	 * </p>
 	 *
-	 * @param rValue The value to convert into a string
+	 * @param o The value object to convert into a string
 	 * @return A string representation of the given value
 	 * @throws IllegalArgumentException If no string conversion function has
 	 *                                  been registered for the value's class
 	 */
-	public static String asString(Object rValue) {
-		String sValue;
+	public static String asString(Object o) {
+		String value;
 
-		if (rValue == null) {
-			sValue = "null";
-		} else if (rValue instanceof Collection<?>) {
-			sValue = asString((Collection<?>) rValue,
+		if (o == null) {
+			value = "null";
+		} else if (o instanceof Collection<?>) {
+			value = asString((Collection<?>) o,
 				TextConvert.DEFAULT_COLLECTION_SEPARATOR);
-		} else if (rValue instanceof Map<?, ?>) {
-			sValue = asString((Map<?, ?>) rValue,
+		} else if (o instanceof Map<?, ?>) {
+			value = asString((Map<?, ?>) o,
 				TextConvert.DEFAULT_COLLECTION_SEPARATOR,
 				TextConvert.DEFAULT_KEY_VALUE_SEPARATOR);
 		} else {
 			@SuppressWarnings("unchecked")
-			InvertibleFunction<Object, String> rConversion =
+			InvertibleFunction<Object, String> conversion =
 				(InvertibleFunction<Object, String>) getStringConversion(
-					rValue.getClass());
+					o.getClass());
 
-			if (rConversion == null) {
+			if (conversion == null) {
 				throw new IllegalArgumentException(
-					"No string conversion registered for " + rValue.getClass());
+					"No string conversion registered for " + o.getClass());
 			}
 
-			sValue = rConversion.evaluate(rValue);
+			value = conversion.evaluate(o);
 		}
 
-		return sValue;
+		return value;
 	}
 
 	/**
@@ -119,30 +117,27 @@ public class Conversions {
 	 * development time.
 	 * </p>
 	 *
-	 * @param rCollection The collection to convert into a string
-	 * @param sSeparator  The separator string between the collection elements
+	 * @param collection The collection to convert into a string
+	 * @param separator  The separator string between the collection elements
 	 * @return A string representation of the given collection
 	 * @throws IllegalArgumentException If no string conversion function has
 	 *                                  been registered for one of the
 	 *                                  collection elements
 	 */
-	public static String asString(Collection<?> rCollection,
-		String sSeparator) {
-		StringBuilder aResult = new StringBuilder();
+	public static String asString(Collection<?> collection, String separator) {
+		StringBuilder result = new StringBuilder();
 
-		if (rCollection.size() > 0) {
-			for (Object rElement : rCollection) {
-				String sElement = asString(rElement);
-
-				aResult.append(TextConvert.unicodeEncode(sElement,
-					sSeparator));
-				aResult.append(sSeparator);
+		if (collection.size() > 0) {
+			for (Object element : collection) {
+				result.append(
+					TextConvert.unicodeEncode(asString(element), separator));
+				result.append(separator);
 			}
 
-			aResult.setLength(aResult.length() - sSeparator.length());
+			result.setLength(result.length() - separator.length());
 		}
 
-		return aResult.toString();
+		return result.toString();
 	}
 
 	/**
@@ -155,61 +150,61 @@ public class Conversions {
 	 * the result.
 	 *
 	 * <p>
-	 * It is the responsibility of the invoking code to ensure that neither
-	 * the entry separator nor the separator string occur in the converted keys
-	 * and values.To protect against programming errors this is safeguarded by
-	 * an assertion at development time.
+	 * It is the responsibility of the invoking code to ensure that neither the
+	 * entry separator nor the separator string occur in the converted keys and
+	 * values.To protect against programming errors this is safeguarded by an
+	 * assertion at development time.
 	 * </p>
 	 *
-	 * @param rMap               The map to convert into a string
-	 * @param sEntrySeparator    The separator string between the map entries
-	 * @param sKeyValueSeparator The separator string between the key and value
-	 *                           of a map entry
+	 * @param map               The map to convert into a string
+	 * @param entrySeparator    The separator string between the map entries
+	 * @param keyValueSeparator The separator string between the key and value
+	 *                          of a map entry
 	 * @return A string representation of the given map
 	 * @throws IllegalArgumentException If no string conversion function has
 	 *                                  been registered for one of the
 	 *                                  values in
 	 *                                  the map
 	 */
-	public static String asString(Map<?, ?> rMap, String sEntrySeparator,
-		String sKeyValueSeparator) {
-		StringBuilder aResult = new StringBuilder();
+	public static String asString(Map<?, ?> map, String entrySeparator,
+		String keyValueSeparator) {
+		StringBuilder result = new StringBuilder();
 
-		if (rMap.size() > 0) {
-			for (Entry<?, ?> rEntry : rMap.entrySet()) {
-				String sKey = asString(rEntry.getKey());
-				String sValue = asString(rEntry.getValue());
+		if (map.size() > 0) {
+			for (Entry<?, ?> entry : map.entrySet()) {
+				String key = asString(entry.getKey());
+				String value = asString(entry.getValue());
 
-				assert sKey.indexOf(sEntrySeparator) < 0 &&
-					sKey.indexOf(sKeyValueSeparator) < 0;
+				assert key.indexOf(entrySeparator) < 0 &&
+					key.indexOf(keyValueSeparator) < 0;
 
-				aResult.append(sKey);
-				aResult.append(sKeyValueSeparator);
-				aResult.append(
-					TextConvert.unicodeEncode(sValue, sEntrySeparator));
-				aResult.append(sEntrySeparator);
+				result.append(key);
+				result.append(keyValueSeparator);
+				result.append(TextConvert.unicodeEncode(value,
+					entrySeparator));
+				result.append(entrySeparator);
 			}
 
-			aResult.setLength(aResult.length() - sEntrySeparator.length());
+			result.setLength(result.length() - entrySeparator.length());
 		}
 
-		return aResult.toString();
+		return result.toString();
 	}
 
 	/**
 	 * Returns an invertible function that converts an enum value of a certain
 	 * enum type into a string and vice versa.
 	 *
-	 * @param rEnumClass The class of the enum the returned function will
-	 *                   convert
+	 * @param enumClass The class of the enum the returned function will
+	 *                  convert
 	 * @return An enum conversion function for the given enum type
 	 */
 	public static <E extends Enum<E>> InvertibleFunction<E, String> enumToString(
-		final Class<E> rEnumClass) {
-		return new StringConversion<E>(rEnumClass) {
+		final Class<E> enumClass) {
+		return new StringConversion<E>(enumClass) {
 			@Override
-			public E invert(String sEnumName) {
-				return Enum.valueOf(rEnumClass, sEnumName);
+			public E invert(String enumName) {
+				return Enum.valueOf(enumClass, enumName);
 			}
 		};
 	}
@@ -222,47 +217,46 @@ public class Conversions {
 	 * implementation will search recursively for a conversion of one of it's
 	 * superclasses.
 	 *
-	 * @param rDatatype The datatype to return the conversion function for
+	 * @param datatype The datatype to return the conversion function for
 	 * @return The invertible string conversion function or NULL if none has
-	 * been registered for the given datatype or one of it's
-	 * superclasses
+	 * been registered for the given datatype or one of it's superclasses
 	 */
 	@SuppressWarnings({ "unchecked" })
 	public static <T, E extends Enum<E>> InvertibleFunction<T, String> getStringConversion(
-		Class<T> rDatatype) {
-		Map<Class<?>, InvertibleFunction<?, String>> rConversions =
+		Class<T> datatype) {
+		Map<Class<?>, InvertibleFunction<?, String>> conversions =
 			getStringConversionMap();
 
-		InvertibleFunction<T, String> rConversion =
-			(InvertibleFunction<T, String>) rConversions.get(rDatatype);
+		InvertibleFunction<T, String> conversion =
+			(InvertibleFunction<T, String>) conversions.get(datatype);
 
-		if (rConversion == null) {
-			if (rDatatype.isEnum()) {
-				rConversion = (InvertibleFunction<T, String>) enumToString(
-					(Class<E>) rDatatype);
+		if (conversion == null) {
+			if (datatype.isEnum()) {
+				conversion = (InvertibleFunction<T, String>) enumToString(
+					(Class<E>) datatype);
 
-				rConversions.put(rDatatype, rConversion);
+				conversions.put(datatype, conversion);
 			} else {
-				Class<? super T> rSuperclass = rDatatype;
+				Class<? super T> superclass = datatype;
 
 				do {
-					rSuperclass = rSuperclass.getSuperclass();
+					superclass = superclass.getSuperclass();
 
-					if (rSuperclass != Object.class) {
-						rConversion =
-							(InvertibleFunction<T, String>) rConversions.get(
-								rSuperclass);
+					if (superclass != Object.class) {
+						conversion =
+							(InvertibleFunction<T, String>) conversions.get(
+								superclass);
 					} else {
 						// if no conversion found for class hierarchy try a
 						// default string conversion
-						rConversion = new StringConversion<T>(rDatatype);
-						rConversions.put(rDatatype, rConversion);
+						conversion = new StringConversion<T>(datatype);
+						conversions.put(datatype, conversion);
 					}
-				} while (rConversion == null);
+				} while (conversion == null);
 			}
 		}
 
-		return rConversion;
+		return conversion;
 	}
 
 	/**
@@ -273,71 +267,71 @@ public class Conversions {
 	 * @return The map of string conversion functions
 	 */
 	private static Map<Class<?>, InvertibleFunction<?, String>> getStringConversionMap() {
-		if (aStringConversions == null) {
-			aStringConversions =
+		if (stringConversions == null) {
+			stringConversions =
 				new HashMap<Class<?>, InvertibleFunction<?, String>>();
 
-			aStringConversions.put(String.class, Functions.identity());
+			stringConversions.put(String.class, Functions.identity());
 
-			aStringConversions.put(Boolean.class,
+			stringConversions.put(Boolean.class,
 				new StringConversion<Boolean>(Boolean.class) {
 					@Override
-					public Boolean invert(String sValue) {
-						return Boolean.valueOf(sValue);
+					public Boolean invert(String value) {
+						return Boolean.valueOf(value);
 					}
 				});
-			aStringConversions.put(Integer.class,
+			stringConversions.put(Integer.class,
 				new StringConversion<Integer>(Integer.class) {
 					@Override
-					public Integer invert(String sValue) {
-						return Integer.valueOf(sValue);
+					public Integer invert(String value) {
+						return Integer.valueOf(value);
 					}
 				});
-			aStringConversions.put(Long.class,
+			stringConversions.put(Long.class,
 				new StringConversion<Long>(Long.class) {
 					@Override
-					public Long invert(String sValue) {
-						return Long.valueOf(sValue);
+					public Long invert(String value) {
+						return Long.valueOf(value);
 					}
 				});
-			aStringConversions.put(Short.class,
+			stringConversions.put(Short.class,
 				new StringConversion<Short>(Short.class) {
 					@Override
-					public Short invert(String sValue) {
-						return Short.valueOf(sValue);
+					public Short invert(String value) {
+						return Short.valueOf(value);
 					}
 				});
-			aStringConversions.put(Float.class,
+			stringConversions.put(Float.class,
 				new StringConversion<Float>(Float.class) {
 					@Override
-					public Float invert(String sValue) {
-						return Float.valueOf(sValue);
+					public Float invert(String value) {
+						return Float.valueOf(value);
 					}
 				});
-			aStringConversions.put(Double.class,
+			stringConversions.put(Double.class,
 				new StringConversion<Double>(Double.class) {
 					@Override
-					public Double invert(String sValue) {
-						return Double.valueOf(sValue);
+					public Double invert(String value) {
+						return Double.valueOf(value);
 					}
 				});
-			aStringConversions.put(RelationType.class,
+			stringConversions.put(RelationType.class,
 				new StringConversion<RelationType<?>>(RelationType.class) {
 					@Override
-					public RelationType<?> invert(String sName) {
-						return RelationType.valueOf(sName);
+					public RelationType<?> invert(String name) {
+						return RelationType.valueOf(name);
 					}
 				});
-			aStringConversions.put(BigDecimal.class,
+			stringConversions.put(BigDecimal.class,
 				new StringConversion<>(BigDecimal.class));
-			aStringConversions.put(BigInteger.class,
+			stringConversions.put(BigInteger.class,
 				new StringConversion<>(BigInteger.class));
 
-			aStringConversions.put(Date.class, new DateToStringConversion());
-			aStringConversions.put(Class.class, new ClassToStringConversion());
+			stringConversions.put(Date.class, new DateToStringConversion());
+			stringConversions.put(Class.class, new ClassToStringConversion());
 		}
 
-		return aStringConversions;
+		return stringConversions;
 	}
 
 	/**
@@ -347,133 +341,135 @@ public class Conversions {
 	 * @see #parseCollection(String, Class, Class, String, boolean)
 	 */
 	public static <E, C extends Collection<E>> C parseCollection(
-		String sElements, Class<C> rCollectionType, Class<E> rElementType,
-		boolean bOrdered) {
-		return parseCollection(sElements, rCollectionType, rElementType,
-			TextConvert.DEFAULT_COLLECTION_SEPARATOR, bOrdered);
+		String elements, Class<C> collectionType, Class<E> elementType,
+		boolean ordered) {
+		return parseCollection(elements, collectionType, elementType,
+			TextConvert.DEFAULT_COLLECTION_SEPARATOR, ordered);
 	}
 
 	/**
 	 * Parses a collection from a string where the collection elements are
 	 * separated by {@link TextConvert#DEFAULT_COLLECTION_SEPARATOR}.
 	 *
-	 * @param sElements       A string containing the elements to be parsed;
-	 *                        NULL values are allowed and will result in an
-	 *                        empty collection
-	 * @param rCollectionType The base type of the collection
-	 * @param rElementType    The type of the collection elements
-	 * @param sSeparator      The separator between the collection elements
-	 * @param bOrdered        TRUE for an ordered collection
+	 * @param elements       A string containing the elements to be parsed;
+	 *                          NULL
+	 *                       values are allowed and will result in an empty
+	 *                       collection
+	 * @param collectionType The base type of the collection
+	 * @param elementType    The type of the collection elements
+	 * @param separator      The separator between the collection elements
+	 * @param ordered        TRUE for an ordered collection
 	 * @return A new collection of an appropriate type containing the parsed
 	 * elements
 	 */
 	@SuppressWarnings("unchecked")
 	public static <E, C extends Collection<E>> C parseCollection(
-		String sElements, Class<C> rCollectionType, Class<E> rElementType,
-		String sSeparator, boolean bOrdered) {
-		Class<? extends C> rCollectionClass = null;
+		String elements, Class<C> collectionType, Class<E> elementType,
+		String separator, boolean ordered) {
+		Class<? extends C> collectionClass = null;
 
-		if (bOrdered) {
-			Class<?> rSetClass = LinkedHashSet.class;
+		if (ordered) {
+			Class<?> setClass = LinkedHashSet.class;
 
-			rCollectionClass = (Class<? extends C>) rSetClass;
+			collectionClass = (Class<? extends C>) setClass;
 		} else {
-			rCollectionClass =
-				ReflectUtil.getImplementationClass(rCollectionType);
+			collectionClass =
+				ReflectUtil.getImplementationClass(collectionType);
 		}
 
-		C aCollection = ReflectUtil.newInstance(rCollectionClass);
+		C collection = ReflectUtil.newInstance(collectionClass);
 
-		if (sElements != null) {
-			StringTokenizer aElements =
-				new StringTokenizer(sElements, sSeparator);
+		if (elements != null) {
+			StringTokenizer tokenizer =
+				new StringTokenizer(elements, separator);
 
-			while (aElements.hasMoreElements()) {
-				String sElement =
-					TextConvert.unicodeDecode(aElements.nextToken(),
-						sSeparator);
+			while (tokenizer.hasMoreElements()) {
+				String element =
+					TextConvert.unicodeDecode(tokenizer.nextToken(),
+						separator);
 
-				aCollection.add(parseValue(sElement, rElementType));
+				collection.add(parseValue(element, elementType));
 			}
 		}
 
-		return aCollection;
+		return collection;
 	}
 
 	/**
-	 * Parses a map from a string with the default map entry separator {@link
-	 * TextConvert#DEFAULT_COLLECTION_SEPARATOR} and the default key and value
-	 * separator {@link TextConvert#DEFAULT_KEY_VALUE_SEPARATOR}.
+	 * Parses a map from a string with the default map entry separator
+	 * {@link TextConvert#DEFAULT_COLLECTION_SEPARATOR} and the default key and
+	 * value separator {@link TextConvert#DEFAULT_KEY_VALUE_SEPARATOR}.
 	 *
 	 * @see #parseMap(String, Class, Class, Class, String, String, boolean)
 	 */
 	public static <K, V, M extends Map<K, V>> Map<K, V> parseMap(
-		String sMapEntries, Class<M> rMapType, Class<K> rKeyType,
-		Class<V> rValueType, boolean bOrdered) {
-		return parseMap(sMapEntries, rMapType, rKeyType, rValueType,
+		String mapEntries, Class<M> mapType, Class<K> keyType,
+		Class<V> valueType, boolean ordered) {
+		return parseMap(mapEntries, mapType, keyType, valueType,
 			TextConvert.DEFAULT_COLLECTION_SEPARATOR,
-			TextConvert.DEFAULT_KEY_VALUE_SEPARATOR, bOrdered);
+			TextConvert.DEFAULT_KEY_VALUE_SEPARATOR, ordered);
 	}
 
 	/**
 	 * Parses a map from a string.
 	 *
-	 * @param sMapEntries        A string containing the map entries to be
-	 *                           parsed; NULL values are allowed and will
-	 *                           result in an empty map
-	 * @param rMapType           The base type of the map
-	 * @param rKeyType           The type of the map keys
-	 * @param rValueType         The type of the map values
-	 * @param sEntrySeparator    The separator string between the map entries
-	 * @param sKeyValueSeparator The separator string between the key and value
-	 *                           of a map entry
-	 * @param bOrdered           TRUE for an ordered map
+	 * @param mapEntries        A string containing the map entries to be
+	 *                          parsed; NULL values are allowed and will result
+	 *                          in an empty map
+	 * @param mapType           The base type of the map
+	 * @param keyType           The type of the map keys
+	 * @param valueType         The type of the map values
+	 * @param entrySeparator    The separator string between the map entries
+	 * @param keyValueSeparator The separator string between the key and value
+	 *                          of a map entry
+	 * @param ordered           TRUE for an ordered map
 	 * @return A new map of an appropriate type containing the parsed key-value
 	 * pairs
 	 */
 	@SuppressWarnings("unchecked")
 	public static <K, V, M extends Map<K, V>> Map<K, V> parseMap(
-		String sMapEntries, Class<M> rMapType, Class<K> rKeyType,
-		Class<V> rValueType, String sEntrySeparator, String sKeyValueSeparator,
-		boolean bOrdered) {
-		Class<? extends M> rMapClass;
+		String mapEntries, Class<M> mapType, Class<K> keyType,
+		Class<V> valueType, String entrySeparator, String keyValueSeparator,
+		boolean ordered) {
+		Class<? extends M> mapClass;
 
-		if (bOrdered) {
-			// double cast necessary for JDK javac
-			rMapClass = (Class<? extends M>) (Class<?>) LinkedHashMap.class;
+		if (ordered) {
+			// intermediate type necessary to prevent javac error
+			Class<?> tmp = LinkedHashMap.class;
+			mapClass = (Class<? extends M>) tmp;
 		} else {
-			rMapClass = ReflectUtil.getImplementationClass(rMapType);
+			mapClass = ReflectUtil.getImplementationClass(mapType);
 		}
 
-		M aMap = ReflectUtil.newInstance(rMapClass);
+		M map = ReflectUtil.newInstance(mapClass);
 
-		if (sMapEntries != null) {
-			StringTokenizer aElements =
-				new StringTokenizer(sMapEntries, sEntrySeparator);
+		if (mapEntries != null) {
+			StringTokenizer elements =
+				new StringTokenizer(mapEntries, entrySeparator);
 
-			while (aElements.hasMoreElements()) {
-				String sEntry = aElements.nextToken();
-				int nKeyEnd = sEntry.indexOf(sKeyValueSeparator);
-				String sKey = sEntry.substring(0, nKeyEnd);
-				String sValue =
-					sEntry.substring(nKeyEnd + sKeyValueSeparator.length());
+			while (elements.hasMoreElements()) {
+				String entry = elements.nextToken();
+				int keyEnd = entry.indexOf(keyValueSeparator);
+				String key = entry.substring(0, keyEnd);
+				String value =
+					entry.substring(keyEnd + keyValueSeparator.length());
 
-				sValue = TextConvert.unicodeDecode(sValue, sEntrySeparator);
+				value = TextConvert.unicodeDecode(value, entrySeparator);
 
-				aMap.put(parseValue(sKey, rKeyType),
-					parseValue(sValue, rValueType));
+				map.put(parseValue(key, keyType), parseValue(value,
+					valueType));
 			}
 		}
 
-		return aMap;
+		return map;
 	}
 
 	/**
 	 * Creates an object value by parsing it's string representation as defined
 	 * by the method {@link #asString(Object)}.
 	 *
-	 * @param sValue    The string value to parse
-	 * @param rDatatype The datatype of the returned object
+	 * @param value    The string value to parse
+	 * @param datatype The datatype of the returned object
 	 * @return The corresponding value object of the given datatype or NULL if
 	 * the original object was NULL too
 	 * @throws NullPointerException     If one of the parameters is NULL
@@ -481,24 +477,24 @@ public class Conversions {
 	 * @throws IllegalArgumentException If no string conversion exists for the
 	 *                                  given datatype
 	 */
-	public static <T> T parseValue(String sValue, Class<T> rDatatype) {
-		if (rDatatype == null) {
+	public static <T> T parseValue(String value, Class<T> datatype) {
+		if (datatype == null) {
 			throw new NullPointerException("Datatype must not be NULL");
 		}
 
-		if (sValue == null || sValue.equals("null")) {
+		if (value == null || value.equals("null")) {
 			return null;
 		}
 
-		InvertibleFunction<T, String> rConversion =
-			getStringConversion(rDatatype);
+		InvertibleFunction<T, String> conversion =
+			getStringConversion(datatype);
 
-		if (rConversion == null) {
+		if (conversion == null) {
 			throw new IllegalArgumentException(
-				"No string conversion registered for " + rDatatype);
+				"No string conversion registered for " + datatype);
 		}
 
-		return rConversion.invert(sValue);
+		return conversion.invert(value);
 	}
 
 	/**
@@ -509,40 +505,39 @@ public class Conversions {
 	 * to determine the target datatypes. If the relation type has the flag
 	 * {@link MetaTypes#ORDERED} set an ordered collection will be created.
 	 *
-	 * @param sValue      The string value to parse
-	 * @param rTargetType The relation type that defines the target datatype of
-	 *                    the conversion
+	 * @param value      The string value to parse
+	 * @param targetType The relation type that defines the target datatype of
+	 *                   the conversion
 	 * @return The parsed value with a datatype suitable for assigning to the
 	 * relation type
 	 * @throws IllegalArgumentException If parsing the string fails
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> T parseValue(String sValue,
-		RelationType<T> rTargetType) {
-		Class<T> rDatatype = (Class<T>) rTargetType.getTargetType();
-		T aResult;
+	public static <T> T parseValue(String value, RelationType<T> targetType) {
+		Class<T> datatype = (Class<T>) targetType.getTargetType();
+		T result;
 
-		boolean bOrdered = rTargetType.hasFlag(ORDERED);
+		boolean ordered = targetType.hasFlag(ORDERED);
 
-		if (Collection.class.isAssignableFrom(rDatatype)) {
-			aResult = (T) parseCollection(sValue,
-				(Class<Collection<Object>>) rDatatype,
-				(Class<Object>) rTargetType.get(ELEMENT_DATATYPE), bOrdered);
-		} else if (Map.class.isAssignableFrom(rDatatype)) {
-			aResult =
-				(T) parseMap(sValue, (Class<Map<Object, Object>>) rDatatype,
-					(Class<Object>) rTargetType.get(KEY_DATATYPE),
-					(Class<Object>) rTargetType.get(VALUE_DATATYPE), bOrdered);
+		if (Collection.class.isAssignableFrom(datatype)) {
+			result =
+				(T) parseCollection(value,
+					(Class<Collection<Object>>) datatype,
+					(Class<Object>) targetType.get(ELEMENT_DATATYPE), ordered);
+		} else if (Map.class.isAssignableFrom(datatype)) {
+			result = (T) parseMap(value, (Class<Map<Object, Object>>) datatype,
+				(Class<Object>) targetType.get(KEY_DATATYPE),
+				(Class<Object>) targetType.get(VALUE_DATATYPE), ordered);
 		} else {
-			if (rDatatype.isEnum() &&
-				HasOrder.class.isAssignableFrom(rDatatype)) {
-				sValue = sValue.substring(sValue.indexOf('-') + 1);
+			if (datatype.isEnum() &&
+				HasOrder.class.isAssignableFrom(datatype)) {
+				value = value.substring(value.indexOf('-') + 1);
 			}
 
-			aResult = parseValue(sValue, rDatatype);
+			result = parseValue(value, datatype);
 		}
 
-		return aResult;
+		return result;
 	}
 
 	/**
@@ -555,19 +550,19 @@ public class Conversions {
 	 *
 	 * <p>
 	 * It is possible to register functions for a base type of certain
-	 * datatypes because the lookup in {@link #getStringConversion(Class)}
-	 * works
+	 * datatypes
+	 * because the lookup in {@link #getStringConversion(Class)} works
 	 * recursively. In such a case the application must ensure that the
 	 * registered function can also restore the correct sub-type upon inversion
 	 * of the function.
 	 * </p>
 	 *
-	 * @param rDatatype   The datatype to register the string conversion for
-	 * @param rConversion The string conversion function
+	 * @param datatype   The datatype to register the string conversion for
+	 * @param conversion The string conversion function
 	 */
-	public static <T> void registerStringConversion(Class<? super T> rDatatype,
-		InvertibleFunction<T, String> rConversion) {
-		getStringConversionMap().put(rDatatype, rConversion);
+	public static <T> void registerStringConversion(Class<? super T> datatype,
+		InvertibleFunction<T, String> conversion) {
+		getStringConversionMap().put(datatype, conversion);
 	}
 
 	// ~ Inner Classes
@@ -588,16 +583,16 @@ public class Conversions {
 		 * @see Function#evaluate(Object)
 		 */
 		@Override
-		public String evaluate(Date rDate) {
-			return Long.toString(rDate.getTime());
+		public String evaluate(Date date) {
+			return Long.toString(date.getTime());
 		}
 
 		/**
 		 * @see InvertibleFunction#invert(Object)
 		 */
 		@Override
-		public Date invert(String sValue) {
-			return new Date(Long.parseLong(sValue));
+		public Date invert(String value) {
+			return new Date(Long.parseLong(value));
 		}
 	}
 
@@ -623,7 +618,7 @@ public class Conversions {
 		// ~ Instance fields
 		// ----------------------------------------------------
 
-		private final Class<? super T> rDatatype;
+		private final Class<? super T> datatype;
 
 		// ~ Constructors
 		// -------------------------------------------------------
@@ -631,25 +626,25 @@ public class Conversions {
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rDatatype The datatype to convert to and from
+		 * @param datatype The datatype to convert to and from
 		 */
-		public StringConversion(Class<? super T> rDatatype) {
-			this.rDatatype = rDatatype;
+		public StringConversion(Class<? super T> datatype) {
+			this.datatype = datatype;
 		}
 
 		// ~ Methods
 		// ------------------------------------------------------------
 
 		/**
-		 * Implemented to return the result of {@code rValue.toString()}. Only
+		 * Implemented to return the result of {@code value.toString()}. Only
 		 * subclasses for which this is not appropriate need to override this
 		 * method.
 		 *
 		 * @see Function#evaluate(Object)
 		 */
 		@Override
-		public String evaluate(T rValue) {
-			return rValue.toString();
+		public String evaluate(T value) {
+			return value.toString();
 		}
 
 		/**
@@ -660,9 +655,10 @@ public class Conversions {
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		public T invert(String sValue) {
-			return (T) ReflectUtil.newInstance(rDatatype,
-				new Object[] { sValue }, STRING_ARG);
+		public T invert(String value) {
+			return (T) ReflectUtil.newInstance(datatype,
+				new Object[] { value },
+				STRING_ARG);
 		}
 	}
 
@@ -687,17 +683,14 @@ public class Conversions {
 			super(Class.class);
 		}
 
-		// ~ Methods
-		// ------------------------------------------------------------
-
 		/**
 		 * Implemented to return the result of {@link Class#getName()}.
 		 *
 		 * @see Function#evaluate(Object)
 		 */
 		@Override
-		public String evaluate(Class rClass) {
-			return rClass.getName();
+		public String evaluate(Class type) {
+			return type.getName();
 		}
 
 		/**
@@ -706,9 +699,9 @@ public class Conversions {
 		 * @see InvertibleFunction#invert(Object)
 		 */
 		@Override
-		public Class<?> invert(String sValue) {
+		public Class<?> invert(String value) {
 			try {
-				return Class.forName(sValue);
+				return Class.forName(value);
 			} catch (ClassNotFoundException e) {
 				throw new IllegalStateException(e);
 			}

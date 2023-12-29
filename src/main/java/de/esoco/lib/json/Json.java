@@ -45,19 +45,27 @@ public class Json {
 	public enum JsonStructure {
 		OBJECT('{', '}'), ARRAY('[', ']'), STRING('"', '"');
 
-		char cOpen;
+		private final char openChar;
 
-		char cClose;
+		private final char closeChar;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param cOpen  The structure opening character
-		 * @param cClose The structure closing character
+		 * @param open  The structure opening character
+		 * @param close The structure closing character
 		 */
-		JsonStructure(char cOpen, char cClose) {
-			this.cOpen = cOpen;
-			this.cClose = cClose;
+		JsonStructure(char open, char close) {
+			this.openChar = open;
+			this.closeChar = close;
+		}
+
+		public char getCloseChar() {
+			return closeChar;
+		}
+
+		public char getOpenChar() {
+			return openChar;
 		}
 	}
 
@@ -102,101 +110,100 @@ public class Json {
 	 * Creates a JSON compatible value by escaping the control characters in
 	 * it.
 	 *
-	 * @param sOriginal The original string to escape
+	 * @param original The original string to escape
 	 * @return The escaped string
 	 */
-	public static String escape(String sOriginal) {
-		StringBuilder aResult = new StringBuilder();
-		final int nLength = sOriginal.length();
+	public static String escape(String original) {
+		StringBuilder result = new StringBuilder();
+		final int length = original.length();
 
-		for (int nChar = 0; nChar < nLength; nChar++) {
-			char c = sOriginal.charAt(nChar);
+		for (int pos = 0; pos < length; pos++) {
+			char c = original.charAt(pos);
 
 			switch (c) {
 				case '"':
-					aResult.append("\\\"");
+					result.append("\\\"");
 					break;
 
 				case '\\':
-					aResult.append("\\\\");
+					result.append("\\\\");
 					break;
 
 				case '/':
-					aResult.append("\\/");
+					result.append("\\/");
 					break;
 
 				case '\b':
-					aResult.append("\\b");
+					result.append("\\b");
 					break;
 
 				case '\f':
-					aResult.append("\\f");
+					result.append("\\f");
 					break;
 
 				case '\n':
-					aResult.append("\\n");
+					result.append("\\n");
 					break;
 
 				case '\r':
-					aResult.append("\\r");
+					result.append("\\r");
 					break;
 
 				case '\t':
-					aResult.append("\\t");
+					result.append("\\t");
 					break;
 
 				default:
 					if (TextUtil.isControlCharacter(c)) {
-						String sHexValue =
-							Integer.toHexString(c).toUpperCase();
+						String hexValue = Integer.toHexString(c).toUpperCase();
 
-						aResult.append("\\u");
-						aResult.append(TextConvert.padLeft(sHexValue, 4, '0'));
+						result.append("\\u");
+						result.append(TextConvert.padLeft(hexValue, 4, '0'));
 					} else {
-						aResult.append(c);
+						result.append(c);
 					}
 			}
 		}
 
-		return aResult.toString();
+		return result.toString();
 	}
 
 	/**
 	 * Parses a JSON string with a new {@link JsonParser} instance by invoking
 	 * {@link JsonParser#parse(String)}.
 	 *
-	 * @param sJson The input string
+	 * @param json The input string
 	 * @return The parsed result
 	 * @throws RuntimeException If the input string is not valid JSON
 	 */
-	public static Object parse(String sJson) {
-		return new JsonParser().parse(sJson);
+	public static Object parse(String json) {
+		return new JsonParser().parse(json);
 	}
 
 	/**
 	 * Parses a JSON string of a certain datatype with a new {@link JsonParser}
 	 * instance by invoking {@link JsonParser#parse(String, Class)}.
 	 *
-	 * @param sJson     The input string
-	 * @param rDatatype The target datatype
+	 * @param json     The input string
+	 * @param datatype The target datatype
 	 * @return The parsed result
 	 * @throws RuntimeException If the input string is not valid JSON or
-	 *                          doesn't
+	 * doesn't
 	 *                          match the given datatype
 	 */
-	public static <T> T parse(String sJson, Class<T> rDatatype) {
-		return new JsonParser().parse(sJson, rDatatype);
+	public static <T> T parse(String json, Class<T> datatype) {
+		return new JsonParser().parse(json, datatype);
 	}
 
 	/**
 	 * Parses a JSON array into a list.
 	 *
-	 * @param sJsonArray The JSON array to parse
+	 * @param jsonArray The JSON array to parse
 	 * @return The resulting list of parsed elements
 	 * @throws RuntimeException If the input string is not valid JSON
 	 */
-	public static List<Object> parseArray(String sJsonArray) {
-		return new JsonParser().parseArray(sJsonArray);
+	public static List<Object> parseArray(String jsonArray) {
+		return new JsonParser().parseArray(jsonArray);
 	}
 
 	/**
@@ -209,40 +216,40 @@ public class Json {
 	 * empty, in
 	 * which case the list will be empty too).
 	 *
-	 * @param sJsonArray The JSON array to parse
-	 * @param nDepth     The depth up to which parse values into objects
+	 * @param jsonArray The JSON array to parse
+	 * @param depth     The depth up to which parse values into objects
 	 * @return The resulting list of parsed elements
 	 * @throws RuntimeException If the input string is not valid JSON
 	 */
-	public static List<Object> parseArray(String sJsonArray, int nDepth) {
-		return new JsonParser(nDepth).parseArray(sJsonArray);
+	public static List<Object> parseArray(String jsonArray, int depth) {
+		return new JsonParser(depth).parseArray(jsonArray);
 	}
 
 	/**
 	 * Parses a JSON array into a list with the given element datatype.
 	 *
-	 * @param sJsonArray   The JSON array to parse
-	 * @param rElementType The datatype to parse the array elements with
+	 * @param jsonArray   The JSON array to parse
+	 * @param elementType The datatype to parse the array elements with
 	 * @return The resulting list of parsed elements
 	 * @throws RuntimeException If the input string is not valid JSON or cannot
 	 *                          be parsed into a list of elements of the given
 	 *                          type
 	 */
-	public static <T> List<T> parseArray(String sJsonArray,
-		Class<T> rElementType) {
-		return new JsonParser().parseArray(sJsonArray, rElementType);
+	public static <T> List<T> parseArray(String jsonArray,
+		Class<T> elementType) {
+		return new JsonParser().parseArray(jsonArray, elementType);
 	}
 
 	/**
 	 * Parses a JSON string into a {@link JsonObject}with a new instance of
 	 * {@link JsonParser} by invoking {@link JsonParser#parseObject(String)}.
 	 *
-	 * @param sJson The input string
+	 * @param json The input string
 	 * @return The parsed object
 	 * @throws RuntimeException If the input string is not a valid JSON object
 	 */
-	public static JsonObject parseObject(String sJson) {
-		return new JsonParser().parseObject(sJson);
+	public static JsonObject parseObject(String json) {
+		return new JsonParser().parseObject(json);
 	}
 
 	/**
@@ -253,93 +260,93 @@ public class Json {
 	 * into
 	 * specific datatypes after inspection.
 	 *
-	 * @param sJson  The input string
-	 * @param nDepth The depth up to which parse the JSON hierarchy
+	 * @param json  The input string
+	 * @param depth The depth up to which parse the JSON hierarchy
 	 * @return The parsed result
 	 * @throws RuntimeException If the input string is not a valid JSON object
 	 */
-	public static JsonObject parseObject(String sJson, int nDepth) {
-		return new JsonParser(nDepth).parseObject(sJson);
+	public static JsonObject parseObject(String json, int depth) {
+		return new JsonParser(depth).parseObject(json);
 	}
 
 	/**
 	 * Restores a string from an escaped JSON string.
 	 *
-	 * @param sEscaped The escaped string to restore
+	 * @param escaped The escaped string to restore
 	 * @return The restored string
 	 */
-	public static String restore(String sEscaped) {
-		StringBuilder aResult = new StringBuilder();
-		final int nMax = sEscaped.length() - 1;
+	public static String restore(String escaped) {
+		StringBuilder result = new StringBuilder();
+		final int max = escaped.length() - 1;
 		int i = 0;
 
-		while (i <= nMax) {
-			char c = sEscaped.charAt(i++);
+		while (i <= max) {
+			char c = escaped.charAt(i++);
 
-			if (c == '\\' && i <= nMax) {
-				c = sEscaped.charAt(i++);
+			if (c == '\\' && i <= max) {
+				c = escaped.charAt(i++);
 
 				switch (c) {
 					case '"':
-						aResult.append('"');
+						result.append('"');
 						break;
 
 					case '\\':
-						aResult.append('\\');
+						result.append('\\');
 						break;
 
 					case '/':
-						aResult.append('/');
+						result.append('/');
 						break;
 
 					case 'b':
-						aResult.append('\b');
+						result.append('\b');
 						break;
 
 					case 'f':
-						aResult.append('\f');
+						result.append('\f');
 						break;
 
 					case 'n':
-						aResult.append('\n');
+						result.append('\n');
 						break;
 
 					case 'r':
-						aResult.append('\r');
+						result.append('\r');
 						break;
 
 					case 't':
-						aResult.append('\t');
+						result.append('\t');
 						break;
 
 					case 'u':
 						try {
-							String sHex = sEscaped.substring(i, i + 4);
-							char cHex = (char) Integer.parseInt(sHex, 16);
+							String hex = escaped.substring(i, i + 4);
+							char hexChar = (char) Integer.parseInt(hex, 16);
 
-							if (TextUtil.isControlCharacter(cHex)) {
-								aResult.append(cHex);
+							if (TextUtil.isControlCharacter(hexChar)) {
+								result.append(hexChar);
 								i += 4;
 							} else {
-								aResult.append("\\u");
+								result.append("\\u");
 							}
 						} catch (Exception e) {
 							// append original chars
-							aResult.append("\\u");
+							result.append("\\u");
 						}
 
 						break;
 
 					default:
-						aResult.append('\\');
-						aResult.append(c);
+						result.append('\\');
+						result.append(c);
 				}
 			} else {
-				aResult.append(c);
+				result.append(c);
 			}
 		}
 
-		return aResult.toString();
+		return result.toString();
 	}
 
 	/**
@@ -347,12 +354,12 @@ public class Json {
 	 * unnecessary whitespace. To get a more readable formatted string use
 	 * {@link #toJson(Object)} instead.
 	 *
-	 * @param rValue The value to convert
+	 * @param value The value to convert
 	 * @return The JSON string
 	 * @see JsonBuilder#toJson(Object)
 	 */
-	public static String toCompactJson(Object rValue) {
-		return new JsonBuilder().noLinefeeds().noWhitespace().toJson(rValue);
+	public static String toCompactJson(Object value) {
+		return new JsonBuilder().noLinefeeds().noWhitespace().toJson(value);
 	}
 
 	/**
@@ -362,11 +369,11 @@ public class Json {
 	 * string
 	 * use {@link #toCompactJson(Object)} instead.
 	 *
-	 * @param rValue The value to convert
+	 * @param value The value to convert
 	 * @return The JSON string
 	 * @see JsonBuilder#toJson(Object)
 	 */
-	public static String toJson(Object rValue) {
-		return new JsonBuilder().toJson(rValue);
+	public static String toJson(Object value) {
+		return new JsonBuilder().toJson(value);
 	}
 }

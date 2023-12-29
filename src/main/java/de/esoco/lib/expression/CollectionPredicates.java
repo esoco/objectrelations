@@ -40,21 +40,21 @@ public class CollectionPredicates {
 	 * Returns a new predicate that checks if a target object is an element of
 	 * the given collection.
 	 *
-	 * @param rCollection The collection to check target objects against
+	 * @param collection The collection to check target objects against
 	 * @return A new instance of the {@link ElementOf} predicate
 	 */
-	public static <T> Predicate<T> elementOf(Collection<?> rCollection) {
-		return new ElementOf<T>(rCollection);
+	public static <T> Predicate<T> elementOf(Collection<?> collection) {
+		return new ElementOf<T>(collection);
 	}
 
 	/**
 	 * Returns a predicate that checks if a target object is an element of the
 	 * argument list of objects.
 	 *
-	 * @param rValues The list of values to check target objects against
+	 * @param values The list of values to check target objects against
 	 * @return A new instance of the {@link ElementOf} predicate
 	 */
-	public static <T> Predicate<T> elementOf(Object... rValues) {
-		return new ElementOf<T>(Arrays.asList(rValues));
+	public static <T> Predicate<T> elementOf(Object... values) {
+		return new ElementOf<T>(Arrays.asList(values));
 	}
 }

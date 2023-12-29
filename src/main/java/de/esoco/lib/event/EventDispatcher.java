@@ -34,7 +34,7 @@ public class EventDispatcher<E extends Event<?>>
 
 	private static final long serialVersionUID = 1L;
 
-	private Set<EventHandler<E>> aEventHandlers = new LinkedHashSet<>();
+	private Set<EventHandler<E>> eventHandlers = new LinkedHashSet<>();
 
 	/**
 	 * Creates a new instance.
@@ -51,19 +51,19 @@ public class EventDispatcher<E extends Event<?>>
 	 * based on the same (generic) event class or else a class cast exception
 	 * will occur.
 	 *
-	 * @param rHandler The event handler to add
+	 * @param handler The event handler to add
 	 */
 	@SuppressWarnings("unchecked")
-	public void add(EventHandler<? extends E> rHandler) {
-		aEventHandlers.add((EventHandler<E>) rHandler);
+	public void add(EventHandler<? extends E> handler) {
+		eventHandlers.add((EventHandler<E>) handler);
 	}
 
 	/**
 	 * @see EventHandler#handleEvent(Event)
 	 */
-	public void dispatch(E rEvent) {
-		for (EventHandler<E> rHandler : aEventHandlers) {
-			rHandler.handleEvent(rEvent);
+	public void dispatch(E event) {
+		for (EventHandler<E> handler : eventHandlers) {
+			handler.handleEvent(event);
 		}
 	}
 
@@ -74,16 +74,16 @@ public class EventDispatcher<E extends Event<?>>
 	 * @return The event handler count
 	 */
 	public int getEventHandlerCount() {
-		return aEventHandlers.size();
+		return eventHandlers.size();
 	}
 
 	/**
 	 * Removes an event handler from this instance.
 	 *
-	 * @param rHandler The event handler to add
+	 * @param handler The event handler to add
 	 */
-	public void remove(EventHandler<? extends E> rHandler) {
-		aEventHandlers.remove(rHandler);
+	public void remove(EventHandler<? extends E> handler) {
+		eventHandlers.remove(handler);
 	}
 
 	/**
@@ -91,6 +91,6 @@ public class EventDispatcher<E extends Event<?>>
 	 */
 	@Override
 	public void setImmutable() {
-		aEventHandlers = Collections.unmodifiableSet(aEventHandlers);
+		eventHandlers = Collections.unmodifiableSet(eventHandlers);
 	}
 }

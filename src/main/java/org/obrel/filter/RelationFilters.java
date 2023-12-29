@@ -33,7 +33,7 @@ import static de.esoco.lib.expression.CollectionPredicates.elementOf;
  * {@link Relatable} and are therefore named with appropriate semantics. Using
  * static imports the following example code would resolve all relations with
  * the relation types {@link StandardTypes#NAME} and {@link StandardTypes#INFO}:
- * {@code rObject.getAll(withTypes(NAME,INFO));}
+ * {@code object.getAll(withTypes(NAME,INFO));}
  *
  * @author eso
  */
@@ -56,34 +56,34 @@ public class RelationFilters {
 	 * Returns a filter for a relations with types that match a certain
 	 * predicate.
 	 *
-	 * @param rTypePredicate The predicate to evaluate relation types with
+	 * @param typePredicate The predicate to evaluate relation types with
 	 * @return A new relation filter predicate
 	 */
 	public static Predicate<Relation<?>> ifType(
-		Predicate<RelationType<?>> rTypePredicate) {
-		return r -> rTypePredicate.test(r.getType());
+		Predicate<RelationType<?>> typePredicate) {
+		return r -> typePredicate.test(r.getType());
 	}
 
 	/**
 	 * Returns a relation filter predicate that tests for the presence of a
 	 * certain relation type.
 	 *
-	 * @param rType The relation type to filter
+	 * @param type The relation type to filter
 	 * @return A new relation filter predicate
 	 */
-	public static Predicate<Relation<?>> ifType(RelationType<?> rType) {
-		return ifType(t -> t == rType);
+	public static Predicate<Relation<?>> ifType(RelationType<?> type) {
+		return ifType(t -> t == type);
 	}
 
 	/**
 	 * Returns a relation filter predicate that tests for the absesence of a
 	 * certain relation type.
 	 *
-	 * @param rType The relation type to filter
+	 * @param type The relation type to filter
 	 * @return A new relation filter predicate
 	 */
-	public static Predicate<Relation<?>> ifTypeNot(RelationType<?> rType) {
-		return ifType(t -> t != rType);
+	public static Predicate<Relation<?>> ifTypeNot(RelationType<?> type) {
+		return ifType(t -> t != type);
 	}
 
 	/**
@@ -91,13 +91,13 @@ public class RelationFilters {
 	 * their annotations. Annotations are meta-relations that are set on the
 	 * relations themselves, not on their parent object.
 	 *
-	 * @param rAnnotationFilter The predicate to evaluate relation annotations
-	 *                          with
+	 * @param annotationFilter The predicate to evaluate relation annotations
+	 *                         with
 	 * @return A new relation filter predicate
 	 */
 	public static Predicate<Relation<?>> withAnnotation(
-		Predicate<Relation<?>> rAnnotationFilter) {
-		return r -> r.hasRelations(rAnnotationFilter);
+		Predicate<Relation<?>> annotationFilter) {
+		return r -> r.hasRelations(annotationFilter);
 	}
 
 	/**
@@ -105,22 +105,22 @@ public class RelationFilters {
 	 * relation target values. The result of the predicate evaluation will also
 	 * be the result of the returned predicate.
 	 *
-	 * @param rTargetPredicate The predicate to evaluate relation targets with
+	 * @param targetPredicate The predicate to evaluate relation targets with
 	 * @return A new relation filter predicate
 	 */
 	public static Predicate<Relation<?>> withTarget(
-		Predicate<Object> rTargetPredicate) {
-		return r -> rTargetPredicate.evaluate(r.getTarget());
+		Predicate<Object> targetPredicate) {
+		return r -> targetPredicate.evaluate(r.getTarget());
 	}
 
 	/**
 	 * Returns a filter for a set of relation types.
 	 *
-	 * @param rTypes The set of relation types
+	 * @param types The set of relation types
 	 * @return A new relation filter instance
 	 */
 	public static Predicate<Relation<?>> withTypeIn(
-		Collection<RelationType<?>> rTypes) {
-		return ifType(elementOf(rTypes));
+		Collection<RelationType<?>> types) {
+		return ifType(elementOf(types));
 	}
 }

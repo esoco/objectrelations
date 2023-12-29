@@ -45,35 +45,35 @@ public class JsonRelatedObject<J extends JsonRelatedObject<J>>
 	/**
 	 * Creates a new instance that only serializes certain relation types.
 	 *
-	 * @param rJsonTypes The relation types to serialize into JSON format
+	 * @param jsonTypes The relation types to serialize into JSON format
 	 */
-	public JsonRelatedObject(RelationType<?>... rJsonTypes) {
+	public JsonRelatedObject(RelationType<?>... jsonTypes) {
 		set(Json.JSON_SERIALIZED_TYPES,
-			CollectionUtil.orderedSetOf(rJsonTypes));
+			CollectionUtil.orderedSetOf(jsonTypes));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void appendTo(JsonBuilder rJsonBuilder) {
-		rJsonBuilder.appendRelatable(this, null, true);
+	public void appendTo(JsonBuilder jsonBuilder) {
+		jsonBuilder.appendRelatable(this, null, true);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rOther) {
-		if (rOther == this) {
+	public boolean equals(Object other) {
+		if (other == this) {
 			return true;
 		}
 
-		if (rOther == null || rOther.getClass() != getClass()) {
+		if (other == null || other.getClass() != getClass()) {
 			return false;
 		}
 
-		return relationsEqual((JsonRelatedObject<?>) rOther);
+		return relationsEqual((JsonRelatedObject<?>) other);
 	}
 
 	/**
@@ -81,8 +81,8 @@ public class JsonRelatedObject<J extends JsonRelatedObject<J>>
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public J fromJson(String sJson) {
-		new JsonParser().parseRelatable(sJson, this);
+	public J fromJson(String json) {
+		new JsonParser().parseRelatable(json, this);
 
 		return (J) this;
 	}

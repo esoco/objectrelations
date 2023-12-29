@@ -32,49 +32,49 @@ import org.obrel.core.RelatedObject;
 public class FunctionPredicate<T, V> extends RelatedObject
 	implements Predicate<T> {
 
-	private final Function<? super T, V> rFunction;
+	private final Function<? super T, V> function;
 
-	private final Predicate<? super V> rPredicate;
+	private final Predicate<? super V> predicate;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rFunction  The function to apply to input values
-	 * @param rPredicate The predicate to evaluate the result of the function
-	 *                   with
+	 * @param function  The function to apply to input values
+	 * @param predicate The predicate to evaluate the result of the function
+	 *                  with
 	 * @throws IllegalArgumentException If either argument is NULL
 	 */
-	public FunctionPredicate(Function<? super T, V> rFunction,
-		Predicate<? super V> rPredicate) {
-		if (rFunction == null) {
+	public FunctionPredicate(Function<? super T, V> function,
+		Predicate<? super V> predicate) {
+		if (function == null) {
 			throw new IllegalArgumentException("Function must not be NULL");
 		}
 
-		if (rPredicate == null) {
+		if (predicate == null) {
 			throw new IllegalArgumentException("Predicate must not be NULL");
 		}
 
-		this.rFunction = rFunction;
-		this.rPredicate = rPredicate;
+		this.function = function;
+		this.predicate = predicate;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj) {
-		if (rObj == this) {
+	public boolean equals(Object obj) {
+		if (obj == this) {
 			return true;
 		}
 
-		if (rObj == null || rObj.getClass() != getClass()) {
+		if (obj == null || obj.getClass() != getClass()) {
 			return false;
 		}
 
-		FunctionPredicate<?, ?> rOther = (FunctionPredicate<?, ?>) rObj;
+		FunctionPredicate<?, ?> other = (FunctionPredicate<?, ?>) obj;
 
-		return rPredicate.equals(rOther.rPredicate) &&
-			rFunction.equals(rOther.rFunction);
+		return predicate.equals(other.predicate) &&
+			function.equals(other.function);
 	}
 
 	/**
@@ -82,12 +82,12 @@ public class FunctionPredicate<T, V> extends RelatedObject
 	 * of the field predicate's evaluate method after invoking it on the field
 	 * value.
 	 *
-	 * @param rObject The target object to retrieve the field value from1
+	 * @param object The target object to retrieve the field value from1
 	 * @return The result of the field predicate evaluation
 	 */
 	@Override
-	public Boolean evaluate(T rObject) {
-		return rPredicate.evaluate(rFunction.evaluate(rObject));
+	public Boolean evaluate(T object) {
+		return predicate.evaluate(function.evaluate(object));
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class FunctionPredicate<T, V> extends RelatedObject
 	 * @return The function of this instance
 	 */
 	public final Function<? super T, V> getFunction() {
-		return rFunction;
+		return function;
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class FunctionPredicate<T, V> extends RelatedObject
 	 * @return The value predicate
 	 */
 	public final Predicate<? super V> getPredicate() {
-		return rPredicate;
+		return predicate;
 	}
 
 	/**
@@ -114,7 +114,7 @@ public class FunctionPredicate<T, V> extends RelatedObject
 	 */
 	@Override
 	public int hashCode() {
-		return 31 * (rPredicate.hashCode() + 31 * rFunction.hashCode());
+		return 31 * (predicate.hashCode() + 31 * function.hashCode());
 	}
 
 	/**
@@ -125,8 +125,8 @@ public class FunctionPredicate<T, V> extends RelatedObject
 	 */
 	@Override
 	public String toString() {
-		return rPredicate
+		return predicate
 			.toString()
-			.replace(INPUT_PLACEHOLDER, rFunction.toString());
+			.replace(INPUT_PLACEHOLDER, function.toString());
 	}
 }

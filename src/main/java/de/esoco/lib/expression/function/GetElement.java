@@ -46,12 +46,12 @@ public abstract class GetElement<I, E, O>
 	 * Creates a new immutable instance with a certain element descriptor and
 	 * description.
 	 *
-	 * @param rElementDescriptor The element descriptor
-	 * @param sDescription       The function description
+	 * @param elementDescriptor The element descriptor
+	 * @param description       The function description
 	 * @see AbstractBinaryFunction#AbstractBinaryFunction(Object, String)
 	 */
-	public GetElement(E rElementDescriptor, String sDescription) {
-		super(rElementDescriptor, sDescription);
+	public GetElement(E elementDescriptor, String description) {
+		super(elementDescriptor, description);
 	}
 
 	/**
@@ -63,8 +63,8 @@ public abstract class GetElement<I, E, O>
 	 * @see GetElement#evaluate(Object)
 	 */
 	@Override
-	public final O evaluate(I rObject, E rElementDescriptor) {
-		return getElementValue(rObject, rElementDescriptor);
+	public final O evaluate(I object, E elementDescriptor) {
+		return getElementValue(object, elementDescriptor);
 	}
 
 	/**
@@ -79,11 +79,11 @@ public abstract class GetElement<I, E, O>
 	 * This method must be implemented by subclasses to returns the actual
 	 * element value.
 	 *
-	 * @param rObject            The object to read the element value from
-	 * @param rElementDescriptor The element descriptor
+	 * @param object            The object to read the element value from
+	 * @param elementDescriptor The element descriptor
 	 * @return The value of the element
 	 */
-	protected abstract O getElementValue(I rObject, E rElementDescriptor);
+	protected abstract O getElementValue(I object, E elementDescriptor);
 
 	/**
 	 * An element accessor that uses reflection to query the value of a certain
@@ -101,22 +101,22 @@ public abstract class GetElement<I, E, O>
 		 * Creates a new instance that accesses a particular field through the
 		 * associated "get" method.
 		 *
-		 * @param sField The name of the property to access
+		 * @param field The name of the property to access
 		 */
-		public GetField(String sField) {
-			super(getFieldAccessMethodName(sField),
-				getFieldAccessMethodName(sField));
+		public GetField(String field) {
+			super(getFieldAccessMethodName(field),
+				getFieldAccessMethodName(field));
 		}
 
 		/**
 		 * Helper method to return the field access method name.
 		 *
-		 * @param sField The field name
+		 * @param field The field name
 		 * @return The field access method name
 		 */
-		private static String getFieldAccessMethodName(String sField) {
-			return "get" + sField.substring(0, 1).toUpperCase() +
-				sField.substring(1);
+		private static String getFieldAccessMethodName(String field) {
+			return "get" + field.substring(0, 1).toUpperCase() +
+				field.substring(1);
 		}
 
 		/**
@@ -124,8 +124,8 @@ public abstract class GetElement<I, E, O>
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		protected O getElementValue(I rObject, String sFieldQueryMethod) {
-			return (O) ReflectUtil.invokePublic(rObject, sFieldQueryMethod);
+		protected O getElementValue(I object, String fieldQueryMethod) {
+			return (O) ReflectUtil.invokePublic(object, fieldQueryMethod);
 		}
 	}
 
@@ -138,19 +138,19 @@ public abstract class GetElement<I, E, O>
 		/**
 		 * Creates a new instance that returns a particular list element.
 		 *
-		 * @param nIndex The index of the element to return
+		 * @param index The index of the element to return
 		 */
 		@SuppressWarnings("boxing")
-		public GetListElement(int nIndex) {
-			super(nIndex, "GetListElement");
+		public GetListElement(int index) {
+			super(index, "GetListElement");
 		}
 
 		/**
 		 * @see GetElement#getElementValue(Object, Object)
 		 */
 		@Override
-		protected O getElementValue(List<O> rList, Integer rIndex) {
-			return rList.get(rIndex.intValue());
+		protected O getElementValue(List<O> list, Integer index) {
+			return list.get(index.intValue());
 		}
 	}
 
@@ -162,18 +162,18 @@ public abstract class GetElement<I, E, O>
 		/**
 		 * Creates a new instance that returns a particular map value.
 		 *
-		 * @param rKey The key of the element to return
+		 * @param key The key of the element to return
 		 */
-		public GetMapValue(K rKey) {
-			super(rKey, "GetMapValue");
+		public GetMapValue(K key) {
+			super(key, "GetMapValue");
 		}
 
 		/**
 		 * @see GetElement#getElementValue(Object, Object)
 		 */
 		@Override
-		protected V getElementValue(Map<K, V> rMap, K rKey) {
-			return rMap.get(rKey);
+		protected V getElementValue(Map<K, V> map, K key) {
+			return map.get(key);
 		}
 	}
 
@@ -188,19 +188,18 @@ public abstract class GetElement<I, E, O>
 		 * Creates a new instance that accesses a particular single-type
 		 * relation.
 		 *
-		 * @param rType The single-relation type to access
+		 * @param type The single-relation type to access
 		 */
-		public GetRelation(RelationType<O> rType) {
-			super(rType, "GetRelation");
+		public GetRelation(RelationType<O> type) {
+			super(type, "GetRelation");
 		}
 
 		/**
 		 * @see GetElement#getElementValue(Object, Object)
 		 */
 		@Override
-		protected Relation<O> getElementValue(I rObject,
-			RelationType<O> rType) {
-			return rObject.getRelation(rType);
+		protected Relation<O> getElementValue(I object, RelationType<O> type) {
+			return object.getRelation(type);
 		}
 	}
 
@@ -215,18 +214,18 @@ public abstract class GetElement<I, E, O>
 		 * Creates a new instance that accesses a particular single-type
 		 * relation.
 		 *
-		 * @param rType The single-relation type to access
+		 * @param type The single-relation type to access
 		 */
-		public GetRelationValue(RelationType<O> rType) {
-			super(rType, "GetRelationValue");
+		public GetRelationValue(RelationType<O> type) {
+			super(type, "GetRelationValue");
 		}
 
 		/**
 		 * @see GetElement#getElementValue(Object, Object)
 		 */
 		@Override
-		protected O getElementValue(I rObject, RelationType<O> rType) {
-			return rObject.get(rType);
+		protected O getElementValue(I object, RelationType<O> type) {
+			return object.get(type);
 		}
 	}
 
@@ -247,10 +246,10 @@ public abstract class GetElement<I, E, O>
 		/**
 		 * Creates a new instance that accesses a particular field.
 		 *
-		 * @param sFieldName The name of the field to access
+		 * @param fieldName The name of the field to access
 		 */
-		public ReadField(String sFieldName) {
-			super(sFieldName, "ReadField");
+		public ReadField(String fieldName) {
+			super(fieldName, "ReadField");
 		}
 
 		/**
@@ -258,8 +257,8 @@ public abstract class GetElement<I, E, O>
 		 */
 		@Override
 		@SuppressWarnings("unchecked")
-		protected O getElementValue(I rObject, String sFieldName) {
-			return (O) ReflectUtil.getFieldValue(sFieldName, rObject);
+		protected O getElementValue(I object, String fieldName) {
+			return (O) ReflectUtil.getFieldValue(fieldName, object);
 		}
 	}
 }

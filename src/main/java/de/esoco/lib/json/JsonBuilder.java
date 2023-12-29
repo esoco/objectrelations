@@ -67,22 +67,22 @@ public class JsonBuilder {
 			ListenerTypes.RELATION_TYPE_LISTENERS,
 			ListenerTypes.RELATION_UPDATE_LISTENERS, IMMUTABLE);
 
-	private final StringBuilder aJson = new StringBuilder();
+	private final StringBuilder json = new StringBuilder();
 
-	private final Collection<RelationType<?>> aExcludedRelationTypes =
+	private final Collection<RelationType<?>> excludedRelationTypes =
 		new HashSet<>(DEFAULT_EXCLUDED_RELATION_TYPES);
 
-	private String sIndent = "";
+	private String indent = "";
 
-	private String sCurrentIndent = sIndent;
+	private String currentIndent = indent;
 
-	private boolean bWhitespace = true;
+	private boolean whitespace = true;
 
-	private boolean bMultiLine = true;
+	private boolean multiLine = true;
 
-	private boolean bRecursiveRelations = false;
+	private boolean recursiveRelations = false;
 
-	private boolean bNamespaces = false;
+	private boolean namespaces = false;
 
 	/**
 	 * Creates a new instance that creates JSON without indentations.
@@ -94,14 +94,15 @@ public class JsonBuilder {
 	 * Returns a function that builds a JSON string from arbitrary input
 	 * objects.
 	 *
-	 * @param sIndent The indentation of generated JSON objects (empty string
-	 *                for none)
+	 * @param indent The indentation of generated JSON objects (empty string
+	 *                 for
+	 *               none)
 	 * @return A function that converts objects into JSON
 	 */
-	public static <T> Function<T, String> buildJson(String sIndent) {
-		return rValue -> new JsonBuilder()
-			.indent(sIndent)
-			.append(rValue)
+	public static <T> Function<T, String> buildJson(String indent) {
+		return value -> new JsonBuilder()
+			.indent(indent)
+			.append(value)
 			.toString();
 	}
 
@@ -119,50 +120,50 @@ public class JsonBuilder {
 	 * Appends a value to a JSON string builder and converts it according to
 	 * it's datatype.
 	 *
-	 * @param rValue The value to append (can be NULL)
+	 * @param value The value to append (can be NULL)
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder append(Object rValue) {
-		if (rValue == null) {
-			aJson.append("null");
-		} else if (rValue instanceof JsonSerializable) {
-			((JsonSerializable<?>) rValue).appendTo(this);
-		} else if (rValue instanceof Boolean || rValue instanceof Number) {
-			aJson.append(rValue);
-		} else if (rValue instanceof Date) {
-			appendString(JSON_DATE_FORMAT.format((Date) rValue));
-		} else if (rValue.getClass().isArray()) {
-			if (rValue.getClass().getComponentType().isPrimitive()) {
-				int nCount = Array.getLength(rValue);
-				Object[] aWrappedValues = new Object[nCount];
+	public JsonBuilder append(Object value) {
+		if (value == null) {
+			json.append("null");
+		} else if (value instanceof JsonSerializable) {
+			((JsonSerializable<?>) value).appendTo(this);
+		} else if (value instanceof Boolean || value instanceof Number) {
+			json.append(value);
+		} else if (value instanceof Date) {
+			appendString(JSON_DATE_FORMAT.format((Date) value));
+		} else if (value.getClass().isArray()) {
+			if (value.getClass().getComponentType().isPrimitive()) {
+				int count = Array.getLength(value);
+				Object[] wrappedValues = new Object[count];
 
-				for (int i = 0; i < nCount; i++) {
-					aWrappedValues[i] = Array.get(rValue, i);
+				for (int i = 0; i < count; i++) {
+					wrappedValues[i] = Array.get(value, i);
 				}
 
-				rValue = aWrappedValues;
+				value = wrappedValues;
 			}
 
-			appendArray(Arrays.asList((Object[]) rValue));
-		} else if (rValue instanceof Iterable) {
-			appendArray((Iterable<?>) rValue);
-		} else if (rValue instanceof Map) {
-			appendObject((Map<?, ?>) rValue);
-		} else if (rValue instanceof RelationType) {
-			appendString(Json.escape(rValue.toString()));
-		} else if (bRecursiveRelations && rValue instanceof Relatable) {
-			appendRelatable((Relatable) rValue, null, bRecursiveRelations);
+			appendArray(Arrays.asList((Object[]) value));
+		} else if (value instanceof Iterable) {
+			appendArray((Iterable<?>) value);
+		} else if (value instanceof Map) {
+			appendObject((Map<?, ?>) value);
+		} else if (value instanceof RelationType) {
+			appendString(Json.escape(value.toString()));
+		} else if (recursiveRelations && value instanceof Relatable) {
+			appendRelatable((Relatable) value, null, recursiveRelations);
 		} else {
-			String sValue;
+			String text;
 
 			try {
-				sValue = Conversions.asString(rValue);
+				text = Conversions.asString(value);
 			} catch (Exception e) {
 				// if conversion not possible use toString()
-				sValue = rValue.toString();
+				text = value.toString();
 			}
 
-			appendString(Json.escape(sValue));
+			appendString(Json.escape(text));
 		}
 
 		return this;
@@ -172,71 +173,70 @@ public class JsonBuilder {
 	 * Appends a relation of a {@link Relatable} object to a JSON string
 	 * builder.
 	 *
-	 * @param rRelation         The relation to append
-	 * @param eNamingStyle      The style for converting relation type
-	 *                          names to
-	 *                          JSON properties
-	 * @param bAppendNullValues TRUE if NULL values should be appended, FALSE
-	 *                          if they should be omitted
+	 * @param relation         The relation to append
+	 * @param namingStyle      The style for converting relation type names to
+	 *                         JSON properties
+	 * @param appendNullValues TRUE if NULL values should be appended, FALSE if
+	 *                         they should be omitted
 	 * @return TRUE if a relation has been appended (can only be FALSE if
-	 * bAppendNullValues is FALSE)
+	 * appendNullValues is FALSE)
 	 */
-	public boolean append(Relation<?> rRelation, IdentifierStyle eNamingStyle,
-		boolean bAppendNullValues) {
-		Object rValue = rRelation.getTarget();
-		boolean bHasValue = (rValue != null || bAppendNullValues);
+	public boolean append(Relation<?> relation, IdentifierStyle namingStyle,
+		boolean appendNullValues) {
+		Object value = relation.getTarget();
+		boolean hasValue = (value != null || appendNullValues);
 
-		if (bHasValue) {
-			RelationType<?> rRelationType = rRelation.getType();
-			String sName = rRelationType.getSimpleName();
+		if (hasValue) {
+			RelationType<?> relationType = relation.getType();
+			String name = relationType.getSimpleName();
 
-			if (eNamingStyle != IdentifierStyle.UPPERCASE) {
-				sName = TextConvert.convertTo(eNamingStyle, sName);
+			if (namingStyle != IdentifierStyle.UPPERCASE) {
+				name = TextConvert.convertTo(namingStyle, name);
 			}
 
-			if (bNamespaces) {
-				String sNamespace = rRelationType.getNamespace();
+			if (namespaces) {
+				String namespace = relationType.getNamespace();
 
-				if (!sNamespace.isEmpty()) {
-					sName = sNamespace + '.' + sName;
+				if (!namespace.isEmpty()) {
+					name = namespace + '.' + name;
 				}
 			}
 
-			appendName(sName);
-			append(rValue);
+			appendName(name);
+			append(value);
 		}
 
-		return bHasValue;
+		return hasValue;
 	}
 
 	/**
 	 * Appends values from an iterable object as a JSON array.
 	 *
-	 * @param rElements The iterable object to append (may be empty or NULL)
+	 * @param elements The iterable object to append (may be empty or NULL)
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder appendArray(Iterable<?> rElements) {
-		aJson.append(JsonStructure.ARRAY.cOpen);
+	public JsonBuilder appendArray(Iterable<?> elements) {
+		json.append(JsonStructure.ARRAY.getOpenChar());
 
-		if (rElements != null) {
-			Iterator<?> rIterator = rElements.iterator();
-			boolean bHasNext = rIterator.hasNext();
+		if (elements != null) {
+			Iterator<?> iterator = elements.iterator();
+			boolean hasNext = iterator.hasNext();
 
-			while (bHasNext) {
-				append(rIterator.next());
-				bHasNext = rIterator.hasNext();
+			while (hasNext) {
+				append(iterator.next());
+				hasNext = iterator.hasNext();
 
-				if (bHasNext) {
-					aJson.append(',');
+				if (hasNext) {
+					json.append(',');
 
-					if (bWhitespace) {
-						aJson.append(' ');
+					if (whitespace) {
+						json.append(' ');
 					}
 				}
 			}
 		}
 
-		aJson.append(JsonStructure.ARRAY.cClose);
+		json.append(JsonStructure.ARRAY.getCloseChar());
 
 		return this;
 	}
@@ -246,15 +246,15 @@ public class JsonBuilder {
 	 * not be escaped because it is assumed that they do not contain JSON
 	 * control characters.
 	 *
-	 * @param sName The attribute name
+	 * @param name The attribute name
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder appendName(String sName) {
-		appendString(sName);
-		aJson.append(':');
+	public JsonBuilder appendName(String name) {
+		appendString(name);
+		json.append(':');
 
-		if (bWhitespace) {
-			aJson.append(' ');
+		if (whitespace) {
+			json.append(' ');
 		}
 
 		return this;
@@ -263,21 +263,21 @@ public class JsonBuilder {
 	/**
 	 * Appends a mapping of key/value pairs to this instance as a JSON object.
 	 *
-	 * @param rMap The key/value mapping to append (may be empty or NULL)
+	 * @param map The key/value mapping to append (may be empty or NULL)
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder appendObject(Map<?, ?> rMap) {
+	public JsonBuilder appendObject(Map<?, ?> map) {
 		beginObject();
 
-		if (rMap != null && !rMap.isEmpty()) {
-			int nCount = rMap.size();
+		if (map != null && !map.isEmpty()) {
+			int count = map.size();
 
-			for (Entry<?, ?> rEntry : rMap.entrySet()) {
-				appendName(rEntry.getKey().toString());
-				append(rEntry.getValue());
+			for (Entry<?, ?> entry : map.entrySet()) {
+				appendName(entry.getKey().toString());
+				append(entry.getValue());
 
-				if (--nCount > 0) {
-					aJson.append(',');
+				if (--count > 0) {
+					json.append(',');
 					newLine();
 				}
 			}
@@ -290,28 +290,30 @@ public class JsonBuilder {
 
 	/**
 	 * Appends the relations of a {@link Relatable} object to this JSON string
-	 * as a JSON object structure. See {@link #appendRelations(Relatable,
-	 * Collection)} for details about how the relations are appended.
+	 * as a JSON object structure. See
+	 * {@link #appendRelations(Relatable, Collection)} for details about how
+	 * the
+	 * relations are appended.
 	 *
 	 * <p>The boolean parameter defines whether this method will be applied
 	 * recursively to relatable objects in relation or if only their string
 	 * representation will be appended. Using recursion should be used with
 	 * caution as circular references can cause stack overflows.</p>
 	 *
-	 * @param rObject        The object to append the relations of
-	 * @param rRelationTypes The types of the relation to be converted to JSON
-	 *                       (NULL for all)
-	 * @param bRecursive     TRUE to recursively append all relatables stored
-	 *                       in the relations of the object
+	 * @param object        The object to append the relations of
+	 * @param relationTypes The types of the relation to be converted to JSON
+	 *                      (NULL for all)
+	 * @param recursive     TRUE to recursively append all relatables stored in
+	 *                      the relations of the object
 	 * @return This instance for concatenation
 	 * @see #appendRelations(Relatable, Collection)
 	 */
-	public JsonBuilder appendRelatable(Relatable rObject,
-		Collection<RelationType<?>> rRelationTypes, boolean bRecursive) {
-		bRecursiveRelations = bRecursive;
+	public JsonBuilder appendRelatable(Relatable object,
+		Collection<RelationType<?>> relationTypes, boolean recursive) {
+		recursiveRelations = recursive;
 
 		beginObject();
-		appendRelations(rObject, rRelationTypes);
+		appendRelations(object, relationTypes);
 		endObject();
 
 		return this;
@@ -336,46 +338,45 @@ public class JsonBuilder {
 	 * <p>Furthermore all relation values in the source object must be
 	 * compatible with JSON. That means they must either have a datatype that
 	 * can be converted directly or valid a string representation. The latter
-	 * can be achieved by registering a global string conversion through {@link
-	 * Conversions#registerStringConversion(Class, InvertibleFunction)}. If
-	 * these
-	 * requirements are not met the resulting JSON string will probably not be
-	 * parseable by the class {@link JsonParser}.</p>
+	 * can be achieved by registering a global string conversion through
+	 * {@link Conversions#registerStringConversion(Class, InvertibleFunction)}.
+	 * If these requirements are not met the resulting JSON string will
+	 * probably
+	 * not be parseable by the class {@link JsonParser}.</p>
 	 *
-	 * @param rObject        The object to append the relations of
-	 * @param rRelationTypes The types of the relation to be converted to JSON
-	 *                       (NULL for all)
+	 * @param object        The object to append the relations of
+	 * @param relationTypes The types of the relation to be converted to JSON
+	 *                      (NULL for all)
 	 * @return This instance for concatenation
 	 */
 	@SuppressWarnings("boxing")
-	public JsonBuilder appendRelations(Relatable rObject,
-		Collection<RelationType<?>> rRelationTypes) {
-		IdentifierStyle eNamingStyle = rObject.get(Json.JSON_PROPERTY_NAMING);
+	public JsonBuilder appendRelations(Relatable object,
+		Collection<RelationType<?>> relationTypes) {
+		IdentifierStyle namingStyle = object.get(Json.JSON_PROPERTY_NAMING);
 
-		if (rRelationTypes == null &&
-			rObject.hasRelation(Json.JSON_SERIALIZED_TYPES)) {
-			rRelationTypes = rObject.get(Json.JSON_SERIALIZED_TYPES);
+		if (relationTypes == null &&
+			object.hasRelation(Json.JSON_SERIALIZED_TYPES)) {
+			relationTypes = object.get(Json.JSON_SERIALIZED_TYPES);
 
-			if (eNamingStyle == null) {
-				eNamingStyle = IdentifierStyle.LOWER_CAMELCASE;
+			if (namingStyle == null) {
+				namingStyle = IdentifierStyle.LOWER_CAMELCASE;
 			}
-		} else if (eNamingStyle == null) {
-			eNamingStyle = IdentifierStyle.UPPERCASE;
+		} else if (namingStyle == null) {
+			namingStyle = IdentifierStyle.UPPERCASE;
 		}
 
-		Predicate<Relation<?>> pMatchesType;
+		Predicate<Relation<?>> matchesType;
 
-		if (rRelationTypes != null) {
-			Collection<RelationType<?>> rTypes = rRelationTypes;
+		if (relationTypes != null) {
+			Collection<RelationType<?>> types = relationTypes;
 
-			pMatchesType = r -> rTypes.contains(r.getType());
+			matchesType = r -> types.contains(r.getType());
 		} else {
-			pMatchesType = r -> !aExcludedRelationTypes.contains(r.getType());
+			matchesType = r -> !excludedRelationTypes.contains(r.getType());
 		}
 
-		appendRelations(
-			rObject.getRelations(IS_NOT_TRANSIENT.and(pMatchesType)),
-			eNamingStyle, true);
+		appendRelations(object.getRelations(IS_NOT_TRANSIENT.and(matchesType)),
+			namingStyle, true);
 
 		return this;
 	}
@@ -385,13 +386,13 @@ public class JsonBuilder {
 	 * string will not be escaped. That need to be done separately by invoking
 	 * {@link Json#escape(String)} if necessary.
 	 *
-	 * @param sStringValue sText The text string to append
+	 * @param stringValue text The text string to append
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder appendString(String sStringValue) {
-		aJson.append(JsonStructure.STRING.cOpen);
-		aJson.append(sStringValue);
-		aJson.append(JsonStructure.STRING.cClose);
+	public JsonBuilder appendString(String stringValue) {
+		json.append(JsonStructure.STRING.getOpenChar());
+		json.append(stringValue);
+		json.append(JsonStructure.STRING.getCloseChar());
 
 		return this;
 	}
@@ -400,11 +401,11 @@ public class JsonBuilder {
 	 * Appends an arbitrary text. The caller is responsible that the resulting
 	 * string is valid according to the JSON specification.
 	 *
-	 * @param sText The text string to append
+	 * @param text The text string to append
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder appendText(String sText) {
-		aJson.append(sText);
+	public JsonBuilder appendText(String text) {
+		json.append(text);
 
 		return this;
 	}
@@ -417,8 +418,8 @@ public class JsonBuilder {
 	 * @see #endObject()
 	 */
 	public JsonBuilder beginObject() {
-		aJson.append(JsonStructure.OBJECT.cOpen);
-		sCurrentIndent += sIndent;
+		json.append(JsonStructure.OBJECT.getOpenChar());
+		currentIndent += indent;
 		newLine();
 
 		return this;
@@ -445,10 +446,10 @@ public class JsonBuilder {
 	 * @see #beginObject()
 	 */
 	public JsonBuilder endObject() {
-		sCurrentIndent = sCurrentIndent.substring(0,
-			sCurrentIndent.length() - sIndent.length());
+		currentIndent = currentIndent.substring(0,
+			currentIndent.length() - indent.length());
 		newLine();
-		aJson.append(JsonStructure.OBJECT.cClose);
+		json.append(JsonStructure.OBJECT.getCloseChar());
 
 		return this;
 	}
@@ -464,12 +465,12 @@ public class JsonBuilder {
 	 * JSON representation or would prevent the JSON generation. Appending a
 	 * single single relation explicitly is not affected by this setting.
 	 *
-	 * @param rExcludedType The relation type to be excluded from the JSON
-	 *                      generation
+	 * @param excludedType The relation type to be excluded from the JSON
+	 *                     generation
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder exclude(RelationType<?> rExcludedType) {
-		aExcludedRelationTypes.add(rExcludedType);
+	public JsonBuilder exclude(RelationType<?> excludedType) {
+		excludedRelationTypes.add(excludedType);
 
 		return this;
 	}
@@ -477,11 +478,11 @@ public class JsonBuilder {
 	/**
 	 * Sets the indent of this builder.
 	 *
-	 * @param sIndent The indentation string to be prefixed per level
+	 * @param indent The indentation string to be prefixed per level
 	 * @return This instance for concatenation
 	 */
-	public JsonBuilder indent(String sIndent) {
-		this.sIndent = sIndent;
+	public JsonBuilder indent(String indent) {
+		this.indent = indent;
 
 		return this;
 	}
@@ -492,7 +493,7 @@ public class JsonBuilder {
 	 * @return The JSON string length
 	 */
 	public int length() {
-		return aJson.length();
+		return json.length();
 	}
 
 	/**
@@ -501,7 +502,7 @@ public class JsonBuilder {
 	 * @return This instance for fluent invocation
 	 */
 	public JsonBuilder noLinefeeds() {
-		this.bMultiLine = false;
+		this.multiLine = false;
 
 		return this;
 	}
@@ -512,7 +513,7 @@ public class JsonBuilder {
 	 * @return This instance for fluent invocation
 	 */
 	public JsonBuilder noWhitespace() {
-		this.bWhitespace = false;
+		this.whitespace = false;
 
 		return this;
 	}
@@ -520,21 +521,21 @@ public class JsonBuilder {
 	/**
 	 * Converts a value into a JSON string.
 	 *
-	 * @param rValue The value to convert
+	 * @param value The value to convert
 	 * @return The JSON string
 	 */
-	public String toJson(Object rValue) {
-		JsonBuilder aJsonBuilder = new JsonBuilder();
+	public String toJson(Object value) {
+		JsonBuilder jsonBuilder = new JsonBuilder();
 
-		if (rValue instanceof JsonSerializable) {
-			((JsonSerializable<?>) rValue).appendTo(aJsonBuilder);
-		} else if (rValue instanceof Relatable) {
-			aJsonBuilder.appendRelatable((Relatable) rValue, null, false);
+		if (value instanceof JsonSerializable) {
+			((JsonSerializable<?>) value).appendTo(jsonBuilder);
+		} else if (value instanceof Relatable) {
+			jsonBuilder.appendRelatable((Relatable) value, null, false);
 		} else {
-			aJsonBuilder.append(rValue);
+			jsonBuilder.append(value);
 		}
 
-		return aJsonBuilder.toString();
+		return jsonBuilder.toString();
 	}
 
 	/**
@@ -544,7 +545,7 @@ public class JsonBuilder {
 	 */
 	@Override
 	public String toString() {
-		return aJson.toString();
+		return json.toString();
 	}
 
 	/**
@@ -558,7 +559,7 @@ public class JsonBuilder {
 	 * @return This instance for fluent invocation
 	 */
 	public JsonBuilder withNamespaces() {
-		this.bNamespaces = true;
+		this.namespaces = true;
 
 		return this;
 	}
@@ -566,23 +567,22 @@ public class JsonBuilder {
 	/**
 	 * Appends a collection of relations to this JSON string.
 	 *
-	 * @param rRelations        The relations to append
-	 * @param eNamingStyle      The style for converting relation type
-	 *                          names to
-	 *                          JSON properties
-	 * @param bAppendNullValues TRUE if NULL values should be appended, FALSE
-	 *                          if they should be omitted
+	 * @param relations        The relations to append
+	 * @param namingStyle      The style for converting relation type names to
+	 *                         JSON properties
+	 * @param appendNullValues TRUE if NULL values should be appended, FALSE if
+	 *                         they should be omitted
 	 * @return This instance for concatenation
 	 */
-	private JsonBuilder appendRelations(Collection<Relation<?>> rRelations,
-		IdentifierStyle eNamingStyle, boolean bAppendNullValues) {
-		int nCount = rRelations.size();
+	private JsonBuilder appendRelations(Collection<Relation<?>> relations,
+		IdentifierStyle namingStyle, boolean appendNullValues) {
+		int count = relations.size();
 
-		for (Relation<?> rRelation : rRelations) {
-			append(rRelation, eNamingStyle, bAppendNullValues);
+		for (Relation<?> relation : relations) {
+			append(relation, namingStyle, appendNullValues);
 
-			if (--nCount > 0) {
-				aJson.append(',');
+			if (--count > 0) {
+				json.append(',');
 				newLine();
 			}
 		}
@@ -596,9 +596,9 @@ public class JsonBuilder {
 	 * @return This instance for concatenation
 	 */
 	private JsonBuilder newLine() {
-		if (bMultiLine) {
-			aJson.append('\n');
-			aJson.append(sCurrentIndent);
+		if (multiLine) {
+			json.append('\n');
+			json.append(currentIndent);
 		}
 
 		return this;
@@ -618,16 +618,16 @@ public class JsonBuilder {
 		 * {@inheritDoc}
 		 */
 		@Override
-		public String evaluate(Object rValue) {
-			return new JsonBuilder().append(rValue).toString();
+		public String evaluate(Object value) {
+			return new JsonBuilder().append(value).toString();
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public Object invert(String sJson) {
-			return new JsonParser().parse(sJson);
+		public Object invert(String json) {
+			return new JsonParser().parse(json);
 		}
 	}
 }

@@ -53,7 +53,7 @@ public class ListenerType<L, E> extends RelationType<List<L>> {
 
 	private static final long serialVersionUID = 1L;
 
-	private final BiConsumer<L, E> fEventDispatcher;
+	private final BiConsumer<L, E> eventDispatcher;
 
 	/**
 	 * Creates a new instance. The event dispatcher argument may be NULL in
@@ -61,16 +61,16 @@ public class ListenerType<L, E> extends RelationType<List<L>> {
 	 * BiConsumer)} must be used for listener notification or else a {@link
 	 * NullPointerException} will occur.
 	 *
-	 * @param fDispatcher A binary consumer that dispatches a certain event
-	 *                    to a
-	 *                    single listener
-	 * @param rModifiers  The relation type modifiers for the new instance
+	 * @param dispatcher A binary consumer that dispatches a certain event
+	 *                   to a
+	 *                   single listener
+	 * @param modifiers  The relation type modifiers for the new instance
 	 */
-	public ListenerType(BiConsumer<L, E> fDispatcher,
-		RelationTypeModifier... rModifiers) {
-		super(null, r -> new ArrayList<L>(), rModifiers);
+	public ListenerType(BiConsumer<L, E> dispatcher,
+		RelationTypeModifier... modifiers) {
+		super(null, r -> new ArrayList<L>(), modifiers);
 
-		fEventDispatcher = fDispatcher;
+		eventDispatcher = dispatcher;
 	}
 
 	/**
@@ -79,15 +79,15 @@ public class ListenerType<L, E> extends RelationType<List<L>> {
 	 * performed by invoking the event dispatch function that has been provided
 	 * to the constructor.
 	 *
-	 * @param rSource The event source to notify the listeners of
-	 * @param rEvent  The event object to send to the listeners
+	 * @param source The event source to notify the listeners of
+	 * @param event  The event object to send to the listeners
 	 */
-	public final void notifyListeners(Object rSource, E rEvent) {
-		Relatable rRelatable = ObjectRelations.getRelatable(rSource);
+	public final void notifyListeners(Object source, E event) {
+		Relatable relatable = ObjectRelations.getRelatable(source);
 
-		if (rRelatable.hasRelation(this)) {
-			for (L rListener : rRelatable.get(this)) {
-				fEventDispatcher.accept(rListener, rEvent);
+		if (relatable.hasRelation(this)) {
+			for (L listener : relatable.get(this)) {
+				eventDispatcher.accept(listener, event);
 			}
 		}
 	}
@@ -99,18 +99,18 @@ public class ListenerType<L, E> extends RelationType<List<L>> {
 	 * multiple
 	 * event types) by using different dispatch functions.
 	 *
-	 * @param rSource     The event source to notify the listeners of
-	 * @param rEvent      The event object to send to the listeners
-	 * @param fDispatcher The event dispatch function to be used to notify the
-	 *                    listeners
+	 * @param source     The event source to notify the listeners of
+	 * @param event      The event object to send to the listeners
+	 * @param dispatcher The event dispatch function to be used to notify the
+	 *                   listeners
 	 */
-	public final void notifyListeners(Object rSource, E rEvent,
-		BiConsumer<L, E> fDispatcher) {
-		Relatable rRelatable = ObjectRelations.getRelatable(rSource);
+	public final void notifyListeners(Object source, E event,
+		BiConsumer<L, E> dispatcher) {
+		Relatable relatable = ObjectRelations.getRelatable(source);
 
-		if (rRelatable.hasRelation(this)) {
-			for (L rListener : rRelatable.get(this)) {
-				fDispatcher.accept(rListener, rEvent);
+		if (relatable.hasRelation(this)) {
+			for (L listener : relatable.get(this)) {
+				dispatcher.accept(listener, event);
 			}
 		}
 	}

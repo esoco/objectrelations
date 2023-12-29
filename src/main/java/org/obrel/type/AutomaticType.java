@@ -48,47 +48,47 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	/**
 	 * @see RelationType#RelationType(RelationTypeModifier...)
 	 */
-	public AutomaticType(RelationTypeModifier... rModifiers) {
-		super(rModifiers);
+	public AutomaticType(RelationTypeModifier... modifiers) {
+		super(modifiers);
 	}
 
 	/**
 	 * @see RelationType#RelationType(String, Class, RelationTypeModifier...)
 	 */
-	public AutomaticType(String sName, Class<? super T> rTargetType,
-		RelationTypeModifier... rModifiers) {
-		super(sName, rTargetType, rModifiers);
+	public AutomaticType(String name, Class<? super T> targetType,
+		RelationTypeModifier... modifiers) {
+		super(name, targetType, modifiers);
 	}
 
 	/**
 	 * @see RelationType#RelationType(Function, Function,
 	 * RelationTypeModifier...)
 	 */
-	public AutomaticType(Function<? super Relatable, ? super T> fDefaultValue,
-		Function<? super Relatable, ? super T> fInitialValue,
-		RelationTypeModifier... rModifiers) {
-		super(fDefaultValue, fInitialValue, rModifiers);
+	public AutomaticType(Function<? super Relatable, ? super T> defaultValue,
+		Function<? super Relatable, ? super T> initialValue,
+		RelationTypeModifier... modifiers) {
+		super(defaultValue, initialValue, modifiers);
 	}
 
 	/**
 	 * @see RelationType#RelationType(String, Class, Function,
 	 * RelationTypeModifier...)
 	 */
-	public AutomaticType(String sName, Class<? super T> rTargetType,
-		Function<? super Relatable, ? super T> fInitialValue,
-		RelationTypeModifier... rModifiers) {
-		super(sName, rTargetType, fInitialValue, rModifiers);
+	public AutomaticType(String name, Class<? super T> targetType,
+		Function<? super Relatable, ? super T> initialValue,
+		RelationTypeModifier... modifiers) {
+		super(name, targetType, initialValue, modifiers);
 	}
 
 	/**
 	 * @see RelationType#RelationType(String, Class, Function, Function,
 	 * RelationTypeModifier...)
 	 */
-	public AutomaticType(String sName, Class<? super T> rTargetType,
-		Function<? super Relatable, ? super T> fDefaultValue,
-		Function<? super Relatable, ? super T> fInitialValue,
-		RelationTypeModifier... rModifiers) {
-		super(sName, rTargetType, fDefaultValue, fInitialValue, rModifiers);
+	public AutomaticType(String name, Class<? super T> targetType,
+		Function<? super Relatable, ? super T> defaultValue,
+		Function<? super Relatable, ? super T> initialValue,
+		RelationTypeModifier... modifiers) {
+		super(name, targetType, defaultValue, initialValue, modifiers);
 	}
 
 	/**
@@ -98,9 +98,9 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	 * @see EventHandler#handleEvent(de.esoco.lib.event.Event)
 	 */
 	@Override
-	public final void handleEvent(RelationEvent<?> rEvent) {
-		if (rEvent.getElement().getType() != this) {
-			processEvent(rEvent);
+	public final void handleEvent(RelationEvent<?> event) {
+		if (event.getElement().getType() != this) {
+			processEvent(event);
 		}
 	}
 
@@ -116,19 +116,18 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	 * @see RelationType#addRelation(Relatable, Relation)
 	 */
 	@Override
-	protected Relation<T> addRelation(Relatable rParent,
-		Relation<T> rRelation) {
-		super.addRelation(rParent, rRelation);
+	protected Relation<T> addRelation(Relatable parent, Relation<T> relation) {
+		super.addRelation(parent, relation);
 
-		if (!(rRelation instanceof RelationWrapper)) {
+		if (!(relation instanceof RelationWrapper)) {
 			if (hasModifier(FINAL) || hasModifier(READONLY)) {
-				protectTarget(rParent, rRelation);
+				protectTarget(parent, relation);
 			}
 
-			registerRelationListener(rParent, this);
+			registerRelationListener(parent, this);
 		}
 
-		return rRelation;
+		return relation;
 	}
 
 	/**
@@ -138,30 +137,30 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	 * @see RelationType#deleteRelation(Relatable, Relation)
 	 */
 	@Override
-	protected void deleteRelation(Relatable rParent, Relation<?> rRelation) {
-		removeRelationListener(rParent, this);
+	protected void deleteRelation(Relatable parent, Relation<?> relation) {
+		removeRelationListener(parent, this);
 
-		super.deleteRelation(rParent, rRelation);
+		super.deleteRelation(parent, relation);
 	}
 
 	/**
 	 * Returns the event listener relation type for a certain parent object.
 	 *
-	 * @param rParent The parent relatable
+	 * @param parent The parent relatable
 	 * @return The corresponding event listener relation type
 	 */
 	protected RelationType<EventDispatcher<RelationEvent<?>>> getListenerType(
-		Relatable rParent) {
-		RelationType<EventDispatcher<RelationEvent<?>>> rListenerType =
+		Relatable parent) {
+		RelationType<EventDispatcher<RelationEvent<?>>> listenerType =
 			ListenerTypes.RELATION_LISTENERS;
 
-		if (rParent instanceof RelationType) {
-			rListenerType = ListenerTypes.RELATION_TYPE_LISTENERS;
-		} else if (rParent instanceof Relation) {
-			rListenerType = ListenerTypes.RELATION_UPDATE_LISTENERS;
+		if (parent instanceof RelationType) {
+			listenerType = ListenerTypes.RELATION_TYPE_LISTENERS;
+		} else if (parent instanceof Relation) {
+			listenerType = ListenerTypes.RELATION_UPDATE_LISTENERS;
 		}
 
-		return rListenerType;
+		return listenerType;
 	}
 
 	/**
@@ -173,9 +172,9 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	 * latter
 	 * is available from {@link RelationEvent#getEventScope()}.
 	 *
-	 * @param rEvent The event to process
+	 * @param event The event to process
 	 */
-	protected abstract void processEvent(RelationEvent<?> rEvent);
+	protected abstract void processEvent(RelationEvent<?> event);
 
 	/**
 	 * Will be invoked if this type has one of the modifiers {@link
@@ -185,10 +184,10 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	 * this type (e.g. by wrapping a collection in an immutable variant). The
 	 * default implementation does nothing.
 	 *
-	 * @param rParent   The parent of the relation
-	 * @param rRelation The relation to protect the target of
+	 * @param parent   The parent of the relation
+	 * @param relation The relation to protect the target of
 	 */
-	protected void protectTarget(Relatable rParent, Relation<T> rRelation) {
+	protected void protectTarget(Relatable parent, Relation<T> relation) {
 	}
 
 	/**
@@ -198,23 +197,23 @@ public abstract class AutomaticType<T> extends RelationType<T>
 	 * relation update listener, or a relation listener for all other relatable
 	 * objects.
 	 *
-	 * @param rParent   The parent relatable to register the listener on
-	 * @param rListener The listener to register
+	 * @param parent   The parent relatable to register the listener on
+	 * @param listener The listener to register
 	 */
-	protected void registerRelationListener(Relatable rParent,
-		EventHandler<RelationEvent<?>> rListener) {
-		rParent.get(getListenerType(rParent)).add(rListener);
+	protected void registerRelationListener(Relatable parent,
+		EventHandler<RelationEvent<?>> listener) {
+		parent.get(getListenerType(parent)).add(listener);
 	}
 
 	/**
 	 * Removes a relation listener that had previously been registered with
 	 * {@link #registerRelationListener(Relatable, EventHandler)}.
 	 *
-	 * @param rParent   The parent relatable to remove the listener from
-	 * @param rListener The listener to remove
+	 * @param parent   The parent relatable to remove the listener from
+	 * @param listener The listener to remove
 	 */
-	protected void removeRelationListener(Relatable rParent,
-		EventHandler<RelationEvent<?>> rListener) {
-		rParent.get(getListenerType(rParent)).remove(rListener);
+	protected void removeRelationListener(Relatable parent,
+		EventHandler<RelationEvent<?>> listener) {
+		parent.get(getListenerType(parent)).remove(listener);
 	}
 }

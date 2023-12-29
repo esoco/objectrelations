@@ -39,7 +39,7 @@ public class RangeTest {
 	// ~ Instance fields
 	// --------------------------------------------------------
 
-	private int nDiff = 0;
+	private int diff = 0;
 
 	// ~ Methods
 	// ----------------------------------------------------------------
@@ -305,37 +305,37 @@ public class RangeTest {
 	 *
 	 * @return {@link BigDecimal}
 	 */
-	private BigDecimal bd(String sValue) {
-		return new BigDecimal(sValue);
+	private BigDecimal bd(String value) {
+		return new BigDecimal(value);
 	}
 
 	/**
 	 * Checks the contents of integer ranges.
 	 */
-	private void checkRangeContains(int nStart, int nEnd) {
-		Range<Integer> r = Range.from(nStart).to(nEnd);
+	private void checkRangeContains(int start, int end) {
+		Range<Integer> r = Range.from(start).to(end);
 
-		for (int i = nStart; i <= nEnd; i++) {
+		for (int i = start; i <= end; i++) {
 			assertTrue(r.contains(i));
 		}
 
-		assertEquals(Math.abs(nEnd - nStart) + 1, r.size());
-		assertEquals(r.isAscending(), nEnd >= nStart);
-		assertFalse(r.contains(nStart - r.getStep()));
-		assertFalse(r.contains(nEnd + r.getStep()));
+		assertEquals(Math.abs(end - start) + 1, r.size());
+		assertEquals(r.isAscending(), end >= start);
+		assertFalse(r.contains(start - r.getStep()));
+		assertFalse(r.contains(end + r.getStep()));
 	}
 
 	/**
 	 * Checks {@link Range#forEach(java.util.function.Consumer)}.
 	 */
-	private void checkRangeForEach(int nStart, int nEnd, int nStep) {
-		nDiff = 0;
+	private void checkRangeForEach(int start, int end, int step) {
+		diff = 0;
 
-		Range<Integer> r = Range.from(nStart).to(nEnd);
+		Range<Integer> r = Range.from(start).to(end);
 
 		r.forEach(i -> {
-			assertEquals(i.intValue(), nStart + nDiff);
-			nDiff += r.getStep();
+			assertEquals(i.intValue(), start + diff);
+			diff += r.getStep();
 		});
 	}
 }

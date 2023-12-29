@@ -42,34 +42,24 @@ public class CollectorTypeTest {
 	 */
 	@Test
 	public void testCollector() {
-		CollectorType<String> aCollectorType = new CollectorType<String>("test.COLLECTOR_TYPE",
-				String.class,
-				(r, v) -> v.toString(),
-				false);
+		CollectorType<String> collectorType =
+			new CollectorType<String>("test.COLLECTOR_TYPE", String.class,
+				(r, v) -> v.toString(), false);
 
 		assertEquals(Arrays.asList("1", "2", "3", "1"),
-				doCollect(aCollectorType,
-						-1,
-						t(StandardTypes.NAME, "1"),
-						t(StandardTypes.NAME, "2"),
-						t(StandardTypes.NAME, "3"),
-						t(StandardTypes.NAME, "1")));
+			doCollect(collectorType, -1, t(StandardTypes.NAME, "1"),
+				t(StandardTypes.NAME, "2"), t(StandardTypes.NAME, "3"),
+				t(StandardTypes.NAME, "1")));
 
 		assertEquals(Arrays.asList("1", "2", "3", "1"),
-				doCollect(aCollectorType,
-						-1,
-						t(StandardTypes.NAME, "1"),
-						t(StandardTypes.DESCRIPTION, "2"),
-						t(StandardTypes.INFO, "3"),
-						t(StandardTypes.NAME, "1")));
+			doCollect(collectorType, -1, t(StandardTypes.NAME, "1"),
+				t(StandardTypes.DESCRIPTION, "2"), t(StandardTypes.INFO, "3"),
+				t(StandardTypes.NAME, "1")));
 
 		assertEquals(Arrays.asList("2", "3", "1"),
-				doCollect(aCollectorType,
-						3,
-						t(StandardTypes.NAME, "1"),
-						t(StandardTypes.DESCRIPTION, "2"),
-						t(StandardTypes.INFO, "3"),
-						t(StandardTypes.NAME, "1")));
+			doCollect(collectorType, 3, t(StandardTypes.NAME, "1"),
+				t(StandardTypes.DESCRIPTION, "2"), t(StandardTypes.INFO, "3"),
+				t(StandardTypes.NAME, "1")));
 	}
 
 	/**
@@ -77,73 +67,55 @@ public class CollectorTypeTest {
 	 */
 	@Test
 	public void testDistinctCollector() {
-		CollectorType<String> aCollectorType = new CollectorType<String>("test._DISTINCT_COLLECTOR_TYPE",
-				String.class,
-				(r, v) -> v.toString(),
-				true);
+		CollectorType<String> collectorType =
+			new CollectorType<String>("test._DISTINCT_COLLECTOR_TYPE",
+				String.class, (r, v) -> v.toString(), true);
 
 		assertEquals(CollectionUtil.orderedSetOf("1", "2", "3"),
-				doCollect(aCollectorType,
-						-1,
-						t(StandardTypes.NAME, "1"),
-						t(StandardTypes.NAME, "2"),
-						t(StandardTypes.NAME, "3"),
-						t(StandardTypes.NAME, "1")));
+			doCollect(collectorType, -1, t(StandardTypes.NAME, "1"),
+				t(StandardTypes.NAME, "2"), t(StandardTypes.NAME, "3"),
+				t(StandardTypes.NAME, "1")));
 
 		assertEquals(CollectionUtil.orderedSetOf("3", "2", "1"),
-				doCollect(aCollectorType,
-						-1,
-						t(StandardTypes.NAME, "3"),
-						t(StandardTypes.NAME, "2"),
-						t(StandardTypes.NAME, "1"),
-						t(StandardTypes.NAME, "1")));
+			doCollect(collectorType, -1, t(StandardTypes.NAME, "3"),
+				t(StandardTypes.NAME, "2"), t(StandardTypes.NAME, "1"),
+				t(StandardTypes.NAME, "1")));
 
 		assertEquals(CollectionUtil.orderedSetOf("1", "2", "3"),
-				doCollect(aCollectorType,
-						-1,
-						t(StandardTypes.NAME, "1"),
-						t(StandardTypes.DESCRIPTION, "2"),
-						t(StandardTypes.INFO, "3"),
-						t(StandardTypes.INFO, "3"),
-						t(StandardTypes.NAME, "1")));
+			doCollect(collectorType, -1, t(StandardTypes.NAME, "1"),
+				t(StandardTypes.DESCRIPTION, "2"), t(StandardTypes.INFO, "3"),
+				t(StandardTypes.INFO, "3"), t(StandardTypes.NAME, "1")));
 
 		assertEquals(CollectionUtil.orderedSetOf("3", "1"),
-				doCollect(aCollectorType,
-						2,
-						t(StandardTypes.NAME, "1"),
-						t(StandardTypes.DESCRIPTION, "2"),
-						t(StandardTypes.INFO, "3"),
-						t(StandardTypes.INFO, "3"),
-						t(StandardTypes.NAME, "1")));
+			doCollect(collectorType, 2, t(StandardTypes.NAME, "1"),
+				t(StandardTypes.DESCRIPTION, "2"), t(StandardTypes.INFO, "3"),
+				t(StandardTypes.INFO, "3"), t(StandardTypes.NAME, "1")));
 	}
 
 	/**
 	 * Collects values into a collector type by setting them on a related
 	 * object.
 	 *
-	 * @param rCollectorType The collector relation type
-	 * @param nMaxSize       The size limit for the collection
-	 * @param rRelations     The values to collect
-	 *
+	 * @param collectorType The collector relation type
+	 * @param maxSize       The size limit for the collection
+	 * @param relations     The values to collect
 	 * @return The collected values
 	 */
 	@SafeVarargs
-	final Collection<String> doCollect(
-			CollectorType<String> rCollectorType,
-			int nMaxSize,
-			Pair<RelationType<String>, String>... rRelations) {
+	final Collection<String> doCollect(CollectorType<String> collectorType,
+		int maxSize, Pair<RelationType<String>, String>... relations) {
 		Relatable o = new RelatedObject();
 
-		o.init(rCollectorType);
+		o.init(collectorType);
 
-		if (nMaxSize >= 0) {
-			o.getRelation(rCollectorType).set(MAXIMUM, nMaxSize);
+		if (maxSize >= 0) {
+			o.getRelation(collectorType).set(MAXIMUM, maxSize);
 		}
 
-		for (Pair<RelationType<String>, String> rData : rRelations) {
-			o.set(rData.first(), rData.second());
+		for (Pair<RelationType<String>, String> data : relations) {
+			o.set(data.first(), data.second());
 		}
 
-		return o.get(rCollectorType);
+		return o.get(collectorType);
 	}
 }

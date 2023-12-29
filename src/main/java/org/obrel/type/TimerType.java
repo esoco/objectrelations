@@ -36,23 +36,23 @@ public class TimerType extends RelationType<Long> {
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName      The relation type name
-	 * @param rModifiers The optional modifiers
+	 * @param name      The relation type name
+	 * @param modifiers The optional modifiers
 	 */
 	@SuppressWarnings("boxing")
-	public TimerType(String sName, RelationTypeModifier... rModifiers) {
-		super(sName, Long.class, o -> System.currentTimeMillis(), rModifiers);
+	public TimerType(String name, RelationTypeModifier... modifiers) {
+		super(name, Long.class, o -> System.currentTimeMillis(), modifiers);
 	}
 
 	/**
 	 * Creates a new partially initialized timer type for use in conjunction
 	 * with {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param rModifiers The optional modifiers
+	 * @param modifiers The optional modifiers
 	 * @return The new timer type
 	 */
-	public static TimerType newTimer(RelationTypeModifier... rModifiers) {
-		return new TimerType(null, rModifiers);
+	public static TimerType newTimer(RelationTypeModifier... modifiers) {
+		return new TimerType(null, modifiers);
 	}
 
 	/**
@@ -60,9 +60,9 @@ public class TimerType extends RelationType<Long> {
 	 */
 	@Override
 	@SuppressWarnings({ "boxing", "serial" })
-	protected Relation<Long> addRelation(Relatable rParent,
-		Relation<Long> rRelation) {
-		return new DirectRelation<Long>(this, rRelation.getTarget()) {
+	protected Relation<Long> addRelation(Relatable parent,
+		Relation<Long> relation) {
+		return new DirectRelation<Long>(this, relation.getTarget()) {
 			@Override
 			public Long getTarget() {
 				return System.currentTimeMillis() - super.getTarget();

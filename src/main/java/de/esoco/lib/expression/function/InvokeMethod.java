@@ -28,16 +28,16 @@ import java.lang.reflect.Method;
  */
 public class InvokeMethod<T, R> extends AbstractBinaryFunction<T, Object[], R> {
 
-	private final Method rMethod;
+	private final Method method;
 
 	/**
 	 * Creates a new instance that will invoke a particular method without
 	 * arguments on the target object.
 	 *
-	 * @param rMethod The method to invoke
+	 * @param method The method to invoke
 	 */
-	public InvokeMethod(Method rMethod) {
-		this(rMethod, (Object[]) ReflectUtil.NO_ARGS);
+	public InvokeMethod(Method method) {
+		this(method, (Object[]) ReflectUtil.NO_ARGS);
 	}
 
 	/**
@@ -45,36 +45,36 @@ public class InvokeMethod<T, R> extends AbstractBinaryFunction<T, Object[], R> {
 	 * target
 	 * object.
 	 *
-	 * @param rMethod The method to invoke
-	 * @param rArgs   The arguments of the method call
+	 * @param method The method to invoke
+	 * @param args   The arguments of the method call
 	 */
-	public InvokeMethod(Method rMethod, Object... rArgs) {
-		super(rArgs,
-			rMethod.getDeclaringClass().getName() + "." + rMethod.getName());
+	public InvokeMethod(Method method, Object... args) {
+		super(args,
+			method.getDeclaringClass().getName() + "." + method.getName());
 
-		this.rMethod = rMethod;
+		this.method = method;
 	}
 
 	/**
 	 * Invokes this instance's method on the target object.
 	 *
-	 * @param rTarget The target object to invoke the method on
-	 * @param rArgs   The arguments for the method call
+	 * @param target The target object to invoke the method on
+	 * @param args   The arguments for the method call
 	 * @return The result of the method call
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public R evaluate(T rTarget, Object[] rArgs) {
-		return (R) ReflectUtil.invoke(rTarget, rMethod, rArgs);
+	public R evaluate(T target, Object[] args) {
+		return (R) ReflectUtil.invoke(target, method, args);
 	}
 
 	/**
 	 * @see AbstractBinaryFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
-		return super.paramsEqual(rOther) &&
-			rMethod.equals(((InvokeMethod<?, ?>) rOther).rMethod);
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
+		return super.paramsEqual(other) &&
+			method.equals(((InvokeMethod<?, ?>) other).method);
 	}
 
 	/**
@@ -82,6 +82,6 @@ public class InvokeMethod<T, R> extends AbstractBinaryFunction<T, Object[], R> {
 	 */
 	@Override
 	protected int paramsHashCode() {
-		return 31 * rMethod.hashCode() + super.paramsHashCode();
+		return 31 * method.hashCode() + super.paramsHashCode();
 	}
 }

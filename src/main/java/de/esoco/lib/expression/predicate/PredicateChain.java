@@ -34,35 +34,34 @@ public class PredicateChain<T, V> extends FunctionChain<T, V, Boolean>
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rOuter The predicate that evaluates the inner function results
-	 * @param rInner The function that produces the predicate input values
+	 * @param outer The predicate that evaluates the inner function results
+	 * @param inner The function that produces the predicate input values
 	 */
-	public PredicateChain(Predicate<V> rOuter,
-		Function<T, ? extends V> rInner) {
-		super(rOuter, rInner);
+	public PredicateChain(Predicate<V> outer, Function<T, ? extends V> inner) {
+		super(outer, inner);
 	}
 
 	/**
 	 * @see Predicate#and(Predicate)
 	 */
 	@Override
-	public <O extends T> Predicate<O> and(Predicate<? super T> rOther) {
-		return Predicates.and(this, rOther);
+	public <O extends T> Predicate<O> and(Predicate<? super T> other) {
+		return Predicates.and(this, other);
 	}
 
 	/**
 	 * @see Predicate#from(Function)
 	 */
 	@Override
-	public <I> Predicate<I> from(Function<I, ? extends T> rFunction) {
-		return Predicates.chain(this, rFunction);
+	public <I> Predicate<I> from(Function<I, ? extends T> function) {
+		return Predicates.chain(this, function);
 	}
 
 	/**
 	 * @see Predicate#or(Predicate)
 	 */
 	@Override
-	public <O extends T> Predicate<O> or(Predicate<? super T> rOther) {
-		return Predicates.or(this, rOther);
+	public <O extends T> Predicate<O> or(Predicate<? super T> other) {
+		return Predicates.or(this, other);
 	}
 }

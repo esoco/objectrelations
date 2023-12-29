@@ -41,12 +41,12 @@ public interface Function<I, O> extends java.util.function.Function<I, O> {
 	/**
 	 * Creates an action that consumes the result of evaluating an input value.
 	 *
-	 * @param fAction The action that consumes the function result
+	 * @param action The action that consumes the function result
 	 * @return A new action (and {@link Consumer}) for input values of this
 	 * function
 	 */
-	default Action<I> andFinally(Action<O> fAction) {
-		return i -> fAction.accept(this.evaluate(i));
+	default Action<I> andFinally(Action<O> action) {
+		return i -> action.accept(this.evaluate(i));
 	}
 
 	/**
@@ -55,8 +55,8 @@ public interface Function<I, O> extends java.util.function.Function<I, O> {
 	 * @see java.util.function.Function#apply(Object)
 	 */
 	@Override
-	default O apply(I rInput) {
-		return evaluate(rInput);
+	default O apply(I input) {
+		return evaluate(input);
 	}
 
 	/**
@@ -70,21 +70,21 @@ public interface Function<I, O> extends java.util.function.Function<I, O> {
 	 * occurrence of such exceptions should be documented appropriately in the
 	 * function documentation.
 	 *
-	 * @param rValue The input value of the function
+	 * @param value The input value of the function
 	 * @return The resulting (output) value (may be NULL)
 	 */
-	O evaluate(I rValue);
+	O evaluate(I value);
 
 	/**
 	 * Returns a new function object that evaluates the result received from
 	 * another function with this function.
 	 *
-	 * @param fPrevious The function to produce this function's input values
-	 *                  with
+	 * @param previous The function to produce this function's input values
+	 *                 with
 	 * @return A new instance of {@link FunctionChain}
 	 */
-	default <T> Function<T, O> from(Function<T, ? extends I> fPrevious) {
-		return fPrevious.then(this);
+	default <T> Function<T, O> from(Function<T, ? extends I> previous) {
+		return previous.then(this);
 	}
 
 	/**
@@ -100,22 +100,22 @@ public interface Function<I, O> extends java.util.function.Function<I, O> {
 	/**
 	 * Returns a predicate that evaluates the result of this function.
 	 *
-	 * @param pCriteria The criteria predicate to evaluate the function result
+	 * @param criteria The criteria predicate to evaluate the function result
 	 * @return The function predicate
 	 */
-	default <T extends I> Predicate<T> is(Predicate<? super O> pCriteria) {
-		return Predicates.when(this, pCriteria);
+	default <T extends I> Predicate<T> is(Predicate<? super O> criteria) {
+		return Predicates.when(this, criteria);
 	}
 
 	/**
 	 * Returns a new function object that evaluates the result of this function
 	 * with another function and returns the result.
 	 *
-	 * @param fNext The function to evaluate this function's output values
-	 *              with
+	 * @param next The function to evaluate this function's output values
+	 *             with
 	 * @return A new instance of {@link FunctionChain}
 	 */
-	default <T> Function<I, T> then(Function<? super O, T> fNext) {
-		return Functions.chain(fNext, this);
+	default <T> Function<I, T> then(Function<? super O, T> next) {
+		return Functions.chain(next, this);
 	}
 }

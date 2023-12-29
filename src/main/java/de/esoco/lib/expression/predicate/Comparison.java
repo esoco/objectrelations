@@ -35,12 +35,12 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 	 * Creates a new immutable instance that compares target objects with a
 	 * certain value.
 	 *
-	 * @param rValue The value to compare the target objects of evaluations
-	 *               with
-	 * @param sToken A string description of this comparison
+	 * @param value The value to compare the target objects of evaluations
+	 *              with
+	 * @param token A string description of this comparison
 	 */
-	public Comparison(R rValue, String sToken) {
-		super(rValue, sToken);
+	public Comparison(R value, String token) {
+		super(value, token);
 	}
 
 	/**
@@ -51,10 +51,10 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rValue The collection to check input values against
+		 * @param value The collection to check input values against
 		 */
-		public ElementOf(Collection<?> rValue) {
-			super(rValue, "ElementOf");
+		public ElementOf(Collection<?> value) {
+			super(value, "ElementOf");
 		}
 
 		/**
@@ -64,8 +64,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		 * @see BinaryFunction#evaluate(Object, Object)
 		 */
 		@Override
-		public Boolean evaluate(T rValue, Collection<?> rCollection) {
-			return rCollection.contains(rValue);
+		public Boolean evaluate(T value, Collection<?> collection) {
+			return collection.contains(value);
 		}
 	}
 
@@ -78,8 +78,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		/**
 		 * @see Comparison#Comparison(Object, String)
 		 */
-		public EqualTo(Object rValue) {
-			super(rValue, "=");
+		public EqualTo(Object value) {
+			super(value, "=");
 		}
 
 		/**
@@ -88,8 +88,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		 * @see BinaryFunction#evaluate(Object, Object)
 		 */
 		@Override
-		public Boolean evaluate(T rLeftValue, Object rRightValue) {
-			return Objects.equals(rLeftValue, rRightValue);
+		public Boolean evaluate(T leftValue, Object rightValue) {
+			return Objects.equals(leftValue, rightValue);
 		}
 	}
 
@@ -103,8 +103,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		/**
 		 * @see Comparison#Comparison(Object, String)
 		 */
-		public GreaterOrEqual(T rValue) {
-			super(rValue, ">=");
+		public GreaterOrEqual(T value) {
+			super(value, ">=");
 		}
 
 		/**
@@ -114,8 +114,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		 * @see BinaryFunction#evaluate(Object, Object)
 		 */
 		@Override
-		public Boolean evaluate(T rLeftValue, T rRightValue) {
-			return rLeftValue.compareTo(rRightValue) >= 0;
+		public Boolean evaluate(T leftValue, T rightValue) {
+			return leftValue.compareTo(rightValue) >= 0;
 		}
 	}
 
@@ -128,8 +128,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		/**
 		 * @see Comparison#Comparison(Object, String)
 		 */
-		public GreaterThan(T rValue) {
-			super(rValue, ">");
+		public GreaterThan(T value) {
+			super(value, ">");
 		}
 
 		/**
@@ -138,8 +138,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		 * @see BinaryFunction#evaluate(Object, Object)
 		 */
 		@Override
-		public Boolean evaluate(T rLeftValue, T rRightValue) {
-			return rLeftValue.compareTo(rRightValue) > 0;
+		public Boolean evaluate(T leftValue, T rightValue) {
+			return leftValue.compareTo(rightValue) > 0;
 		}
 	}
 
@@ -153,8 +153,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		/**
 		 * @see Comparison#Comparison(Object, String)
 		 */
-		public LessOrEqual(T rValue) {
-			super(rValue, "<=");
+		public LessOrEqual(T value) {
+			super(value, "<=");
 		}
 
 		/**
@@ -165,8 +165,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		 * @see BinaryFunction#evaluate(Object, Object)
 		 */
 		@Override
-		public Boolean evaluate(T rLeftValue, T rRightValue) {
-			return rLeftValue.compareTo(rRightValue) <= 0;
+		public Boolean evaluate(T leftValue, T rightValue) {
+			return leftValue.compareTo(rightValue) <= 0;
 		}
 	}
 
@@ -179,8 +179,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		/**
 		 * @see Comparison#Comparison(Object, String)
 		 */
-		public LessThan(T rValue) {
-			super(rValue, "<");
+		public LessThan(T value) {
+			super(value, "<");
 		}
 
 		/**
@@ -189,8 +189,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		 * @see BinaryFunction#evaluate(Object, Object)
 		 */
 		@Override
-		public Boolean evaluate(T rLeftValue, T rRightValue) {
-			return rLeftValue.compareTo(rRightValue) < 0;
+		public Boolean evaluate(T leftValue, T rightValue) {
+			return leftValue.compareTo(rightValue) < 0;
 		}
 	}
 
@@ -206,33 +206,33 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		/**
 		 * Creates a new instance from a certain regular expression.
 		 *
-		 * @param sRegularExpression The regular expression
+		 * @param regularExpression The regular expression
 		 */
-		public Matching(String sRegularExpression) {
-			this(Pattern.compile(sRegularExpression));
+		public Matching(String regularExpression) {
+			this(Pattern.compile(regularExpression));
 		}
 
 		/**
 		 * Creates a new instance from a certain regular expression pattern.
 		 *
-		 * @param rPattern The regular expression
+		 * @param pattern The regular expression
 		 */
-		public Matching(Pattern rPattern) {
-			super(rPattern, "matches");
+		public Matching(Pattern pattern) {
+			super(pattern, "matches");
 		}
 
 		/**
 		 * Converts the input value to a string by invoking toString() and
 		 * matches it against the given regular expression pattern.
 		 *
-		 * @param rInput   The input value to evaluate
-		 * @param rPattern The pattern to match the input value against
+		 * @param input   The input value to evaluate
+		 * @param pattern The pattern to match the input value against
 		 * @return TRUE if the regular expression matches the input value's
 		 * string representation
 		 */
 		@Override
-		public Boolean evaluate(T rInput, Pattern rPattern) {
-			return rPattern.matcher(rInput.toString()).matches();
+		public Boolean evaluate(T input, Pattern pattern) {
+			return pattern.matcher(input.toString()).matches();
 		}
 	}
 
@@ -244,8 +244,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		/**
 		 * @see Comparison#Comparison(Object, String)
 		 */
-		public SameAs(Object rValue) {
-			super(rValue, "==");
+		public SameAs(Object value) {
+			super(value, "==");
 		}
 
 		/**
@@ -254,8 +254,8 @@ public abstract class Comparison<L, R> extends AbstractBinaryPredicate<L, R> {
 		 * @see BinaryFunction#evaluate(Object, Object)
 		 */
 		@Override
-		public Boolean evaluate(T rLeftValue, Object rRightValue) {
-			return rLeftValue == rRightValue;
+		public Boolean evaluate(T leftValue, Object rightValue) {
+			return leftValue == rightValue;
 		}
 	}
 }

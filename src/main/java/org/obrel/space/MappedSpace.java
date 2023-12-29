@@ -45,25 +45,25 @@ import java.util.List;
  */
 public class MappedSpace<I, O> implements ObjectSpace<I> {
 
-	private final ObjectSpace<O> rWrappedSpace;
+	private final ObjectSpace<O> wrappedSpace;
 
-	private final Function<O, I> fValueMapper;
+	private final Function<O, I> valueMapper;
 
-	private InvertibleFunction<O, I> fPutMapper = null;
+	private InvertibleFunction<O, I> putMapper = null;
 
 	/**
 	 * Creates a new instance with a certain value mapping function.
 	 *
-	 * @param rWrappedSpace The target object space to map values from and to
-	 * @param fValueMapper  The value mapping function
+	 * @param wrappedSpace The target object space to map values from and to
+	 * @param valueMapper  The value mapping function
 	 */
-	public MappedSpace(ObjectSpace<O> rWrappedSpace,
-		Function<O, I> fValueMapper) {
-		this.rWrappedSpace = rWrappedSpace;
-		this.fValueMapper = fValueMapper;
+	public MappedSpace(ObjectSpace<O> wrappedSpace,
+		Function<O, I> valueMapper) {
+		this.wrappedSpace = wrappedSpace;
+		this.valueMapper = valueMapper;
 
-		if (fValueMapper instanceof InvertibleFunction) {
-			fPutMapper = (InvertibleFunction<O, I>) fValueMapper;
+		if (valueMapper instanceof InvertibleFunction) {
+			putMapper = (InvertibleFunction<O, I>) valueMapper;
 		}
 	}
 
@@ -71,40 +71,40 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void delete(String sUrl) {
-		rWrappedSpace.delete(sUrl);
+	public void delete(String url) {
+		wrappedSpace.delete(url);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteRelation(Relation<?> rRelation) {
-		rWrappedSpace.deleteRelation(rRelation);
+	public void deleteRelation(Relation<?> relation) {
+		wrappedSpace.deleteRelation(relation);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public I get(String sUrl) {
-		return fValueMapper.evaluate(rWrappedSpace.get(sUrl));
+	public I get(String url) {
+		return valueMapper.evaluate(wrappedSpace.get(url));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> T get(RelationType<T> rType) {
-		return rWrappedSpace.get(rType);
+	public <T> T get(RelationType<T> type) {
+		return wrappedSpace.get(type);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> Relation<T> getRelation(RelationType<T> rType) {
-		return rWrappedSpace.getRelation(rType);
+	public <T> Relation<T> getRelation(RelationType<T> type) {
+		return wrappedSpace.getRelation(type);
 	}
 
 	/**
@@ -112,8 +112,8 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 	 */
 	@Override
 	public List<Relation<?>> getRelations(
-		Predicate<? super Relation<?>> rFilter) {
-		return rWrappedSpace.getRelations(rFilter);
+		Predicate<? super Relation<?>> filter) {
+		return wrappedSpace.getRelations(filter);
 	}
 
 	/**
@@ -122,7 +122,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 	 * @return The value mapping function
 	 */
 	public final Function<O, I> getValueMapper() {
-		return fValueMapper;
+		return valueMapper;
 	}
 
 	/**
@@ -131,16 +131,16 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 	 * @return The wrapped object space
 	 */
 	public final ObjectSpace<O> getWrappedSpace() {
-		return rWrappedSpace;
+		return wrappedSpace;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void put(String sUrl, I rValue) {
-		if (fPutMapper != null) {
-			rWrappedSpace.put(sUrl, fPutMapper.invert(rValue));
+	public void put(String url, I value) {
+		if (putMapper != null) {
+			wrappedSpace.put(url, putMapper.invert(value));
 		} else {
 			throw new UnsupportedOperationException(
 				"Value mapping not invertible");
@@ -151,17 +151,17 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> Relation<T> set(RelationType<T> rType, T rTarget) {
-		return rWrappedSpace.set(rType, rTarget);
+	public <T> Relation<T> set(RelationType<T> type, T target) {
+		return wrappedSpace.set(type, target);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T, V> Relation<T> set(RelationType<T> rType,
-		Function<V, T> fTargetResolver, V rIntermediateTarget) {
-		return rWrappedSpace.set(rType, fTargetResolver, rIntermediateTarget);
+	public <T, V> Relation<T> set(RelationType<T> type,
+		Function<V, T> targetResolver, V intermediateTarget) {
+		return wrappedSpace.set(type, targetResolver, intermediateTarget);
 	}
 
 	/**
@@ -179,8 +179,8 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T, D> TransformedRelation<T, D> transform(RelationType<T> rType,
-		InvertibleFunction<T, D> fTransformation) {
-		return rWrappedSpace.transform(rType, fTransformation);
+	public <T, D> TransformedRelation<T, D> transform(RelationType<T> type,
+		InvertibleFunction<T, D> transformation) {
+		return wrappedSpace.transform(type, transformation);
 	}
 }

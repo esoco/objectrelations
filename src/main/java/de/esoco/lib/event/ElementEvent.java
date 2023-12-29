@@ -71,27 +71,26 @@ public class ElementEvent<S, E, U> extends GenericEvent<S> {
 	 */
 	public enum EventType {ADD, REMOVE, REMOVE_ALL, UPDATE}
 
-	private final EventType rType;
+	private final EventType type;
 
-	private final E rElement;
+	private final E element;
 
-	private final U rUpdateValue;
+	private final U updateValue;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rType        The event type
-	 * @param rSource      The event source
-	 * @param rElement     The element that is affected by this event
-	 * @param rUpdateValue The update value in the case of update events (NULL
-	 *                     for none)
+	 * @param type        The event type
+	 * @param source      The event source
+	 * @param element     The element that is affected by this event
+	 * @param updateValue The update value in the case of update events (NULL
+	 *                    for none)
 	 */
-	public ElementEvent(EventType rType, S rSource, E rElement,
-		U rUpdateValue) {
-		super(rSource);
-		this.rType = rType;
-		this.rElement = rElement;
-		this.rUpdateValue = rUpdateValue;
+	public ElementEvent(EventType type, S source, E element, U updateValue) {
+		super(source);
+		this.type = type;
+		this.element = element;
+		this.updateValue = updateValue;
 	}
 
 	/**
@@ -103,7 +102,7 @@ public class ElementEvent<S, E, U> extends GenericEvent<S> {
 	 * @return The element
 	 */
 	public final E getElement() {
-		return rElement;
+		return element;
 	}
 
 	/**
@@ -112,7 +111,7 @@ public class ElementEvent<S, E, U> extends GenericEvent<S> {
 	 * @return The event type
 	 */
 	public final EventType getType() {
-		return rType;
+		return type;
 	}
 
 	/**
@@ -121,7 +120,7 @@ public class ElementEvent<S, E, U> extends GenericEvent<S> {
 	 * @return The element update value
 	 */
 	public final U getUpdateValue() {
-		return rUpdateValue;
+		return updateValue;
 	}
 
 	/**
@@ -129,7 +128,7 @@ public class ElementEvent<S, E, U> extends GenericEvent<S> {
 	 */
 	@Override
 	protected String paramString() {
-		return String.format("%s,%s,%s,%s", super.paramString(), rType,
-			rElement, rUpdateValue);
+		return String.format("%s,%s,%s,%s", super.paramString(), type, element,
+			updateValue);
 	}
 }

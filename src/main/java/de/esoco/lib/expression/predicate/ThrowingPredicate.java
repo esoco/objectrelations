@@ -35,11 +35,11 @@ public interface ThrowingPredicate<T> extends Predicate<T> {
 	 * inner class expression would be needed because of the similar signatures
 	 * of throwing and non-throwing predicate.
 	 *
-	 * @param fThrowing The throwing predicate expression
+	 * @param throwing The throwing predicate expression
 	 * @return The resulting predicate
 	 */
-	static <T> Predicate<T> of(ThrowingPredicate<T> fThrowing) {
-		return fThrowing;
+	static <T> Predicate<T> of(ThrowingPredicate<T> throwing) {
+		return throwing;
 	}
 
 	/**
@@ -50,9 +50,9 @@ public interface ThrowingPredicate<T> extends Predicate<T> {
 	 * @see Predicate#evaluate(Object)
 	 */
 	@Override
-	default Boolean evaluate(T rValue) {
+	default Boolean evaluate(T value) {
 		try {
-			return tryTest(rValue);
+			return tryTest(value);
 		} catch (Throwable e) {
 			throw (e instanceof RuntimeException) ?
 			      (RuntimeException) e :
@@ -65,9 +65,9 @@ public interface ThrowingPredicate<T> extends Predicate<T> {
 	 * throw an
 	 * exception.
 	 *
-	 * @param rValue rInput The value to check
+	 * @param value input The value to check
 	 * @return The function result
 	 * @throws Throwable On errors
 	 */
-	Boolean tryTest(T rValue) throws Throwable;
+	Boolean tryTest(T value) throws Throwable;
 }

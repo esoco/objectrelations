@@ -32,11 +32,11 @@ public interface FluentRelatable<T extends FluentRelatable<T>>
 	/**
 	 * Sets a flag relation type and returns this instance.
 	 *
-	 * @param rType The relation type
+	 * @param type The relation type
 	 * @return This instance for fluent invocation
 	 */
-	default T with(RelationType<Boolean> rType) {
-		return _with(() -> set(rType));
+	default T with(RelationType<Boolean> type) {
+		return _with(() -> set(type));
 	}
 
 	/**
@@ -45,8 +45,8 @@ public interface FluentRelatable<T extends FluentRelatable<T>>
 	 *
 	 * @see #with(RelationType, Object)
 	 */
-	default T with(RelationType<Integer> rType, int nValue) {
-		return _with(() -> set(rType, Integer.valueOf(nValue)));
+	default T with(RelationType<Integer> type, int value) {
+		return _with(() -> set(type, Integer.valueOf(value)));
 	}
 
 	/**
@@ -55,11 +55,11 @@ public interface FluentRelatable<T extends FluentRelatable<T>>
 	 * recommended that implementing classes call this method from methods with
 	 * names that provide a more concise fluent syntax.
 	 *
-	 * @param rType  The relation type
-	 * @param rValue The value
+	 * @param type  The relation type
+	 * @param value The value
 	 * @return This instance for fluent invocation
 	 */
-	default <V> T with(RelationType<V> rType, V rValue) {
-		return _with(() -> set(rType, rValue));
+	default <V> T with(RelationType<V> type, V value) {
+		return _with(() -> set(type, value));
 	}
 }

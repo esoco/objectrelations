@@ -34,14 +34,14 @@ public class ElementPredicate<T, V> extends FunctionPredicate<T, V> {
 	 * Creates a new instance that evaluates the value of a certain element of
 	 * target objects with the given predicate.
 	 *
-	 * @param fElementAccess The element access function
-	 * @param pValue         The predicate to evaluate the element value with
+	 * @param elementAccess The element access function
+	 * @param value         The predicate to evaluate the element value with
 	 * @throws IllegalArgumentException If either argument is NULL
 	 */
 	public ElementPredicate(
-		ElementAccessFunction<?, ? super T, V> fElementAccess,
-		Predicate<? super V> pValue) {
-		super(fElementAccess, pValue);
+		ElementAccessFunction<?, ? super T, V> elementAccess,
+		Predicate<? super V> value) {
+		super(elementAccess, value);
 	}
 
 	/**

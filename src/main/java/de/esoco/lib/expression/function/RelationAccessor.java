@@ -31,27 +31,27 @@ import java.util.function.Supplier;
  */
 public class RelationAccessor<T> implements Consumer<T>, Supplier<T> {
 
-	private final Relatable rRelatable;
+	private final Relatable relatable;
 
-	private final RelationType<T> rType;
+	private final RelationType<T> type;
 
 	/**
 	 * Creates a new instance.
 	 */
-	public RelationAccessor(Relatable rRelatable, RelationType<T> rType) {
-		this.rRelatable = rRelatable;
-		this.rType = rType;
+	public RelationAccessor(Relatable relatable, RelationType<T> type) {
+		this.relatable = relatable;
+		this.type = type;
 	}
 
 	/**
 	 * Implemented to set a value in the target relation of the wrapped
 	 * relatable.
 	 *
-	 * @param rValue The new relation value
+	 * @param value The new relation value
 	 */
 	@Override
-	public void accept(T rValue) {
-		rRelatable.set(rType, rValue);
+	public void accept(T value) {
+		relatable.set(type, value);
 	}
 
 	/**
@@ -62,6 +62,6 @@ public class RelationAccessor<T> implements Consumer<T>, Supplier<T> {
 	 */
 	@Override
 	public T get() {
-		return rRelatable.get(rType);
+		return relatable.get(type);
 	}
 }

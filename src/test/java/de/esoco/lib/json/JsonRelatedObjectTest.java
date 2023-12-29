@@ -78,21 +78,21 @@ public class JsonRelatedObjectTest {
 	 */
 	@Test
 	public void testBuildJson() {
-		TestObject aTestObject = new TestObject();
+		TestObject testObject = new TestObject();
 
-		aTestObject.setTestValues();
-		aTestObject.set(Json.JSON_PROPERTY_NAMING, IdentifierStyle.UPPERCASE);
+		testObject.setTestValues();
+		testObject.set(Json.JSON_PROPERTY_NAMING, IdentifierStyle.UPPERCASE);
 
 		assertEquals(String.format(TEST_OBJECT_JSON, TEST_OBJECT_NULL_CHILD),
-			aTestObject.toJson());
+			testObject.toJson());
 
-		ChildObject aChild = new ChildObject(42, "CHILD");
+		ChildObject child = new ChildObject(42, "CHILD");
 
-		aChild.set(Json.JSON_PROPERTY_NAMING, IdentifierStyle.UPPERCASE);
-		aTestObject.set(TestObject.CHILD, aChild);
+		child.set(Json.JSON_PROPERTY_NAMING, IdentifierStyle.UPPERCASE);
+		testObject.set(TestObject.CHILD, child);
 
 		assertEquals(String.format(TEST_OBJECT_JSON, TEST_OBJECT_ONE_CHILD),
-			aTestObject.toJson());
+			testObject.toJson());
 	}
 
 	/**
@@ -100,41 +100,40 @@ public class JsonRelatedObjectTest {
 	 */
 	@Test
 	public void testParseJson() {
-		TestObject aTestObject = new TestObject();
+		TestObject testObject = new TestObject();
 
-		aTestObject.fromJson(
+		testObject.fromJson(
 			String.format(TEST_OBJECT_JSON, TEST_OBJECT_NULL_CHILD));
 
-		assertJsonRelations(aTestObject);
-		assertNull(aTestObject.get(TestObject.CHILD));
+		assertJsonRelations(testObject);
+		assertNull(testObject.get(TestObject.CHILD));
 
-		aTestObject.fromJson(
+		testObject.fromJson(
 			String.format(TEST_OBJECT_JSON, TEST_OBJECT_ONE_CHILD));
 
-		assertJsonRelations(aTestObject);
+		assertJsonRelations(testObject);
 		assertEquals(new ChildObject(42, "CHILD"),
-			aTestObject.get(TestObject.CHILD));
+			testObject.get(TestObject.CHILD));
 	}
 
 	/**
 	 * Assert correct relation values.
 	 *
-	 * @param rTestObject The test object
+	 * @param testObject The test object
 	 */
-	private void assertJsonRelations(TestObject rTestObject) {
+	private void assertJsonRelations(TestObject testObject) {
 		assertEquals(TestObject.class.getSimpleName(),
-			rTestObject.get(TestObject.NAME));
+			testObject.get(TestObject.NAME));
 		assertEquals(TestObject.class.getPackage().getName(),
-			rTestObject.get(TestObject.CLASS_PACKAGE));
-		assertEquals(Integer.valueOf(1),
-			rTestObject.get(TestObject.OBJECT_ID));
-		assertEquals(true, rTestObject.get(TestObject.FLAG));
-		assertEquals(TEST_FLOAT, rTestObject.get(TestObject.FLOAT));
-		assertEquals(TEST_DECIMAL, rTestObject.get(TestObject.DECIMAL));
+			testObject.get(TestObject.CLASS_PACKAGE));
+		assertEquals(Integer.valueOf(1), testObject.get(TestObject.OBJECT_ID));
+		assertEquals(true, testObject.get(TestObject.FLAG));
+		assertEquals(TEST_FLOAT, testObject.get(TestObject.FLOAT));
+		assertEquals(TEST_DECIMAL, testObject.get(TestObject.DECIMAL));
 		assertArrayEquals(TEST_INTEGER_ARRAY,
-			rTestObject.get(TestObject.INTEGER_ARRAY));
-		assertEquals(TEST_LIST, rTestObject.get(TestObject.LIST));
-		assertEquals(TEST_OBJECT, rTestObject.get(TestObject.JSON_OBJECT));
+			testObject.get(TestObject.INTEGER_ARRAY));
+		assertEquals(TEST_LIST, testObject.get(TestObject.LIST));
+		assertEquals(TEST_OBJECT, testObject.get(TestObject.JSON_OBJECT));
 	}
 
 	// ~ Inner Classes
@@ -170,9 +169,9 @@ public class JsonRelatedObjectTest {
 		 * Sets test values.
 		 */
 		@SuppressWarnings("boxing")
-		public ChildObject(int nId, String sName) {
-			set(ID, nId);
-			set(NAME, sName);
+		public ChildObject(int id, String name) {
+			set(ID, id);
+			set(NAME, name);
 		}
 	}
 

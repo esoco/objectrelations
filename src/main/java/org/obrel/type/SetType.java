@@ -41,29 +41,29 @@ public class SetType<T> extends RelationType<Set<T>> {
 	 * created with this constructor MUST be declared as static constants in a
 	 * class that is initialized with {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param bOrdered   TRUE for an ordered map
-	 * @param rModifiers The optional relation type modifiers
+	 * @param ordered   TRUE for an ordered map
+	 * @param modifiers The optional relation type modifiers
 	 */
-	public SetType(boolean bOrdered, RelationTypeModifier... rModifiers) {
-		this(null, null, bOrdered, rModifiers);
+	public SetType(boolean ordered, RelationTypeModifier... modifiers) {
+		this(null, null, ordered, modifiers);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName        The relation type name (NULL for automatic
-	 *                     initialization of static relation types)
-	 * @param rElementType The datatype of the set elements
-	 * @param bOrdered     TRUE for an ordered map
-	 * @param rModifiers   The optional relation type modifiers
+	 * @param name        The relation type name (NULL for automatic
+	 *                    initialization of static relation types)
+	 * @param elementType The datatype of the set elements
+	 * @param ordered     TRUE for an ordered map
+	 * @param modifiers   The optional relation type modifiers
 	 */
-	public SetType(String sName, Class<T> rElementType, boolean bOrdered,
-		RelationTypeModifier... rModifiers) {
-		super(sName, Set.class, initialValueFunction(bOrdered), rModifiers);
+	public SetType(String name, Class<T> elementType, boolean ordered,
+		RelationTypeModifier... modifiers) {
+		super(name, Set.class, initialValueFunction(ordered), modifiers);
 
-		set(MetaTypes.ELEMENT_DATATYPE, rElementType);
+		set(MetaTypes.ELEMENT_DATATYPE, elementType);
 
-		if (bOrdered) {
+		if (ordered) {
 			set(MetaTypes.ORDERED);
 		}
 	}
@@ -72,14 +72,14 @@ public class SetType<T> extends RelationType<Set<T>> {
 	 * Creates the initial value function that produces either an ordered or an
 	 * unordered set.
 	 *
-	 * @param bOrdered TRUE for an ordered set
+	 * @param ordered TRUE for an ordered set
 	 * @return The initial value function
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Function<Object, Set<T>> initialValueFunction(
-		boolean bOrdered) {
-		Class<?> rSetClass = bOrdered ? LinkedHashSet.class : HashSet.class;
+		boolean ordered) {
+		Class<?> setClass = ordered ? LinkedHashSet.class : HashSet.class;
 
-		return ReflectionFuntions.newInstanceOf((Class<Set<T>>) rSetClass);
+		return ReflectionFuntions.newInstanceOf((Class<Set<T>>) setClass);
 	}
 }

@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -114,7 +115,7 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 	static final Pattern FORMAT_PATTERN =
 		Pattern.compile("(?s)(\\d*)([&FDNC])(.+)");
 
-	private static final Map<String, Token<Object>> aTokenRegistry =
+	private static final Map<String, Token<Object>> tokenRegistry =
 		new HashMap<String, Token<Object>>();
 
 	static {
@@ -126,51 +127,52 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		});
 		registerToken("#", new Token<Object>("#") {
 			@Override
-			protected Object extractValue(Object rInput) {
-				return rInput;
+			protected Object extractValue(Object input) {
+				return input;
 			}
 		});
 	}
 
-	private final List<Token<? super T>> aTokens =
+	private final List<Token<? super T>> tokens =
 		new ArrayList<Token<? super T>>();
 
-	private String sTargetPattern;
+	private String targetPattern;
 
 	/**
 	 * Creates a new instance for a certain token string.
 	 *
-	 * @param sTokenString The token string
+	 * @param tokenString The token string
 	 * @throws IllegalArgumentException If the string contains invalid tokens
 	 */
-	public TokenStringFormat(String sTokenString) {
+	public TokenStringFormat(String tokenString) {
 		// use empty string as toString() is overridden
 		super("");
-		parseTokenString(sTokenString);
+		parseTokenString(tokenString);
 	}
 
 	/**
 	 * Convenience method to format a value according to a certain token
 	 * string.
 	 *
-	 * @param sTokenString The token string containing the format description
-	 * @param rValue       The value to format
+	 * @param tokenString The token string containing the format description
+	 * @param value       The value to format
 	 * @return The formatted string
 	 * @throws IllegalArgumentException If parsing or formatting fails
 	 */
-	public static String format(String sTokenString, Object rValue) {
-		return new TokenStringFormat<Object>(sTokenString).evaluate(rValue);
+	public static String format(String tokenString, Object value) {
+		return new TokenStringFormat<Object>(tokenString).evaluate(value);
 	}
 
 	/**
-	 * Registers a new global token that will be applied by all format
+	 * Registers a new global tokenString that will be applied by all format
 	 * instances.
 	 *
-	 * @param sToken The token string to register the token for
-	 * @param rToken The token to apply
+	 * @param tokenString The tokenString string to register the tokenString
+	 *                    for
+	 * @param token       The tokenString to apply
 	 */
-	public static void registerToken(String sToken, Token<Object> rToken) {
-		aTokenRegistry.put(sToken, rToken);
+	public static void registerToken(String tokenString, Token<Object> token) {
+		tokenRegistry.put(tokenString, token);
 	}
 
 	/**
@@ -180,16 +182,16 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 	 * @see AbstractFunction#evaluate(Object)
 	 */
 	@Override
-	public String evaluate(T rInput) {
-		StringBuilder sb = new StringBuilder(sTargetPattern);
+	public String evaluate(T input) {
+		StringBuilder sb = new StringBuilder(targetPattern);
 
-		for (Token<? super T> rToken : aTokens) {
-			String sToken = rToken.toString();
-			String sElem = rToken.transform(rInput);
-			int nStart = sb.indexOf(sToken);
-			int nEnd = nStart + sToken.length();
+		for (Token<? super T> token : tokens) {
+			String tokenString = token.toString();
+			String elem = token.transform(input);
+			int start = sb.indexOf(tokenString);
+			int end = start + tokenString.length();
 
-			sb.replace(nStart, nEnd, sElem != null ? sElem : "");
+			sb.replace(start, end, elem != null ? elem : "");
 		}
 
 		return sb.toString();
@@ -202,7 +204,7 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 	 */
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[" + sTargetPattern + "](" +
+		return getClass().getSimpleName() + "[" + targetPattern + "](" +
 			INPUT_PLACEHOLDER + ")";
 	}
 
@@ -211,22 +213,23 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 	 * of the token. This method must be overridden by subclasses that define
 	 * own tokens.
 	 *
-	 * @param sToken The token's string representation (without curly braces)
+	 * @param token The token's string representation (without curly braces)
 	 * @return The corresponding token or NULL if none has been registered
 	 */
-	protected Token<? super T> getToken(String sToken) {
-		return aTokenRegistry.get(sToken);
+	protected Token<? super T> getToken(String token) {
+		return tokenRegistry.get(token);
 	}
 
 	/**
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
-		TokenStringFormat<?> rOtherFunction = (TokenStringFormat<?>) rOther;
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
+		@SuppressWarnings("rawtypes")
+		TokenStringFormat otherFunction = (TokenStringFormat) other;
 
-		return sTargetPattern.equals(rOtherFunction.sTargetPattern) &&
-			aTokens.equals(rOtherFunction.aTokens);
+		return Objects.equals(targetPattern, otherFunction.targetPattern) &&
+			Objects.equals(tokens, otherFunction.tokens);
 	}
 
 	/**
@@ -234,131 +237,132 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 	 */
 	@Override
 	protected int paramsHashCode() {
-		return 31 * sTargetPattern.hashCode() + aTokens.hashCode();
+		return 31 * targetPattern.hashCode() + tokens.hashCode();
 	}
 
 	/**
 	 * Parses a single token that has been read from the token string.
 	 * Subclasses may override this to implement their own parse algorithm.
 	 *
-	 * @param sToken       The token's string
-	 * @param sTokenFormat The token's format
+	 * @param tokenString The token's string
+	 * @param tokenFormat The token's format
 	 * @return A new token instance
 	 * @throws IllegalArgumentException If the arguments cannot be parsed
 	 */
-	protected Token<? super T> parseToken(String sToken, String sTokenFormat) {
-		Matcher aMethodMatcher = PROPERTY_METHOD_PATTERN.matcher(sToken);
+	protected Token<? super T> parseToken(String tokenString,
+		String tokenFormat) {
+		Matcher methodMatcher = PROPERTY_METHOD_PATTERN.matcher(tokenString);
 
-		Token<? super T> rToken = null;
+		Token<? super T> token;
 
-		if (aMethodMatcher.matches()) {
-			String sMethod = aMethodMatcher.group(1);
-			String sArguments = aMethodMatcher.group(2);
-			Object[] aArgs = null;
+		if (methodMatcher.matches()) {
+			String method = methodMatcher.group(1);
+			String arguments = methodMatcher.group(2);
+			Object[] args = null;
 
-			if (sArguments.length() > 0) {
-				String[] aArgStrings = sArguments.split(",");
+			if (!arguments.isEmpty()) {
+				String[] argStrings = arguments.split(",");
 
-				aArgs = new Object[aArgStrings.length];
+				args = new Object[argStrings.length];
 
-				for (int i = 0; i < aArgs.length; i++) {
-					aArgs[i] = TextUtil.parseObject(aArgStrings[i]);
+				for (int i = 0; i < args.length; i++) {
+					args[i] = TextUtil.parseObject(argStrings[i]);
 				}
 			}
 
-			rToken = new PropertyToken(this, sMethod, null, aArgs);
+			token = new PropertyToken(this, method, null, args);
 		} else {
-			rToken = getToken(sToken);
+			token = getToken(tokenString);
 		}
 
-		if (rToken == null) {
-			throw new IllegalArgumentException("Invalid token: " + sToken);
+		if (token == null) {
+			throw new IllegalArgumentException("Invalid token: " + tokenString);
 		}
 
-		if (sTokenFormat != null) {
-			if (sTokenFormat.length() > 0) {
-				rToken = rToken.copy();
-				rToken.setFormat(sTokenFormat);
+		if (tokenFormat != null) {
+			if (!tokenFormat.isEmpty()) {
+				token = token.copy();
+				token.setFormat(tokenFormat);
 			} else {
 				throw new IllegalArgumentException("Empty format string");
 			}
 		}
 
-		return rToken;
+		return token;
 	}
 
 	/**
 	 * Parse's the token string and generates the internal data structures that
 	 * are needed for the transformation.
 	 *
-	 * @param sTokenString The token string to parse
+	 * @param tokenString The token string to parse
 	 * @throws IllegalArgumentException If the token string cannot be parsed
 	 */
-	private void parseTokenString(String sTokenString) {
+	private void parseTokenString(String tokenString) {
 		StringBuilder sb = new StringBuilder();
-		int nLength = sTokenString.length();
-		int nTextStart = 0;
-		int nStart = 0;
-		int nEnd = 0;
+		int length = tokenString.length();
+		int textStart = 0;
+		int start = 0;
+		int end = 0;
 
-		while ((nStart = sTokenString.indexOf('{', nStart)) >= 0) {
-			String sToken;
-			String sTokenFormat = null;
-			int nSubCount = 0;
-			int nFormatPos = -1;
+		while ((start = tokenString.indexOf('{', start)) >= 0) {
+			String parsedToken;
+			String tokenFormat = null;
+			int subCount = 0;
+			int formatPos = -1;
 			char c;
 
-			nEnd = ++nStart;
+			end = ++start;
 
-			while (nEnd < nLength &&
-				((c = sTokenString.charAt(nEnd)) != '}' || nSubCount > 0)) {
+			while (end < length &&
+				((c = tokenString.charAt(end)) != '}' || subCount > 0)) {
 				// search terminating '}' but skip sub-pairs of braces '{...}'
 				switch (c) {
 					case '{':
-						nSubCount++;
+						subCount++;
 						break;
 
 					case '}':
-						nSubCount--;
+						subCount--;
 						break;
 
 					case ':':
 
 						// remember first format separator
-						if (nFormatPos == -1) {
-							nFormatPos = nEnd;
+						if (formatPos == -1) {
+							formatPos = end;
 						}
 
 						break;
 				}
 
-				nEnd++;
+				end++;
 			}
 
-			if (nEnd == nLength || nFormatPos == nEnd) {
+			if (end == length || formatPos == end) {
 				throw new IllegalArgumentException(
-					"Incomplete token: " + sTokenString);
+					"Incomplete token: " + tokenString);
 			}
 
-			if (nFormatPos > 0) {
-				sToken = sTokenString.substring(nStart, nFormatPos);
-				sTokenFormat = sTokenString.substring(nFormatPos + 1, nEnd);
+			if (formatPos > 0) {
+				parsedToken = tokenString.substring(start, formatPos);
+				tokenFormat = tokenString.substring(formatPos + 1, end);
 			} else {
-				sToken = sTokenString.substring(nStart, nEnd);
+				parsedToken = tokenString.substring(start, end);
 			}
 
-			Token<? super T> rToken = parseToken(sToken, sTokenFormat);
+			Token<? super T> token = parseToken(parsedToken, tokenFormat);
 
-			aTokens.add(rToken);
+			tokens.add(token);
 
-			sb.append(sTokenString, nTextStart, nStart - 1);
-			sb.append(rToken.toString());
+			sb.append(tokenString, textStart, start - 1);
+			sb.append(token.toString());
 
-			nTextStart = nStart = nEnd + 1;
+			textStart = start = end + 1;
 		}
 
-		sb.append(sTokenString.substring(nTextStart));
-		sTargetPattern = sb.toString();
+		sb.append(tokenString.substring(textStart));
+		targetPattern = sb.toString();
 	}
 
 	/**
@@ -367,21 +371,21 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 	 */
 	public static abstract class Token<T> implements Cloneable {
 
-		private final TokenStringFormat<?> rParent;
+		private final TokenStringFormat<?> parent;
 
-		private final String sToken;
+		private final String token;
 
-		private Object rFormatObject = null;
+		private Object formatObject = null;
 
-		private int nArrayElementCount = -1;
+		private int arrayElementCount = -1;
 
 		/**
 		 * Creates a new global token that has no parent.
 		 *
-		 * @param sToken The token string
+		 * @param token The token string
 		 */
-		protected Token(String sToken) {
-			this(sToken, null);
+		protected Token(String token) {
+			this(token, null);
 		}
 
 		/**
@@ -389,11 +393,11 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * format. The format string argument will be parsed with the method
 		 * {@link #parseFormat(String)}.
 		 *
-		 * @param sToken  The string description of the token
-		 * @param sFormat The format string for this token
+		 * @param token        The string description of the token
+		 * @param formatString The format string for this token
 		 */
-		protected Token(String sToken, String sFormat) {
-			this(null, sToken, sFormat);
+		protected Token(String token, String formatString) {
+			this(null, token, formatString);
 		}
 
 		/**
@@ -403,17 +407,17 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * should always be created with this constructor to allow the correct
 		 * creation of nested formats.
 		 *
-		 * @param rParent The parent format of this token
-		 * @param sToken  The string description of the token
-		 * @param sFormat The format string for this token
+		 * @param parent       The parent format of this token
+		 * @param token        The string description of the token
+		 * @param formatString The format string for this token
 		 */
-		protected Token(TokenStringFormat<?> rParent, String sToken,
-			String sFormat) {
-			this.rParent = rParent;
-			this.sToken = sToken;
+		protected Token(TokenStringFormat<?> parent, String token,
+			String formatString) {
+			this.parent = parent;
+			this.token = token;
 
-			if (sFormat != null) {
-				this.rFormatObject = parseFormat(sFormat);
+			if (formatString != null) {
+				this.formatObject = parseFormat(formatString);
 			}
 		}
 
@@ -423,7 +427,7 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * @return The format object
 		 */
 		public final Object getFormatObject() {
-			return rFormatObject;
+			return formatObject;
 		}
 
 		/**
@@ -432,7 +436,7 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * @return The token string
 		 */
 		public final String getTokenString() {
-			return sToken;
+			return token;
 		}
 
 		/**
@@ -444,7 +448,7 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 */
 		@Override
 		public String toString() {
-			return "{" + sToken + "}";
+			return "{" + token + "}";
 		}
 
 		/**
@@ -456,46 +460,46 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * will be applied to each element in the array and the resulting
 		 * strings will be concatenated.
 		 *
-		 * @param rInput The input value of the token string transformation
+		 * @param input The input value of the token string transformation
 		 * @return The result of transforming this token into a string derived
 		 * from the input value
 		 */
-		public final String transform(T rInput) {
-			Object rValue = extractValue(rInput);
-			String sResult;
+		public final String transform(T input) {
+			Object value = extractValue(input);
+			String result;
 
-			if (!(rFormatObject instanceof TokenStringFormat<?>) &&
-				(rValue.getClass().isArray() ||
-					rValue instanceof Collection<?>)) {
-				if (rValue instanceof Collection<?>) {
-					rValue = ((Collection<?>) rValue).toArray();
+			if (!(formatObject instanceof TokenStringFormat<?>) &&
+				(value.getClass().isArray() ||
+					value instanceof Collection<?>)) {
+				if (value instanceof Collection<?>) {
+					value = ((Collection<?>) value).toArray();
 				}
 
-				StringBuilder aBuilder = new StringBuilder();
-				int nCount = Array.getLength(rValue);
+				StringBuilder builder = new StringBuilder();
+				int count = Array.getLength(value);
 
-				if (nArrayElementCount > 0) {
-					nCount = Math.min(nCount, nArrayElementCount);
+				if (arrayElementCount > 0) {
+					count = Math.min(count, arrayElementCount);
 				}
 
-				for (int i = 0; i < nCount; i++) {
-					aBuilder.append(applyFormat(Array.get(rValue, i)));
+				for (int i = 0; i < count; i++) {
+					builder.append(applyFormat(Array.get(value, i)));
 
-					if (rFormatObject == null) {
-						aBuilder.append(',');
+					if (formatObject == null) {
+						builder.append(',');
 					}
 				}
 
-				if (rFormatObject == null && nCount > 0) {
-					aBuilder.setLength(aBuilder.length() - 1);
+				if (formatObject == null && count > 0) {
+					builder.setLength(builder.length() - 1);
 				}
 
-				sResult = aBuilder.toString();
+				result = builder.toString();
 			} else {
-				sResult = applyFormat(rValue);
+				result = applyFormat(value);
 			}
 
-			return sResult;
+			return result;
 		}
 
 		/**
@@ -506,27 +510,27 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * objects:
 		 *
 		 * <ul>
-		 *   <li>String: returns String.format((String) Format, rValue)</li>
-		 *   <li>TokenStringFormat: returns Format.transform(rValue)</li>
-		 *   <li>java.text.Format: returns Format.format(rValue)</li>
-		 *   <li>Other types or NULL: returns rValue.toString()</li>
+		 *   <li>String: returns String.format((String) Format, value)</li>
+		 *   <li>TokenStringFormat: returns Format.transform(value)</li>
+		 *   <li>java.text.Format: returns Format.format(value)</li>
+		 *   <li>Other types or NULL: returns value.toString()</li>
 		 * </ul>
 		 *
-		 * @param rValue The value that has been extracted from the input
+		 * @param value The value that has been extracted from the input
 		 * @return A string containing the formatted string representing the
 		 * input value
 		 */
 		@SuppressWarnings("unchecked")
-		protected String applyFormat(Object rValue) {
-			if (rFormatObject instanceof String) {
-				return String.format((String) rFormatObject, rValue);
-			} else if (rFormatObject instanceof TokenStringFormat<?>) {
-				return ((TokenStringFormat<Object>) rFormatObject).evaluate(
-					rValue);
-			} else if (rFormatObject instanceof Format) {
-				return ((Format) rFormatObject).format(rValue);
-			} else if (rValue != null) {
-				return rValue.toString();
+		protected String applyFormat(Object value) {
+			if (formatObject instanceof String) {
+				return String.format((String) formatObject, value);
+			} else if (formatObject instanceof TokenStringFormat<?>) {
+				return ((TokenStringFormat<Object>) formatObject).evaluate(
+					value);
+			} else if (formatObject instanceof Format) {
+				return ((Format) formatObject).format(value);
+			} else if (value != null) {
+				return value.toString();
 			} else {
 				return "null";
 			}
@@ -536,10 +540,10 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * Extracts the value from the input object that corresponds to this
 		 * token and returns a string representation of that value.
 		 *
-		 * @param rInput The input object to retrieve the value from
+		 * @param input The input object to retrieve the value from
 		 * @return A string derived from the input value
 		 */
-		protected abstract Object extractValue(T rInput);
+		protected abstract Object extractValue(T input);
 
 		/**
 		 * Can be overridden by subclasses that support different formats to
@@ -547,62 +551,61 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * provides support for several format types as described in the main
 		 * class documentation.
 		 *
-		 * @param sFormat The format string (must not be NULL)
+		 * @param formatString The format string (must not be NULL)
 		 * @return The object representing the parsed format
 		 * @throws IllegalArgumentException If the argument doesn't contain a
 		 *                                  recognized format or parsing it
 		 *                                  fails
 		 */
-		protected Object parseFormat(String sFormat) {
-			Matcher aFormatMatcher = FORMAT_PATTERN.matcher(sFormat);
-			Object rFormat = null;
+		protected Object parseFormat(String formatString) {
+			Matcher formatMatcher = FORMAT_PATTERN.matcher(formatString);
+			Object format = null;
 
-			if (aFormatMatcher.matches()) {
-				String sCount = aFormatMatcher.group(1);
-				String sType = aFormatMatcher.group(2);
+			if (formatMatcher.matches()) {
+				String count = formatMatcher.group(1);
+				String type = formatMatcher.group(2);
 
-				if (sCount.length() > 0) {
-					nArrayElementCount = Integer.parseInt(sCount);
+				if (count.length() > 0) {
+					arrayElementCount = Integer.parseInt(count);
 				}
 
-				sFormat = aFormatMatcher.group(3);
+				formatString = formatMatcher.group(3);
 
-				switch (sType.charAt(0)) {
+				switch (type.charAt(0)) {
 					case '&':
-						if (rParent != null) {
-							rFormat =
-								ReflectUtil.newInstance(rParent.getClass(),
-									new Object[] { sFormat }, null);
+						if (parent != null) {
+							format = ReflectUtil.newInstance(parent.getClass(),
+								new Object[] { formatString }, null);
 						} else {
-							rFormat = new TokenStringFormat<T>(sFormat);
+							format = new TokenStringFormat<T>(formatString);
 						}
 
 						break;
 
 					case 'F':
-						rFormat = sFormat;
+						format = formatString;
 						break;
 
 					case 'D':
-						rFormat = new SimpleDateFormat(sFormat);
+						format = new SimpleDateFormat(formatString);
 						break;
 
 					case 'N':
-						rFormat = new DecimalFormat(sFormat);
+						format = new DecimalFormat(formatString);
 						break;
 
 					case 'C':
-						rFormat = new ChoiceFormat(sFormat);
+						format = new ChoiceFormat(formatString);
 						break;
 				}
 			}
 
-			if (rFormat == null) {
+			if (format == null) {
 				throw new IllegalArgumentException(
-					"Invalid format string: " + sFormat);
+					"Invalid format string: " + formatString);
 			}
 
-			return rFormat;
+			return format;
 		}
 
 		/**
@@ -610,10 +613,10 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * be used by subclasses to set a specific format instead of parsing it
 		 * from a string.
 		 *
-		 * @param rFormatObject The new format object
+		 * @param formatObject The new format object
 		 */
-		protected final void setFormatObject(Object rFormatObject) {
-			this.rFormatObject = rFormatObject;
+		protected final void setFormatObject(Object formatObject) {
+			this.formatObject = formatObject;
 		}
 
 		/**
@@ -636,10 +639,10 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * Sets the format string that will be used to format input values.
 		 * Invokes {@link #parseFormat(String)} to parse the format string.
 		 *
-		 * @param sFormatString The format string to parse
+		 * @param formatStringString The format string to parse
 		 */
-		final void setFormat(String sFormatString) {
-			rFormatObject = parseFormat(sFormatString);
+		final void setFormat(String formatStringString) {
+			formatObject = parseFormat(formatStringString);
 		}
 	}
 
@@ -648,9 +651,9 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 	 */
 	public static class PropertyToken extends Token<Object> {
 
-		private Method rMethod = null;
+		private Method method = null;
 
-		private Object[] rArgs = null;
+		private Object[] args = null;
 
 		/**
 		 * Constructor for a token that will retrieve a certain property from
@@ -659,11 +662,12 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * full name of the method (e.g. 'getValue'). It will also be used as
 		 * the token string of this token.
 		 *
-		 * @param sPropertyMethod The name of the property access method (must
-		 *                        be public)
+		 * @param propertyMethod The name of the property access method
+		 *                             (must be
+		 *                       public)
 		 */
-		public PropertyToken(String sPropertyMethod) {
-			super(sPropertyMethod);
+		public PropertyToken(String propertyMethod) {
+			super(propertyMethod);
 		}
 
 		/**
@@ -673,14 +677,15 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * full name of the method (e.g. 'getValue'). It will also be used as
 		 * the token string of this token.
 		 *
-		 * @param sPropertyMethod The name of the property access method (must
-		 *                        be public)
-		 * @param sFormat         The format of the property (NULL for default)
-		 * @param rArgs           The optional arguments of the method call
+		 * @param propertyMethod The name of the property access method
+		 *                             (must be
+		 *                       public)
+		 * @param formatString   The format of the property (NULL for default)
+		 * @param args           The optional arguments of the method call
 		 */
-		public PropertyToken(String sPropertyMethod, String sFormat,
-			Object... rArgs) {
-			this(null, sPropertyMethod, sFormat, rArgs);
+		public PropertyToken(String propertyMethod, String formatString,
+			Object... args) {
+			this(null, propertyMethod, formatString, args);
 		}
 
 		/**
@@ -690,17 +695,19 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * full name of the method (e.g. 'getValue'). It will also be used as
 		 * the token string of this token.
 		 *
-		 * @param rParent         The parent format of this token
-		 * @param sPropertyMethod The name of the property access method (must
-		 *                        be public)
-		 * @param sFormat         The format of the property (NULL for default)
-		 * @param rArgs           The optional arguments of the method call
+		 * @param parent         The parent format of this token
+		 * @param propertyMethod The name of the property access method
+		 *                             (must be
+		 *                       public)
+		 * @param formatString   The format of the property (NULL for default)
+		 * @param args           The optional arguments of the method call
 		 */
-		public PropertyToken(TokenStringFormat<?> rParent,
-			String sPropertyMethod, String sFormat, Object... rArgs) {
-			super(rParent, sPropertyMethod, sFormat);
+		public PropertyToken(TokenStringFormat<?> parent,
+			String propertyMethod,
+			String formatString, Object... args) {
+			super(parent, propertyMethod, formatString);
 
-			this.rArgs = rArgs;
+			this.args = args;
 		}
 
 		/**
@@ -710,29 +717,28 @@ public class TokenStringFormat<T> extends AbstractFunction<T, String> {
 		 * Subclasses may return NULL to signal that the result shall be
 		 * ignored.
 		 *
-		 * @param rInput The input value to format
+		 * @param input The input value to format
 		 * @return The formatted result
 		 */
 		@Override
-		public Object extractValue(Object rInput) {
-			if (rMethod == null) {
-				String sMethod = getTokenString();
-				Class<?>[] aArgTypes =
-					ReflectUtil.getArgumentTypes(rArgs, true);
+		public Object extractValue(Object input) {
+			if (method == null) {
+				String methodName = getTokenString();
+				Class<?>[] argTypes = ReflectUtil.getArgumentTypes(args, true);
 
 				try {
 					// remove the curly braces
-					rMethod = rInput.getClass().getMethod(sMethod, aArgTypes);
+					method = input.getClass().getMethod(methodName, argTypes);
 				} catch (Exception e) {
-					String sErr =
-						"Method <" + sMethod + "(" + Arrays.asList(aArgTypes) +
-							")> not found in " + rInput.getClass();
+					String err =
+						"Method <" + method + "(" + Arrays.asList(argTypes) +
+							")> not found in " + input.getClass();
 
-					throw new IllegalArgumentException(sErr, e);
+					throw new IllegalArgumentException(err, e);
 				}
 			}
 
-			return ReflectUtil.invoke(rInput, rMethod, rArgs);
+			return ReflectUtil.invoke(input, method, args);
 		}
 	}
 }

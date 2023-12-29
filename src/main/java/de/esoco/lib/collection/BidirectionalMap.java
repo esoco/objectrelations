@@ -43,33 +43,33 @@ import java.util.Set;
  * @author eso
  */
 public class BidirectionalMap<K, V> implements Map<K, V> {
-	private final Map<K, V> aKeyToValueMap;
-	private final Map<V, K> aValueToKeyMap;
+	private final Map<K, V> keyToValueMap;
+
+	private final Map<V, K> valueToKeyMap;
 
 	/**
 	 * Creates a new bidirectional map instance that uses instances of {@link
 	 * HashMap} for both mapping directions.
 	 */
 	public BidirectionalMap() {
-		aKeyToValueMap = new HashMap<K, V>();
-		aValueToKeyMap = new HashMap<V, K>();
+		keyToValueMap = new HashMap<K, V>();
+		valueToKeyMap = new HashMap<V, K>();
 	}
 
 	/**
 	 * Creates a new bidirectional map instance with (optionally) distinct map
 	 * types for the different mapping directions.
 	 *
-	 * @param rKeyToValueMapType The class of the internal map for the
-	 *                           key-to-value mapping
-	 * @param rValueToKeyMapType The class of the internal map for the
-	 *                           value-to-key mapping
+	 * @param keyToValueMapType The class of the internal map for the
+	 *                          key-to-value mapping
+	 * @param valueToKeyMapType The class of the internal map for the
+	 *                          value-to-key mapping
 	 */
-	public BidirectionalMap(
-			Class<? extends Map<K, V>> rKeyToValueMapType,
-			Class<? extends Map<V, K>> rValueToKeyMapType) {
+	public BidirectionalMap(Class<? extends Map<K, V>> keyToValueMapType,
+		Class<? extends Map<V, K>> valueToKeyMapType) {
 		try {
-			aKeyToValueMap = rKeyToValueMapType.getConstructor().newInstance();
-			aValueToKeyMap = rValueToKeyMapType.getConstructor().newInstance();
+			keyToValueMap = keyToValueMapType.getConstructor().newInstance();
+			valueToKeyMap = valueToKeyMapType.getConstructor().newInstance();
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Invalid map class", e);
 		}
@@ -80,16 +80,16 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 */
 	@Override
 	public void clear() {
-		aKeyToValueMap.clear();
-		aValueToKeyMap.clear();
+		keyToValueMap.clear();
+		valueToKeyMap.clear();
 	}
 
 	/**
 	 * @see Map#containsKey(java.lang.Object)
 	 */
 	@Override
-	public boolean containsKey(Object rKey) {
-		return aKeyToValueMap.containsKey(rKey);
+	public boolean containsKey(Object key) {
+		return keyToValueMap.containsKey(key);
 	}
 
 	/**
@@ -98,8 +98,8 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 * @see Map#containsValue(java.lang.Object)
 	 */
 	@Override
-	public boolean containsValue(Object rValue) {
-		return aValueToKeyMap.containsKey(rValue);
+	public boolean containsValue(Object value) {
+		return valueToKeyMap.containsKey(value);
 	}
 
 	/**
@@ -107,26 +107,25 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 */
 	@Override
 	public Set<Entry<K, V>> entrySet() {
-		return aKeyToValueMap.entrySet();
+		return keyToValueMap.entrySet();
 	}
 
 	/**
 	 * @see Map#get(java.lang.Object)
 	 */
 	@Override
-	public V get(Object rKey) {
-		return aKeyToValueMap.get(rKey);
+	public V get(Object key) {
+		return keyToValueMap.get(key);
 	}
 
 	/**
 	 * Returns the key for a value from the reverse mapping.
 	 *
-	 * @param rValue An arbitrary value object to get the key for
-	 *
+	 * @param value An arbitrary value object to get the key for
 	 * @return The key for the given value or NULL if the value does not exist
 	 */
-	public K getKey(Object rValue) {
-		return aValueToKeyMap.get(rValue);
+	public K getKey(Object value) {
+		return valueToKeyMap.get(value);
 	}
 
 	/**
@@ -134,7 +133,7 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 */
 	@Override
 	public boolean isEmpty() {
-		return aKeyToValueMap.isEmpty();
+		return keyToValueMap.isEmpty();
 	}
 
 	/**
@@ -142,14 +141,16 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 */
 	@Override
 	public Set<K> keySet() {
-		return aKeyToValueMap.keySet();
+		return keyToValueMap.keySet();
 	}
 
 	/**
 	 * Adds the key/value pair to the standard and reverse mappings. Because
-	 * mapping keys must be unique an existing mapping will be replaced with the
+	 * mapping keys must be unique an existing mapping will be replaced with
+	 * the
 	 * new one. This will happen in both mapping directions so that it is
-	 * possible that two mappings are affected by a single put operation and the
+	 * possible that two mappings are affected by a single put operation and
+	 * the
 	 * size of this bidirectional map decreases by one. For example, if the map
 	 * contains two mappings (1, test1) and (2, test2) and a put(2, "test1") is
 	 * invoked, the resulting map contents is (2, test1) because the mapping
@@ -157,39 +158,39 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 * that added mappings are unique in both directions unless the desribed
 	 * behavior is acceptable.
 	 *
-	 * @param rKey   The mapping key (for the standard mapping direction)
-	 * @param rValue The mapping value (for the standard mapping direction)
-	 *
-	 * @return The first (in case two mappings are affected) value that has been
-	 *         replaced or NULL if it is a new entry
+	 * @param key   The mapping key (for the standard mapping direction)
+	 * @param value The mapping value (for the standard mapping direction)
+	 * @return The first (in case two mappings are affected) value that has
+	 * been
+	 * replaced or NULL if it is a new entry
 	 */
 	@Override
-	public V put(K rKey, V rValue) {
-		V rReplacedValue = aKeyToValueMap.put(rKey, rValue);
+	public V put(K key, V value) {
+		V replacedValue = keyToValueMap.put(key, value);
 
-		if (rReplacedValue != null) {
-			aValueToKeyMap.remove(rReplacedValue);
+		if (replacedValue != null) {
+			valueToKeyMap.remove(replacedValue);
 		}
 
-		K rReplacedKey = aValueToKeyMap.put(rValue, rKey);
+		K replacedKey = valueToKeyMap.put(value, key);
 
-		if (rReplacedKey != null) {
-			aKeyToValueMap.remove(rReplacedKey);
+		if (replacedKey != null) {
+			keyToValueMap.remove(replacedKey);
 
-			if (rReplacedValue == null) {
-				rReplacedValue = rValue;
+			if (replacedValue == null) {
+				replacedValue = value;
 			}
 		}
 
-		return rReplacedValue;
+		return replacedValue;
 	}
 
 	/**
 	 * @see Map#putAll(Map)
 	 */
 	@Override
-	public void putAll(Map<? extends K, ? extends V> rMap) {
-		for (Entry<? extends K, ? extends V> e : rMap.entrySet()) {
+	public void putAll(Map<? extends K, ? extends V> map) {
+		for (Entry<? extends K, ? extends V> e : map.entrySet()) {
 			put(e.getKey(), e.getValue());
 		}
 	}
@@ -198,14 +199,14 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 * @see Map#remove(java.lang.Object)
 	 */
 	@Override
-	public V remove(Object rKey) {
-		V rRemoved = aKeyToValueMap.remove(rKey);
+	public V remove(Object key) {
+		V removed = keyToValueMap.remove(key);
 
-		if (rRemoved != null) {
-			aValueToKeyMap.remove(rRemoved);
+		if (removed != null) {
+			valueToKeyMap.remove(removed);
 		}
 
-		return rRemoved;
+		return removed;
 	}
 
 	/**
@@ -214,7 +215,7 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 * @return A set view of the reverse mappings in this map
 	 */
 	public Set<Entry<V, K>> reverseEntrySet() {
-		return aValueToKeyMap.entrySet();
+		return valueToKeyMap.entrySet();
 	}
 
 	/**
@@ -222,7 +223,7 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 */
 	@Override
 	public int size() {
-		return aKeyToValueMap.size();
+		return keyToValueMap.size();
 	}
 
 	/**
@@ -232,8 +233,8 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 */
 	@Override
 	public String toString() {
-		return getClass().getName() + "[" + aKeyToValueMap + "," +
-				aValueToKeyMap + "]";
+		return getClass().getName() + "[" + keyToValueMap + "," +
+			valueToKeyMap + "]";
 	}
 
 	/**
@@ -241,6 +242,6 @@ public class BidirectionalMap<K, V> implements Map<K, V> {
 	 */
 	@Override
 	public Collection<V> values() {
-		return aValueToKeyMap.keySet();
+		return valueToKeyMap.keySet();
 	}
 }

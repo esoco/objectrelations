@@ -30,39 +30,39 @@ import java.util.Comparator;
  */
 public class RelationComparator<T extends Relatable> implements Comparator<T> {
 
-	private final RelationType<Comparable<Object>>[] rRelationTypes;
+	private final RelationType<Comparable<Object>>[] relationTypes;
 
 	/**
 	 * Creates a new instance that compares a certain relation of relatable
 	 * objects.
 	 *
-	 * @param rCompareRelationTypes The relation type to compare the target
-	 *                              values of
+	 * @param compareRelationTypes The relation type to compare the target
+	 *                             values of
 	 */
 	@SafeVarargs
 	@SuppressWarnings("unchecked")
 	public RelationComparator(
-		RelationType<? extends Comparable<?>>... rCompareRelationTypes) {
+		RelationType<? extends Comparable<?>>... compareRelationTypes) {
 		// cast is safe because both target values will be of the same type
-		rRelationTypes =
-			(RelationType<Comparable<Object>>[]) rCompareRelationTypes;
+		relationTypes =
+			(RelationType<Comparable<Object>>[]) compareRelationTypes;
 	}
 
 	/**
 	 * @see Comparator#compare(Object, Object)
 	 */
 	@Override
-	public int compare(T rFirst, T rSecond) {
-		int nComparison = 0;
+	public int compare(T first, T second) {
+		int comparison = 0;
 
-		for (RelationType<Comparable<Object>> rType : rRelationTypes) {
-			nComparison = rFirst.get(rType).compareTo(rSecond.get(rType));
+		for (RelationType<Comparable<Object>> type : relationTypes) {
+			comparison = first.get(type).compareTo(second.get(type));
 
-			if (nComparison != 0) {
+			if (comparison != 0) {
 				break;
 			}
 		}
 
-		return nComparison;
+		return comparison;
 	}
 }

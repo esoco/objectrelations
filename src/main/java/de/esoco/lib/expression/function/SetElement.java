@@ -38,20 +38,20 @@ import java.util.Map;
 public abstract class SetElement<T, E, V>
 	extends AbstractBinaryFunction<T, V, T> {
 
-	private final E rElementDescriptor;
+	private final E elementDescriptor;
 
 	/**
 	 * Creates a new immutable instance with a certain value, element
 	 * descriptor, and description.
 	 *
-	 * @param rElementDescriptor The element descriptor
-	 * @param rValue             The right-side value to set on objects
-	 * @param sDescription       The function description
+	 * @param elementDescriptor The element descriptor
+	 * @param value             The right-side value to set on objects
+	 * @param description       The function description
 	 */
-	public SetElement(E rElementDescriptor, V rValue, String sDescription) {
-		super(rValue, sDescription);
+	public SetElement(E elementDescriptor, V value, String description) {
+		super(value, description);
 
-		this.rElementDescriptor = rElementDescriptor;
+		this.elementDescriptor = elementDescriptor;
 	}
 
 	/**
@@ -62,21 +62,21 @@ public abstract class SetElement<T, E, V>
 	 * @see AbstractBinaryFunction#evaluate(Object, Object)
 	 */
 	@Override
-	public final T evaluate(T rObject, V rValue) {
-		setElementValue(rElementDescriptor, rObject, rValue);
+	public final T evaluate(T object, V value) {
+		setElementValue(elementDescriptor, object, value);
 
-		return rObject;
+		return object;
 	}
 
 	/**
 	 * This method must be implemented by subclasses to set the element value.
 	 *
-	 * @param rElementDescriptor The element descriptor
-	 * @param rObject            The object to set the element value on
-	 * @param rValue             The value to set
+	 * @param elementDescriptor The element descriptor
+	 * @param object            The object to set the element value on
+	 * @param value             The value to set
 	 */
-	protected abstract void setElementValue(E rElementDescriptor, T rObject,
-		V rValue);
+	protected abstract void setElementValue(E elementDescriptor, T object,
+		V value);
 
 	/**
 	 * An element function that sets a certain element in a list.
@@ -87,21 +87,20 @@ public abstract class SetElement<T, E, V>
 		/**
 		 * Creates a new instance that sets a particular list element.
 		 *
-		 * @param nIndex The index of the element to return
-		 * @param rValue The value to set
+		 * @param index The index of the element to return
+		 * @param value The value to set
 		 */
 		@SuppressWarnings("boxing")
-		public SetListElement(int nIndex, V rValue) {
-			super(nIndex, rValue, "SetListElement");
+		public SetListElement(int index, V value) {
+			super(index, value, "SetListElement");
 		}
 
 		/**
 		 * @see SetElement#setElementValue(Object, Object, Object)
 		 */
 		@Override
-		protected void setElementValue(Integer rIndex, List<V> rList,
-			V rValue) {
-			rList.set(rIndex.intValue(), rValue);
+		protected void setElementValue(Integer index, List<V> list, V value) {
+			list.set(index.intValue(), value);
 		}
 	}
 
@@ -113,19 +112,19 @@ public abstract class SetElement<T, E, V>
 		/**
 		 * Creates a new instance that sets a particular map value.
 		 *
-		 * @param rKey   The key of the element to set
-		 * @param rValue The value to set
+		 * @param key   The key of the element to set
+		 * @param value The value to set
 		 */
-		public SetMapValue(K rKey, V rValue) {
-			super(rKey, rValue, "SetMapValue");
+		public SetMapValue(K key, V value) {
+			super(key, value, "SetMapValue");
 		}
 
 		/**
 		 * @see SetElement#setElementValue(Object, Object, Object)
 		 */
 		@Override
-		protected void setElementValue(K rKey, Map<K, V> rMap, V rValue) {
-			rMap.put(rKey, rValue);
+		protected void setElementValue(K key, Map<K, V> map, V value) {
+			map.put(key, value);
 		}
 	}
 
@@ -139,20 +138,20 @@ public abstract class SetElement<T, E, V>
 		/**
 		 * Creates a new instance that sets a particular relation.
 		 *
-		 * @param rType  The type of the relation to set
-		 * @param rValue The relation value to set
+		 * @param type  The type of the relation to set
+		 * @param value The relation value to set
 		 */
-		public SetRelationValue(RelationType<V> rType, V rValue) {
-			super(rType, rValue, "SetRelationValue");
+		public SetRelationValue(RelationType<V> type, V value) {
+			super(type, value, "SetRelationValue");
 		}
 
 		/**
 		 * @see SetElement#setElementValue(Object, Object, Object)
 		 */
 		@Override
-		protected void setElementValue(RelationType<V> rType, T rObject,
-			V rValue) {
-			rObject.set(rType, rValue);
+		protected void setElementValue(RelationType<V> type, T object,
+			V value) {
+			object.set(type, value);
 		}
 	}
 
@@ -175,12 +174,12 @@ public abstract class SetElement<T, E, V>
 //		/**
 //		 * Creates a new instance that accesses a particular field.
 //		 *
-//		 * @param sFieldName The name of the field to access
-//		 * @param rValue	 TODO: DOCUMENT ME!
+//		 * @param fieldName The name of the field to access
+//		 * @param value	 TODO: DOCUMENT ME!
 //		 */
-//		public WriteField(String sFieldName, V rValue)
+//		public WriteField(String fieldName, V value)
 //		{
-//			super(sFieldName, rValue, "ReadField[%s]");
+//			super(fieldName, value, "ReadField[%s]");
 //		}
 //
 //		
@@ -189,9 +188,9 @@ public abstract class SetElement<T, E, V>
 //		 * @see SetElement#getElementValue(Object, Object)
 //		 */
 //		@Override
-//		protected V getElementValue(String sFieldName, T rObject)
+//		protected V getElementValue(String fieldName, T object)
 //		{
-//			return (V) ReflectUtil.getFieldValue(sFieldName, rObject);
+//			return (V) ReflectUtil.getFieldValue(fieldName, object);
 //		}
 //	}
 }

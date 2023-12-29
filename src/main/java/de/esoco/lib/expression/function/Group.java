@@ -32,40 +32,40 @@ import java.util.function.Consumer;
  */
 public class Group<I> extends AbstractFunction<I, I> {
 
-	private final List<Consumer<? super I>> aConsumers;
+	private final List<Consumer<? super I>> consumers;
 
 	/**
 	 * Creates a new instance with a certain set of consumers to be executed.
 	 * The given list will be copied by this instance.
 	 *
-	 * @param rFunctions The list of consumers
+	 * @param functions The list of consumers
 	 */
-	public Group(Collection<Consumer<? super I>> rFunctions) {
+	public Group(Collection<Consumer<? super I>> functions) {
 		super(Group.class.getSimpleName());
 
-		aConsumers = new ArrayList<>(rFunctions);
+		consumers = new ArrayList<>(functions);
 	}
 
 	/**
 	 * Create a new group from a set of consumers.
 	 *
-	 * @param fFirst               The first consumer to evaluate
-	 * @param rAdditionalConsumers rAdditionalFunctions Optional additional
-	 *                             consumers to evaluate
+	 * @param first               The first consumer to evaluate
+	 * @param additionalConsumers additionalFunctions Optional additional
+	 *                            consumers to evaluate
 	 * @return A new function group instance
 	 */
 	@SafeVarargs
-	public static <I> Group<I> of(Consumer<? super I> fFirst,
-		Consumer<? super I>... rAdditionalConsumers) {
-		List<Consumer<? super I>> aFunctions = new ArrayList<>();
+	public static <I> Group<I> of(Consumer<? super I> first,
+		Consumer<? super I>... additionalConsumers) {
+		List<Consumer<? super I>> functions = new ArrayList<>();
 
-		aFunctions.add(fFirst);
+		functions.add(first);
 
-		if (rAdditionalConsumers != null && rAdditionalConsumers.length > 0) {
-			aFunctions.addAll(Arrays.asList(rAdditionalConsumers));
+		if (additionalConsumers != null && additionalConsumers.length > 0) {
+			functions.addAll(Arrays.asList(additionalConsumers));
 		}
 
-		return new Group<>(aFunctions);
+		return new Group<>(functions);
 	}
 
 	/**
@@ -75,12 +75,12 @@ public class Group<I> extends AbstractFunction<I, I> {
 	 * @see de.esoco.lib.expression.Function#evaluate(Object)
 	 */
 	@Override
-	public I evaluate(I rInput) {
-		for (Consumer<? super I> fConsumer : aConsumers) {
-			fConsumer.accept(rInput);
+	public I evaluate(I input) {
+		for (Consumer<? super I> consumer : consumers) {
+			consumer.accept(input);
 		}
 
-		return rInput;
+		return input;
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class Group<I> extends AbstractFunction<I, I> {
 	 * @return A new list containing the members of this group
 	 */
 	public List<Consumer<? super I>> getMembers() {
-		return new ArrayList<>(aConsumers);
+		return new ArrayList<>(consumers);
 	}
 
 	/**
@@ -99,16 +99,16 @@ public class Group<I> extends AbstractFunction<I, I> {
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
-		Group<?> rOtherFunction = (Group<?>) rOther;
-		int nCount = aConsumers.size();
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
+		Group<?> otherFunction = (Group<?>) other;
+		int count = consumers.size();
 
-		if (nCount != rOtherFunction.aConsumers.size()) {
+		if (count != otherFunction.consumers.size()) {
 			return false;
 		}
 
-		for (int i = 0; i < nCount; i++) {
-			if (!aConsumers.get(i).equals(rOtherFunction.aConsumers.get(i))) {
+		for (int i = 0; i < count; i++) {
+			if (!consumers.get(i).equals(otherFunction.consumers.get(i))) {
 				return false;
 			}
 		}
@@ -123,12 +123,12 @@ public class Group<I> extends AbstractFunction<I, I> {
 	 */
 	@Override
 	protected int paramsHashCode() {
-		int nHashCode = 17;
+		int hashCode = 17;
 
-		for (Consumer<? super I> fConsumer : aConsumers) {
-			nHashCode = nHashCode * 31 + fConsumer.hashCode();
+		for (Consumer<? super I> consumer : consumers) {
+			hashCode = hashCode * 31 + consumer.hashCode();
 		}
 
-		return nHashCode;
+		return hashCode;
 	}
 }

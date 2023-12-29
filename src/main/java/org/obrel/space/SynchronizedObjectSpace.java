@@ -38,53 +38,53 @@ import java.util.function.Supplier;
  */
 public class SynchronizedObjectSpace<O> extends MappedSpace<O, O> {
 
-	ReadWriteLock aAccessLock = new ReentrantReadWriteLock();
+	ReadWriteLock accessLock = new ReentrantReadWriteLock();
 
 	/**
 	 * Creates a new instance.
 	 */
-	public SynchronizedObjectSpace(ObjectSpace<O> rWrappedSpace) {
-		super(rWrappedSpace, Functions.identity());
+	public SynchronizedObjectSpace(ObjectSpace<O> wrappedSpace) {
+		super(wrappedSpace, Functions.identity());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void delete(String sUrl) {
-		synchronizedModification(() -> super.delete(sUrl));
+	public void delete(String url) {
+		synchronizedModification(() -> super.delete(url));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteRelation(Relation<?> rRelation) {
-		synchronizedModification(() -> super.deleteRelation(rRelation));
+	public void deleteRelation(Relation<?> relation) {
+		synchronizedModification(() -> super.deleteRelation(relation));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public O get(String sUrl) {
-		return synchronizedGet(() -> super.get(sUrl));
+	public O get(String url) {
+		return synchronizedGet(() -> super.get(url));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> T get(RelationType<T> rType) {
-		return synchronizedGet(() -> super.get(rType));
+	public <T> T get(RelationType<T> type) {
+		return synchronizedGet(() -> super.get(type));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> Relation<T> getRelation(RelationType<T> rType) {
-		return synchronizedGet(() -> super.getRelation(rType));
+	public <T> Relation<T> getRelation(RelationType<T> type) {
+		return synchronizedGet(() -> super.getRelation(type));
 	}
 
 	/**
@@ -92,90 +92,89 @@ public class SynchronizedObjectSpace<O> extends MappedSpace<O, O> {
 	 */
 	@Override
 	public List<Relation<?>> getRelations(
-		Predicate<? super Relation<?>> rFilter) {
-		return synchronizedGet(() -> super.getRelations(rFilter));
+		Predicate<? super Relation<?>> filter) {
+		return synchronizedGet(() -> super.getRelations(filter));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void put(String sUrl, O rValue) {
-		synchronizedModification(() -> super.put(sUrl, rValue));
+	public void put(String url, O value) {
+		synchronizedModification(() -> super.put(url, value));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> Relation<T> set(RelationType<T> rType, T rTarget) {
-		return synchronizedUpdate(() -> super.set(rType, rTarget));
+	public <T> Relation<T> set(RelationType<T> type, T target) {
+		return synchronizedUpdate(() -> super.set(type, target));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T, V> Relation<T> set(RelationType<T> rType,
-		Function<V, T> fTargetResolver, V rIntermediateTarget) {
+	public <T, V> Relation<T> set(RelationType<T> type,
+		Function<V, T> targetResolver, V intermediateTarget) {
 		return synchronizedUpdate(
-			() -> super.set(rType, fTargetResolver, rIntermediateTarget));
+			() -> super.set(type, targetResolver, intermediateTarget));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T, D> TransformedRelation<T, D> transform(RelationType<T> rType,
-		InvertibleFunction<T, D> fTransformation) {
-		return synchronizedUpdate(
-			() -> super.transform(rType, fTransformation));
+	public <T, D> TransformedRelation<T, D> transform(RelationType<T> type,
+		InvertibleFunction<T, D> transformation) {
+		return synchronizedUpdate(() -> super.transform(type, transformation));
 	}
 
 	/**
 	 * Performs a synchronized access that returns a value.
 	 *
-	 * @param fAccess The function that performs the read access
+	 * @param access The function that performs the read access
 	 * @return The result of the invocation
 	 */
-	<T> T synchronizedGet(Supplier<T> fAccess) {
-		aAccessLock.readLock().lock();
+	<T> T synchronizedGet(Supplier<T> access) {
+		accessLock.readLock().lock();
 
 		try {
-			return fAccess.get();
+			return access.get();
 		} finally {
-			aAccessLock.readLock().unlock();
+			accessLock.readLock().unlock();
 		}
 	}
 
 	/**
 	 * Performs a synchronized modification of the wrapped object space.
 	 *
-	 * @param fUpdate The function that provides the result of the invocation
+	 * @param update The function that provides the result of the invocation
 	 */
-	void synchronizedModification(Runnable fUpdate) {
-		aAccessLock.writeLock().lock();
+	void synchronizedModification(Runnable update) {
+		accessLock.writeLock().lock();
 
 		try {
-			fUpdate.run();
+			update.run();
 		} finally {
-			aAccessLock.writeLock().unlock();
+			accessLock.writeLock().unlock();
 		}
 	}
 
 	/**
 	 * Performs a synchronized update that returns a value.
 	 *
-	 * @param fSet The function that performs the read access
+	 * @param set The function that performs the read access
 	 * @return The result of the invocation
 	 */
-	<T> T synchronizedUpdate(Supplier<T> fSet) {
-		aAccessLock.writeLock().lock();
+	<T> T synchronizedUpdate(Supplier<T> set) {
+		accessLock.writeLock().lock();
 
 		try {
-			return fSet.get();
+			return set.get();
 		} finally {
-			aAccessLock.writeLock().unlock();
+			accessLock.writeLock().unlock();
 		}
 	}
 }

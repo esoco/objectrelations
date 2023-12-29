@@ -38,13 +38,15 @@ import java.util.stream.Stream;
  * the coupled target from the relation) or {@link #get()} (update the relation
  * from the coupled source).
  *
- * <p>Couplings are created with one of the coupling methods which are all based
- * on {@link #couple(Relatable, RelationType, Consumer, Supplier)}. The {@link
- * Consumer} function is used to update the target with the current relation
- * value upon a call of {@link #set()} and the {@link Supplier} will be invoked
- * to update the relation target if {@link #get()} is called.</p>
+ * <p>Couplings are created with one of the coupling methods which are all
+ * based
+ * on {@link #couple(Relatable, RelationType, Consumer, Supplier)}. The
+ * {@link Consumer} function is used to update the target with the current
+ * relation value upon a call of {@link #set()} and the {@link Supplier} will be
+ * invoked to update the relation target if {@link #get()} is called.</p>
  *
- * <p>Couplings are stored in a meta-relation of the type {@link #COUPLINGS}. If
+ * <p>Couplings are stored in a meta-relation of the type {@link #COUPLINGS}.
+ * If
  * a coupling is no longer needed it can be discarded with {@link #remove()}. To
  * process multiple couplings at once the corresponding static methods like
  * {@link #setAll(Relatable, Collection)} can be invoked with multiple relation
@@ -64,60 +66,59 @@ public class RelationCoupling<T> {
 		RelationTypes.init(RelationCoupling.class);
 	}
 
-	private final Relatable rRelatable;
+	private final Relatable relatable;
 
-	private final RelationType<T> rType;
+	private final RelationType<T> type;
 
-	private Consumer<T> fUpdateTarget;
+	private Consumer<T> updateTarget;
 
-	private Supplier<T> fQuerySource;
+	private Supplier<T> querySource;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rRelatable    The parent object of the relation to couple
-	 * @param rType         rRelationType The type of the relation to couple
-	 * @param fUpdateTarget A function that updates the coupled target (NULL
-	 *                      for none)
-	 * @param fQuerySource  A function that queries the coupled source (NULL
-	 *                      for none)
+	 * @param relatable    The parent object of the relation to couple
+	 * @param type         relationType The type of the relation to couple
+	 * @param updateTarget A function that updates the coupled target (NULL for
+	 *                     none)
+	 * @param querySource  A function that queries the coupled source (NULL for
+	 *                     none)
 	 * @throws IllegalArgumentException If both functions are NULL
 	 */
-	private RelationCoupling(Relatable rRelatable, RelationType<T> rType,
-		Consumer<T> fUpdateTarget, Supplier<T> fQuerySource) {
-		if (fUpdateTarget == null && fQuerySource == null) {
+	private RelationCoupling(Relatable relatable, RelationType<T> type,
+		Consumer<T> updateTarget, Supplier<T> querySource) {
+		if (updateTarget == null && querySource == null) {
 			throw new IllegalArgumentException(
 				"At least one coupling function must be provided");
 		}
 
-		this.rRelatable = rRelatable;
-		this.rType = rType;
-		this.fUpdateTarget = fUpdateTarget;
-		this.fQuerySource = fQuerySource;
+		this.relatable = relatable;
+		this.type = type;
+		this.updateTarget = updateTarget;
+		this.querySource = querySource;
 	}
 
 	/**
 	 * Couples a relation with a target and a source.
 	 *
-	 * @param rRelatable    The parent object of the relation to couple
-	 * @param rType         rRelationType The type of the relation to couple
-	 * @param fUpdateTarget A function that updates the coupled target (NULL
-	 *                      for none)
-	 * @param fQuerySource  A function that queries the coupled source (NULL
-	 *                      for none)
+	 * @param relatable    The parent object of the relation to couple
+	 * @param type         relationType The type of the relation to couple
+	 * @param updateTarget A function that updates the coupled target (NULL for
+	 *                     none)
+	 * @param querySource  A function that queries the coupled source (NULL for
+	 *                     none)
 	 * @return The new coupling
 	 * @throws IllegalArgumentException If both functions are NULL
 	 */
-	public static <T> RelationCoupling<T> couple(Relatable rRelatable,
-		RelationType<T> rType, Consumer<T> fUpdateTarget,
-		Supplier<T> fQuerySource) {
-		RelationCoupling<T> aCoupling =
-			new RelationCoupling<>(rRelatable, rType, fUpdateTarget,
-				fQuerySource);
+	public static <T> RelationCoupling<T> couple(Relatable relatable,
+		RelationType<T> type, Consumer<T> updateTarget,
+		Supplier<T> querySource) {
+		RelationCoupling<T> coupling =
+			new RelationCoupling<>(relatable, type, updateTarget, querySource);
 
-		rRelatable.init(rType).get(COUPLINGS).add(aCoupling);
+		relatable.init(type).get(COUPLINGS).add(coupling);
 
-		return aCoupling;
+		return coupling;
 	}
 
 	/**
@@ -126,13 +127,13 @@ public class RelationCoupling<T> {
 	 *
 	 * @see #couple(Relatable, RelationType, Consumer, Supplier)
 	 */
-	public static <T> RelationCoupling<T> couple(Relatable rRelatable,
-		RelationType<T> rType, Relatable rCoupledRelatable,
-		RelationType<T> rCoupledType) {
-		RelationAccessor<T> fTarget =
-			new RelationAccessor<>(rCoupledRelatable, rCoupledType);
+	public static <T> RelationCoupling<T> couple(Relatable relatable,
+		RelationType<T> type, Relatable coupledRelatable,
+		RelationType<T> coupledType) {
+		RelationAccessor<T> target =
+			new RelationAccessor<>(coupledRelatable, coupledType);
 
-		return couple(rRelatable, rType, fTarget, fTarget);
+		return couple(relatable, type, target, target);
 	}
 
 	/**
@@ -140,9 +141,9 @@ public class RelationCoupling<T> {
 	 *
 	 * @see #couple(Relatable, RelationType, Consumer, Supplier)
 	 */
-	public static <T> RelationCoupling<T> coupleSource(Relatable rRelatable,
-		RelationType<T> rType, Supplier<T> fQuerySource) {
-		return couple(rRelatable, rType, null, fQuerySource);
+	public static <T> RelationCoupling<T> coupleSource(Relatable relatable,
+		RelationType<T> type, Supplier<T> querySource) {
+		return couple(relatable, type, null, querySource);
 	}
 
 	/**
@@ -150,9 +151,9 @@ public class RelationCoupling<T> {
 	 *
 	 * @see #couple(Relatable, RelationType, Consumer, Supplier)
 	 */
-	public static <T> RelationCoupling<T> coupleTarget(Relatable rRelatable,
-		RelationType<T> rType, Consumer<T> fUpdateTarget) {
-		return couple(rRelatable, rType, fUpdateTarget, null);
+	public static <T> RelationCoupling<T> coupleTarget(Relatable relatable,
+		RelationType<T> type, Consumer<T> updateTarget) {
+		return couple(relatable, type, updateTarget, null);
 	}
 
 	/**
@@ -160,9 +161,9 @@ public class RelationCoupling<T> {
 	 *
 	 * @see #coupleValue(Relatable, RelationType, Settable, Gettable)
 	 */
-	public static <T> RelationCoupling<T> coupleValue(Relatable rRelatable,
-		RelationType<T> rType, HasValue<T> rValueHolder) {
-		return coupleValue(rRelatable, rType, rValueHolder, rValueHolder);
+	public static <T> RelationCoupling<T> coupleValue(Relatable relatable,
+		RelationType<T> type, HasValue<T> valueHolder) {
+		return coupleValue(relatable, type, valueHolder, valueHolder);
 	}
 
 	/**
@@ -171,68 +172,68 @@ public class RelationCoupling<T> {
 	 *
 	 * @see #couple(Relatable, RelationType, Consumer, Supplier)
 	 */
-	public static <T> RelationCoupling<T> coupleValue(Relatable rRelatable,
-		RelationType<T> rType, Settable<T> fSettable, Gettable<T> fGettable) {
-		Consumer<T> fSet = fSettable::setValue;
-		Supplier<T> fGet = fGettable::getValue;
+	public static <T> RelationCoupling<T> coupleValue(Relatable relatable,
+		RelationType<T> type, Settable<T> settable, Gettable<T> gettable) {
+		Consumer<T> set = settable::setValue;
+		Supplier<T> get = gettable::getValue;
 
-		return couple(rRelatable, rType, fSet, fGet);
+		return couple(relatable, type, set, get);
 	}
 
 	/**
 	 * Returns a stream with the couplings of the relations with certain types
 	 * in a relatable object.
 	 *
-	 * @param rRelatable The relatable to get the relations from
-	 * @param rTypes     The types of the relations to get the couplings of
+	 * @param relatable The relatable to get the relations from
+	 * @param types     The types of the relations to get the couplings of
 	 * @return A stream of the sets containing the relation couplings
 	 */
 	private static Stream<Set<RelationCoupling<?>>> couplings(
-		Relatable rRelatable, Collection<RelationType<?>> rTypes) {
-		Stream<Set<RelationCoupling<?>>> rCouplings = rRelatable
+		Relatable relatable, Collection<RelationType<?>> types) {
+		Stream<Set<RelationCoupling<?>>> couplings = relatable
 			.getRelations()
 			.stream()
 			.filter(
-				r -> rTypes.contains(r.getType()) && r.hasRelation(COUPLINGS))
+				r -> types.contains(r.getType()) && r.hasRelation(COUPLINGS))
 			.map(r -> r.get(COUPLINGS));
 
-		return rCouplings;
+		return couplings;
 	}
 
 	/**
 	 * Invokes {@link #get()} for all couplings of relations with certain
 	 * relation types.
 	 *
-	 * @param rRelatable The relatable to get the relations from
-	 * @param rTypes     The relation types to invoke {@link #get()} for
+	 * @param relatable The relatable to get the relations from
+	 * @param types     The relation types to invoke {@link #get()} for
 	 */
-	public static void getAll(Relatable rRelatable,
-		Collection<RelationType<?>> rTypes) {
-		couplings(rRelatable, rTypes).forEach(s -> s.forEach(c -> c.get()));
+	public static void getAll(Relatable relatable,
+		Collection<RelationType<?>> types) {
+		couplings(relatable, types).forEach(s -> s.forEach(c -> c.get()));
 	}
 
 	/**
 	 * Invokes {@link #remove()} for all couplings of relations with certain
 	 * relation types.
 	 *
-	 * @param rRelatable The relatable to get the relations from
-	 * @param rTypes     The relation types to invoke {@link #set()} for
+	 * @param relatable The relatable to get the relations from
+	 * @param types     The relation types to invoke {@link #set()} for
 	 */
-	public static void removeAll(Relatable rRelatable,
-		Collection<RelationType<?>> rTypes) {
-		couplings(rRelatable, rTypes).forEach(s -> s.forEach(c -> c.remove()));
+	public static void removeAll(Relatable relatable,
+		Collection<RelationType<?>> types) {
+		couplings(relatable, types).forEach(s -> s.forEach(c -> c.remove()));
 	}
 
 	/**
 	 * Invokes {@link #set()} for all couplings of relations with certain
 	 * relation types.
 	 *
-	 * @param rRelatable The relatable to get the relations from
-	 * @param rTypes     The relation types to invoke {@link #set()} for
+	 * @param relatable The relatable to get the relations from
+	 * @param types     The relation types to invoke {@link #set()} for
 	 */
-	public static void setAll(Relatable rRelatable,
-		Collection<RelationType<?>> rTypes) {
-		couplings(rRelatable, rTypes).forEach(s -> s.forEach(c -> c.set()));
+	public static void setAll(Relatable relatable,
+		Collection<RelationType<?>> types) {
+		couplings(relatable, types).forEach(s -> s.forEach(c -> c.set()));
 	}
 
 	/**
@@ -243,10 +244,10 @@ public class RelationCoupling<T> {
 	 * been set)
 	 */
 	public T get() {
-		if (fQuerySource != null) {
-			return rRelatable.set(rType, fQuerySource.get()).getTarget();
+		if (querySource != null) {
+			return relatable.set(type, querySource.get()).getTarget();
 		} else {
-			return rRelatable.get(rType);
+			return relatable.get(type);
 		}
 	}
 
@@ -257,13 +258,13 @@ public class RelationCoupling<T> {
 	 * further have any effect on the relation.
 	 */
 	public void remove() {
-		Relation<T> rRelation = rRelatable.getRelation(rType);
+		Relation<T> relation = relatable.getRelation(type);
 
-		fUpdateTarget = null;
-		fQuerySource = null;
+		updateTarget = null;
+		querySource = null;
 
-		if (rRelation != null) {
-			rRelation.get(COUPLINGS).remove(this);
+		if (relation != null) {
+			relation.get(COUPLINGS).remove(this);
 		}
 	}
 
@@ -271,8 +272,8 @@ public class RelationCoupling<T> {
 	 * Updates the coupled target from the current relation value.
 	 */
 	public void set() {
-		if (fUpdateTarget != null) {
-			fUpdateTarget.accept(rRelatable.get(rType));
+		if (updateTarget != null) {
+			updateTarget.accept(relatable.get(type));
 		}
 	}
 }

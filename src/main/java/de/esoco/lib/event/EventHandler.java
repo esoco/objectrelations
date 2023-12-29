@@ -28,7 +28,7 @@ public interface EventHandler<E extends Event<?>> extends EventListener {
 	/**
 	 * This method must be implemented to handle an event.
 	 *
-	 * @param rEvent The event that occurred
+	 * @param event The event that occurred
 	 */
-	void handleEvent(E rEvent);
+	void handleEvent(E event);
 }

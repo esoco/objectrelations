@@ -45,8 +45,8 @@ public class JsonArray extends ArrayList<Object>
 	 *
 	 * @see ArrayList#ArrayList(int)
 	 */
-	public JsonArray(int nInitialCapacity) {
-		super(nInitialCapacity);
+	public JsonArray(int initialCapacity) {
+		super(initialCapacity);
 	}
 
 	/**
@@ -54,35 +54,35 @@ public class JsonArray extends ArrayList<Object>
 	 *
 	 * @see ArrayList#ArrayList(Collection)
 	 */
-	public JsonArray(Collection<?> rInitialElements) {
-		super(rInitialElements);
+	public JsonArray(Collection<?> initialElements) {
+		super(initialElements);
 	}
 
 	/**
 	 * Factory method to create a new array from initial elements. The returned
 	 * instance is mutable.
 	 *
-	 * @param rElements The initial elements of the array
+	 * @param elements The initial elements of the array
 	 * @return The new JSON array
 	 */
-	public static JsonArray of(Object... rElements) {
-		return new JsonArray(Arrays.asList(rElements));
+	public static JsonArray of(Object... elements) {
+		return new JsonArray(Arrays.asList(elements));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void appendTo(JsonBuilder rBuilder) {
-		rBuilder.appendArray(this);
+	public void appendTo(JsonBuilder builder) {
+		builder.appendArray(this);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JsonArray fromJson(String sJson) {
-		new JsonParser().parseArray(sJson, this);
+	public JsonArray fromJson(String json) {
+		new JsonParser().parseArray(json, this);
 
 		return this;
 	}

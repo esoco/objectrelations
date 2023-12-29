@@ -13,15 +13,15 @@ import java.util.Iterator;
  */
 public class ImmutableCollection<E> extends AbstractCollection<E> {
 
-	private final Collection<E> rWrappedCollection;
+	private final Collection<E> wrappedCollection;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rWrappedCollection The collection to read the data from
+	 * @param wrappedCollection The collection to read the data from
 	 */
-	public ImmutableCollection(Collection<E> rWrappedCollection) {
-		this.rWrappedCollection = rWrappedCollection;
+	public ImmutableCollection(Collection<E> wrappedCollection) {
+		this.wrappedCollection = wrappedCollection;
 	}
 
 	/**
@@ -30,17 +30,17 @@ public class ImmutableCollection<E> extends AbstractCollection<E> {
 	@Override
 	public Iterator<E> iterator() {
 		return new Iterator<E>() {
-			private final Iterator<E> aWrappedIterator =
-				rWrappedCollection.iterator();
+			private final Iterator<E> wrappedIterator =
+				wrappedCollection.iterator();
 
 			@Override
 			public boolean hasNext() {
-				return aWrappedIterator.hasNext();
+				return wrappedIterator.hasNext();
 			}
 
 			@Override
 			public E next() {
-				return aWrappedIterator.next();
+				return wrappedIterator.next();
 			}
 		};
 	}
@@ -50,6 +50,6 @@ public class ImmutableCollection<E> extends AbstractCollection<E> {
 	 */
 	@Override
 	public int size() {
-		return rWrappedCollection.size();
+		return wrappedCollection.size();
 	}
 }

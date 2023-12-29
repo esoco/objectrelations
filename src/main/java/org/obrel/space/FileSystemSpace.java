@@ -27,52 +27,51 @@ import java.io.File;
  */
 public class FileSystemSpace<T> extends RelationSpace<T> {
 
-	private final String sRootPath;
+	private final String rootPath;
 
-	private final String sDefaultFile;
+	private final String defaultFile;
 
-	private final Function<File, T> fReadFile;
+	private final Function<File, T> readFile;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sRootPath    The root path to which URLs are relative
-	 * @param sDefaultFile The default file to look return on empty URLs (empty
-	 *                     string for none)
-	 * @param fReadFile    A function that reads a file and returns it's
-	 *                     content
-	 *                     with the datatype of this space
+	 * @param rootPath    The root path to which URLs are relative
+	 * @param defaultFile The default file to look return on empty URLs (empty
+	 *                    string for none)
+	 * @param readFile    A function that reads a file and returns it's content
+	 *                    with the datatype of this space
 	 */
-	public FileSystemSpace(String sRootPath, String sDefaultFile,
-		Function<File, T> fReadFile) {
-		if (!sRootPath.endsWith("/")) {
-			sRootPath += "/";
+	public FileSystemSpace(String rootPath, String defaultFile,
+		Function<File, T> readFile) {
+		if (!rootPath.endsWith("/")) {
+			rootPath += "/";
 		}
 
-		this.sRootPath = sRootPath;
-		this.sDefaultFile = sDefaultFile;
-		this.fReadFile = fReadFile;
+		this.rootPath = rootPath;
+		this.defaultFile = defaultFile;
+		this.readFile = readFile;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public T get(String sUrl) {
-		if (sUrl.startsWith("/")) {
-			sUrl = sUrl.substring(1);
+	public T get(String url) {
+		if (url.startsWith("/")) {
+			url = url.substring(1);
 		}
 
-		if (sUrl.isEmpty()) {
-			sUrl = sDefaultFile;
+		if (url.isEmpty()) {
+			url = defaultFile;
 		}
 
-		File aFile = new File(sRootPath + sUrl);
+		File file = new File(rootPath + url);
 
-		if (!aFile.exists() || !aFile.isFile() || aFile.isHidden()) {
-			throw new IllegalArgumentException("Invalid URL: " + sUrl);
+		if (!file.exists() || !file.isFile() || file.isHidden()) {
+			throw new IllegalArgumentException("Invalid URL: " + url);
 		}
 
-		return fReadFile.evaluate(aFile);
+		return readFile.evaluate(file);
 	}
 }

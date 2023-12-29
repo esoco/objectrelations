@@ -30,19 +30,19 @@ import java.util.List;
  */
 public class BinaryFunctionGroup<L, R> extends AbstractBinaryFunction<L, R, L> {
 
-	private final List<BinaryFunction<? super L, ? super R, ?>> rFunctions;
+	private final List<BinaryFunction<? super L, ? super R, ?>> functions;
 
 	/**
 	 * Creates a new instance for a certain number of functions.
 	 *
-	 * @param rRightValue The default value for unary function invocations
-	 * @param rFunctions  The functions to group in this instance
+	 * @param rightValue The default value for unary function invocations
+	 * @param functions  The functions to group in this instance
 	 */
-	public BinaryFunctionGroup(R rRightValue,
-		List<BinaryFunction<? super L, ? super R, ?>> rFunctions) {
-		super(rRightValue, "Group" + rFunctions);
+	public BinaryFunctionGroup(R rightValue,
+		List<BinaryFunction<? super L, ? super R, ?>> functions) {
+		super(rightValue, "Group" + functions);
 
-		this.rFunctions = rFunctions;
+		this.functions = functions;
 	}
 
 	/**
@@ -52,12 +52,12 @@ public class BinaryFunctionGroup<L, R> extends AbstractBinaryFunction<L, R, L> {
 	 * @see BinaryFunction#evaluate(Object, Object)
 	 */
 	@Override
-	public L evaluate(L rLeft, R rRight) {
-		for (BinaryFunction<? super L, ? super R, ?> rFunction : rFunctions) {
-			rFunction.evaluate(rLeft, rRight);
+	public L evaluate(L left, R right) {
+		for (BinaryFunction<? super L, ? super R, ?> function : functions) {
+			function.evaluate(left, right);
 		}
 
-		return rLeft;
+		return left;
 	}
 
 	/**
@@ -66,17 +66,17 @@ public class BinaryFunctionGroup<L, R> extends AbstractBinaryFunction<L, R, L> {
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
-		BinaryFunctionGroup<?, ?> rOtherFunction =
-			(BinaryFunctionGroup<?, ?>) rOther;
-		int nCount = rFunctions.size();
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
+		BinaryFunctionGroup<?, ?> otherFunction =
+			(BinaryFunctionGroup<?, ?>) other;
+		int count = functions.size();
 
-		if (nCount != rOtherFunction.rFunctions.size()) {
+		if (count != otherFunction.functions.size()) {
 			return false;
 		}
 
-		for (int i = 0; i < nCount; i++) {
-			if (!rFunctions.get(i).equals(rOtherFunction.rFunctions.get(i))) {
+		for (int i = 0; i < count; i++) {
+			if (!functions.get(i).equals(otherFunction.functions.get(i))) {
 				return false;
 			}
 		}
@@ -91,12 +91,12 @@ public class BinaryFunctionGroup<L, R> extends AbstractBinaryFunction<L, R, L> {
 	 */
 	@Override
 	protected int paramsHashCode() {
-		int nHashCode = 17;
+		int hashCode = 17;
 
-		for (Function<? super L, ?> rFunction : rFunctions) {
-			nHashCode = nHashCode * 31 + rFunction.hashCode();
+		for (Function<? super L, ?> function : functions) {
+			hashCode = hashCode * 31 + function.hashCode();
 		}
 
-		return nHashCode;
+		return hashCode;
 	}
 }

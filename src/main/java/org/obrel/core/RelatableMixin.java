@@ -42,24 +42,24 @@ public interface RelatableMixin extends Relatable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	default void deleteRelation(Relation<?> rRelation) {
-		getRelationContainer().deleteRelation(rRelation);
+	default void deleteRelation(Relation<?> relation) {
+		getRelationContainer().deleteRelation(relation);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default <T> T get(RelationType<T> rType) {
-		return getRelationContainer().get(rType);
+	default <T> T get(RelationType<T> type) {
+		return getRelationContainer().get(type);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default <T> Relation<T> getRelation(RelationType<T> rType) {
-		return getRelationContainer().getRelation(rType);
+	default <T> Relation<T> getRelation(RelationType<T> type) {
+		return getRelationContainer().getRelation(type);
 	}
 
 	/**
@@ -79,34 +79,34 @@ public interface RelatableMixin extends Relatable {
 	 */
 	@Override
 	default List<Relation<?>> getRelations(
-		Predicate<? super Relation<?>> rFilter) {
-		return getRelationContainer().getRelations(rFilter);
+		Predicate<? super Relation<?>> filter) {
+		return getRelationContainer().getRelations(filter);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default <T> Relation<T> set(RelationType<T> rType, T rTarget) {
-		return getRelationContainer().set(rType, rTarget);
+	default <T> Relation<T> set(RelationType<T> type, T target) {
+		return getRelationContainer().set(type, target);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default <T, I> Relation<T> set(RelationType<T> rType,
-		Function<I, T> fTargetResolver, I rIntermediateTarget) {
-		return getRelationContainer().set(rType, fTargetResolver,
-			rIntermediateTarget);
+	default <T, I> Relation<T> set(RelationType<T> type,
+		Function<I, T> targetResolver, I intermediateTarget) {
+		return getRelationContainer().set(type, targetResolver,
+			intermediateTarget);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default <T, D> TransformedRelation<T, D> transform(RelationType<T> rType,
-		InvertibleFunction<T, D> fTransformation) {
-		return getRelationContainer().transform(rType, fTransformation);
+	default <T, D> TransformedRelation<T, D> transform(RelationType<T> type,
+		InvertibleFunction<T, D> transformation) {
+		return getRelationContainer().transform(type, transformation);
 	}
 }

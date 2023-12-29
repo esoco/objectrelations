@@ -37,12 +37,12 @@ public interface ObjectSpace<T> extends Relatable {
 	 * {@link ObjectRelations#urlDelete(Relatable, String)} for details about
 	 * this operation.
 	 *
-	 * @param sUrl The URL to lookup the object under
+	 * @param url The URL to lookup the object under
 	 * @throws NoSuchElementException   If the URL could not be resolved
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	default void delete(String sUrl) {
+	default void delete(String url) {
 		throw new UnsupportedOperationException("DELETE not supported");
 	}
 
@@ -51,13 +51,13 @@ public interface ObjectSpace<T> extends Relatable {
 	 * {@link ObjectRelations#urlGet(Relatable, String)} for details about this
 	 * operation.
 	 *
-	 * @param sUrl The URL to lookup the object under
+	 * @param url The URL to lookup the object under
 	 * @return The value referenced by the given URL
 	 * @throws NoSuchElementException   If the URL could not be resolved
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	T get(String sUrl);
+	T get(String url);
 
 	/**
 	 * Stores or updates a value object at a certain URL. See the method {@link
@@ -65,13 +65,13 @@ public interface ObjectSpace<T> extends Relatable {
 	 * this
 	 * operation.
 	 *
-	 * @param sUrl   The URL to lookup the object under
-	 * @param rValue The new or updated value
+	 * @param url   The URL to lookup the object under
+	 * @param value The new or updated value
 	 * @throws NoSuchElementException   If the URL could not be resolved
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
-	default void put(String sUrl, T rValue) {
+	default void put(String url, T value) {
 		throw new UnsupportedOperationException("PUT not supported");
 	}
 }

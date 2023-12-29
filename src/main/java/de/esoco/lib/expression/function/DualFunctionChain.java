@@ -30,36 +30,36 @@ public class DualFunctionChain<L, R, V, W, O>
 
 	private static final String RIGHT_FUNCTION_PLACEHOLDER = "$$";
 
-	private final BinaryFunction<V, W, O> rOuter;
+	private final BinaryFunction<V, W, O> outer;
 
-	private final Function<L, ? extends V> rLeft;
+	private final Function<L, ? extends V> left;
 
-	private final Function<R, ? extends W> rRight;
+	private final Function<R, ? extends W> right;
 
 	/**
 	 * Creates a new instance that chains two functions together.
 	 *
-	 * @param rOuter The binary outer function
-	 * @param rLeft  The function to evaluate left input values with
-	 * @param rRight The function to evaluate right input values with
+	 * @param outer The binary outer function
+	 * @param left  The function to evaluate left input values with
+	 * @param right The function to evaluate right input values with
 	 */
-	public DualFunctionChain(final BinaryFunction<V, W, O> rOuter,
-		final Function<L, ? extends V> rLeft,
-		final Function<R, ? extends W> rRight) {
+	public DualFunctionChain(final BinaryFunction<V, W, O> outer,
+		final Function<L, ? extends V> left,
+		final Function<R, ? extends W> right) {
 		super(null, RIGHT_FUNCTION_PLACEHOLDER);
 
-		this.rOuter = rOuter;
-		this.rLeft = rLeft;
-		this.rRight = rRight;
+		this.outer = outer;
+		this.left = left;
+		this.right = right;
 	}
 
 	/**
 	 * @see BinaryFunction#evaluate(Object, Object)
 	 */
 	@Override
-	public O evaluate(L rLeftValue, R rRightValue) {
-		return rOuter.evaluate(rLeft.evaluate(rLeftValue),
-			rRight.evaluate(rRightValue));
+	public O evaluate(L leftValue, R rightValue) {
+		return outer.evaluate(left.evaluate(leftValue),
+			right.evaluate(rightValue));
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class DualFunctionChain<L, R, V, W, O>
 	 * @return The left function
 	 */
 	public final Function<V, O> getLeft() {
-		return rOuter;
+		return outer;
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class DualFunctionChain<L, R, V, W, O>
 	 * @return The outer function
 	 */
 	public BinaryFunction<V, W, O> getOuter() {
-		return rOuter;
+		return outer;
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class DualFunctionChain<L, R, V, W, O>
 	 * @return The right function
 	 */
 	public final Function<L, ? extends V> getRight() {
-		return rLeft;
+		return left;
 	}
 
 	/**
@@ -96,10 +96,10 @@ public class DualFunctionChain<L, R, V, W, O>
 	 */
 	@Override
 	public String toString() {
-		return rOuter
+		return outer
 			.toString()
-			.replace(INPUT_PLACEHOLDER, rLeft.toString())
-			.replace(RIGHT_FUNCTION_PLACEHOLDER, rRight.toString());
+			.replace(INPUT_PLACEHOLDER, left.toString())
+			.replace(RIGHT_FUNCTION_PLACEHOLDER, right.toString());
 	}
 
 	/**
@@ -108,12 +108,12 @@ public class DualFunctionChain<L, R, V, W, O>
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
-		DualFunctionChain<?, ?, ?, ?, ?> rOtherFunction =
-			(DualFunctionChain<?, ?, ?, ?, ?>) rOther;
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
+		DualFunctionChain<?, ?, ?, ?, ?> otherFunction =
+			(DualFunctionChain<?, ?, ?, ?, ?>) other;
 
-		return rOuter.equals(rOtherFunction.rLeft) &&
-			rLeft.equals(rOtherFunction.rRight);
+		return outer.equals(otherFunction.left) &&
+			left.equals(otherFunction.right);
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class DualFunctionChain<L, R, V, W, O>
 	 */
 	@Override
 	protected int paramsHashCode() {
-		return 31 * (31 * rOuter.hashCode() + rLeft.hashCode()) +
-			rRight.hashCode();
+		return 31 * (31 * outer.hashCode() + left.hashCode()) +
+			right.hashCode();
 	}
 }

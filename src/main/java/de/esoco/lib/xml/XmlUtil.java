@@ -46,7 +46,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Provides static helper functions for the handling of XML documents and files.
+ * Provides static helper functions for the handling of XML documents and
+ * files.
  *
  * @author eso
  */
@@ -65,24 +66,24 @@ public class XmlUtil {
 	 * property key will be the tag name and the value will be retrieved from
 	 * the tag's child node of the type "text".
 	 *
-	 * @param rNode The node to get the properties from
-	 * @param rMap  The map to place the properties in
+	 * @param node The node to get the properties from
+	 * @param map  The map to place the properties in
 	 */
-	public static void addTagsAsProperties(Node rNode,
-		Map<String, String> rMap) {
-		if (rNode instanceof Element) {
-			Node rChild = rNode.getFirstChild();
+	public static void addTagsAsProperties(Node node,
+		Map<String, String> map) {
+		if (node instanceof Element) {
+			Node child = node.getFirstChild();
 
-			if (rChild instanceof Text) {
-				rMap.put(rNode.getNodeName(), ((Text) rChild).getData());
+			if (child instanceof Text) {
+				map.put(node.getNodeName(), ((Text) child).getData());
 			}
 		}
 
-		NodeList rChildNodes = rNode.getChildNodes();
-		int nCount = rChildNodes.getLength();
+		NodeList childNodes = node.getChildNodes();
+		int count = childNodes.getLength();
 
-		for (int i = 0; i < nCount; i++) {
-			addTagsAsProperties(rChildNodes.item(i), rMap);
+		for (int i = 0; i < count; i++) {
+			addTagsAsProperties(childNodes.item(i), map);
 		}
 	}
 
@@ -90,53 +91,54 @@ public class XmlUtil {
 	 * Evaluate an XPath expression in the specified context and return the
 	 * result as a String.
 	 *
-	 * @param rDocument        The source document
-	 * @param sXpathExpression The expression to evaluate
+	 * @param document        The source document
+	 * @param xpathExpression The expression to evaluate
 	 * @return The String that is the result of evaluating the expression and
 	 * converting the result to a String.
 	 * @throws XPathExpressionException If the expression can not be evaluated.
 	 */
-	public static String evaluateXpathExpression(Document rDocument,
-		String sXpathExpression) throws XPathExpressionException {
-		XPathFactory aXpathFactory = XPathFactory.newInstance();
+	public static String evaluateXpathExpression(Document document,
+		String xpathExpression) throws XPathExpressionException {
+		XPathFactory xpathFactory = XPathFactory.newInstance();
 
-		XPath aXpath = aXpathFactory.newXPath();
+		XPath xpath = xpathFactory.newXPath();
 
-		return aXpath.evaluate(sXpathExpression, rDocument);
+		return xpath.evaluate(xpathExpression, document);
 	}
 
 	/**
 	 * Formats an XML string into a readable format with one tag per line.
 	 *
-	 * @param sXML             The XML input string
-	 * @param nIndent          The indentation of each XML level
-	 * @param bWithDeclaration TRUE to include the XML declaration, FALSE to
-	 *                         omit it
+	 * @param mL              The XML input string
+	 * @param indent          The indentation of each XML level
+	 * @param withDeclaration TRUE to include the XML declaration, FALSE to
+	 *                           omit
+	 *                        it
 	 * @return The formatted XML string
 	 * @throws IllegalArgumentException If the argument string cannot be
 	 *                                  formatted
 	 */
-	public static String format(String sXML, int nIndent,
-		boolean bWithDeclaration) {
+	public static String format(String mL, int indent,
+		boolean withDeclaration) {
 		try {
-			Transformer aTransformer =
+			Transformer transformer =
 				SAXTransformerFactory.newInstance().newTransformer();
 
-			Source aSource = new SAXSource(
-				new InputSource(new ByteArrayInputStream(sXML.getBytes())));
+			Source source = new SAXSource(
+				new InputSource(new ByteArrayInputStream(mL.getBytes())));
 
-			StringWriter aWriter = new StringWriter();
-			StreamResult aResult = new StreamResult(aWriter);
+			StringWriter writer = new StringWriter();
+			StreamResult result = new StreamResult(writer);
 
-			aTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			aTransformer.setOutputProperty(
-				"{http://xml.apache.org/xslt}indent-amount", "" + nIndent);
-			aTransformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
-				bWithDeclaration ? "no" : "yes");
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(
+				"{http://xml.apache.org/xslt}indent-amount", "" + indent);
+			transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
+				withDeclaration ? "no" : "yes");
 
-			aTransformer.transform(aSource, aResult);
+			transformer.transform(source, result);
 
-			return aWriter.toString();
+			return writer.toString();
 		} catch (TransformerException e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -147,16 +149,16 @@ public class XmlUtil {
 	 * property key will be the tag name and the value will be retrieved from
 	 * the tag's child node of the type "text".
 	 *
-	 * @param rNode The node to get the properties from
+	 * @param node The node to get the properties from
 	 * @return A new {@link LinkedHashMap} containing the node's tags as
 	 * properties
 	 */
-	public static Map<String, String> getTagsAsProperties(Node rNode) {
-		Map<String, String> aProperties = new LinkedHashMap<>();
+	public static Map<String, String> getTagsAsProperties(Node node) {
+		Map<String, String> properties = new LinkedHashMap<>();
 
-		addTagsAsProperties(rNode, aProperties);
+		addTagsAsProperties(node, properties);
 
-		return aProperties;
+		return properties;
 	}
 
 	/**
@@ -166,62 +168,62 @@ public class XmlUtil {
 	 * doesn't exist. If the format string argument is not NULL it must contain
 	 * a '%s' placeholder to insert the attribute value at.
 	 *
-	 * @param rDocument      The XML document
-	 * @param sNodeTag       The XML tag of the node to query
-	 * @param sAttributeName The name of the node attribute to query
-	 * @param sFormat        An optional format string or NULL for none
+	 * @param document      The XML document
+	 * @param nodeTag       The XML tag of the node to query
+	 * @param attributeName The name of the node attribute to query
+	 * @param format        An optional format string or NULL for none
 	 * @return The text content of the XML node. An empty string if the node is
 	 * empty.
 	 */
-	public static String getXmlAttributeValue(Document rDocument,
-		String sNodeTag, String sAttributeName, String sFormat) {
-		Node rNode = getXmlNode(rDocument, sNodeTag);
-		String sValue = "";
+	public static String getXmlAttributeValue(Document document,
+		String nodeTag,
+		String attributeName, String format) {
+		Node node = getXmlNode(document, nodeTag);
+		String value = "";
 
-		if (rNode != null) {
-			NamedNodeMap rAttributes = rNode.getAttributes();
+		if (node != null) {
+			NamedNodeMap attributes = node.getAttributes();
 
-			if (rAttributes != null) {
-				Node rAttribute = rAttributes.getNamedItem(sAttributeName);
+			if (attributes != null) {
+				Node attribute = attributes.getNamedItem(attributeName);
 
-				if (rAttribute != null) {
-					sValue = rAttribute.getTextContent();
+				if (attribute != null) {
+					value = attribute.getTextContent();
 
-					if (sFormat != null) {
-						sValue = String.format(sFormat, sValue);
+					if (format != null) {
+						value = String.format(format, value);
 					}
 				}
 			}
 		}
 
-		return sValue;
+		return value;
 	}
 
 	/**
 	 * Returns the first XML document node with a certain tag or NULL if the
 	 * node doesn't exist.
 	 *
-	 * @param rDocument rDocument The XML document
-	 * @param sNodeTag  The XML tag of the node to query
+	 * @param document document The XML document
+	 * @param nodeTag  The XML tag of the node to query
 	 * @return The node or NULL for none
 	 */
-	public static Node getXmlNode(Document rDocument, String sNodeTag) {
-		List<Node> rNodes = getXmlNodes(rDocument, sNodeTag);
+	public static Node getXmlNode(Document document, String nodeTag) {
+		List<Node> nodes = getXmlNodes(document, nodeTag);
 
-		return rNodes.size() > 0 ? rNodes.get(0) : null;
+		return nodes.size() > 0 ? nodes.get(0) : null;
 	}
 
 	/**
 	 * Returns the text content of the first XML document node with a certain
 	 * tag or NULL if the node doesn't exist.
 	 *
-	 * @param rDocument The XML document
-	 * @param sNodeTag  The XML tag of the node to query
+	 * @param document The XML document
+	 * @param nodeTag  The XML tag of the node to query
 	 * @return The node value or an empty string
 	 */
-	public static String getXmlNodeContent(Document rDocument,
-		String sNodeTag) {
-		return getXmlNodeContent(rDocument, sNodeTag, null);
+	public static String getXmlNodeContent(Document document, String nodeTag) {
+		return getXmlNodeContent(document, nodeTag, null);
 	}
 
 	/**
@@ -230,175 +232,175 @@ public class XmlUtil {
 	 * not NULL it must contain a '%s' placeholder to insert the node content
 	 * at.
 	 *
-	 * @param rDocument The XML document
-	 * @param sNodeTag  The XML tag of the node to query
-	 * @param sFormat   An optional format string or NULL for none
+	 * @param document The XML document
+	 * @param nodeTag  The XML tag of the node to query
+	 * @param format   An optional format string or NULL for none
 	 * @return The node value or an empty string
 	 */
-	public static String getXmlNodeContent(Document rDocument, String sNodeTag,
-		String sFormat) {
-		Node rNode = getXmlNode(rDocument, sNodeTag);
-		String sValue = "";
+	public static String getXmlNodeContent(Document document, String nodeTag,
+		String format) {
+		Node node = getXmlNode(document, nodeTag);
+		String value = "";
 
-		if (rNode != null) {
-			sValue = rNode.getTextContent();
+		if (node != null) {
+			value = node.getTextContent();
 
-			if (sFormat != null) {
-				sValue = String.format(sFormat, sValue);
+			if (format != null) {
+				value = String.format(format, value);
 			}
 		}
 
-		return sValue;
+		return value;
 	}
 
 	/**
 	 * Returns all XML document nodes with a certain tag.
 	 *
-	 * @param rDocument The XML document
-	 * @param sNodeTag  The XML tag of the nodes to query
+	 * @param document The XML document
+	 * @param nodeTag  The XML tag of the nodes to query
 	 * @return The list of nodes (may be empty)
 	 */
-	public static List<Node> getXmlNodes(Document rDocument, String sNodeTag) {
-		NodeList rNodeList = rDocument.getElementsByTagName(sNodeTag);
-		List<Node> rNodes = null;
+	public static List<Node> getXmlNodes(Document document, String nodeTag) {
+		NodeList nodeList = document.getElementsByTagName(nodeTag);
+		List<Node> nodes = null;
 
-		if (rNodeList != null) {
-			int nSize = rNodeList.getLength();
+		if (nodeList != null) {
+			int size = nodeList.getLength();
 
-			if (nSize > 0) {
-				rNodes = new ArrayList<Node>(nSize);
+			if (size > 0) {
+				nodes = new ArrayList<Node>(size);
 
-				for (int i = 0; i < nSize; i++) {
-					rNodes.add(rNodeList.item(i));
+				for (int i = 0; i < size; i++) {
+					nodes.add(nodeList.item(i));
 				}
 			}
 		}
 
-		if (rNodes == null) {
-			rNodes = Collections.emptyList();
+		if (nodes == null) {
+			nodes = Collections.emptyList();
 		}
 
-		return rNodes;
+		return nodes;
 	}
 
 	/**
 	 * Returns the text contents of all XML document nodes with a certain tag.
 	 *
-	 * @param rDocument The XML document
-	 * @param sNodeTag  The XML tag of the nodes to query
+	 * @param document The XML document
+	 * @param nodeTag  The XML tag of the nodes to query
 	 * @return A list containing the node values (may be empty)
 	 */
-	public static List<String> getXmlNodesContent(Document rDocument,
-		String sNodeTag) {
-		List<Node> rNodes = getXmlNodes(rDocument, sNodeTag);
-		List<String> aValues = new ArrayList<String>(rNodes.size());
+	public static List<String> getXmlNodesContent(Document document,
+		String nodeTag) {
+		List<Node> nodes = getXmlNodes(document, nodeTag);
+		List<String> values = new ArrayList<String>(nodes.size());
 
-		for (Node rNode : rNodes) {
-			aValues.add(rNode.getTextContent());
+		for (Node node : nodes) {
+			values.add(node.getTextContent());
 		}
 
-		return aValues;
+		return values;
 	}
 
 	/**
 	 * Converts an XML node and it's hierarchy of child nodes (if available)
 	 * into a readable string representation.
 	 *
-	 * @param rNode        The root XML node
-	 * @param sIndent      A indentation prefix string or NULL for none
-	 * @param bIncludeRoot TRUE to include the root node in the result
+	 * @param node        The root XML node
+	 * @param indent      A indentation prefix string or NULL for none
+	 * @param includeRoot TRUE to include the root node in the result
 	 * @return The string representation of the node hierarchy
 	 */
-	public static String nodeHierarchyToString(Node rNode, String sIndent,
-		boolean bIncludeRoot) {
-		return nodeHierarchyToString(rNode, sIndent, bIncludeRoot, 0);
+	public static String nodeHierarchyToString(Node node, String indent,
+		boolean includeRoot) {
+		return nodeHierarchyToString(node, indent, includeRoot, 0);
 	}
 
 	/**
 	 * Internal method to convert an XML node and it's hierarchy of child nodes
 	 * (if available) into a readable string representation.
 	 *
-	 * @param rNode        The root XML node
-	 * @param sIndent      A indentation prefix string or NULL for none
-	 * @param bIncludeRoot TRUE to include the root node in the result
-	 * @param nLevel       The indentation level
+	 * @param node        The root XML node
+	 * @param indent      A indentation prefix string or NULL for none
+	 * @param includeRoot TRUE to include the root node in the result
+	 * @param level       The indentation level
 	 * @return The string representation of the node hierarchy
 	 */
-	private static String nodeHierarchyToString(Node rNode, String sIndent,
-		boolean bIncludeRoot, int nLevel) {
-		String sNodeName = rNode.getNodeName();
-		NamedNodeMap rAttributes = rNode.getAttributes();
-		NodeList rChildNodes = rNode.getChildNodes();
-		StringBuilder aResult = new StringBuilder();
+	private static String nodeHierarchyToString(Node node, String indent,
+		boolean includeRoot, int level) {
+		String nodeName = node.getNodeName();
+		NamedNodeMap attributes = node.getAttributes();
+		NodeList childNodes = node.getChildNodes();
+		StringBuilder result = new StringBuilder();
 
-		int nChildCount = rChildNodes != null ? rChildNodes.getLength() : 0;
+		int childCount = childNodes != null ? childNodes.getLength() : 0;
 
-		if (bIncludeRoot) {
-			if (sNodeName != null) {
-				sNodeName = sNodeName.replace(':', '-');
+		if (includeRoot) {
+			if (nodeName != null) {
+				nodeName = nodeName.replace(':', '-');
 			}
 
-			int nAttrCount = rAttributes != null ? rAttributes.getLength() : 0;
+			int attrCount = attributes != null ? attributes.getLength() : 0;
 
-			for (int i = 0; i < nLevel; i++) {
-				aResult.append(sIndent);
+			for (int i = 0; i < level; i++) {
+				result.append(indent);
 			}
 
-			aResult.append(sNodeName);
+			result.append(nodeName);
 
-			for (int i = 0; i < nAttrCount; i++) {
-				Node rAttribute = rAttributes.item(i);
+			for (int i = 0; i < attrCount; i++) {
+				Node attribute = attributes.item(i);
 
-				aResult.append(" ");
-				aResult.append(rAttribute.getNodeName());
-				aResult.append("=");
-				aResult.append(rAttribute.getNodeValue());
+				result.append(" ");
+				result.append(attribute.getNodeName());
+				result.append("=");
+				result.append(attribute.getNodeValue());
 			}
 
-			if (nChildCount == 1 && TAG_TEXT_CONTENT_NODE.equals(
-				rChildNodes.item(0).getNodeName())) {
-				String sContent = rNode.getTextContent();
+			if (childCount == 1 && TAG_TEXT_CONTENT_NODE.equals(
+				childNodes.item(0).getNodeName())) {
+				String content = node.getTextContent();
 
-				aResult.append(": ");
-				aResult.append(sContent);
-			} else if (nChildCount > 0) {
-				aResult.append(": ");
+				result.append(": ");
+				result.append(content);
+			} else if (childCount > 0) {
+				result.append(": ");
 			}
 
-			aResult.append('\n');
-			nLevel++;
+			result.append('\n');
+			level++;
 		}
 
-		for (int i = 0; i < nChildCount; i++) {
-			Node rChild = rChildNodes.item(i);
+		for (int i = 0; i < childCount; i++) {
+			Node child = childNodes.item(i);
 
-			if (!TAG_TEXT_CONTENT_NODE.equals(rChild.getNodeName())) {
-				aResult.append(
-					nodeHierarchyToString(rChild, sIndent, true, nLevel));
+			if (!TAG_TEXT_CONTENT_NODE.equals(child.getNodeName())) {
+				result.append(
+					nodeHierarchyToString(child, indent, true, level));
 			}
 		}
 
-		return aResult.toString();
+		return result.toString();
 	}
 
 	/**
 	 * Returns a string representation of an XML node and it's hierarchy.
 	 *
-	 * @param rNode The node to convert into a string
+	 * @param node The node to convert into a string
 	 * @return The string representation of the given node
 	 */
-	public static String toString(Node rNode) {
+	public static String toString(Node node) {
 		try {
-			Source aSource = new DOMSource(rNode);
-			StringWriter aOutput = new StringWriter();
-			Result aResult = new StreamResult(aOutput);
+			Source source = new DOMSource(node);
+			StringWriter output = new StringWriter();
+			Result result = new StreamResult(output);
 
-			Transformer aTransformer =
+			Transformer transformer =
 				TransformerFactory.newInstance().newTransformer();
 
-			aTransformer.transform(aSource, aResult);
+			transformer.transform(source, result);
 
-			return aOutput.toString();
+			return output.toString();
 		} catch (Exception e) {
 			throw new IllegalStateException(e);
 		}

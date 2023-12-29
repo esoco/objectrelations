@@ -29,8 +29,8 @@ public class MathFunctions {
 	private static final Function<String, Integer> PARSE_INTEGER =
 		new AbstractFunction<String, Integer>("ParseInteger") {
 			@Override
-			public Integer evaluate(String sValue) {
-				return Integer.valueOf(sValue);
+			public Integer evaluate(String value) {
+				return Integer.valueOf(value);
 			}
 		};
 
@@ -44,17 +44,17 @@ public class MathFunctions {
 	 * Returns a binary function that will add an integer value to the input
 	 * value.
 	 *
-	 * @param nRightValue The integer value to add
+	 * @param rightValue The integer value to add
 	 * @return A new binary function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static BinaryFunction<Integer, Integer, Integer> add(
-		final int nRightValue) {
-		return new AbstractBinaryFunction<Integer, Integer, Integer>(
-			nRightValue, "Add") {
+		final int rightValue) {
+		return new AbstractBinaryFunction<Integer, Integer, Integer>(rightValue,
+			"Add") {
 			@Override
-			public Integer evaluate(Integer rLeftValue, Integer rRightValue) {
-				return rLeftValue.intValue() + rRightValue.intValue();
+			public Integer evaluate(Integer leftValue, Integer rightValue) {
+				return leftValue.intValue() + rightValue.intValue();
 			}
 		};
 	}
@@ -63,17 +63,17 @@ public class MathFunctions {
 	 * Returns a binary function that will divide the input value by an integer
 	 * value.
 	 *
-	 * @param nRightValue The integer value to divide by
+	 * @param rightValue The integer value to divide by
 	 * @return A new binary function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static BinaryFunction<Integer, Integer, Integer> divide(
-		final int nRightValue) {
-		return new AbstractBinaryFunction<Integer, Integer, Integer>(
-			nRightValue, "Divide") {
+		final int rightValue) {
+		return new AbstractBinaryFunction<Integer, Integer, Integer>(rightValue,
+			"Divide") {
 			@Override
-			public Integer evaluate(Integer rLeftValue, Integer rRightValue) {
-				return rLeftValue.intValue() / rRightValue.intValue();
+			public Integer evaluate(Integer leftValue, Integer rightValue) {
+				return leftValue.intValue() / rightValue.intValue();
 			}
 		};
 	}
@@ -82,17 +82,17 @@ public class MathFunctions {
 	 * Returns a binary function that returns the remainder of dividing the
 	 * input value by an integer value.
 	 *
-	 * @param nRightValue The integer value to divide by
+	 * @param rightValue The integer value to divide by
 	 * @return A new binary function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static BinaryFunction<Integer, Integer, Integer> modulo(
-		final int nRightValue) {
-		return new AbstractBinaryFunction<Integer, Integer, Integer>(
-			nRightValue, "Modulo") {
+		final int rightValue) {
+		return new AbstractBinaryFunction<Integer, Integer, Integer>(rightValue,
+			"Modulo") {
 			@Override
-			public Integer evaluate(Integer rLeftValue, Integer rRightValue) {
-				return rLeftValue.intValue() % rRightValue.intValue();
+			public Integer evaluate(Integer leftValue, Integer rightValue) {
+				return leftValue.intValue() % rightValue.intValue();
 			}
 		};
 	}
@@ -101,17 +101,17 @@ public class MathFunctions {
 	 * Returns a binary function that will multiply the input value with an
 	 * integer value.
 	 *
-	 * @param nRightValue The integer value to multiply with
+	 * @param rightValue The integer value to multiply with
 	 * @return A new binary function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static BinaryFunction<Integer, Integer, Integer> multiply(
-		final int nRightValue) {
-		return new AbstractBinaryFunction<Integer, Integer, Integer>(
-			nRightValue, "Multiply") {
+		final int rightValue) {
+		return new AbstractBinaryFunction<Integer, Integer, Integer>(rightValue,
+			"Multiply") {
 			@Override
-			public Integer evaluate(Integer rLeftValue, Integer rRightValue) {
-				return rLeftValue.intValue() * rRightValue.intValue();
+			public Integer evaluate(Integer leftValue, Integer rightValue) {
+				return leftValue.intValue() * rightValue.intValue();
 			}
 		};
 	}
@@ -130,17 +130,17 @@ public class MathFunctions {
 	 * Returns a binary function that will subtract an integer value from the
 	 * input value.
 	 *
-	 * @param nRightValue The integer value to subtract
+	 * @param rightValue The integer value to subtract
 	 * @return A new binary function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static BinaryFunction<Integer, Integer, Integer> subtract(
-		final int nRightValue) {
-		return new AbstractBinaryFunction<Integer, Integer, Integer>(
-			nRightValue, "Subtract") {
+		final int rightValue) {
+		return new AbstractBinaryFunction<Integer, Integer, Integer>(rightValue,
+			"Subtract") {
 			@Override
-			public Integer evaluate(Integer rLeftValue, Integer rRightValue) {
-				return rLeftValue.intValue() - rRightValue.intValue();
+			public Integer evaluate(Integer leftValue, Integer rightValue) {
+				return leftValue.intValue() - rightValue.intValue();
 			}
 		};
 	}

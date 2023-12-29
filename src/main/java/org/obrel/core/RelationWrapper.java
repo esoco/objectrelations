@@ -31,31 +31,32 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 
 	private static final long serialVersionUID = 1L;
 
-	private final Relatable rParent;
+	private final Relatable parent;
 
-	private final Relation<R> rWrappedRelation;
+	private final Relation<R> wrappedRelation;
 
-	private final F fTargetConversion;
+	private final F targetConversion;
 
 	/**
 	 * Creates a new instance for a view of a certain relation.
 	 *
-	 * @param rParent     The parent relatable this wrapper is set on
-	 * @param rType       The relation type of this wrapper
-	 * @param rWrapped    The relation to be wrapped
-	 * @param fConversion A conversion function that converts the target of the
-	 *                    wrapped relation into the datatype of this view's
-	 *                    relation type
+	 * @param parent     The parent relatable this wrapper is set on
+	 * @param type       The relation type of this wrapper
+	 * @param wrapped    The relation to be wrapped
+	 * @param conversion A conversion function that converts the target of the
+	 *                   wrapped relation into the datatype of this view's
+	 *                   relation type
 	 */
-	RelationWrapper(Relatable rParent, RelationType<T> rType,
-		Relation<R> rWrapped, F fConversion) {
-		super(rType);
+	RelationWrapper(Relatable parent, RelationType<T> type,
+		Relation<R> wrapped,
+		F conversion) {
+		super(type);
 
-		this.rParent = rParent;
-		rWrappedRelation = rWrapped;
-		fTargetConversion = fConversion;
+		this.parent = parent;
+		wrappedRelation = wrapped;
+		targetConversion = conversion;
 
-		rWrappedRelation.addUpdateListener(this);
+		wrappedRelation.addUpdateListener(this);
 	}
 
 	/**
@@ -64,7 +65,7 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	 * @return The conversion function
 	 */
 	public final F getConversion() {
-		return fTargetConversion;
+		return targetConversion;
 	}
 
 	/**
@@ -76,7 +77,7 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	 */
 	@Override
 	public T getTarget() {
-		return fTargetConversion.evaluate(rWrappedRelation.getTarget());
+		return targetConversion.evaluate(wrappedRelation.getTarget());
 	}
 
 	/**
@@ -85,26 +86,26 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	 * @return The wrapped relation
 	 */
 	public final Relation<R> getWrappedRelation() {
-		return rWrappedRelation;
+		return wrappedRelation;
 	}
 
 	/**
 	 * Forwards events on the wrapped relation to listeners on this relation.
 	 *
-	 * @param rEvent The event that occurred on the wrapped relation
+	 * @param event The event that occurred on the wrapped relation
 	 */
 	@Override
-	public void handleEvent(RelationEvent<R> rEvent) {
-		if (rEvent.getType() == EventType.UPDATE) {
-			T rUpdateValue =
-				fTargetConversion.evaluate(rEvent.getUpdateValue());
+	public void handleEvent(RelationEvent<R> event) {
+		if (event.getType() == EventType.UPDATE) {
+			T updateValue = targetConversion.evaluate(event.getUpdateValue());
 
-			RelationEvent<T> rConvertedEvent =
-				new RelationEvent<>(EventType.UPDATE, rParent, this,
-					rUpdateValue, this);
+			RelationEvent<T> convertedEvent =
+				new RelationEvent<>(EventType.UPDATE, parent, this,
+					updateValue,
+					this);
 
 			get(ListenerTypes.RELATION_UPDATE_LISTENERS).dispatch(
-				rConvertedEvent);
+				convertedEvent);
 		}
 	}
 
@@ -114,7 +115,7 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	 * @return The parent value
 	 */
 	protected final Relatable getParent() {
-		return rParent;
+		return parent;
 	}
 
 	/**
@@ -124,7 +125,7 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	 */
 	@Override
 	protected void removed() {
-		rWrappedRelation
+		wrappedRelation
 			.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
 			.remove(this);
 	}
@@ -133,9 +134,9 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	 * {@inheritDoc}
 	 */
 	@Override
-	boolean dataEqual(Relation<?> rOther) {
-		return rWrappedRelation ==
-			((RelationWrapper<?, ?, ?>) rOther).rWrappedRelation;
+	boolean dataEqual(Relation<?> other) {
+		return wrappedRelation ==
+			((RelationWrapper<?, ?, ?>) other).wrappedRelation;
 	}
 
 	/**
@@ -143,7 +144,7 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	 */
 	@Override
 	int dataHashCode() {
-		return rWrappedRelation.dataHashCode();
+		return wrappedRelation.dataHashCode();
 	}
 
 	/**
@@ -152,7 +153,7 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	 * @see Relation#setTarget(Object)
 	 */
 	@Override
-	void setTarget(T rNewTarget) {
+	void setTarget(T newTarget) {
 		throw new UnsupportedOperationException(
 			"View relation is readonly: " + this);
 	}

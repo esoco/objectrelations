@@ -47,11 +47,11 @@ public class JsonObject extends RelatedObject
 	 * checked) that the given properties only contains valid JSON datatypes.
 	 * Otherwise subsequent property queries will probably fail.
 	 *
-	 * @param rProperties The key-value pairs of the object properties
+	 * @param properties The key-value pairs of the object properties
 	 */
 	@SafeVarargs
-	public JsonObject(Pair<String, Object>... rProperties) {
-		this(CollectionUtil.orderedMapOf(rProperties));
+	public JsonObject(Pair<String, Object>... properties) {
+		this(CollectionUtil.orderedMapOf(properties));
 	}
 
 	/**
@@ -59,62 +59,62 @@ public class JsonObject extends RelatedObject
 	 * checked) that the given properties map only contains valid JSON
 	 * datatypes. Otherwise subsequent property queries will probably fail.
 	 *
-	 * @param rProperties A map containing the properties of this instance
+	 * @param properties A map containing the properties of this instance
 	 */
-	public JsonObject(Map<String, Object> rProperties) {
-		setProperties(rProperties);
+	public JsonObject(Map<String, Object> properties) {
+		setProperties(properties);
 	}
 
 	/**
 	 * Creates a new instance with a certain property.
 	 *
-	 * @param sName  The property name
-	 * @param rValue The property value
+	 * @param name  The property name
+	 * @param value The property value
 	 */
-	public JsonObject(String sName, Object rValue) {
-		set(sName, rValue);
+	public JsonObject(String name, Object value) {
+		set(name, value);
 	}
 
 	/**
 	 * Creates a new generic JSON object from a JSON string.
 	 *
-	 * @param sJson The JSON object declaration
+	 * @param json The JSON object declaration
 	 * @return The new object
 	 */
-	public static JsonObject valueOf(String sJson) {
-		return new JsonObject().fromJson(sJson);
+	public static JsonObject valueOf(String json) {
+		return new JsonObject().fromJson(json);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void appendTo(JsonBuilder rBuilder) {
-		rBuilder.appendObject(getProperties());
+	public void appendTo(JsonBuilder builder) {
+		builder.appendObject(getProperties());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rOther) {
-		if (rOther == this) {
+	public boolean equals(Object other) {
+		if (other == this) {
 			return true;
 		}
 
-		if (rOther == null || rOther.getClass() != getClass()) {
+		if (other == null || other.getClass() != getClass()) {
 			return false;
 		}
 
-		return relationsEqual((JsonObject) rOther);
+		return relationsEqual((JsonObject) other);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JsonObject fromJson(String sJson) {
-		setProperties(new JsonParser().parseObjectMap(sJson));
+	public JsonObject fromJson(String json) {
+		setProperties(new JsonParser().parseObjectMap(json));
 
 		return this;
 	}
@@ -124,14 +124,14 @@ public class JsonObject extends RelatedObject
 	 * datatype. If the property value cannot be cast to the given datatype
 	 * {@link Option#none()} will be returned.
 	 *
-	 * @param sName     The property name
-	 * @param rDatatype The datatype to cast to
+	 * @param name     The property name
+	 * @param datatype The datatype to cast to
 	 * @return The {@link BigDecimal} value
 	 * @throws ClassCastException If the property is not of the given datatype
 	 */
-	public <T> Option<T> get(String sName, Class<? extends T> rDatatype) {
-		return getProperty(sName).map(
-			v -> Try.now(() -> rDatatype.cast(v)).orUse(null));
+	public <T> Option<T> get(String name, Class<? extends T> datatype) {
+		return getProperty(name).map(
+			v -> Try.now(() -> datatype.cast(v)).orUse(null));
 	}
 
 	/**
@@ -139,12 +139,12 @@ public class JsonObject extends RelatedObject
 	 * values. If the property doesn't exist or isn't an array an empty option
 	 * will be returned.
 	 *
-	 * @param sName The property name
+	 * @param name The property name
 	 * @return The JSON object option
 	 */
 	@SuppressWarnings("unchecked")
-	public Option<List<Object>> getArray(String sName) {
-		return getProperty(sName).map(
+	public Option<List<Object>> getArray(String name) {
+		return getProperty(name).map(
 			v -> Try.now(() -> (List<Object>) v).orUse(null));
 	}
 
@@ -157,20 +157,20 @@ public class JsonObject extends RelatedObject
 	 * default value will be returned. If the number exceeds the value range of
 	 * a truncation or exceptions may occur.
 	 *
-	 * @param sName    The property name
-	 * @param nDefault The default value if the property is NULL
+	 * @param name         The property name
+	 * @param defaultValue The default value if the property is NULL
 	 * @return The integer value
 	 */
-	public int getInt(String sName, int nDefault) {
-		Object rRawProperty = getProperty(sName);
-		Number rValue =
-			rRawProperty instanceof Number ? (Number) rRawProperty : null;
+	public int getInt(String name, int defaultValue) {
+		Object rawProperty = getProperty(name);
+		Number value =
+			rawProperty instanceof Number ? (Number) rawProperty : null;
 
-		return rValue != null ?
-		       rValue.intValue() :
-		       rRawProperty instanceof String ?
-		       Integer.parseInt((String) rRawProperty) :
-		       nDefault;
+		return value != null ?
+		       value.intValue() :
+		       rawProperty instanceof String ?
+		       Integer.parseInt((String) rawProperty) :
+		       defaultValue;
 	}
 
 	/**
@@ -181,20 +181,20 @@ public class JsonObject extends RelatedObject
 	 * default value will be returned. If the number exceeds the value range of
 	 * a truncation or exceptions may occur.
 	 *
-	 * @param sName    The property name
-	 * @param nDefault The default value if the property is NULL
+	 * @param name         The property name
+	 * @param defaultValue The default value if the property is NULL
 	 * @return The long value
 	 */
-	public long getLong(String sName, long nDefault) {
-		Object rRawProperty = getProperty(sName);
-		Number rValue =
-			rRawProperty instanceof Number ? (Number) rRawProperty : null;
+	public long getLong(String name, long defaultValue) {
+		Object rawProperty = getProperty(name);
+		Number value =
+			rawProperty instanceof Number ? (Number) rawProperty : null;
 
-		return rValue != null ?
-		       rValue.longValue() :
-		       rRawProperty instanceof String ?
-		       Long.parseLong((String) rRawProperty) :
-		       nDefault;
+		return value != null ?
+		       value.longValue() :
+		       rawProperty instanceof String ?
+		       Long.parseLong((String) rawProperty) :
+		       defaultValue;
 	}
 
 	/**
@@ -202,11 +202,11 @@ public class JsonObject extends RelatedObject
 	 * property. If the property doesn't exist or has a different datatype an
 	 * empty option will be returned.
 	 *
-	 * @param sName The property name
+	 * @param name The property name
 	 * @return The number option
 	 */
-	public Option<Number> getNumber(String sName) {
-		return get(sName, Number.class);
+	public Option<Number> getNumber(String name) {
+		return get(name, Number.class);
 	}
 
 	/**
@@ -214,11 +214,11 @@ public class JsonObject extends RelatedObject
 	 * property. If the property doesn't exist or has a different datatype an
 	 * empty option will be returned.
 	 *
-	 * @param sName The property name
+	 * @param name The property name
 	 * @return The JSON object option
 	 */
-	public Option<JsonObject> getObject(String sName) {
-		return get(sName, JsonObject.class);
+	public Option<JsonObject> getObject(String name) {
+		return get(name, JsonObject.class);
 	}
 
 	/**
@@ -234,12 +234,12 @@ public class JsonObject extends RelatedObject
 	 * Returns an option of a certain property value without cast or
 	 * conversion.
 	 *
-	 * @param sName The property name
+	 * @param name The property name
 	 * @return The property option
 	 */
-	public Option<Object> getProperty(String sName) {
+	public Option<Object> getProperty(String name) {
 		return Option.of(hasRelation(Json.JSON_PROPERTIES) ?
-		                 getProperties().get(sName) :
+		                 getProperties().get(name) :
 		                 null);
 	}
 
@@ -266,49 +266,48 @@ public class JsonObject extends RelatedObject
 	 * the property doesn't exist or has a different datatype an empty option
 	 * will be returned.
 	 *
-	 * @param sName The property name
+	 * @param name The property name
 	 * @return The string option
 	 */
-	public Option<String> getString(String sName) {
-		return get(sName, String.class);
+	public Option<String> getString(String name) {
+		return get(name, String.class);
 	}
 
 	/**
 	 * Checks whether a boolean property with a certain name has been set to
 	 * TRUE on this instance.
 	 *
-	 * @param sName The property name
-	 * @return TRUE if the property exists, is not null, has a boolean
-	 * datatype,
+	 * @param name The property name
+	 * @return TRUE if the property exists, is not null, has a boolean datatype
 	 * and is TRUE
 	 */
-	public boolean hasFlag(String sName) {
-		Option<?> oValue = getProperty(sName);
+	public boolean hasFlag(String name) {
+		Option<?> value = getProperty(name);
 
-		return oValue.is(Boolean.class) &&
-			oValue.map(Boolean.class::cast).orFail();
+		return value.is(Boolean.class) &&
+			value.map(Boolean.class::cast).orFail();
 	}
 
 	/**
 	 * Checks whether a certain property has been set in this instance.
 	 *
-	 * @param sName The property name
+	 * @param name The property name
 	 * @return If the property has been set to any value (including NULL)
 	 */
-	public boolean hasProperty(String sName) {
+	public boolean hasProperty(String name) {
 		return hasRelation(Json.JSON_PROPERTIES) &&
-			getProperties().containsKey(sName);
+			getProperties().containsKey(name);
 	}
 
 	/**
 	 * Checks whether a certain property has been set to a non-NULL value in
 	 * this instance.
 	 *
-	 * @param sName The property name
+	 * @param name The property name
 	 * @return If the property has been set to a non-NULL value
 	 */
-	public boolean hasPropertyValue(String sName) {
-		return getProperty(sName) != null;
+	public boolean hasPropertyValue(String name) {
+		return getProperty(name) != null;
 	}
 
 	/**
@@ -332,30 +331,30 @@ public class JsonObject extends RelatedObject
 	 * Removes a property from this object. If the property doesn't exists this
 	 * call has no effect.
 	 *
-	 * @param sName The property name
+	 * @param name The property name
 	 */
-	public void remove(String sName) {
-		getProperties().remove(sName);
+	public void remove(String name) {
+		getProperties().remove(name);
 	}
 
 	/**
 	 * Sets a property on this object.
 	 *
-	 * @param sName  The property name
-	 * @param rValue The property value
+	 * @param name  The property name
+	 * @param value The property value
 	 */
-	public void set(String sName, Object rValue) {
-		getProperties().put(sName, rValue);
+	public void set(String name, Object value) {
+		getProperties().put(name, value);
 	}
 
 	/**
 	 * Sets multiple properties of this object.
 	 *
-	 * @param rProperties The new properties
+	 * @param properties The new properties
 	 */
-	public void setProperties(Map<String, Object> rProperties) {
-		if (!rProperties.isEmpty()) {
-			get(Json.JSON_PROPERTIES).putAll(rProperties);
+	public void setProperties(Map<String, Object> properties) {
+		if (!properties.isEmpty()) {
+			get(Json.JSON_PROPERTIES).putAll(properties);
 		}
 	}
 
@@ -370,12 +369,12 @@ public class JsonObject extends RelatedObject
 	/**
 	 * Sets a property and returns this object for fluent invocations.
 	 *
-	 * @param sName  The property name
-	 * @param rValue The property value
+	 * @param name  The property name
+	 * @param value The property value
 	 * @return This object
 	 */
-	public JsonObject with(String sName, Object rValue) {
-		getProperties().put(sName, rValue);
+	public JsonObject with(String name, Object value) {
+		getProperties().put(name, value);
 
 		return this;
 	}

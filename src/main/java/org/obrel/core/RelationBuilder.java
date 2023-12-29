@@ -35,35 +35,33 @@ import org.obrel.type.MetaTypes;
  * @author eso
  */
 public interface RelationBuilder<R extends RelationBuilder<R>>
-		extends FluentRelatable<R> {
-	// ~ Methods ----------------------------------------------------------------
+	extends FluentRelatable<R> {
+	// ~ Methods
+	// ----------------------------------------------------------------
 
 	/**
 	 * A builder pattern method to annotate a relation. Queries the relation
 	 * with the first type (which must exist) and annotates it with the second
 	 * type and the given value.
 	 *
-	 * @param rType           The type of the relation to annotate
-	 * @param rAnnotationType The relation type of the annotation
-	 * @param rValue          The value to annotate the relation with
-	 *
+	 * @param type           The type of the relation to annotate
+	 * @param annotationType The relation type of the annotation
+	 * @param value          The value to annotate the relation with
 	 * @return This instance for concatenation
 	 */
-	default <T> R annotate(RelationType<?> rType,
-			RelationType<T> rAnnotationType,
-			T rValue) {
-		return _with(
-				() -> {
-					Relation<?> rRelation = getRelation(rType);
+	default <T> R annotate(RelationType<?> type,
+		RelationType<T> annotationType,
+		T value) {
+		return _with(() -> {
+			Relation<?> relation = getRelation(type);
 
-					if (rRelation == null) {
-						throw new IllegalArgumentException(
-								"No relation with type " +
-										rType);
-					}
+			if (relation == null) {
+				throw new IllegalArgumentException(
+					"No relation with type " + type);
+			}
 
-					rRelation.annotate(rAnnotationType, rValue);
-				});
+			relation.annotate(annotationType, value);
+		});
 	}
 
 	/**
@@ -75,14 +73,14 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 	}
 
 	/**
-	 * Invokes {@link Relatable#set(RelationData...)} and returns this instance.
+	 * Invokes {@link Relatable#set(RelationData...)} and returns this
+	 * instance.
 	 *
-	 * @param rRelations The relations to set
-	 *
+	 * @param relations The relations to set
 	 * @return This instance for concatenation
 	 */
-	default R with(RelationData<?>... rRelations) {
-		return _with(() -> set(rRelations));
+	default R with(RelationData<?>... relations) {
+		return _with(() -> set(relations));
 	}
 
 	/**
@@ -90,10 +88,9 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 	 *
 	 * @see #transform(RelationType, InvertibleFunction)
 	 */
-	default <T, D> R with(
-			RelationType<T> rType,
-			InvertibleFunction<T, D> fTransformation) {
-		return _with(() -> transform(rType, fTransformation));
+	default <T, D> R with(RelationType<T> type,
+		InvertibleFunction<T, D> transformation) {
+		return _with(() -> transform(type, transformation));
 	}
 
 	/**
@@ -101,9 +98,8 @@ public interface RelationBuilder<R extends RelationBuilder<R>>
 	 *
 	 * @see #set(RelationType, Function, Object)
 	 */
-	default <T, I> R with(RelationType<T> rType,
-			Function<I, T> fTargetResolver,
-			I rIntermediateTarget) {
-		return _with(() -> set(rType, fTargetResolver, rIntermediateTarget));
+	default <T, I> R with(RelationType<T> type, Function<I, T> targetResolver,
+		I intermediateTarget) {
+		return _with(() -> set(type, targetResolver, intermediateTarget));
 	}
 }

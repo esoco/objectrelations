@@ -47,7 +47,7 @@ public class Period implements Serializable {
 		MONTH(Calendar.MONTH, 30L * 24 * 60 * 60 * 1000),
 		YEAR(Calendar.YEAR, 365L * 24 * 60 * 60 * 1000), NONE(-1, -1) {
 			@Override
-			public Date calculateDate(Date rDate, int nFieldAdd, int nDayAdd) {
+			public Date calculateDate(Date date, int fieldAdd, int dayAdd) {
 				return null;
 			}
 		};
@@ -64,43 +64,42 @@ public class Period implements Serializable {
 		public static Set<Unit> DATE_UNITS = EnumSet.of(DAY, WEEK, MONTH,
 			YEAR);
 
-		private final int nCalendarField;
+		private final int calendarField;
 
-		private final long nMilliseconds;
+		private final long milliseconds;
 
 		/**
 		 * Creates a new instance with the values that are needed to calculate
 		 * next or previous dates for this period.
 		 *
-		 * @param nCalendarField The calendar field to modify for calculations
-		 * @param nMilliseconds  The number of milliseconds in one count of
-		 *                       this
-		 *                       unit
+		 * @param calendarField The calendar field to modify for calculations
+		 * @param milliseconds  The number of milliseconds in one count of this
+		 *                      unit
 		 */
-		Unit(int nCalendarField, long nMilliseconds) {
-			this.nCalendarField = nCalendarField;
-			this.nMilliseconds = nMilliseconds;
+		Unit(int calendarField, long milliseconds) {
+			this.calendarField = calendarField;
+			this.milliseconds = milliseconds;
 		}
 
 		/**
 		 * Calculates a new date for certain period parameters.
 		 *
-		 * @param rDate     The date to base the calculation on
-		 * @param nFieldAdd The value to add to the calendar field
-		 * @param nDayAdd   The value to add to the day field of the calendar
+		 * @param date     The date to base the calculation on
+		 * @param fieldAdd The value to add to the calendar field
+		 * @param dayAdd   The value to add to the day field of the calendar
 		 * @return The resulting date
 		 */
-		public Date calculateDate(Date rDate, int nFieldAdd, int nDayAdd) {
-			Calendar rCalendar = Calendar.getInstance();
+		public Date calculateDate(Date date, int fieldAdd, int dayAdd) {
+			Calendar calendar = Calendar.getInstance();
 
-			rCalendar.setTime(rDate);
-			rCalendar.add(nCalendarField, nFieldAdd);
+			calendar.setTime(date);
+			calendar.add(calendarField, fieldAdd);
 
-			if (nDayAdd != 0 && DATE_UNITS.contains(this)) {
-				rCalendar.add(Calendar.DAY_OF_MONTH, nDayAdd);
+			if (dayAdd != 0 && DATE_UNITS.contains(this)) {
+				calendar.add(Calendar.DAY_OF_MONTH, dayAdd);
 			}
 
-			return rCalendar.getTime();
+			return calendar.getTime();
 		}
 
 		/**
@@ -109,7 +108,7 @@ public class Period implements Serializable {
 		 * @return The calendar field
 		 */
 		public int getCalendarField() {
-			return nCalendarField;
+			return calendarField;
 		}
 
 		/**
@@ -122,7 +121,7 @@ public class Period implements Serializable {
 		 * @return The milliseconds of one unit
 		 */
 		public long getMilliseconds() {
-			return nMilliseconds;
+			return milliseconds;
 		}
 	}
 
@@ -174,82 +173,81 @@ public class Period implements Serializable {
 		Conversions.registerStringConversion(Period.class,
 			new StringConversion<Period>(Period.class) {
 				@Override
-				public Period invert(String sValue) {
-					return valueOf(sValue);
+				public Period invert(String value) {
+					return valueOf(value);
 				}
 			});
 	}
 
-	private int nCount;
+	private final int count;
 
-	private Unit eUnit;
+	private final Unit unit;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param nCount The size of this period in counts of the given unit
-	 * @param eUnit  The period unit
+	 * @param count The size of this period in counts of the given unit
+	 * @param unit  The period unit
 	 * @throws IllegalArgumentException If the count is &lt;= 0 or the unit is
 	 *                                  {@link Unit#NONE} (which is reserved
 	 *                                  for
 	 *                                  internal use)
 	 */
-	public Period(int nCount, Unit eUnit) {
-		if (nCount <= 0 || eUnit == Unit.NONE) {
+	public Period(int count, Unit unit) {
+		if (count <= 0 || unit == Unit.NONE) {
 			throw new IllegalArgumentException(
-				"Invalid period parameters: " + nCount + "," + eUnit);
+				"Invalid period parameters: " + count + "," + unit);
 		}
 
-		this.nCount = nCount;
-		this.eUnit = eUnit;
+		this.count = count;
+		this.unit = unit;
 	}
 
 	/**
 	 * Internal constructor for the singleton instance {@link #NONE}.
 	 */
 	private Period() {
-		nCount = 0;
-		eUnit = Unit.NONE;
+		count = 0;
+		unit = Unit.NONE;
 	}
 
 	/**
 	 * Parses an instance from a string.
 	 *
-	 * @param sPeriod The string to parse
+	 * @param period The string to parse
 	 * @return A new period instance (or the singleton instance {@link #NONE})
 	 * @throws IllegalArgumentException If the input string has the wrong
-	 *                                  format
+	 * format
 	 *                                  or contains an invalid unit
 	 * @throws NumberFormatException    If the count part of the input
-	 *                                  string is
+	 * string is
 	 *                                  no valid integer
 	 */
-	public static Period valueOf(String sPeriod) {
-		Period rResult;
+	public static Period valueOf(String period) {
+		Period result;
 
-		if (Unit.NONE.name().equals(sPeriod)) {
-			rResult = NONE;
+		if (Unit.NONE.name().equals(period)) {
+			result = NONE;
 		} else {
-			String[] rParts = sPeriod.split("\\.");
+			String[] parts = period.split("\\.");
 
-			if (rParts.length != 2) {
+			if (parts.length != 2) {
 				throw new IllegalArgumentException(
-					"Invalid period string: " + sPeriod);
+					"Invalid period string: " + period);
 			}
 
 			try {
-				int nCount = Integer.parseInt(rParts[0]);
-				Unit eUnit = Unit.valueOf(rParts[1]);
+				int count = Integer.parseInt(parts[0]);
+				Unit unit = Unit.valueOf(parts[1]);
 
-				rResult = eUnit != Unit.NONE ? new Period(nCount, eUnit) :
-				          NONE;
+				result = unit != Unit.NONE ? new Period(count, unit) : NONE;
 			} catch (Exception e) {
 				throw new IllegalArgumentException(
-					"Unparseable period string: " + sPeriod, e);
+					"Unparseable period string: " + period, e);
 			}
 		}
 
-		return rResult;
+		return result;
 	}
 
 	/**
@@ -258,29 +256,29 @@ public class Period implements Serializable {
 	 * This is currently only supported for {@link Unit#DATE_UNITS} where the
 	 * calendar day will be adjusted to the corresponding period end.
 	 *
-	 * @param rStartDate The start date to calculate the period end date for
+	 * @param startDate The start date to calculate the period end date for
 	 * @return The resulting date
 	 */
-	public Date endDate(Date rStartDate) {
-		return eUnit.calculateDate(rStartDate, nCount, -1);
+	public Date endDate(Date startDate) {
+		return unit.calculateDate(startDate, count, -1);
 	}
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object rObject) {
-		if (this == rObject) {
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
 		}
 
-		if (rObject == null || getClass() != rObject.getClass()) {
+		if (object == null || getClass() != object.getClass()) {
 			return false;
 		}
 
-		Period rOther = (Period) rObject;
+		Period other = (Period) object;
 
-		return eUnit == rOther.eUnit && nCount == rOther.nCount;
+		return unit == other.unit && count == other.count;
 	}
 
 	/**
@@ -289,7 +287,7 @@ public class Period implements Serializable {
 	 * @return The period count
 	 */
 	public final int getCount() {
-		return nCount;
+		return count;
 	}
 
 	/**
@@ -298,7 +296,7 @@ public class Period implements Serializable {
 	 * @return The period value
 	 */
 	public final Unit getUnit() {
-		return eUnit;
+		return unit;
 	}
 
 	/**
@@ -306,27 +304,27 @@ public class Period implements Serializable {
 	 */
 	@Override
 	public int hashCode() {
-		return 31 * (eUnit == null ? 0 : eUnit.hashCode()) + nCount;
+		return 31 * (unit == null ? 0 : unit.hashCode()) + count;
 	}
 
 	/**
 	 * Calculates the next date according to this period.
 	 *
-	 * @param rDate The date to calculate the next period date of
+	 * @param date The date to calculate the next period date of
 	 * @return The resulting date
 	 */
-	public Date nextDate(Date rDate) {
-		return eUnit.calculateDate(rDate, nCount, 0);
+	public Date nextDate(Date date) {
+		return unit.calculateDate(date, count, 0);
 	}
 
 	/**
 	 * Calculates the previous date according to this period.
 	 *
-	 * @param rDate The date to calculate the previous period date of
+	 * @param date The date to calculate the previous period date of
 	 * @return The resulting date
 	 */
-	public Date previousDate(Date rDate) {
-		return eUnit.calculateDate(rDate, -nCount, 0);
+	public Date previousDate(Date date) {
+		return unit.calculateDate(date, -count, 0);
 	}
 
 	/**
@@ -335,11 +333,11 @@ public class Period implements Serializable {
 	 * This is currently only supported for {@link Unit#DATE_UNITS} where the
 	 * calendar day will be adjusted to the corresponding period start.
 	 *
-	 * @param rEndDate The start date to calculate the period end date for
+	 * @param endDate The start date to calculate the period end date for
 	 * @return The resulting date
 	 */
-	public Date startDate(Date rEndDate) {
-		return eUnit.calculateDate(rEndDate, -nCount, 1);
+	public Date startDate(Date endDate) {
+		return unit.calculateDate(endDate, -count, 1);
 	}
 
 	/**
@@ -350,25 +348,25 @@ public class Period implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return eUnit != Unit.NONE ? nCount + "." + eUnit : Unit.NONE.name();
+		return unit != Unit.NONE ? count + "." + unit : Unit.NONE.name();
 	}
 
 	/**
 	 * Allows subclasses to set the period count.
 	 *
-	 * @param rCount The period count
+	 * @param count The period count
 	 */
-	protected void setCount(int rCount) {
-		nCount = rCount;
+	protected void setCount(int count) {
+		count = count;
 	}
 
 	/**
 	 * Allows subclasses to set the period unit.
 	 *
-	 * @param rUnit The period unit
+	 * @param unit The period unit
 	 */
-	protected void setUnit(Unit rUnit) {
-		eUnit = rUnit;
+	protected void setUnit(Unit unit) {
+		unit = unit;
 	}
 
 	/**
@@ -380,6 +378,6 @@ public class Period implements Serializable {
 	 * @throws ObjectStreamException Not used
 	 */
 	private Object readResolve() throws ObjectStreamException {
-		return eUnit == Unit.NONE ? NONE : this;
+		return unit == Unit.NONE ? NONE : this;
 	}
 }

@@ -37,28 +37,28 @@ public interface Action<T> extends Function<T, Void>, Consumer<T> {
 	 * can be executed without a checked exception. This method is mainly
 	 * intended to be used with lambdas that throw exceptions.
 	 *
-	 * @param fChecked The checked action to wrap as unchecked
+	 * @param checked The checked action to wrap as unchecked
 	 * @return The unchecked action
 	 */
 	static <T, E extends Exception> Action<T> unchecked(
-		ThrowingAction<T, E> fChecked) {
-		return fChecked;
+		ThrowingAction<T, E> checked) {
+		return checked;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default void accept(T rValue) {
-		evaluate(rValue);
+	default void accept(T value) {
+		evaluate(value);
 	}
 
 	/**
 	 * @see AbstractFunction#evaluate(Object)
 	 */
 	@Override
-	default Void evaluate(T rValue) {
-		execute(rValue);
+	default Void evaluate(T value) {
+		execute(value);
 
 		return null;
 	}
@@ -66,9 +66,9 @@ public interface Action<T> extends Function<T, Void>, Consumer<T> {
 	/**
 	 * this method must be implemented with the action functionality.
 	 *
-	 * @param rValue The value to execute the action upon
+	 * @param value The value to execute the action upon
 	 */
-	void execute(T rValue);
+	void execute(T value);
 
 	/**
 	 * Returns a new function object that evaluates the result received from
@@ -76,13 +76,13 @@ public interface Action<T> extends Function<T, Void>, Consumer<T> {
 	 * subclass {@link AbstractFunction} which already contains an
 	 * implementation of this method.
 	 *
-	 * @param fPrevious The function to produce this function's input values
-	 *                  with
+	 * @param previous The function to produce this function's input values
+	 *                 with
 	 * @return A new instance of {@link FunctionChain}
 	 */
 	@Override
-	default <O> Action<O> from(Function<O, ? extends T> fPrevious) {
-		return Functions.asAction(Functions.chain(this, fPrevious));
+	default <O> Action<O> from(Function<O, ? extends T> previous) {
+		return Functions.asAction(Functions.chain(this, previous));
 	}
 
 	/**
@@ -99,10 +99,10 @@ public interface Action<T> extends Function<T, Void>, Consumer<T> {
 		 * Replaces {@link #evaluate(Object)} and allows implementations to
 		 * throw an exception.
 		 *
-		 * @param rValue The input value
+		 * @param value The input value
 		 * @throws E An exception in the case of errors
 		 */
-		void evaluateWithException(T rValue) throws E;
+		void evaluateWithException(T value) throws E;
 
 		/**
 		 * Overridden to forward the invocation to the actual function
@@ -112,9 +112,9 @@ public interface Action<T> extends Function<T, Void>, Consumer<T> {
 		 * @see Action#execute(Object)
 		 */
 		@Override
-		default void execute(T rValue) {
+		default void execute(T value) {
 			try {
-				evaluateWithException(rValue);
+				evaluateWithException(value);
 			} catch (Exception e) {
 				throw (e instanceof RuntimeException) ?
 				      (RuntimeException) e :

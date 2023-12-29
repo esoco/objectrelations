@@ -36,16 +36,16 @@ public interface Validation<T> extends Function<T, ValidationResult> {
 	 * and
 	 * returns the corresponding {@link ValidationResult}.
 	 *
-	 * @param pIsValid        The predicate that checks a value for validity
-	 * @param sInvalidMessage The message to be displayed if the validation
-	 *                        fails
+	 * @param isValid        The predicate that checks a value for validity
+	 * @param invalidMessage The message to be displayed if the validation
+	 *                       fails
 	 * @return A new validation instance
 	 */
-	static <T> Validation<T> ensure(Predicate<T> pIsValid,
-		String sInvalidMessage) {
-		return v -> pIsValid.test(v) ?
+	static <T> Validation<T> ensure(Predicate<T> isValid,
+		String invalidMessage) {
+		return v -> isValid.test(v) ?
 		            ValidationResult.valid() :
-		            ValidationResult.invalid(sInvalidMessage);
+		            ValidationResult.invalid(invalidMessage);
 	}
 
 	/**
@@ -54,18 +54,18 @@ public interface Validation<T> extends Function<T, ValidationResult> {
 	 * @see Function#apply(Object)
 	 */
 	@Override
-	default ValidationResult apply(T rValue) {
-		return validate(rValue);
+	default ValidationResult apply(T value) {
+		return validate(value);
 	}
 
 	/**
 	 * Validates the input value and returns a corresponding {@link
 	 * ValidationResult}.
 	 *
-	 * @param rValue The value to validate
+	 * @param value The value to validate
 	 * @return The validation result
 	 */
-	ValidationResult validate(T rValue);
+	ValidationResult validate(T value);
 
 	/**
 	 * A class that represents the result of some validation. If the validation
@@ -77,27 +77,27 @@ public interface Validation<T> extends Function<T, ValidationResult> {
 	 */
 	class ValidationResult {
 
-		private final String sMessage;
+		private final String message;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param sMessage The error message
+		 * @param message The error message
 		 */
-		protected ValidationResult(String sMessage) {
-			this.sMessage = sMessage;
+		protected ValidationResult(String message) {
+			this.message = message;
 		}
 
 		/**
 		 * Returns a valid result with a certain error message.
 		 *
-		 * @param sMessage The error message
+		 * @param message The error message
 		 * @return A validation result that is invalid
 		 */
-		public static ValidationResult invalid(String sMessage) {
-			Objects.requireNonNull(sMessage);
+		public static ValidationResult invalid(String message) {
+			Objects.requireNonNull(message);
 
-			return new ValidationResult(sMessage);
+			return new ValidationResult(message);
 		}
 
 		/**
@@ -116,7 +116,7 @@ public interface Validation<T> extends Function<T, ValidationResult> {
 		 * @return The message or NULL if the validation was successful
 		 */
 		public String getMessage() {
-			return sMessage;
+			return message;
 		}
 
 		/**
@@ -125,7 +125,7 @@ public interface Validation<T> extends Function<T, ValidationResult> {
 		 * @return TRUE if the validation was successful, FALSE if it failed
 		 */
 		public boolean isValid() {
-			return sMessage == null;
+			return message == null;
 		}
 	}
 }

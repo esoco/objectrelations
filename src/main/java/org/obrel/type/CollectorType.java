@@ -81,35 +81,35 @@ public class CollectorType<T> extends AutomaticType<Collection<T>> {
 
 	private static final long serialVersionUID = 1L;
 
-	private final BinaryFunction<Relation<?>, Object, T> fCollector;
+	private final BinaryFunction<Relation<?>, Object, T> collector;
 
-	private final boolean bDistinctValues;
+	private final boolean distinctValues;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName           The name of this type
-	 * @param rCollectedType  The datatype of the collected values
-	 * @param fCollector      The function that determines the values to be
-	 *                        collected from relations and (new) target values;
-	 *                        if it returns NULL no value will be collected
-	 * @param bDistinctValues TRUE to collect only distinct values; FALSE to
-	 *                        collect all values that are added to the object
-	 * @param rModifiers      The relation type modifiers
+	 * @param name           The name of this type
+	 * @param collectedType  The datatype of the collected values
+	 * @param collector      The function that determines the values to be
+	 *                       collected from relations and (new) target values;
+	 *                       if it returns NULL no value will be collected
+	 * @param distinctValues TRUE to collect only distinct values; FALSE to
+	 *                       collect all values that are added to the object
+	 * @param modifiers      The relation type modifiers
 	 */
 	@SuppressWarnings("unchecked")
-	public CollectorType(String sName, Class<? super T> rCollectedType,
-		BinaryFunction<Relation<?>, Object, T> fCollector,
-		boolean bDistinctValues, RelationTypeModifier... rModifiers) {
-		super(sName,
-			(Class<Collection<T>>) (bDistinctValues ? Set.class : List.class),
-			o -> bDistinctValues ? new LinkedHashSet<>() : new ArrayList<>(),
-			rModifiers);
+	public CollectorType(String name, Class<? super T> collectedType,
+		BinaryFunction<Relation<?>, Object, T> collector,
+		boolean distinctValues, RelationTypeModifier... modifiers) {
+		super(name,
+			(Class<Collection<T>>) (distinctValues ? Set.class : List.class),
+			o -> distinctValues ? new LinkedHashSet<>() : new ArrayList<>(),
+			modifiers);
 
-		this.fCollector = fCollector;
-		this.bDistinctValues = bDistinctValues;
+		this.collector = collector;
+		this.distinctValues = distinctValues;
 
-		set(MetaTypes.ELEMENT_DATATYPE, rCollectedType);
+		set(MetaTypes.ELEMENT_DATATYPE, collectedType);
 	}
 
 	/**
@@ -117,36 +117,36 @@ public class CollectorType<T> extends AutomaticType<Collection<T>> {
 	 * type
 	 * and is initialized by {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param rCollectedType The datatype of the collected values
-	 * @param fCollector     The function that determines the values to be
-	 *                       collected from relation types and target values
-	 * @param rModifiers     The relation type modifiers
+	 * @param collectedType The datatype of the collected values
+	 * @param collector     The function that determines the values to be
+	 *                      collected from relation types and target values
+	 * @param modifiers     The relation type modifiers
 	 * @return The new instance
 	 */
 	public static <T> CollectorType<T> newCollector(
-		Class<? super T> rCollectedType,
-		BinaryFunction<Relation<?>, Object, T> fCollector,
-		RelationTypeModifier... rModifiers) {
-		return new CollectorType<>(null, rCollectedType, fCollector, false,
-			rModifiers);
+		Class<? super T> collectedType,
+		BinaryFunction<Relation<?>, Object, T> collector,
+		RelationTypeModifier... modifiers) {
+		return new CollectorType<>(null, collectedType, collector, false,
+			modifiers);
 	}
 
 	/**
 	 * Factory method for an instance that collects only distinct values of the
 	 * given type and is initialized by {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param rCollectedType The datatype of the collected values
-	 * @param fCollector     The function that determines the values to be
-	 *                       collected from relation types and target values
-	 * @param rModifiers     The relation type modifiers
+	 * @param collectedType The datatype of the collected values
+	 * @param collector     The function that determines the values to be
+	 *                      collected from relation types and target values
+	 * @param modifiers     The relation type modifiers
 	 * @return The new instance
 	 */
 	public static <T> CollectorType<T> newDistinctCollector(
-		Class<? super T> rCollectedType,
-		BinaryFunction<Relation<?>, Object, T> fCollector,
-		RelationTypeModifier... rModifiers) {
-		return new CollectorType<>(null, rCollectedType, fCollector, true,
-			rModifiers);
+		Class<? super T> collectedType,
+		BinaryFunction<Relation<?>, Object, T> collector,
+		RelationTypeModifier... modifiers) {
+		return new CollectorType<>(null, collectedType, collector, true,
+			modifiers);
 	}
 
 	/**
@@ -157,43 +157,43 @@ public class CollectorType<T> extends AutomaticType<Collection<T>> {
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	protected void processEvent(RelationEvent<?> rEvent) {
-		Relation<?> rRelation = rEvent.getElement();
-		EventType eEventType = rEvent.getType();
+	protected void processEvent(RelationEvent<?> event) {
+		Relation<?> relation = event.getElement();
+		EventType eventType = event.getType();
 
-		Object rValue = eEventType == EventType.UPDATE ?
-		                rEvent.getUpdateValue() :
-		                rRelation.getTarget();
+		Object value = eventType == EventType.UPDATE ?
+		               event.getUpdateValue() :
+		               relation.getTarget();
 
-		T rCollectValue = fCollector.evaluate(rRelation, rValue);
+		T collectValue = collector.evaluate(relation, value);
 
-		if (rCollectValue != null) {
-			Relation<Collection<T>> rCollectRelation =
-				rEvent.getEventScope().getRelation(this);
+		if (collectValue != null) {
+			Relation<Collection<T>> collectRelation =
+				event.getEventScope().getRelation(this);
 
-			Collection<T> rValues = rCollectRelation.getTarget();
+			Collection<T> values = collectRelation.getTarget();
 
-			if (rValues instanceof CollectionWrapper) {
-				rValues = ((CollectionWrapper<T>) rValues).rCollection;
+			if (values instanceof CollectionWrapper) {
+				values = ((CollectionWrapper<T>) values).collection;
 			}
 
-			if (eEventType == EventType.ADD || eEventType == EventType.UPDATE) {
-				rValues.add(rCollectValue);
+			if (eventType == EventType.ADD || eventType == EventType.UPDATE) {
+				values.add(collectValue);
 
-				if (rCollectRelation.hasRelation(MAXIMUM)) {
-					int nMaxSize = rCollectRelation.getAnnotation(MAXIMUM);
+				if (collectRelation.hasRelation(MAXIMUM)) {
+					int maxSize = collectRelation.getAnnotation(MAXIMUM);
 
-					while (rValues.size() > nMaxSize) {
-						if (rValues instanceof List) {
-							((List<?>) rValues).remove(0);
+					while (values.size() > maxSize) {
+						if (values instanceof List) {
+							((List<?>) values).remove(0);
 						} else {
-							rValues.remove(
-								CollectionUtil.firstElementOf(rValues));
+							values.remove(
+								CollectionUtil.firstElementOf(values));
 						}
 					}
 				}
-			} else if (bDistinctValues && eEventType == EventType.REMOVE) {
-				rValues.remove(rCollectValue);
+			} else if (distinctValues && eventType == EventType.REMOVE) {
+				values.remove(collectValue);
 			}
 		}
 	}
@@ -204,10 +204,10 @@ public class CollectorType<T> extends AutomaticType<Collection<T>> {
 	 * @see RelationType#addRelation(Relatable, Relation)
 	 */
 	@Override
-	protected void protectTarget(Relatable rParent,
-		Relation<Collection<T>> rRelation) {
-		setRelationTarget(rRelation,
-			new CollectionWrapper<>(rRelation.getTarget()));
+	protected void protectTarget(Relatable parent,
+		Relation<Collection<T>> relation) {
+		setRelationTarget(relation,
+			new CollectionWrapper<>(relation.getTarget()));
 	}
 
 	/**
@@ -219,17 +219,17 @@ public class CollectorType<T> extends AutomaticType<Collection<T>> {
 	 */
 	private static class CollectionWrapper<E> extends ImmutableCollection<E> {
 
-		private final Collection<E> rCollection;
+		private final Collection<E> collection;
 
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param rWrappedCollection The wrapped collection
+		 * @param wrappedCollection The wrapped collection
 		 */
-		public CollectionWrapper(Collection<E> rWrappedCollection) {
-			super(rWrappedCollection);
+		public CollectionWrapper(Collection<E> wrappedCollection) {
+			super(wrappedCollection);
 
-			rCollection = rWrappedCollection;
+			collection = wrappedCollection;
 		}
 	}
 }

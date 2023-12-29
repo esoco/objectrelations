@@ -37,20 +37,20 @@ public class ExtractString
 	 *
 	 * @see ExtractString#ExtractString(Pattern)
 	 */
-	public ExtractString(String sRegEx) {
-		this(Pattern.compile(sRegEx));
+	public ExtractString(String regEx) {
+		this(Pattern.compile(regEx));
 	}
 
 	/**
 	 * Creates a new instance for a certain regular expression pattern.
 	 *
-	 * @param rPattern The regular expression pattern
+	 * @param pattern The regular expression pattern
 	 * @throws NullPointerException If the pattern is NULL
 	 */
-	public ExtractString(Pattern rPattern) {
-		super(rPattern, ExtractString.class.getSimpleName());
+	public ExtractString(Pattern pattern) {
+		super(pattern, ExtractString.class.getSimpleName());
 
-		if (rPattern == null) {
+		if (pattern == null) {
 			throw new NullPointerException("Pattern must not be NULL");
 		}
 	}
@@ -62,13 +62,13 @@ public class ExtractString
 	 * or, if the pattern contains no groups, the full sequence matched by the
 	 * pattern. If the pattern doesn't match NULL will be returned.
 	 *
-	 * @param sInput   The input value to be evaluated
-	 * @param rPattern The regular expression pattern
+	 * @param input   The input value to be evaluated
+	 * @param pattern The regular expression pattern
 	 * @return The matching char sequence or NULL if not found
 	 */
 	@Override
-	public String evaluate(String sInput, Pattern rPattern) {
-		Matcher m = rPattern.matcher(sInput);
+	public String evaluate(String input, Pattern pattern) {
+		Matcher m = pattern.matcher(input);
 
 		if (m.find()) {
 			if (m.groupCount() >= 1) {

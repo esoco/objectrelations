@@ -35,15 +35,20 @@ import org.obrel.type.StandardTypes;
  * @author eso
  */
 public class ObjectSpaceTest {
-	private static final RelationType<ObjectSpace<Object>> SUBSPACE1 = RelationTypes.newType();
-	private static final RelationType<ObjectSpace<Object>> SUBSPACE2 = RelationTypes.newType();
+	private static final RelationType<ObjectSpace<Object>> SUBSPACE1 =
+		RelationTypes.newType();
+
+	private static final RelationType<ObjectSpace<Object>> SUBSPACE2 =
+		RelationTypes.newType();
 
 	static {
 		RelationTypes.init(ObjectSpaceTest.class, StandardTypes.class);
 	}
 
-	private ObjectSpace<Object> aTestSpace;
+	private ObjectSpace<Object> testSpace;
+
 	private ObjectSpace<Object> aSubSpace1;
+
 	private ObjectSpace<Object> aSubSpace2;
 
 	/**
@@ -51,19 +56,19 @@ public class ObjectSpaceTest {
 	 */
 	@BeforeEach
 	public void setup() {
-		aTestSpace = new RelationSpace<>(true);
+		testSpace = new RelationSpace<>(true);
 		aSubSpace1 = new RelationSpace<>(true);
 		aSubSpace2 = new RelationSpace<>(true);
 
-		aTestSpace.set(SUBSPACE1, aSubSpace1);
-		aTestSpace.set(SUBSPACE2, aSubSpace2);
+		testSpace.set(SUBSPACE1, aSubSpace1);
+		testSpace.set(SUBSPACE2, aSubSpace2);
 
-		aTestSpace.put("name", "Test");
-		aTestSpace.put("port", 1234);
-		aTestSpace.put("subspace1/name", "Sub1");
-		aTestSpace.put("subspace1/port", 1111);
-		aTestSpace.put("subspace2/name", "Sub2");
-		aTestSpace.put("subspace2/port", 2222);
+		testSpace.put("name", "Test");
+		testSpace.put("port", 1234);
+		testSpace.put("subspace1/name", "Sub1");
+		testSpace.put("subspace1/port", 1111);
+		testSpace.put("subspace2/name", "Sub2");
+		testSpace.put("subspace2/port", 2222);
 	}
 
 	/**
@@ -71,17 +76,17 @@ public class ObjectSpaceTest {
 	 */
 	@Test
 	public void testDelete() {
-		aTestSpace.delete("subspace1/name");
-		aTestSpace.delete("subspace1/port");
+		testSpace.delete("subspace1/name");
+		testSpace.delete("subspace1/port");
 		assertFalse(aSubSpace1.hasRelation(NAME));
 		assertFalse(aSubSpace1.hasRelation(PORT));
 
-		aTestSpace.delete("subspace1");
-		assertFalse(aTestSpace.hasRelation(SUBSPACE1));
-		assertTrue(aTestSpace.hasRelation(SUBSPACE2));
+		testSpace.delete("subspace1");
+		assertFalse(testSpace.hasRelation(SUBSPACE1));
+		assertTrue(testSpace.hasRelation(SUBSPACE2));
 
 		try {
-			aTestSpace.get("subspace1/name");
+			testSpace.get("subspace1/name");
 			fail();
 		} catch (Exception e) {
 			// expected
@@ -93,11 +98,11 @@ public class ObjectSpaceTest {
 	 */
 	@Test
 	public void testGet() {
-		assertEquals("Test", aTestSpace.get("name"));
-		assertEquals(Integer.valueOf(1234), aTestSpace.get("port"));
-		assertEquals("Sub1", aTestSpace.get("subspace1/name"));
-		assertEquals(Integer.valueOf(1111), aTestSpace.get("subspace1/port"));
-		assertEquals("Sub2", aTestSpace.get("subspace2/name"));
-		assertEquals(Integer.valueOf(2222), aTestSpace.get("subspace2/port"));
+		assertEquals("Test", testSpace.get("name"));
+		assertEquals(Integer.valueOf(1234), testSpace.get("port"));
+		assertEquals("Sub1", testSpace.get("subspace1/name"));
+		assertEquals(Integer.valueOf(1111), testSpace.get("subspace1/port"));
+		assertEquals("Sub2", testSpace.get("subspace2/name"));
+		assertEquals(Integer.valueOf(2222), testSpace.get("subspace2/port"));
 	}
 }

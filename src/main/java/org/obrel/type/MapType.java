@@ -41,30 +41,30 @@ public class MapType<K, V> extends RelationType<Map<K, V>> {
 	 * created with this constructor MUST be declared as static constants in a
 	 * class that is initialized with {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param bOrdered   TRUE for an ordered map
-	 * @param rModifiers The optional relation type modifiers
+	 * @param ordered   TRUE for an ordered map
+	 * @param modifiers The optional relation type modifiers
 	 */
-	public MapType(boolean bOrdered, RelationTypeModifier... rModifiers) {
-		this(null, null, null, bOrdered, rModifiers);
+	public MapType(boolean ordered, RelationTypeModifier... modifiers) {
+		this(null, null, null, ordered, modifiers);
 	}
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param sName      The relation type name
-	 * @param rKeyType   The datatype of the map keys
-	 * @param rValueType The datatype of the map values
-	 * @param bOrdered   TRUE for an ordered map
-	 * @param rModifiers The optional relation type modifiers
+	 * @param name      The relation type name
+	 * @param keyType   The datatype of the map keys
+	 * @param valueType The datatype of the map values
+	 * @param ordered   TRUE for an ordered map
+	 * @param modifiers The optional relation type modifiers
 	 */
-	public MapType(String sName, Class<K> rKeyType, Class<V> rValueType,
-		boolean bOrdered, RelationTypeModifier... rModifiers) {
-		super(sName, Map.class, initialValueFunction(bOrdered), rModifiers);
+	public MapType(String name, Class<K> keyType, Class<V> valueType,
+		boolean ordered, RelationTypeModifier... modifiers) {
+		super(name, Map.class, initialValueFunction(ordered), modifiers);
 
-		set(MetaTypes.KEY_DATATYPE, rKeyType);
-		set(MetaTypes.VALUE_DATATYPE, rValueType);
+		set(MetaTypes.KEY_DATATYPE, keyType);
+		set(MetaTypes.VALUE_DATATYPE, valueType);
 
-		if (bOrdered) {
+		if (ordered) {
 			set(MetaTypes.ORDERED);
 		}
 	}
@@ -73,14 +73,14 @@ public class MapType<K, V> extends RelationType<Map<K, V>> {
 	 * Creates the initial value function that produces either an ordered or an
 	 * unordered map.
 	 *
-	 * @param bOrdered TRUE for an ordered map
+	 * @param ordered TRUE for an ordered map
 	 * @return The initial value function
 	 */
 	@SuppressWarnings("unchecked")
 	public static <K, V> Function<Object, Map<K, V>> initialValueFunction(
-		boolean bOrdered) {
-		Class<?> rMapClass = bOrdered ? LinkedHashMap.class : HashMap.class;
+		boolean ordered) {
+		Class<?> mapClass = ordered ? LinkedHashMap.class : HashMap.class;
 
-		return ReflectionFuntions.newInstanceOf((Class<Map<K, V>>) rMapClass);
+		return ReflectionFuntions.newInstanceOf((Class<Map<K, V>>) mapClass);
 	}
 }

@@ -25,15 +25,15 @@ package de.esoco.lib.event;
  */
 public class GenericEvent<T> implements Event<T> {
 
-	private T rSource;
+	private T source;
 
 	/**
 	 * Creates a new instance from a certain event source.
 	 *
-	 * @param rSource The event source
+	 * @param source The event source
 	 */
-	public GenericEvent(T rSource) {
-		this.rSource = rSource;
+	public GenericEvent(T source) {
+		this.source = source;
 	}
 
 	/**
@@ -43,7 +43,7 @@ public class GenericEvent<T> implements Event<T> {
 	 */
 	@Override
 	public final T getSource() {
-		return rSource;
+		return source;
 	}
 
 	/**
@@ -69,16 +69,16 @@ public class GenericEvent<T> implements Event<T> {
 	 * @return A comma-separated string list of this event's parameters
 	 */
 	protected String paramString() {
-		return rSource.toString();
+		return source.toString();
 	}
 
 	/**
 	 * Sets the source. Protected because this method is only meant to allow
 	 * subclasses to change the event source in special cases.
 	 *
-	 * @param rSource The new source object
+	 * @param source The new source object
 	 */
-	protected final void setSource(T rSource) {
-		this.rSource = rSource;
+	protected final void setSource(T source) {
+		this.source = source;
 	}
 }

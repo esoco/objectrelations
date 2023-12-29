@@ -31,9 +31,9 @@ public interface JsonSerializable<J extends JsonSerializable<J>> {
 	 * simply serialize a (root-level) object use the default method {@link
 	 * #toJson()} instead.
 	 *
-	 * @param rBuilder The {@link JsonBuilder} to append this instance to
+	 * @param builder The {@link JsonBuilder} to append this instance to
 	 */
-	void appendTo(JsonBuilder rBuilder);
+	void appendTo(JsonBuilder builder);
 
 	/**
 	 * Parses data from a JSON string and returns the resulting instance.
@@ -45,11 +45,11 @@ public interface JsonSerializable<J extends JsonSerializable<J>> {
 	 * immutable types that will only be created to invoke this method, which
 	 * will then create and fill a new instance.</p>
 	 *
-	 * @param sJson The JSON string to parse
+	 * @param json The JSON string to parse
 	 * @return This instance so that it can be directly used after
 	 * de-serialization
 	 */
-	J fromJson(String sJson);
+	J fromJson(String json);
 
 	/**
 	 * Converts this instance into a compact JSON representation that can be

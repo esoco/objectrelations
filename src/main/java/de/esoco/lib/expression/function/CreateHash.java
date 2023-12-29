@@ -27,63 +27,62 @@ import java.security.NoSuchAlgorithmException;
  */
 public class CreateHash extends AbstractFunction<byte[], byte[]> {
 
-	private final MessageDigest aDigest;
+	private final MessageDigest digest;
 
-	private final String sSalt;
+	private final String salt;
 
-	private final int nRounds;
+	private final int rounds;
 
 	/**
 	 * Creates a new instance that uses a certain hash algorithm. The given
-	 * algorithm name must be a valid input value for the method {@link
-	 * MessageDigest#getInstance(String)}.
+	 * algorithm name must be a valid input value for the method
+	 * {@link MessageDigest#getInstance(String)}.
 	 *
-	 * @param sAlgorithm The name of the hash algorithm
-	 * @param sSalt      A salt to append to input data or NULL for none
-	 * @param nRounds    The number of rounds to apply the hash algorithm to
-	 *                   the input
+	 * @param algorithm The name of the hash algorithm
+	 * @param salt      A salt to append to input data or NULL for none
+	 * @param rounds    The number of rounds to apply the hash algorithm to the
+	 *                  input
 	 * @throws NoSuchAlgorithmException If the given algorithm is not available
 	 */
-	public CreateHash(String sAlgorithm, String sSalt, int nRounds)
+	public CreateHash(String algorithm, String salt, int rounds)
 		throws NoSuchAlgorithmException {
 		super(String.format(CreateHash.class.getSimpleName() + "[%s]",
-			sAlgorithm));
+			algorithm));
 
-		aDigest = MessageDigest.getInstance(sAlgorithm);
-		this.sSalt = sSalt;
-		this.nRounds = nRounds;
+		digest = MessageDigest.getInstance(algorithm);
+		this.salt = salt;
+		this.rounds = rounds;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public byte[] evaluate(byte[] rInput) {
-		byte[] aResult = rInput;
+	public byte[] evaluate(byte[] input) {
+		byte[] result = input;
 
-		aDigest.reset();
+		digest.reset();
 
-		if (sSalt != null) {
-			aDigest.update(sSalt.getBytes());
+		if (salt != null) {
+			digest.update(salt.getBytes());
 		}
 
-		for (int i = 0; i < nRounds; i++) {
-			aResult = aDigest.digest(aResult);
+		for (int i = 0; i < rounds; i++) {
+			result = digest.digest(result);
 		}
 
-		return aResult;
+		return result;
 	}
 
 	/**
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
-		CreateHash rOtherHash = (CreateHash) rOther;
+	protected boolean paramsEqual(AbstractFunction<?, ?> other) {
+		CreateHash otherHash = (CreateHash) other;
 
-		return nRounds == rOtherHash.nRounds &&
-			sSalt.equals(rOtherHash.sSalt) &&
-			aDigest.getAlgorithm().equals(rOtherHash.aDigest.getAlgorithm());
+		return rounds == otherHash.rounds && salt.equals(otherHash.salt) &&
+			digest.getAlgorithm().equals(otherHash.digest.getAlgorithm());
 	}
 
 	/**
@@ -91,7 +90,7 @@ public class CreateHash extends AbstractFunction<byte[], byte[]> {
 	 */
 	@Override
 	protected int paramsHashCode() {
-		return nRounds +
-			(37 * sSalt.hashCode() + (37 * aDigest.getAlgorithm().hashCode()));
+		return rounds +
+			(37 * salt.hashCode() + (37 * digest.getAlgorithm().hashCode()));
 	}
 }

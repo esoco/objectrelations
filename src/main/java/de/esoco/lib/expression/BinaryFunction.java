@@ -43,12 +43,12 @@ public interface BinaryFunction<L, R, O> extends Function<L, O> {
 	 * function that can be executed without checked exception. This method is
 	 * mainly intended to be used with lambdas that throw exceptions.
 	 *
-	 * @param fChecked The checked binary function to wrap as unchecked
+	 * @param checked The checked binary function to wrap as unchecked
 	 * @return The unchecked binary function
 	 */
 	static <L, R, O> BiFunction<L, R, O> unchecked(
-		ThrowingBinaryFunction<L, R, O> fChecked) {
-		return fChecked;
+		ThrowingBinaryFunction<L, R, O> checked) {
+		return checked;
 	}
 
 	/**
@@ -58,31 +58,31 @@ public interface BinaryFunction<L, R, O> extends Function<L, O> {
 	 * @see Function#evaluate(Object)
 	 */
 	@Override
-	default O evaluate(L rLeftValue) {
-		return evaluate(rLeftValue, getRightValue());
+	default O evaluate(L leftValue) {
+		return evaluate(leftValue, getRightValue());
 	}
 
 	/**
 	 * Evaluates the binary function on the left and right input values and
 	 * returns the resulting value.
 	 *
-	 * @param rLeftValue  The left value to evaluate
-	 * @param rRightValue The right value to evaluate
+	 * @param leftValue  The left value to evaluate
+	 * @param rightValue The right value to evaluate
 	 * @return The result of the evaluation
 	 */
-	O evaluate(L rLeftValue, R rRightValue);
+	O evaluate(L leftValue, R rightValue);
 
 	/**
 	 * Returns a new function object that evaluates the output values received
 	 * from two other function with this binary function.
 	 *
-	 * @param fLeft  The function to product the left input values with
-	 * @param fRight The function to produce the right input values with
+	 * @param left  The function to product the left input values with
+	 * @param right The function to produce the right input values with
 	 * @return A new instance of {@link DualFunctionChain}
 	 */
-	default <A, B> BinaryFunction<A, B, O> from(Function<A, ? extends L> fLeft,
-		Function<B, ? extends R> fRight) {
-		return Functions.chain(this, fLeft, fRight);
+	default <A, B> BinaryFunction<A, B, O> from(Function<A, ? extends L> left,
+		Function<B, ? extends R> right) {
+		return Functions.chain(this, left, right);
 	}
 
 	/**
@@ -100,11 +100,11 @@ public interface BinaryFunction<L, R, O> extends Function<L, O> {
 	 * original input value and a right value from the output value received
 	 * from another function.
 	 *
-	 * @param fRight The function to produce the right input values with
+	 * @param right The function to produce the right input values with
 	 * @return A new instance of {@link DualFunctionChain}
 	 */
 	default <T> BinaryFunction<L, T, O> withRight(
-		Function<T, ? extends R> fRight) {
-		return from(Functions.identity(), fRight);
+		Function<T, ? extends R> right) {
+		return from(Functions.identity(), right);
 	}
 }

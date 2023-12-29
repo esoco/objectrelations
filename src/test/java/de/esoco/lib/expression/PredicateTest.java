@@ -70,14 +70,14 @@ public class PredicateTest {
 	 */
 	@Test
 	void testLogicalAnd() {
-		Predicate<String> aAndTest = matching("[ABC].+");
+		Predicate<String> andTest = matching("[ABC].+");
 
-		aAndTest = aAndTest.and(matching(".+[XYZ]"));
+		andTest = andTest.and(matching(".+[XYZ]"));
 
-		assertTrue(aAndTest.evaluate("AZ"));
-		assertTrue(aAndTest.evaluate("B12345Y"));
-		assertFalse(aAndTest.evaluate("A"));
-		assertFalse(aAndTest.evaluate("Z"));
+		assertTrue(andTest.evaluate("AZ"));
+		assertTrue(andTest.evaluate("B12345Y"));
+		assertFalse(andTest.evaluate("A"));
+		assertFalse(andTest.evaluate("Z"));
 	}
 
 	/**
@@ -85,14 +85,14 @@ public class PredicateTest {
 	 */
 	@Test
 	void testLogicalOr() {
-		Predicate<String> aOrTest = matching("[ABC]");
+		Predicate<String> orTest = matching("[ABC]");
 
-		aOrTest = aOrTest.or(matching("[^ABC].+"));
+		orTest = orTest.or(matching("[^ABC].+"));
 
-		assertTrue(aOrTest.evaluate("Test"));
-		assertTrue(aOrTest.evaluate("A"));
-		assertFalse(aOrTest.evaluate("D"));
-		assertFalse(aOrTest.evaluate("Ast"));
+		assertTrue(orTest.evaluate("Test"));
+		assertTrue(orTest.evaluate("A"));
+		assertFalse(orTest.evaluate("D"));
+		assertFalse(orTest.evaluate("Ast"));
 	}
 
 	/**
@@ -102,6 +102,6 @@ public class PredicateTest {
 	void testReflection() {
 		assertTrue(ifField("nReflectionTestField", equalTo(42)).evaluate(this));
 		assertFalse(
-				ifField("nReflectionTestField", lessThan(20)).evaluate(this));
+			ifField("nReflectionTestField", lessThan(20)).evaluate(this));
 	}
 }

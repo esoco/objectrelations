@@ -37,21 +37,21 @@ public class TransformedRelation<T, D> extends Relation<T> {
 
 	private static final long serialVersionUID = 1L;
 
-	private final InvertibleFunction<T, D> fTransformation;
+	private final InvertibleFunction<T, D> transformation;
 
-	private D rData;
+	private D data;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rType           The type of this relation
-	 * @param fTransformation The transformation to be applied to target values
+	 * @param type           The type of this relation
+	 * @param transformation The transformation to be applied to target values
 	 */
-	public TransformedRelation(RelationType<T> rType,
-		InvertibleFunction<T, D> fTransformation) {
-		super(rType);
+	public TransformedRelation(RelationType<T> type,
+		InvertibleFunction<T, D> transformation) {
+		super(type);
 
-		this.fTransformation = fTransformation;
+		this.transformation = transformation;
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class TransformedRelation<T, D> extends Relation<T> {
 	 */
 	@Override
 	public T getTarget() {
-		return fTransformation.invert(rData);
+		return transformation.invert(data);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class TransformedRelation<T, D> extends Relation<T> {
 	 * @return The transformation function
 	 */
 	public final InvertibleFunction<T, D> getTransformation() {
-		return fTransformation;
+		return transformation;
 	}
 
 	/**
@@ -77,41 +77,41 @@ public class TransformedRelation<T, D> extends Relation<T> {
 	 * @return The transformed target value
 	 */
 	public final D getTransformedTarget() {
-		return rData;
+		return data;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	Relation<T> copyTo(Relatable rTarget) {
-		TransformedRelation<T, D> aCopy =
-			rTarget.transform(getType(), fTransformation);
+	Relation<T> copyTo(Relatable target) {
+		TransformedRelation<T, D> copy =
+			target.transform(getType(), transformation);
 
-		aCopy.rData = rData;
+		copy.data = data;
 
-		return aCopy;
+		return copy;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	boolean dataEqual(Relation<?> rOther) {
-		TransformedRelation<?, ?> rOtherRelation =
-			(TransformedRelation<?, ?>) rOther;
+	boolean dataEqual(Relation<?> other) {
+		TransformedRelation<?, ?> otherRelation =
+			(TransformedRelation<?, ?>) other;
 
-		boolean bResult = false;
+		boolean result = false;
 
-		if (fTransformation.equals(rOtherRelation.fTransformation)) {
-			if (rData == null) {
-				bResult = (rOtherRelation.rData == null);
+		if (transformation.equals(otherRelation.transformation)) {
+			if (data == null) {
+				result = (otherRelation.data == null);
 			} else {
-				bResult = rData.equals(rOtherRelation.rData);
+				result = data.equals(otherRelation.data);
 			}
 		}
 
-		return bResult;
+		return result;
 	}
 
 	/**
@@ -119,15 +119,15 @@ public class TransformedRelation<T, D> extends Relation<T> {
 	 */
 	@Override
 	int dataHashCode() {
-		return 31 * fTransformation.hashCode() +
-			(rData != null ? rData.hashCode() : 0);
+		return 31 * transformation.hashCode() +
+			(data != null ? data.hashCode() : 0);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	void setTarget(T rNewTarget) {
-		rData = fTransformation.evaluate(rNewTarget);
+	void setTarget(T newTarget) {
+		data = transformation.evaluate(newTarget);
 	}
 }

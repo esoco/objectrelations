@@ -52,23 +52,24 @@ import org.obrel.type.ListenerTypes;
  */
 public class RelationEvent<T> extends ElementEvent<Relatable, Relation<T>, T> {
 
-	private final Relatable rEventScope;
+	private final Relatable eventScope;
 
 	/**
 	 * Creates a new instance.
 	 *
-	 * @param rType        The event type
-	 * @param rSource      The relatable event source on which the relation has
-	 *                     been modified
-	 * @param rRelation    The relation that is affected by this event
-	 * @param rUpdateValue The update value in the case of update events
-	 * @param rEventScope  The relatable object that defines the event scope
+	 * @param type        The event type
+	 * @param source      The relatable event source on which the relation has
+	 *                    been modified
+	 * @param relation    The relation that is affected by this event
+	 * @param updateValue The update value in the case of update events
+	 * @param eventScope  The relatable object that defines the event scope
 	 */
-	public RelationEvent(EventType rType, Relatable rSource,
-		Relation<T> rRelation, T rUpdateValue, Relatable rEventScope) {
-		super(rType, rSource, rRelation, rUpdateValue);
+	public RelationEvent(EventType type, Relatable source,
+		Relation<T> relation,
+		T updateValue, Relatable eventScope) {
+		super(type, source, relation, updateValue);
 
-		this.rEventScope = rEventScope;
+		this.eventScope = eventScope;
 	}
 
 	/**
@@ -82,6 +83,6 @@ public class RelationEvent<T> extends ElementEvent<Relatable, Relation<T>, T> {
 	 * @return The eventScope value
 	 */
 	public final Relatable getEventScope() {
-		return rEventScope;
+		return eventScope;
 	}
 }

@@ -34,28 +34,28 @@ public class UnresolvableRelationException extends RuntimeException {
 	/**
 	 * Creates an instance with an error message.
 	 *
-	 * @param rMessage The error message
+	 * @param message The error message
 	 */
-	public UnresolvableRelationException(String rMessage) {
-		super(rMessage);
+	public UnresolvableRelationException(String message) {
+		super(message);
 	}
 
 	/**
 	 * Creates an instance with a causing exception.
 	 *
-	 * @param rCause The causing exception
+	 * @param cause The causing exception
 	 */
-	public UnresolvableRelationException(Throwable rCause) {
-		super(rCause);
+	public UnresolvableRelationException(Throwable cause) {
+		super(cause);
 	}
 
 	/**
 	 * Creates an instance with an error message and a causing exception.
 	 *
-	 * @param rMessage The error message
-	 * @param rCause   The causing exception
+	 * @param message The error message
+	 * @param cause   The causing exception
 	 */
-	public UnresolvableRelationException(String rMessage, Throwable rCause) {
-		super(rMessage, rCause);
+	public UnresolvableRelationException(String message, Throwable cause) {
+		super(message, cause);
 	}
 }
