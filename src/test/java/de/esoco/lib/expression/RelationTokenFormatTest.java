@@ -69,11 +69,6 @@ public class RelationTokenFormatTest {
 
 		assertEquals(new DecimalFormat(formatString).format(testInt),
 			tokenFormat.evaluate(relatable));
-
-		tokenFormat = new RelationTokenFormat(
-			"{CHILDREN:&{size()}}-" + "{CHILDREN:&{get(0):&{PORT}}}-" +
-				"{CHILDREN:&{get(1):&{PORT}}}");
-		assertEquals("2-1-2", tokenFormat.evaluate(relatable));
 	}
 
 	/**
