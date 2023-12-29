@@ -20,8 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-
-/********************************************************************
+/**
  * An extension of {@link ArrayList} that also implements {@link
  * JsonSerializable} so that it can be used directly in JSON expressions. The
  * implementation does not validate the datatype of added elements. It is the
@@ -31,84 +30,68 @@ import java.util.Collection;
  * @author eso
  */
 public class JsonArray extends ArrayList<Object>
-	implements JsonSerializable<JsonArray>
-{
-	//~ Static fields/initializers ---------------------------------------------
+	implements JsonSerializable<JsonArray> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	public JsonArray()
-	{
+	public JsonArray() {
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @see ArrayList#ArrayList(int)
 	 */
-	public JsonArray(int nInitialCapacity)
-	{
+	public JsonArray(int nInitialCapacity) {
 		super(nInitialCapacity);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @see ArrayList#ArrayList(Collection)
 	 */
-	public JsonArray(Collection<?> rInitialElements)
-	{
+	public JsonArray(Collection<?> rInitialElements) {
 		super(rInitialElements);
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Factory method to create a new array from initial elements. The returned
 	 * instance is mutable.
 	 *
-	 * @param  rElements The initial elements of the array
-	 *
+	 * @param rElements The initial elements of the array
 	 * @return The new JSON array
 	 */
-	public static JsonArray of(Object... rElements)
-	{
+	public static JsonArray of(Object... rElements) {
 		return new JsonArray(Arrays.asList(rElements));
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void appendTo(JsonBuilder rBuilder)
-	{
+	public void appendTo(JsonBuilder rBuilder) {
 		rBuilder.appendArray(this);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public JsonArray fromJson(String sJson)
-	{
+	public JsonArray fromJson(String sJson) {
 		new JsonParser().parseArray(sJson, this);
 
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return toJson();
 	}
 }

@@ -16,64 +16,52 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.function;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-/********************************************************************
+/**
  * An wrapper for a relatable object and a certain relation type that implements
  * the {@link Consumer} and {@link Supplier} interfaces for functional access to
  * the relation.
  *
  * @author eso
  */
-public class RelationAccessor<T> implements Consumer<T>, Supplier<T>
-{
-	//~ Instance fields --------------------------------------------------------
+public class RelationAccessor<T> implements Consumer<T>, Supplier<T> {
 
-	private final Relatable		  rRelatable;
+	private final Relatable rRelatable;
+
 	private final RelationType<T> rType;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
-	 *
-	 * @param rRelatable
-	 * @param rType
 	 */
-	public RelationAccessor(Relatable rRelatable, RelationType<T> rType)
-	{
+	public RelationAccessor(Relatable rRelatable, RelationType<T> rType) {
 		this.rRelatable = rRelatable;
-		this.rType	    = rType;
+		this.rType = rType;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Implemented to set a value in the target relation of the wrapped
 	 * relatable.
 	 *
 	 * @param rValue The new relation value
 	 */
 	@Override
-	public void accept(T rValue)
-	{
+	public void accept(T rValue) {
 		rRelatable.set(rType, rValue);
 	}
 
-	/***************************************
+	/**
 	 * Implemented to return the value of the target relation of the wrapped
 	 * relatable.
 	 *
 	 * @return The relation value
 	 */
 	@Override
-	public T get()
-	{
+	public T get() {
 		return rRelatable.get(rType);
 	}
 }

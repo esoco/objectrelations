@@ -26,7 +26,7 @@ import org.obrel.type.StandardTypes;
 
 import java.util.List;
 
-/********************************************************************
+/**
  * An {@link ObjectSpace} implementation that maps values from another object
  * space. The conversion between the generic type of this space and that of the
  * wrapped object space is performed by a value mapping function that must be
@@ -44,7 +44,6 @@ import java.util.List;
  * @author eso
  */
 public class MappedSpace<I, O> implements ObjectSpace<I> {
-	//~ Instance fields --------------------------------------------------------
 
 	private final ObjectSpace<O> rWrappedSpace;
 
@@ -52,9 +51,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 
 	private InvertibleFunction<O, I> fPutMapper = null;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance with a certain value mapping function.
 	 *
 	 * @param rWrappedSpace The target object space to map values from and to
@@ -70,9 +67,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		}
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -80,7 +75,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		rWrappedSpace.delete(sUrl);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -88,7 +83,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		rWrappedSpace.deleteRelation(rRelation);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -96,7 +91,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		return fValueMapper.evaluate(rWrappedSpace.get(sUrl));
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -104,7 +99,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		return rWrappedSpace.get(rType);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -112,7 +107,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		return rWrappedSpace.getRelation(rType);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -121,7 +116,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		return rWrappedSpace.getRelations(rFilter);
 	}
 
-	/***************************************
+	/**
 	 * Returns the value mapping function of this space.
 	 *
 	 * @return The value mapping function
@@ -130,7 +125,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		return fValueMapper;
 	}
 
-	/***************************************
+	/**
 	 * Returns the wrapped object space.
 	 *
 	 * @return The wrapped object space
@@ -139,7 +134,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		return rWrappedSpace;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -152,7 +147,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -160,7 +155,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		return rWrappedSpace.set(rType, rTarget);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -169,7 +164,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		return rWrappedSpace.set(rType, fTargetResolver, rIntermediateTarget);
 	}
 
-	/***************************************
+	/**
 	 * Overridden to return the value of the {@link StandardTypes#NAME}
 	 * relation.
 	 *
@@ -180,7 +175,7 @@ public class MappedSpace<I, O> implements ObjectSpace<I> {
 		return getWrappedSpace().toString();
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

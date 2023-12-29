@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-/********************************************************************
+/**
  * A generic event listener relation type. The generic parameters define the
  * type of the event listener and the event objects that are handled by the
  * subclass. A new instance is created with a binary consumer function that will
@@ -50,23 +50,19 @@ import java.util.function.BiConsumer;
  */
 @RelationTypeNamespace(RelationType.DEFAULT_NAMESPACE)
 public class ListenerType<L, E> extends RelationType<List<L>> {
-	//~ Static fields/initializers ---------------------------------------------
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final BiConsumer<L, E> fEventDispatcher;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance. The event dispatcher argument may be NULL in
 	 * which case the method {@link #notifyListeners(Object, Object,
 	 * BiConsumer)} must be used for listener notification or else a {@link
 	 * NullPointerException} will occur.
 	 *
-	 * @param fDispatcher A binary consumer that dispatches a certain event to a
+	 * @param fDispatcher A binary consumer that dispatches a certain event
+	 *                    to a
 	 *                    single listener
 	 * @param rModifiers  The relation type modifiers for the new instance
 	 */
@@ -77,9 +73,7 @@ public class ListenerType<L, E> extends RelationType<List<L>> {
 		fEventDispatcher = fDispatcher;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Notifies all event listeners that are registered with this relation type
 	 * in the given source object of an event. The notification will be
 	 * performed by invoking the event dispatch function that has been provided
@@ -98,10 +92,11 @@ public class ListenerType<L, E> extends RelationType<List<L>> {
 		}
 	}
 
-	/***************************************
+	/**
 	 * Notifies all event listeners that are registered with this relation type
 	 * in the given source object by using the given event dispatcher. This
-	 * variant allows to invoke varying event handler methods (e.g. for multiple
+	 * variant allows to invoke varying event handler methods (e.g. for
+	 * multiple
 	 * event types) by using different dispatch functions.
 	 *
 	 * @param rSource     The event source to notify the listeners of

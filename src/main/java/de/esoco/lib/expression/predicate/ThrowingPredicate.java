@@ -19,7 +19,7 @@ package de.esoco.lib.expression.predicate;
 import de.esoco.lib.expression.FunctionException;
 import de.esoco.lib.expression.Predicate;
 
-/********************************************************************
+/**
  * A {@link Predicate} extension that allows implementations to throw checked
  * exceptions. If an exception occurs it will be converted into a runtime
  * exception of the type {@link FunctionException}.
@@ -28,25 +28,21 @@ import de.esoco.lib.expression.Predicate;
  */
 @FunctionalInterface
 public interface ThrowingPredicate<T> extends Predicate<T> {
-	//~ Static methods ---------------------------------------------------------
 
-	/***************************************
+	/**
 	 * Factory method that allows to declare a throwing predicate from a lambda
 	 * expression that is mapped to a regular predicate. Otherwise an anonymous
 	 * inner class expression would be needed because of the similar signatures
 	 * of throwing and non-throwing predicate.
 	 *
-	 * @param  fThrowing The throwing predicate expression
-	 *
+	 * @param fThrowing The throwing predicate expression
 	 * @return The resulting predicate
 	 */
 	static <T> Predicate<T> of(ThrowingPredicate<T> fThrowing) {
 		return fThrowing;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Overridden to forward the invocation to the actual function
 	 * implementation in {@link #tryTest(Object)} and to convert occurring
 	 * exceptions into {@link FunctionException}.
@@ -59,19 +55,18 @@ public interface ThrowingPredicate<T> extends Predicate<T> {
 			return tryTest(rValue);
 		} catch (Throwable e) {
 			throw (e instanceof RuntimeException) ?
-				(RuntimeException) e :
-				new FunctionException(this, e);
+			      (RuntimeException) e :
+			      new FunctionException(this, e);
 		}
 	}
 
-	/***************************************
-	 * Replaces {@link #evaluate(Object)} and allows implementations to throw an
+	/**
+	 * Replaces {@link #evaluate(Object)} and allows implementations to
+	 * throw an
 	 * exception.
 	 *
-	 * @param  rValue rInput The value to check
-	 *
+	 * @param rValue rInput The value to check
 	 * @return The function result
-	 *
 	 * @throws Throwable On errors
 	 */
 	Boolean tryTest(T rValue) throws Throwable;

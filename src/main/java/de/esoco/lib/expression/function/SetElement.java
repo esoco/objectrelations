@@ -16,14 +16,13 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.function;
 
-import java.util.List;
-import java.util.Map;
-
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 
+import java.util.List;
+import java.util.Map;
 
-/********************************************************************
+/**
  * An abstract function that sets a certain element in an input object. What
  * exactly these elements are depends on the actual subclass implementations.
  * Some typical kinds of get functions are implemented as inner classes. The
@@ -37,15 +36,11 @@ import org.obrel.core.RelationType;
  * </ul>
  */
 public abstract class SetElement<T, E, V>
-	extends AbstractBinaryFunction<T, V, T>
-{
-	//~ Instance fields --------------------------------------------------------
+	extends AbstractBinaryFunction<T, V, T> {
 
 	private final E rElementDescriptor;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new immutable instance with a certain value, element
 	 * descriptor, and description.
 	 *
@@ -53,16 +48,13 @@ public abstract class SetElement<T, E, V>
 	 * @param rValue             The right-side value to set on objects
 	 * @param sDescription       The function description
 	 */
-	public SetElement(E rElementDescriptor, V rValue, String sDescription)
-	{
+	public SetElement(E rElementDescriptor, V rValue, String sDescription) {
 		super(rValue, sDescription);
 
 		this.rElementDescriptor = rElementDescriptor;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the element value from the given object. Invokes the abstract
 	 * method {@link #setElementValue(Object, Object, Object)} which must be
 	 * implemented by subclasses.
@@ -70,125 +62,104 @@ public abstract class SetElement<T, E, V>
 	 * @see AbstractBinaryFunction#evaluate(Object, Object)
 	 */
 	@Override
-	public final T evaluate(T rObject, V rValue)
-	{
+	public final T evaluate(T rObject, V rValue) {
 		setElementValue(rElementDescriptor, rObject, rValue);
 
 		return rObject;
 	}
 
-	/***************************************
+	/**
 	 * This method must be implemented by subclasses to set the element value.
 	 *
 	 * @param rElementDescriptor The element descriptor
 	 * @param rObject            The object to set the element value on
 	 * @param rValue             The value to set
 	 */
-	protected abstract void setElementValue(E rElementDescriptor,
-											T rObject,
-											V rValue);
+	protected abstract void setElementValue(E rElementDescriptor, T rObject,
+		V rValue);
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * An element function that sets a certain element in a list.
 	 */
 	public static class SetListElement<V>
-		extends SetElement<List<V>, Integer, V>
-	{
-		//~ Constructors -------------------------------------------------------
+		extends SetElement<List<V>, Integer, V> {
 
-		/***************************************
+		/**
 		 * Creates a new instance that sets a particular list element.
 		 *
 		 * @param nIndex The index of the element to return
 		 * @param rValue The value to set
 		 */
 		@SuppressWarnings("boxing")
-		public SetListElement(int nIndex, V rValue)
-		{
+		public SetListElement(int nIndex, V rValue) {
 			super(nIndex, rValue, "SetListElement");
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * @see SetElement#setElementValue(Object, Object, Object)
 		 */
 		@Override
-		protected void setElementValue(Integer rIndex, List<V> rList, V rValue)
-		{
+		protected void setElementValue(Integer rIndex, List<V> rList,
+			V rValue) {
 			rList.set(rIndex.intValue(), rValue);
 		}
 	}
 
-	/********************************************************************
+	/**
 	 * An element function that sets a certain value in a map.
 	 */
-	public static class SetMapValue<K, V> extends SetElement<Map<K, V>, K, V>
-	{
-		//~ Constructors -------------------------------------------------------
+	public static class SetMapValue<K, V> extends SetElement<Map<K, V>, K, V> {
 
-		/***************************************
+		/**
 		 * Creates a new instance that sets a particular map value.
 		 *
 		 * @param rKey   The key of the element to set
 		 * @param rValue The value to set
 		 */
-		public SetMapValue(K rKey, V rValue)
-		{
+		public SetMapValue(K rKey, V rValue) {
 			super(rKey, rValue, "SetMapValue");
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * @see SetElement#setElementValue(Object, Object, Object)
 		 */
 		@Override
-		protected void setElementValue(K rKey, Map<K, V> rMap, V rValue)
-		{
+		protected void setElementValue(K rKey, Map<K, V> rMap, V rValue) {
 			rMap.put(rKey, rValue);
 		}
 	}
 
-	/********************************************************************
+	/**
 	 * An element function that sets a certain relation in a {@link Relatable}
 	 * object.
 	 */
 	public static class SetRelationValue<T extends Relatable, V>
-		extends SetElement<T, RelationType<V>, V>
-	{
-		//~ Constructors -------------------------------------------------------
+		extends SetElement<T, RelationType<V>, V> {
 
-		/***************************************
+		/**
 		 * Creates a new instance that sets a particular relation.
 		 *
 		 * @param rType  The type of the relation to set
 		 * @param rValue The relation value to set
 		 */
-		public SetRelationValue(RelationType<V> rType, V rValue)
-		{
+		public SetRelationValue(RelationType<V> rType, V rValue) {
 			super(rType, rValue, "SetRelationValue");
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * @see SetElement#setElementValue(Object, Object, Object)
 		 */
 		@Override
-		protected void setElementValue(RelationType<V> rType,
-									   T			   rObject,
-									   V			   rValue)
-		{
+		protected void setElementValue(RelationType<V> rType, T rObject,
+			V rValue) {
 			rObject.set(rType, rValue);
 		}
 	}
 
-//	/********************************************************************
+//	/**
 //	 * An element function that uses reflection to write the value of a certain
-//	 * field in target objects. The reflective access is done through the method
+//	 * field in target objects. The reflective access is done through the
+//	 method
 //	 * {@link ReflectUtil#setF} which will try to make
 //	 * the field accessible if necessary. If that fails an exception will be
 //	 * thrown by {@link #getElementValue(String, Object)}.
@@ -199,9 +170,9 @@ public abstract class SetElement<T, E, V>
 //	 */
 //	public static class WriteField<T, V> extends SetElement<T, String, V>
 //	{
-//		//~ Constructors -------------------------------------------------------
+//		
 //
-//		/***************************************
+//		/**
 //		 * Creates a new instance that accesses a particular field.
 //		 *
 //		 * @param sFieldName The name of the field to access
@@ -212,9 +183,9 @@ public abstract class SetElement<T, E, V>
 //			super(sFieldName, rValue, "ReadField[%s]");
 //		}
 //
-//		//~ Methods ------------------------------------------------------------
+//		
 //
-//		/***************************************
+//		/**
 //		 * @see SetElement#getElementValue(Object, Object)
 //		 */
 //		@Override

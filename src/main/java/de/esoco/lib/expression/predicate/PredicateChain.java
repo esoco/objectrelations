@@ -21,8 +21,7 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.function.FunctionChain;
 
-
-/********************************************************************
+/**
  * A subclass of {@link FunctionChain} for predicates that also implements the
  * predicate interface. This allows to create a new predicate instance from the
  * chaining of a predicate with a function.
@@ -30,47 +29,40 @@ import de.esoco.lib.expression.function.FunctionChain;
  * @author eso
  */
 public class PredicateChain<T, V> extends FunctionChain<T, V, Boolean>
-	implements Predicate<T>
-{
-	//~ Constructors -----------------------------------------------------------
+	implements Predicate<T> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rOuter The predicate that evaluates the inner function results
 	 * @param rInner The function that produces the predicate input values
 	 */
-	public PredicateChain(Predicate<V> rOuter, Function<T, ? extends V> rInner)
-	{
+	public PredicateChain(Predicate<V> rOuter,
+		Function<T, ? extends V> rInner) {
 		super(rOuter, rInner);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see Predicate#and(Predicate)
 	 */
 	@Override
-	public <O extends T> Predicate<O> and(Predicate<? super T> rOther)
-	{
+	public <O extends T> Predicate<O> and(Predicate<? super T> rOther) {
 		return Predicates.and(this, rOther);
 	}
 
-	/***************************************
+	/**
 	 * @see Predicate#from(Function)
 	 */
 	@Override
-	public <I> Predicate<I> from(Function<I, ? extends T> rFunction)
-	{
+	public <I> Predicate<I> from(Function<I, ? extends T> rFunction) {
 		return Predicates.chain(this, rFunction);
 	}
 
-	/***************************************
+	/**
 	 * @see Predicate#or(Predicate)
 	 */
 	@Override
-	public <O extends T> Predicate<O> or(Predicate<? super T> rOther)
-	{
+	public <O extends T> Predicate<O> or(Predicate<? super T> rOther) {
 		return Predicates.or(this, rOther);
 	}
 }

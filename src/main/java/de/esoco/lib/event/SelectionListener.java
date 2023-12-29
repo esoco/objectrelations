@@ -16,17 +16,15 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.event;
 
-/********************************************************************
+/**
  * An event listener interface that will be notified of the de-/selection of
  * objects of a certain type.
  *
  * @author eso
  */
-public interface SelectionListener<T>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface SelectionListener<T> {
 
-	/***************************************
+	/**
 	 * This method will be invoked when the selection of the watched object
 	 * changes.
 	 *

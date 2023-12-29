@@ -17,26 +17,22 @@
 package org.obrel.type;
 
 import de.esoco.lib.event.EventDispatcher;
-
-import java.util.function.BiConsumer;
-
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 
+import java.util.function.BiConsumer;
+
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * Contains standard event listener relation types and event listener type
  * factory methods.
  *
  * @author eso
  */
-public class ListenerTypes
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class ListenerTypes {
 
 	/**
 	 * A relation type for the registration of relation listeners on relatable
@@ -44,27 +40,31 @@ public class ListenerTypes
 	 * the parent object it is set on. Will be initialized automatically so it
 	 * is not necessary to check for existence before accessing the relation.
 	 */
-	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_LISTENERS =
-		newType(r -> new EventDispatcher<>());
+	public static final RelationType<EventDispatcher<RelationEvent<?>>>
+		RELATION_LISTENERS = newType(r -> new EventDispatcher<>());
 
 	/**
 	 * A relation type for the registration of event listeners on relation
 	 * types. A relation type listener is notified of all changes to relations
-	 * with the type it is set on. Setting a relation type listener on any other
+	 * with the type it is set on. Setting a relation type listener on any
+	 * other
 	 * type of object than a relation type will have no effect. A {@link
-	 * #RELATION_LISTENERS} on a relation type will have the same function as on
-	 * any other object, i.e will be notified of changes to the (meta-relations)
+	 * #RELATION_LISTENERS} on a relation type will have the same function
+	 * as on
+	 * any other object, i.e will be notified of changes to the
+	 * (meta-relations)
 	 * of the relation type.
 	 *
 	 * <p>Will be initialized automatically so it is not necessary to check for
 	 * existence before accessing the relation.</p>
 	 */
-	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_TYPE_LISTENERS =
-		newType(r -> new EventDispatcher<>());
+	public static final RelationType<EventDispatcher<RelationEvent<?>>>
+		RELATION_TYPE_LISTENERS = newType(r -> new EventDispatcher<>());
 
 	/**
 	 * A relation type for the registration of update listeners on relations. A
-	 * relation update listener is notified of all changes to the relation it is
+	 * relation update listener is notified of all changes to the relation
+	 * it is
 	 * set on. Setting a relation update listener on any other type of object
 	 * than a relation will have no effect. A {@link #RELATION_LISTENERS} on a
 	 * relation will have the same function as on any other object, i.e will be
@@ -73,48 +73,40 @@ public class ListenerTypes
 	 * <p>Will be initialized automatically so it is not necessary to check for
 	 * existence before accessing the relation.</p>
 	 */
-	public static final RelationType<EventDispatcher<RelationEvent<?>>> RELATION_UPDATE_LISTENERS =
-		newType(r -> new EventDispatcher<>());
+	public static final RelationType<EventDispatcher<RelationEvent<?>>>
+		RELATION_UPDATE_LISTENERS = newType(r -> new EventDispatcher<>());
 
-	static
-	{
+	static {
 		RelationTypes.init(ListenerTypes.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Private, only static use.
 	 */
-	private ListenerTypes()
-	{
+	private ListenerTypes() {
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new {@link ListenerType} instance without a default event
-	 * dispatcher. The notification of event listeners must be done by providing
+	 * dispatcher. The notification of event listeners must be done by
+	 * providing
 	 * an explicit event dispatch function to the method {@link
 	 * ListenerType#notifyListeners(Object, Object, BiConsumer)}.
 	 *
 	 * @see ListenerType#ListenerType(BiConsumer, RelationTypeModifier...)
 	 */
 	public static <L, E> ListenerType<L, E> newListenerType(
-		RelationTypeModifier... rModifiers)
-	{
+		RelationTypeModifier... rModifiers) {
 		return newListenerType(null, rModifiers);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new {@link ListenerType} instance.
 	 *
 	 * @see ListenerType#ListenerType(BiConsumer, RelationTypeModifier...)
 	 */
 	public static <L, E> ListenerType<L, E> newListenerType(
-		BiConsumer<L, E>		fDispatcher,
-		RelationTypeModifier... rModifiers)
-	{
+		BiConsumer<L, E> fDispatcher, RelationTypeModifier... rModifiers) {
 		return new ListenerType<>(fDispatcher, rModifiers);
 	}
 }

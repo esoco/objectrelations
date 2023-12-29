@@ -20,13 +20,12 @@ import de.esoco.lib.expression.Function;
 
 import java.io.File;
 
-/********************************************************************
+/**
  * An object space implementation that maps URLs to the local file system.
  *
  * @author eso
  */
 public class FileSystemSpace<T> extends RelationSpace<T> {
-	//~ Instance fields --------------------------------------------------------
 
 	private final String sRootPath;
 
@@ -34,15 +33,14 @@ public class FileSystemSpace<T> extends RelationSpace<T> {
 
 	private final Function<File, T> fReadFile;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sRootPath    The root path to which URLs are relative
 	 * @param sDefaultFile The default file to look return on empty URLs (empty
 	 *                     string for none)
-	 * @param fReadFile    A function that reads a file and returns it's content
+	 * @param fReadFile    A function that reads a file and returns it's
+	 *                     content
 	 *                     with the datatype of this space
 	 */
 	public FileSystemSpace(String sRootPath, String sDefaultFile,
@@ -56,9 +54,7 @@ public class FileSystemSpace<T> extends RelationSpace<T> {
 		this.fReadFile = fReadFile;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override

@@ -19,31 +19,25 @@ package org.obrel.core;
 import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.event.EventHandler;
 import de.esoco.lib.expression.Function;
-
 import org.obrel.type.ListenerTypes;
 
-
-/********************************************************************
+/**
  * A wrapper for other relations that provides a view of the relation with a
  * different relation type and optionally a different datatype. Wrapper can also
  * be set on a different parent than the wrapped relation.
  */
 public abstract class RelationWrapper<T, R, F extends Function<R, T>>
-	extends Relation<T> implements EventHandler<RelationEvent<R>>
-{
-	//~ Static fields/initializers ---------------------------------------------
+	extends Relation<T> implements EventHandler<RelationEvent<R>> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
+	private final Relatable rParent;
 
-	private final Relatable   rParent;
 	private final Relation<R> rWrappedRelation;
-	private final F			  fTargetConversion;
 
-	//~ Constructors -----------------------------------------------------------
+	private final F fTargetConversion;
 
-	/***************************************
+	/**
 	 * Creates a new instance for a view of a certain relation.
 	 *
 	 * @param rParent     The parent relatable this wrapper is set on
@@ -53,131 +47,113 @@ public abstract class RelationWrapper<T, R, F extends Function<R, T>>
 	 *                    wrapped relation into the datatype of this view's
 	 *                    relation type
 	 */
-	RelationWrapper(Relatable		rParent,
-					RelationType<T> rType,
-					Relation<R>		rWrapped,
-					F				fConversion)
-	{
+	RelationWrapper(Relatable rParent, RelationType<T> rType,
+		Relation<R> rWrapped, F fConversion) {
 		super(rType);
 
-		this.rParent	  = rParent;
-		rWrappedRelation  = rWrapped;
+		this.rParent = rParent;
+		rWrappedRelation = rWrapped;
 		fTargetConversion = fConversion;
 
 		rWrappedRelation.addUpdateListener(this);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the conversion function of this instance.
 	 *
 	 * @return The conversion function
 	 */
-	public final F getConversion()
-	{
+	public final F getConversion() {
 		return fTargetConversion;
 	}
 
-	/***************************************
-	 * Returns the target of the wrapped relation as converted by the conversion
+	/**
+	 * Returns the target of the wrapped relation as converted by the
+	 * conversion
 	 * function.
 	 *
 	 * @see Relation#getTarget()
 	 */
 	@Override
-	public T getTarget()
-	{
+	public T getTarget() {
 		return fTargetConversion.evaluate(rWrappedRelation.getTarget());
 	}
 
-	/***************************************
+	/**
 	 * Returns the wrapped relation.
 	 *
 	 * @return The wrapped relation
 	 */
-	public final Relation<R> getWrappedRelation()
-	{
+	public final Relation<R> getWrappedRelation() {
 		return rWrappedRelation;
 	}
 
-	/***************************************
+	/**
 	 * Forwards events on the wrapped relation to listeners on this relation.
 	 *
 	 * @param rEvent The event that occurred on the wrapped relation
 	 */
 	@Override
-	public void handleEvent(RelationEvent<R> rEvent)
-	{
-		if (rEvent.getType() == EventType.UPDATE)
-		{
+	public void handleEvent(RelationEvent<R> rEvent) {
+		if (rEvent.getType() == EventType.UPDATE) {
 			T rUpdateValue =
 				fTargetConversion.evaluate(rEvent.getUpdateValue());
 
 			RelationEvent<T> rConvertedEvent =
-				new RelationEvent<>(
-					EventType.UPDATE,
-					rParent,
-					this,
-					rUpdateValue,
-					this);
+				new RelationEvent<>(EventType.UPDATE, rParent, this,
+					rUpdateValue, this);
 
 			get(ListenerTypes.RELATION_UPDATE_LISTENERS).dispatch(
 				rConvertedEvent);
 		}
 	}
 
-	/***************************************
+	/**
 	 * Returns the parent this wrapper is set on.
 	 *
 	 * @return The parent value
 	 */
-	protected final Relatable getParent()
-	{
+	protected final Relatable getParent() {
 		return rParent;
 	}
 
-	/***************************************
+	/**
 	 * Implemented to unregister the event listener on the wrapped relation.
 	 *
 	 * @see Relation#removed()
 	 */
 	@Override
-	protected void removed()
-	{
-		rWrappedRelation.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
-						.remove(this);
+	protected void removed() {
+		rWrappedRelation
+			.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
+			.remove(this);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	boolean dataEqual(Relation<?> rOther)
-	{
+	boolean dataEqual(Relation<?> rOther) {
 		return rWrappedRelation ==
-			   ((RelationWrapper<?, ?, ?>) rOther).rWrappedRelation;
+			((RelationWrapper<?, ?, ?>) rOther).rWrappedRelation;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	int dataHashCode()
-	{
+	int dataHashCode() {
 		return rWrappedRelation.dataHashCode();
 	}
 
-	/***************************************
+	/**
 	 * Always throws an exception because views are readonly.
 	 *
 	 * @see Relation#setTarget(Object)
 	 */
 	@Override
-	void setTarget(T rNewTarget)
-	{
+	void setTarget(T rNewTarget) {
 		throw new UnsupportedOperationException(
-			"View relation is readonly: " +
-			this);
+			"View relation is readonly: " + this);
 	}
 }

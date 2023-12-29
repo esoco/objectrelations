@@ -22,8 +22,7 @@ import de.esoco.lib.expression.Function;
 import java.util.HashMap;
 import java.util.Map;
 
-
-/********************************************************************
+/**
  * A function that associates input elements with a key and then stores the
  * element counts in a map that is indexed by that key. A way to use this
  * function would be through {@link CollectionUtil#apply(java.util.Collection,
@@ -32,37 +31,31 @@ import java.util.Map;
  *
  * @author eso
  */
-public class CountElements<E, K> extends AbstractFunction<E, Void>
-{
-	//~ Instance fields --------------------------------------------------------
+public class CountElements<E, K> extends AbstractFunction<E, Void> {
 
-	private final Map<K, Integer>		   aCountMap = new HashMap<>();
+	private final Map<K, Integer> aCountMap = new HashMap<>();
+
 	private final Function<? super E, K> fGetKey;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param fGetElementKey A function that generates the key for the count map
+	 * @param fGetElementKey A function that generates the key for the count
+	 *                       map
 	 */
-	public CountElements(Function<? super E, K> fGetElementKey)
-	{
+	public CountElements(Function<? super E, K> fGetElementKey) {
 		super(CountElements.class.getSimpleName());
 
 		this.fGetKey = fGetElementKey;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see AbstractFunction#evaluate(Object)
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	public Void evaluate(E rElement)
-	{
-		K	    rKey   = fGetKey.evaluate(rElement);
+	public Void evaluate(E rElement) {
+		K rKey = fGetKey.evaluate(rElement);
 		Integer rCount = aCountMap.get(rKey);
 
 		aCountMap.put(rKey, rCount != null ? rCount + 1 : 1);
@@ -70,13 +63,12 @@ public class CountElements<E, K> extends AbstractFunction<E, Void>
 		return null;
 	}
 
-	/***************************************
+	/**
 	 * Returns the mappings from keys to the counts of element with that keys.
 	 *
 	 * @return The countMap value
 	 */
-	public final Map<K, Integer> getElementCounts()
-	{
+	public final Map<K, Integer> getElementCounts() {
 		return aCountMap;
 	}
 }

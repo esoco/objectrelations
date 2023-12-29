@@ -18,20 +18,15 @@ package org.obrel.core;
 
 import de.esoco.lib.expression.Function;
 
-
-/********************************************************************
+/**
  * A relation wrapper implementation that provides a readonly view of another
  * relation with a different relation type and datatype.
  */
-public class RelationView<T, V> extends RelationWrapper<T, V, Function<V, T>>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class RelationView<T, V> extends RelationWrapper<T, V, Function<V, T>> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent         The parent relatable of the view relation
@@ -40,25 +35,20 @@ public class RelationView<T, V> extends RelationWrapper<T, V, Function<V, T>>
 	 * @param fViewConversion A conversion function that produces the target
 	 *                        value of the view
 	 */
-	RelationView(Relatable		 rParent,
-				 RelationType<T> rViewType,
-				 Relation<V>	 rViewedRelation,
-				 Function<V, T>  fViewConversion)
-	{
+	RelationView(Relatable rParent, RelationType<T> rViewType,
+		Relation<V> rViewedRelation, Function<V, T> fViewConversion) {
 		super(rParent, rViewType, rViewedRelation, fViewConversion);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Copies this view to another object. The copy will still refer to the
 	 * original wrapped relation.
 	 *
 	 * @see RelationWrapper#copyTo(Relatable)
 	 */
 	@Override
-	Relation<T> copyTo(Relatable rTarget)
-	{
-		return getWrappedRelation().viewAs(getType(), rTarget, getConversion());
+	Relation<T> copyTo(Relatable rTarget) {
+		return getWrappedRelation().viewAs(getType(), rTarget,
+			getConversion());
 	}
 }

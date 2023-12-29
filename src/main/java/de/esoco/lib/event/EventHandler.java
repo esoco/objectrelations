@@ -16,18 +16,16 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.event;
 
-/********************************************************************
+/**
  * An extended event listener interface that requires from implementations to
  * provide a single {@link #handleEvent(Event)} method.
  *
  * @author eso
  */
 @FunctionalInterface
-public interface EventHandler<E extends Event<?>> extends EventListener
-{
-	//~ Methods ----------------------------------------------------------------
+public interface EventHandler<E extends Event<?>> extends EventListener {
 
-	/***************************************
+	/**
 	 * This method must be implemented to handle an event.
 	 *
 	 * @param rEvent The event that occurred

@@ -24,20 +24,17 @@ import org.obrel.type.StandardTypes;
 import static org.obrel.space.ObjectSpaceResolver.URL_DELETE;
 import static org.obrel.space.ObjectSpaceResolver.URL_GET;
 
-/********************************************************************
+/**
  * An {@link ObjectSpace} implementation that is based on {@link RelatedObject}.
  * It maps access URLs to the hierarchy of it's relations.
  *
  * @author eso
  */
 public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T> {
-	//~ Instance fields --------------------------------------------------------
 
 	private final boolean bModificationAllowed;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance that doesn't allow modifications through the
 	 * methods {@link #put(String, Object)} or {@link #delete(String)}.
 	 */
@@ -45,7 +42,7 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T> {
 		this(false);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param bModificationAllowed TRUE if modifications through the methods
@@ -56,9 +53,7 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T> {
 		this.bModificationAllowed = bModificationAllowed;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -66,11 +61,12 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T> {
 		if (bModificationAllowed) {
 			ObjectRelations.urlResolve(this, sUrl, false, URL_DELETE);
 		} else {
-			throw new UnsupportedOperationException("Modification not allowed");
+			throw new UnsupportedOperationException(
+				"Modification not " + "allowed");
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -79,7 +75,7 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T> {
 		return (T) ObjectRelations.urlResolve(this, sUrl, false, URL_GET);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -88,11 +84,12 @@ public class RelationSpace<T> extends RelatedObject implements ObjectSpace<T> {
 			ObjectRelations.urlResolve(this, sUrl, false,
 				new PutResolver<T>(rValue));
 		} else {
-			throw new UnsupportedOperationException("Modification not allowed");
+			throw new UnsupportedOperationException(
+				"Modification not " + "allowed");
 		}
 	}
 
-	/***************************************
+	/**
 	 * Overridden to return the value of the {@link StandardTypes#NAME}
 	 * relation.
 	 *

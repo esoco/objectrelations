@@ -63,8 +63,9 @@ public class RelationListenerTest {
 		assertNull(rRelationTarget);
 
 		aTest1.get(ListenerTypes.RELATION_LISTENERS).remove(aListener);
-		assertTrue(
-				aTest1.get(ListenerTypes.RELATION_LISTENERS).getEventHandlerCount() == 0);
+		assertTrue(aTest1
+			.get(ListenerTypes.RELATION_LISTENERS)
+			.getEventHandlerCount() == 0);
 	}
 
 	/**
@@ -106,9 +107,10 @@ public class RelationListenerTest {
 		aTest1.set(NAME, null).addUpdateListener(aListener);
 		aTest1.set(NAME, "TEST1");
 		assertEquals("TEST1", rRelationTarget);
-		aTest1.getRelation(NAME)
-				.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
-				.remove(aListener);
+		aTest1
+			.getRelation(NAME)
+			.get(ListenerTypes.RELATION_UPDATE_LISTENERS)
+			.remove(aListener);
 		aTest1.set(NAME, "TEST1X");
 		assertEquals("TEST1", rRelationTarget);
 
@@ -148,7 +150,8 @@ public class RelationListenerTest {
 		aTest2.deleteRelation(NAME);
 		assertNull(rRelationTarget);
 
-		EventDispatcher<RelationEvent<?>> rTypeEventDispatcher = NAME.get(ListenerTypes.RELATION_TYPE_LISTENERS);
+		EventDispatcher<RelationEvent<?>> rTypeEventDispatcher =
+			NAME.get(ListenerTypes.RELATION_TYPE_LISTENERS);
 
 		rTypeEventDispatcher.remove(aListener);
 
@@ -156,13 +159,15 @@ public class RelationListenerTest {
 		// assertTrue(rTypeEventDispatcher.getEventHandlerCount() == 0);
 	}
 
-	// ~ Inner Classes ----------------------------------------------------------
+	// ~ Inner Classes
+	// ----------------------------------------------------------
 
-	/*******************************
+	/**
 	 * A test event listener
 	 */
 	class TestListener<T> implements EventHandler<RelationEvent<T>> {
-		// ~ Methods ------------------------------------------------------------
+		// ~ Methods
+		// ------------------------------------------------------------
 
 		/**
 		 * @see EventHandler#handleEvent(de.esoco.lib.event.Event)

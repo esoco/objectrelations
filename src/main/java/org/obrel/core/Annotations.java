@@ -22,26 +22,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-
-/********************************************************************
+/**
  * Contains ObjectRelations-specific annotations.
  *
  * @author eso
  */
-public class Annotations
-{
-	//~ Constructors -----------------------------------------------------------
+public class Annotations {
 
-	/***************************************
+	/**
 	 * Private, only static use.
 	 */
-	private Annotations()
-	{
+	private Annotations() {
 	}
 
-	//~ Annotations ------------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * An annotation for classes that contains a different namespace for
 	 * declared relation types than that of the declaring class. The name must
 	 * be a standard Java package name without a trailing dot.
@@ -51,16 +45,19 @@ public class Annotations
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
-	public @interface RelationTypeNamespace
-	{
+	public @interface RelationTypeNamespace {
 		String value();
 	}
 
-	/********************************************************************
-	 * An annotation for relation type fields where the field name should not be
-	 * checked for equality with the relation type name. This can be the case if
-	 * a relation type is defined in a different context and assigned to a field
-	 * which needs to be renamed to prevent name conflicts with other "borrowed"
+	/**
+	 * An annotation for relation type fields where the field name should
+	 * not be
+	 * checked for equality with the relation type name. This can be the
+	 * case if
+	 * a relation type is defined in a different context and assigned to a
+	 * field
+	 * which needs to be renamed to prevent name conflicts with other
+	 * "borrowed"
 	 * fields.
 	 *
 	 * @author eso
@@ -68,7 +65,6 @@ public class Annotations
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	public @interface NoRelationNameCheck
-	{
+	public @interface NoRelationNameCheck {
 	}
 }

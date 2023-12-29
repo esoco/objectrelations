@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-/********************************************************************
+/**
  * An extended function interface for invertible functions. Invoking the method
  * {@link #invert(Object)} with a particular output value of a previous
  * evaluation of the same function will return the original input value of the
@@ -30,43 +30,33 @@ package de.esoco.lib.expression;
  *
  * @author eso
  */
-public interface InvertibleFunction<I, O> extends Function<I, O>
-{
-	//~ Static methods ---------------------------------------------------------
+public interface InvertibleFunction<I, O> extends Function<I, O> {
 
-	/***************************************
+	/**
 	 * A factory method that returns an new instance for two distinct functions
 	 * that perform the evaluation and inversion, respectively. This allows to
 	 * construct a new invertible function from two lambda expressions.
 	 *
-	 * @param  fEvaluate The evaluating function
-	 * @param  fInvert   The inverting function
-	 *
+	 * @param fEvaluate The evaluating function
+	 * @param fInvert   The inverting function
 	 * @return The new instance
 	 */
-	static <I, O> InvertibleFunction<I, O> of(
-		Function<I, O> fEvaluate,
-		Function<O, I> fInvert)
-	{
-		return new InvertibleFunction<I, O>()
-		{
+	static <I, O> InvertibleFunction<I, O> of(Function<I, O> fEvaluate,
+		Function<O, I> fInvert) {
+		return new InvertibleFunction<I, O>() {
 			@Override
-			public O evaluate(I rValue)
-			{
+			public O evaluate(I rValue) {
 				return fEvaluate.apply(rValue);
 			}
 
 			@Override
-			public I invert(O rValue)
-			{
+			public I invert(O rValue) {
 				return fInvert.evaluate(rValue);
 			}
 		};
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Inverts the evaluation of this function. The returned object must be at
 	 * least equal to an input value that would yield the argument value as the
 	 * output of the {@link Function#evaluate(Object)} method so that the
@@ -74,8 +64,7 @@ public interface InvertibleFunction<I, O> extends Function<I, O>
 	 * not required but possible to provide an identity relation so that even
 	 * the expression {@code invert(evaluate(I)) == I} is valid.
 	 *
-	 * @param  rValue The evaluation output value to invert
-	 *
+	 * @param rValue The evaluation output value to invert
 	 * @return The inverted output value
 	 */
 	I invert(O rValue);

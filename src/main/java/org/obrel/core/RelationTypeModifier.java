@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
-/********************************************************************
+/**
  * An enumeration of modifiers that define certain static aspects of relation
  * types. The following modifiers are currently available:
  *
@@ -50,9 +50,21 @@ package org.obrel.core;
  *     readonly).</li>
  * </ul>
  */
-public enum RelationTypeModifier
-{
-	/** Cannot be modified after first initialization. */ FINAL, /** Can never be modified and always returns the initial value. */
-	READONLY, /** Will not be serialized. */ TRANSIENT, /** Not visible without access to the relation type. */
+public enum RelationTypeModifier {
+	/**
+	 * Cannot be modified after first initialization.
+	 */
+	FINAL,
+	/**
+	 * Can never be modified and always returns the initial value.
+	 */
+	READONLY,
+	/**
+	 * Will not be serialized.
+	 */
+	TRANSIENT,
+	/**
+	 * Not visible without access to the relation type.
+	 */
 	PRIVATE
 }

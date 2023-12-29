@@ -16,17 +16,15 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.event;
 
-/********************************************************************
+/**
  * A generic event interface. The generic type parameter defines the type of
  * event source that can be queried with the {@link #getSource()} method.
  *
  * @author eso
  */
-public interface Event<T>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface Event<T> {
 
-	/***************************************
+	/**
 	 * Returns the source object that caused the event.
 	 *
 	 * @return The event source object

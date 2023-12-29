@@ -19,92 +19,79 @@ package de.esoco.lib.expression.function;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-
-/********************************************************************
+/**
  * A function that creates a cryptographic hash value from it's input byte
  * array.
  *
  * @author eso
  */
-public class CreateHash extends AbstractFunction<byte[], byte[]>
-{
-	//~ Instance fields --------------------------------------------------------
+public class CreateHash extends AbstractFunction<byte[], byte[]> {
 
 	private final MessageDigest aDigest;
-	private final String	    sSalt;
-	private final int		    nRounds;
 
-	//~ Constructors -----------------------------------------------------------
+	private final String sSalt;
 
-	/***************************************
+	private final int nRounds;
+
+	/**
 	 * Creates a new instance that uses a certain hash algorithm. The given
 	 * algorithm name must be a valid input value for the method {@link
 	 * MessageDigest#getInstance(String)}.
 	 *
-	 * @param  sAlgorithm The name of the hash algorithm
-	 * @param  sSalt      A salt to append to input data or NULL for none
-	 * @param  nRounds    The number of rounds to apply the hash algorithm to
-	 *                    the input
-	 *
+	 * @param sAlgorithm The name of the hash algorithm
+	 * @param sSalt      A salt to append to input data or NULL for none
+	 * @param nRounds    The number of rounds to apply the hash algorithm to
+	 *                   the input
 	 * @throws NoSuchAlgorithmException If the given algorithm is not available
 	 */
 	public CreateHash(String sAlgorithm, String sSalt, int nRounds)
-		throws NoSuchAlgorithmException
-	{
+		throws NoSuchAlgorithmException {
 		super(String.format(CreateHash.class.getSimpleName() + "[%s]",
-							sAlgorithm));
+			sAlgorithm));
 
-		aDigest		 = MessageDigest.getInstance(sAlgorithm);
-		this.sSalt   = sSalt;
+		aDigest = MessageDigest.getInstance(sAlgorithm);
+		this.sSalt = sSalt;
 		this.nRounds = nRounds;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public byte[] evaluate(byte[] rInput)
-	{
+	public byte[] evaluate(byte[] rInput) {
 		byte[] aResult = rInput;
 
 		aDigest.reset();
 
-		if (sSalt != null)
-		{
+		if (sSalt != null) {
 			aDigest.update(sSalt.getBytes());
 		}
 
-		for (int i = 0; i < nRounds; i++)
-		{
+		for (int i = 0; i < nRounds; i++) {
 			aResult = aDigest.digest(aResult);
 		}
 
 		return aResult;
 	}
 
-	/***************************************
+	/**
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther)
-	{
+	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
 		CreateHash rOtherHash = (CreateHash) rOther;
 
 		return nRounds == rOtherHash.nRounds &&
-			   sSalt.equals(rOtherHash.sSalt) &&
-			   aDigest.getAlgorithm().equals(rOtherHash.aDigest.getAlgorithm());
+			sSalt.equals(rOtherHash.sSalt) &&
+			aDigest.getAlgorithm().equals(rOtherHash.aDigest.getAlgorithm());
 	}
 
-	/***************************************
+	/**
 	 * @see AbstractFunction#paramsHashCode()
 	 */
 	@Override
-	protected int paramsHashCode()
-	{
+	protected int paramsHashCode() {
 		return nRounds +
-			   (37 * sSalt.hashCode() +
-				(37 * aDigest.getAlgorithm().hashCode()));
+			(37 * sSalt.hashCode() + (37 * aDigest.getAlgorithm().hashCode()));
 	}
 }

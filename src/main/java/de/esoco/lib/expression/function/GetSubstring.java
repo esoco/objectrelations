@@ -16,65 +16,57 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.function;
 
-/********************************************************************
+/**
  * A function implementation that returns a substring of an input string.
  *
  * @author eso
  */
-public class GetSubstring extends AbstractFunction<String, String>
-{
-	//~ Instance fields --------------------------------------------------------
+public class GetSubstring extends AbstractFunction<String, String> {
 
 	private final int nBeginIndex;
+
 	private final int nEndIndex;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param nBeginIndex The index of the first char of the substring
 	 * @param nEndIndex   The index of the char after the last char of the
 	 *                    substring or -1 for the end of the string
 	 */
-	public GetSubstring(int nBeginIndex, int nEndIndex)
-	{
+	public GetSubstring(int nBeginIndex, int nEndIndex) {
 		super(GetSubstring.class.getSimpleName());
 
 		this.nBeginIndex = nBeginIndex;
-		this.nEndIndex   = nEndIndex;
+		this.nEndIndex = nEndIndex;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see AbstractFunction#evaluate(Object)
 	 */
 	@Override
-	public String evaluate(String sValue)
-	{
-		return nEndIndex != -1 ? sValue.substring(nBeginIndex, nEndIndex)
-							   : sValue.substring(nBeginIndex);
+	public String evaluate(String sValue) {
+		return nEndIndex != -1 ?
+		       sValue.substring(nBeginIndex, nEndIndex) :
+		       sValue.substring(nBeginIndex);
 	}
 
-	/***************************************
+	/**
 	 * Returns the index of the first character of substrings.
 	 *
 	 * @return The first char index
 	 */
-	public final int getBeginIndex()
-	{
+	public final int getBeginIndex() {
 		return nBeginIndex;
 	}
 
-	/***************************************
+	/**
 	 * Returns the index of the first character after the last character of
 	 * substrings. Will be -1 if the end ist the end of the string.
 	 *
 	 * @return The last char index
 	 */
-	public final int getEndIndex()
-	{
+	public final int getEndIndex() {
 		return nEndIndex;
 	}
 }

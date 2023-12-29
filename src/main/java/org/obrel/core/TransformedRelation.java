@@ -18,8 +18,7 @@ package org.obrel.core;
 
 import de.esoco.lib.expression.InvertibleFunction;
 
-
-/********************************************************************
+/**
  * A relation implementation that stores the target value in a transformed form.
  * To transform the target value it applies a transformation function to it
  * which must be defined in an instance of the {@link InvertibleFunction}
@@ -34,72 +33,58 @@ import de.esoco.lib.expression.InvertibleFunction;
  *
  * @author eso
  */
-public class TransformedRelation<T, D> extends Relation<T>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class TransformedRelation<T, D> extends Relation<T> {
 
 	private static final long serialVersionUID = 1L;
-
-	//~ Instance fields --------------------------------------------------------
 
 	private final InvertibleFunction<T, D> fTransformation;
 
 	private D rData;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rType           The type of this relation
 	 * @param fTransformation The transformation to be applied to target values
 	 */
-	public TransformedRelation(
-		RelationType<T>			 rType,
-		InvertibleFunction<T, D> fTransformation)
-	{
+	public TransformedRelation(RelationType<T> rType,
+		InvertibleFunction<T, D> fTransformation) {
 		super(rType);
 
 		this.fTransformation = fTransformation;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public T getTarget()
-	{
+	public T getTarget() {
 		return fTransformation.invert(rData);
 	}
 
-	/***************************************
+	/**
 	 * Returns the transformation function.
 	 *
 	 * @return The transformation function
 	 */
-	public final InvertibleFunction<T, D> getTransformation()
-	{
+	public final InvertibleFunction<T, D> getTransformation() {
 		return fTransformation;
 	}
 
-	/***************************************
+	/**
 	 * Returns the transformed target value.
 	 *
 	 * @return The transformed target value
 	 */
-	public final D getTransformedTarget()
-	{
+	public final D getTransformedTarget() {
 		return rData;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	Relation<T> copyTo(Relatable rTarget)
-	{
+	Relation<T> copyTo(Relatable rTarget) {
 		TransformedRelation<T, D> aCopy =
 			rTarget.transform(getType(), fTransformation);
 
@@ -108,25 +93,20 @@ public class TransformedRelation<T, D> extends Relation<T>
 		return aCopy;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	boolean dataEqual(Relation<?> rOther)
-	{
+	boolean dataEqual(Relation<?> rOther) {
 		TransformedRelation<?, ?> rOtherRelation =
 			(TransformedRelation<?, ?>) rOther;
 
 		boolean bResult = false;
 
-		if (fTransformation.equals(rOtherRelation.fTransformation))
-		{
-			if (rData == null)
-			{
+		if (fTransformation.equals(rOtherRelation.fTransformation)) {
+			if (rData == null) {
 				bResult = (rOtherRelation.rData == null);
-			}
-			else
-			{
+			} else {
 				bResult = rData.equals(rOtherRelation.rData);
 			}
 		}
@@ -134,22 +114,20 @@ public class TransformedRelation<T, D> extends Relation<T>
 		return bResult;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	int dataHashCode()
-	{
+	int dataHashCode() {
 		return 31 * fTransformation.hashCode() +
-			   (rData != null ? rData.hashCode() : 0);
+			(rData != null ? rData.hashCode() : 0);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	void setTarget(T rNewTarget)
-	{
+	void setTarget(T rNewTarget) {
 		rData = fTransformation.evaluate(rNewTarget);
 	}
 }

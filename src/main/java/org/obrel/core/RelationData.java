@@ -18,56 +18,43 @@ package org.obrel.core;
 
 import de.esoco.lib.datatype.Pair;
 
-
-/********************************************************************
+/**
  * A type-safe pair of a relation type and an associated value.
  *
  * @author eso
  */
-public class RelationData<T> extends Pair<RelationType<T>, T>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class RelationData<T> extends Pair<RelationType<T>, T> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rType  The relation type
 	 * @param rValue The relation value
 	 */
-	public RelationData(RelationType<T> rType, T rValue)
-	{
+	public RelationData(RelationType<T> rType, T rValue) {
 		super(rType, rValue);
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Factory method to create a new instance. Intended to be used with static
 	 * imports.
 	 *
-	 * @param  rType  The relation type
-	 * @param  rValue The relation value
-	 *
+	 * @param rType  The relation type
+	 * @param rValue The relation value
 	 * @return A new relation data instance
 	 */
-	public static <T> RelationData<T> r(RelationType<T> rType, T rValue)
-	{
+	public static <T> RelationData<T> r(RelationType<T> rType, T rValue) {
 		return new RelationData<T>(rType, rValue);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Sets the relation defined by this instance on the given object.
 	 *
 	 * @param rObject The target relatable
 	 */
-	public void applyTo(Relatable rObject)
-	{
+	public void applyTo(Relatable rObject) {
 		rObject.set(first(), second());
 	}
 }

@@ -16,46 +16,43 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-/********************************************************************
+/**
  * Interface for binary predicates that derive their result from two input
  * values. The generic parameters define the types of the left and right input
  * values (L, R).
  *
  * @author eso
  */
-public interface BinaryPredicate<L, R> extends Predicate<L>,
-											   BinaryFunction<L, R, Boolean>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface BinaryPredicate<L, R>
+	extends Predicate<L>, BinaryFunction<L, R, Boolean> {
 
-	/***************************************
+	/**
 	 * Default implementation that invokes {@link #evaluate(Object, Object)}
 	 * with the return value of {@link #getRightValue()} as the right argument.
 	 *
 	 * @see Function#evaluate(Object)
 	 */
 	@Override
-	default Boolean evaluate(L rLeftValue)
-	{
+	default Boolean evaluate(L rLeftValue) {
 		return evaluate(rLeftValue, getRightValue());
 	}
 
-	/***************************************
-	 * Re-defined from {@link BinaryFunction#from(Function, Function)} to return
-	 * a new binary predicate instead of a function so that the result can still
+	/**
+	 * Re-defined from {@link BinaryFunction#from(Function, Function)} to
+	 * return
+	 * a new binary predicate instead of a function so that the result can
+	 * still
 	 * be used as a predicate.
 	 *
-	 * @param  rLeft  A function that produces the left value of this predicate
-	 * @param  rRight A function that produces the right value of this predicate
-	 *
+	 * @param rLeft  A function that produces the left value of this predicate
+	 * @param rRight A function that produces the right value of this
+	 *               predicate
 	 * @return A new predicate that first applies the argument functions to
-	 *         input values and then evaluates the result with this predicate
+	 * input values and then evaluates the result with this predicate
 	 */
 	@Override
-	default <A, B> BinaryPredicate<A, B> from(
-		Function<A, ? extends L> rLeft,
-		Function<B, ? extends R> rRight)
-	{
+	default <A, B> BinaryPredicate<A, B> from(Function<A, ? extends L> rLeft,
+		Function<B, ? extends R> rRight) {
 		return Predicates.chain(this, rLeft, rRight);
 	}
 }

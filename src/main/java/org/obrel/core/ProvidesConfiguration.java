@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
-/********************************************************************
+/**
  * An interface for object that provide access to relation-based configuration
  * values.
  *
@@ -24,20 +24,19 @@ package org.obrel.core;
  */
 @FunctionalInterface
 public interface ProvidesConfiguration {
-	//~ Methods ----------------------------------------------------------------
 
-	/***************************************
-	 * Returns a configuration relation value from this instance or a default if
+	/**
+	 * Returns a configuration relation value from this instance or a
+	 * default if
 	 * no relation with the given type exists.
 	 *
-	 * @param  rType         The relation type
-	 * @param  rDefaultValue The default value to return if no relation exists
-	 *
+	 * @param rType         The relation type
+	 * @param rDefaultValue The default value to return if no relation exists
 	 * @return The relation value or the default
 	 */
 	<T> T getConfigValue(RelationType<T> rType, T rDefaultValue);
 
-	/***************************************
+	/**
 	 * Sets a configuration value. The default implementation always throws an
 	 * unsupported operation exception. If a mutable configuration is needed
 	 * this method must be overridden by a subclass.

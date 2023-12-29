@@ -21,8 +21,7 @@ import de.esoco.lib.expression.function.FunctionChain;
 
 import java.util.function.Consumer;
 
-
-/********************************************************************
+/**
  * Interface for functions that return a value that will be derived from an
  * input value. The generic parameters define the types of the input value (I)
  * and the resulting output value (O). For most implementations the easiest way
@@ -31,9 +30,7 @@ import java.util.function.Consumer;
  * @author eso
  */
 @FunctionalInterface
-public interface Function<I, O> extends java.util.function.Function<I, O>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public interface Function<I, O> extends java.util.function.Function<I, O> {
 
 	/**
 	 * The placeholder string that is used to display the input value of a
@@ -41,11 +38,31 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 	 */
 	String INPUT_PLACEHOLDER = "#";
 
-	//~ Methods ----------------------------------------------------------------
+	/**
+	 * Creates an action that consumes the result of evaluating an input value.
+	 *
+	 * @param fAction The action that consumes the function result
+	 * @return A new action (and {@link Consumer}) for input values of this
+	 * function
+	 */
+	default Action<I> andFinally(Action<O> fAction) {
+		return i -> fAction.accept(this.evaluate(i));
+	}
 
-	/***************************************
+	/**
+	 * Invokes {@link #evaluate(Object)}.
+	 *
+	 * @see java.util.function.Function#apply(Object)
+	 */
+	@Override
+	default O apply(I rInput) {
+		return evaluate(rInput);
+	}
+
+	/**
 	 * Evaluates the function on the input value and returns the resulting
-	 * value. The declaration of this method does not contain a throws clause to
+	 * value. The declaration of this method does not contain a throws
+	 * clause to
 	 * make the execution of standard functions as simple as possible. In cases
 	 * where a function implementation needs to signal a checked exception it
 	 * should wrap it in an {@link FunctionException} which is a subclass of
@@ -53,83 +70,52 @@ public interface Function<I, O> extends java.util.function.Function<I, O>
 	 * occurrence of such exceptions should be documented appropriately in the
 	 * function documentation.
 	 *
-	 * @param  rValue The input value of the function
-	 *
+	 * @param rValue The input value of the function
 	 * @return The resulting (output) value (may be NULL)
 	 */
 	O evaluate(I rValue);
 
-	/***************************************
-	 * Creates an action that consumes the result of evaluating an input value.
-	 *
-	 * @param  fAction The action that consumes the function result
-	 *
-	 * @return A new action (and {@link Consumer}) for input values of this
-	 *         function
-	 */
-	default Action<I> andFinally(Action<O> fAction)
-	{
-		return i -> fAction.accept(this.evaluate(i));
-	}
-
-	/***************************************
-	 * Invokes {@link #evaluate(Object)}.
-	 *
-	 * @see java.util.function.Function#apply(Object)
-	 */
-	@Override
-	default O apply(I rInput)
-	{
-		return evaluate(rInput);
-	}
-
-	/***************************************
+	/**
 	 * Returns a new function object that evaluates the result received from
 	 * another function with this function.
 	 *
-	 * @param  fPrevious The function to produce this function's input values
-	 *                   with
-	 *
+	 * @param fPrevious The function to produce this function's input values
+	 *                  with
 	 * @return A new instance of {@link FunctionChain}
 	 */
-	default <T> Function<T, O> from(Function<T, ? extends I> fPrevious)
-	{
+	default <T> Function<T, O> from(Function<T, ? extends I> fPrevious) {
 		return fPrevious.then(this);
 	}
 
-	/***************************************
+	/**
 	 * Returns the token that describes this function instance. The default
 	 * implementation returns the simple name of the function class.
 	 *
 	 * @return The function token
 	 */
-	default String getToken()
-	{
+	default String getToken() {
 		return getClass().getSimpleName();
 	}
 
-	/***************************************
+	/**
 	 * Returns a predicate that evaluates the result of this function.
 	 *
-	 * @param  pCriteria The criteria predicate to evaluate the function result
-	 *
+	 * @param pCriteria The criteria predicate to evaluate the function result
 	 * @return The function predicate
 	 */
-	default <T extends I> Predicate<T> is(Predicate<? super O> pCriteria)
-	{
+	default <T extends I> Predicate<T> is(Predicate<? super O> pCriteria) {
 		return Predicates.when(this, pCriteria);
 	}
 
-	/***************************************
+	/**
 	 * Returns a new function object that evaluates the result of this function
 	 * with another function and returns the result.
 	 *
-	 * @param  fNext The function to evaluate this function's output values with
-	 *
+	 * @param fNext The function to evaluate this function's output values
+	 *              with
 	 * @return A new instance of {@link FunctionChain}
 	 */
-	default <T> Function<I, T> then(Function<? super O, T> fNext)
-	{
+	default <T> Function<I, T> then(Function<? super O, T> fNext) {
 		return Functions.chain(fNext, this);
 	}
 }

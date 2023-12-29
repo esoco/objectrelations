@@ -16,16 +16,14 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.event;
 
-/********************************************************************
+/**
  * An interface for classes that can generate events of the generic type E.
  *
  * @author eso
  */
-public interface EventSource<E extends Event<?>>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface EventSource<E extends Event<?>> {
 
-	/***************************************
+	/**
 	 * Adds a new element listener to this list. All registered listeners will
 	 * be notified if the contents of this list will be notified.
 	 *
@@ -33,11 +31,12 @@ public interface EventSource<E extends Event<?>>
 	 */
 	void addListener(EventHandler<? super E> rListener);
 
-	/***************************************
+	/**
 	 * Returns the class of the events of this event source. This method be
 	 * implemented to provide type-safety when event sources are cast to event
 	 * handlers and vice versa. The generic type has been relaxed to be a
-	 * supertype of the actual event class to allow implementations to use event
+	 * supertype of the actual event class to allow implementations to use
+	 * event
 	 * classes that also have generic parameters. The returned class should be
 	 * the most specific class that describes the event classes used by all
 	 * instances of a certain implementation.
@@ -46,7 +45,7 @@ public interface EventSource<E extends Event<?>>
 	 */
 	Class<? super E> getEventClass();
 
-	/***************************************
+	/**
 	 * Adds a new element listener to this list. All registered listeners will
 	 * be notified if the contents of this list will be notified.
 	 *

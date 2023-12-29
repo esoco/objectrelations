@@ -21,7 +21,7 @@ import org.obrel.core.ObjectRelations;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 
-/********************************************************************
+/**
  * A binary function extension that resolves URLs in object spaces. Invoked by
  * {@link ObjectRelations#urlResolve(Relatable, String, boolean,
  * ObjectSpaceResolver)}.
@@ -30,7 +30,6 @@ import org.obrel.core.RelationType;
  */
 public interface ObjectSpaceResolver
 	extends BinaryFunction<Relatable, RelationType<?>, Object> {
-	//~ Static fields/initializers ---------------------------------------------
 
 	/**
 	 * Standard delete resolver.
@@ -46,24 +45,19 @@ public interface ObjectSpaceResolver
 	 */
 	GetResolver URL_GET = (r, t) -> r.get(t);
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Resolves a URL in a certain {@link ObjectSpace}. Will be invoked by
 	 * {@link ObjectRelations#urlResolve(Relatable, String, boolean,
 	 * ObjectSpaceResolver)} for the remaining URL if the URL traversal
 	 * encounters an object space element.
 	 *
-	 * @param  rSpace       The object space to resolve the URL in
-	 * @param  sRelativeUrl The space-relative URL to resolve
-	 *
+	 * @param rSpace       The object space to resolve the URL in
+	 * @param sRelativeUrl The space-relative URL to resolve
 	 * @return The resolved object (NULL for none)
 	 */
 	Object resolve(ObjectSpace<?> rSpace, String sRelativeUrl);
 
-	//~ Inner Interfaces -------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * An object space resolver implementation that invokes {@link
 	 * ObjectSpace#delete(String)}.
 	 *
@@ -71,9 +65,8 @@ public interface ObjectSpaceResolver
 	 */
 	@FunctionalInterface
 	interface DeleteResolver extends ObjectSpaceResolver {
-		//~ Methods ------------------------------------------------------------
 
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
@@ -84,7 +77,7 @@ public interface ObjectSpaceResolver
 		}
 	}
 
-	/********************************************************************
+	/**
 	 * An object space resolver implementation that invokes {@link
 	 * ObjectSpace#get(String)}.
 	 *
@@ -92,9 +85,8 @@ public interface ObjectSpaceResolver
 	 */
 	@FunctionalInterface
 	interface GetResolver extends ObjectSpaceResolver {
-		//~ Methods ------------------------------------------------------------
 
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
@@ -103,22 +95,17 @@ public interface ObjectSpaceResolver
 		}
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * An object space resolver implementation that invokes {@link
 	 * ObjectSpace#delete(String)}.
 	 *
 	 * @author eso
 	 */
 	class PutResolver<T> implements ObjectSpaceResolver {
-		//~ Instance fields ----------------------------------------------------
 
 		private final T rValue;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param rValue The value to put
@@ -127,9 +114,7 @@ public interface ObjectSpaceResolver
 			this.rValue = rValue;
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override
@@ -150,7 +135,7 @@ public interface ObjectSpaceResolver
 			return null;
 		}
 
-		/***************************************
+		/**
 		 * Returns the value of this instance.
 		 *
 		 * @return The put value
@@ -159,7 +144,7 @@ public interface ObjectSpaceResolver
 			return rValue;
 		}
 
-		/***************************************
+		/**
 		 * {@inheritDoc}
 		 */
 		@Override

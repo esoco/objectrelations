@@ -16,38 +16,31 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.function;
 
-/********************************************************************
+/**
  * A binary function that casts an input value to another datatype.
  *
  * @author eso
  */
-public class Cast<I, O> extends AbstractBinaryFunction<I, Class<O>, O>
-{
-	//~ Constructors -----------------------------------------------------------
+public class Cast<I, O> extends AbstractBinaryFunction<I, Class<O>, O> {
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rCastType The class of the datatype to cast to
 	 */
-	public Cast(Class<O> rCastType)
-	{
+	public Cast(Class<O> rCastType) {
 		super(rCastType, Cast.class.getSimpleName());
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Casts the target object to a certain class.
 	 *
-	 * @param  rTarget The target object
-	 * @param  rClass  The class to cast the target to
-	 *
+	 * @param rTarget The target object
+	 * @param rClass  The class to cast the target to
 	 * @return The target object, casted to the class
 	 */
 	@Override
-	public O evaluate(I rTarget, Class<O> rClass)
-	{
+	public O evaluate(I rTarget, Class<O> rClass) {
 		return rClass.cast(rTarget);
 	}
 }

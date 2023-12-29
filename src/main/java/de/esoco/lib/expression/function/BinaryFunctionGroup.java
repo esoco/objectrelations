@@ -21,77 +21,62 @@ import de.esoco.lib.expression.Function;
 
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A binary function implementation that groups an arbitrary number of binary
  * functions and applies all of them successively to input values in the same
  * order in which they are added to the group.
  *
  * @author eso
  */
-public class BinaryFunctionGroup<L, R> extends AbstractBinaryFunction<L, R, L>
-{
-	//~ Instance fields --------------------------------------------------------
+public class BinaryFunctionGroup<L, R> extends AbstractBinaryFunction<L, R, L> {
 
 	private final List<BinaryFunction<? super L, ? super R, ?>> rFunctions;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance for a certain number of functions.
 	 *
 	 * @param rRightValue The default value for unary function invocations
 	 * @param rFunctions  The functions to group in this instance
 	 */
-	public BinaryFunctionGroup(
-		R											  rRightValue,
-		List<BinaryFunction<? super L, ? super R, ?>> rFunctions)
-	{
+	public BinaryFunctionGroup(R rRightValue,
+		List<BinaryFunction<? super L, ? super R, ?>> rFunctions) {
 		super(rRightValue, "Group" + rFunctions);
 
 		this.rFunctions = rFunctions;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Applies all functions to the left and right input values and returns the
 	 * left input value unchanged to support function chaining.
 	 *
 	 * @see BinaryFunction#evaluate(Object, Object)
 	 */
 	@Override
-	public L evaluate(L rLeft, R rRight)
-	{
-		for (BinaryFunction<? super L, ? super R, ?> rFunction : rFunctions)
-		{
+	public L evaluate(L rLeft, R rRight) {
+		for (BinaryFunction<? super L, ? super R, ?> rFunction : rFunctions) {
 			rFunction.evaluate(rLeft, rRight);
 		}
 
 		return rLeft;
 	}
 
-	/***************************************
+	/**
 	 * Returns TRUE if all functions in this group are equal.
 	 *
 	 * @see AbstractFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther)
-	{
+	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
 		BinaryFunctionGroup<?, ?> rOtherFunction =
 			(BinaryFunctionGroup<?, ?>) rOther;
-		int						  nCount		 = rFunctions.size();
+		int nCount = rFunctions.size();
 
-		if (nCount != rOtherFunction.rFunctions.size())
-		{
+		if (nCount != rOtherFunction.rFunctions.size()) {
 			return false;
 		}
 
-		for (int i = 0; i < nCount; i++)
-		{
-			if (!rFunctions.get(i).equals(rOtherFunction.rFunctions.get(i)))
-			{
+		for (int i = 0; i < nCount; i++) {
+			if (!rFunctions.get(i).equals(rOtherFunction.rFunctions.get(i))) {
 				return false;
 			}
 		}
@@ -99,18 +84,16 @@ public class BinaryFunctionGroup<L, R> extends AbstractBinaryFunction<L, R, L>
 		return true;
 	}
 
-	/***************************************
+	/**
 	 * Calculates the combined hash code of all functions in this group.
 	 *
 	 * @see AbstractFunction#paramsHashCode()
 	 */
 	@Override
-	protected int paramsHashCode()
-	{
+	protected int paramsHashCode() {
 		int nHashCode = 17;
 
-		for (Function<? super L, ?> rFunction : rFunctions)
-		{
+		for (Function<? super L, ?> rFunction : rFunctions) {
 			nHashCode = nHashCode * 31 + rFunction.hashCode();
 		}
 

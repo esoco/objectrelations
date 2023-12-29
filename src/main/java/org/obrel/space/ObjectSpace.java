@@ -21,7 +21,7 @@ import org.obrel.core.Relatable;
 
 import java.util.NoSuchElementException;
 
-/********************************************************************
+/**
  * An interface that defines hierarchical spaces of relatable objects which can
  * be accessed with URLs. For readonly variants only the {@link #get(String)}
  * method must be implemented. The modifying methods {@link #put(String,
@@ -31,15 +31,13 @@ import java.util.NoSuchElementException;
  * @author eso
  */
 public interface ObjectSpace<T> extends Relatable {
-	//~ Methods ----------------------------------------------------------------
 
-	/***************************************
+	/**
 	 * Deletes a value that is referenced by a certain URL. See the method
 	 * {@link ObjectRelations#urlDelete(Relatable, String)} for details about
 	 * this operation.
 	 *
-	 * @param  sUrl The URL to lookup the object under
-	 *
+	 * @param sUrl The URL to lookup the object under
 	 * @throws NoSuchElementException   If the URL could not be resolved
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
@@ -48,29 +46,27 @@ public interface ObjectSpace<T> extends Relatable {
 		throw new UnsupportedOperationException("DELETE not supported");
 	}
 
-	/***************************************
+	/**
 	 * Gets a value object that is referenced by a certain URL. See the method
 	 * {@link ObjectRelations#urlGet(Relatable, String)} for details about this
 	 * operation.
 	 *
-	 * @param  sUrl The URL to lookup the object under
-	 *
+	 * @param sUrl The URL to lookup the object under
 	 * @return The value referenced by the given URL
-	 *
 	 * @throws NoSuchElementException   If the URL could not be resolved
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type
 	 */
 	T get(String sUrl);
 
-	/***************************************
+	/**
 	 * Stores or updates a value object at a certain URL. See the method {@link
-	 * ObjectRelations#urlPut(Relatable, String, Object)} for details about this
+	 * ObjectRelations#urlPut(Relatable, String, Object)} for details about
+	 * this
 	 * operation.
 	 *
-	 * @param  sUrl   The URL to lookup the object under
-	 * @param  rValue The new or updated value
-	 *
+	 * @param sUrl   The URL to lookup the object under
+	 * @param rValue The new or updated value
 	 * @throws NoSuchElementException   If the URL could not be resolved
 	 * @throws IllegalArgumentException If the URL doesn't resolve to a valid
 	 *                                  relation type

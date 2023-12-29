@@ -18,31 +18,25 @@ package org.obrel.type;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.ReflectionFuntions;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypeModifier;
+import org.obrel.core.RelationTypes;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypeModifier;
-import org.obrel.core.RelationTypes;
-
-
-/********************************************************************
+/**
  * A relation type subclass for {@link Map} targets that are automatically
  * initialized to an empty map.
  *
  * @author eso
  */
-public class MapType<K, V> extends RelationType<Map<K, V>>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class MapType<K, V> extends RelationType<Map<K, V>> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance for the use with static initialization. Instances
 	 * created with this constructor MUST be declared as static constants in a
 	 * class that is initialized with {@link RelationTypes#init(Class...)}.
@@ -50,12 +44,11 @@ public class MapType<K, V> extends RelationType<Map<K, V>>
 	 * @param bOrdered   TRUE for an ordered map
 	 * @param rModifiers The optional relation type modifiers
 	 */
-	public MapType(boolean bOrdered, RelationTypeModifier... rModifiers)
-	{
+	public MapType(boolean bOrdered, RelationTypeModifier... rModifiers) {
 		this(null, null, null, bOrdered, rModifiers);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sName      The relation type name
@@ -64,37 +57,28 @@ public class MapType<K, V> extends RelationType<Map<K, V>>
 	 * @param bOrdered   TRUE for an ordered map
 	 * @param rModifiers The optional relation type modifiers
 	 */
-	public MapType(String				   sName,
-				   Class<K>				   rKeyType,
-				   Class<V>				   rValueType,
-				   boolean				   bOrdered,
-				   RelationTypeModifier... rModifiers)
-	{
+	public MapType(String sName, Class<K> rKeyType, Class<V> rValueType,
+		boolean bOrdered, RelationTypeModifier... rModifiers) {
 		super(sName, Map.class, initialValueFunction(bOrdered), rModifiers);
 
 		set(MetaTypes.KEY_DATATYPE, rKeyType);
 		set(MetaTypes.VALUE_DATATYPE, rValueType);
 
-		if (bOrdered)
-		{
+		if (bOrdered) {
 			set(MetaTypes.ORDERED);
 		}
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates the initial value function that produces either an ordered or an
 	 * unordered map.
 	 *
-	 * @param  bOrdered TRUE for an ordered map
-	 *
+	 * @param bOrdered TRUE for an ordered map
 	 * @return The initial value function
 	 */
 	@SuppressWarnings("unchecked")
 	public static <K, V> Function<Object, Map<K, V>> initialValueFunction(
-		boolean bOrdered)
-	{
+		boolean bOrdered) {
 		Class<?> rMapClass = bOrdered ? LinkedHashMap.class : HashMap.class;
 
 		return ReflectionFuntions.newInstanceOf((Class<Map<K, V>>) rMapClass);

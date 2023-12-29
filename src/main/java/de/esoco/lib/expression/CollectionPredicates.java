@@ -21,50 +21,40 @@ import de.esoco.lib.expression.predicate.Comparison.ElementOf;
 import java.util.Arrays;
 import java.util.Collection;
 
-
-/********************************************************************
+/**
  * Contains several constants and factory methods for collection-related
  * predicates.
  *
  * @author eso
  */
 @SuppressWarnings("boxing")
-public class CollectionPredicates
-{
-	//~ Constructors -----------------------------------------------------------
+public class CollectionPredicates {
 
-	/***************************************
+	/**
 	 * Private, only static use.
 	 */
-	private CollectionPredicates()
-	{
+	private CollectionPredicates() {
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns a new predicate that checks if a target object is an element of
 	 * the given collection.
 	 *
-	 * @param  rCollection The collection to check target objects against
-	 *
+	 * @param rCollection The collection to check target objects against
 	 * @return A new instance of the {@link ElementOf} predicate
 	 */
-	public static <T> Predicate<T> elementOf(Collection<?> rCollection)
-	{
+	public static <T> Predicate<T> elementOf(Collection<?> rCollection) {
 		return new ElementOf<T>(rCollection);
 	}
 
-	/***************************************
+	/**
 	 * Returns a predicate that checks if a target object is an element of the
 	 * argument list of objects.
 	 *
-	 * @param  rValues The list of values to check target objects against
-	 *
+	 * @param rValues The list of values to check target objects against
 	 * @return A new instance of the {@link ElementOf} predicate
 	 */
-	public static <T> Predicate<T> elementOf(Object... rValues)
-	{
+	public static <T> Predicate<T> elementOf(Object... rValues) {
 		return new ElementOf<T>(Arrays.asList(rValues));
 	}
 }

@@ -19,91 +19,70 @@ package de.esoco.lib.expression.function;
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 
-
-/********************************************************************
+/**
  * A token string format subclass for relatable objects. It allows to use the
  * names of RelationTypes as tokens to access the corresponding relations.
  *
  * @author eso
  */
-public class RelationTokenFormat extends TokenStringFormat<Relatable>
-{
-	//~ Constructors -----------------------------------------------------------
+public class RelationTokenFormat extends TokenStringFormat<Relatable> {
 
-	/***************************************
+	/**
 	 * Creates a new instance for a certain token string.
 	 *
 	 * @param sTokenString The token string this format is based on
 	 */
-	public RelationTokenFormat(String sTokenString)
-	{
+	public RelationTokenFormat(String sTokenString) {
 		super(sTokenString);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see TokenStringFormat#getToken(String)
 	 */
 	@Override
-	protected Token<? super Relatable> getToken(String sToken)
-	{
-		RelationType<?>			 rType   = RelationType.valueOf(sToken);
+	protected Token<? super Relatable> getToken(String sToken) {
+		RelationType<?> rType = RelationType.valueOf(sToken);
 		Token<? super Relatable> rResult;
 
-		if (rType != null)
-		{
+		if (rType != null) {
 			rResult = new RelationToken(this, rType);
-		}
-		else
-		{
+		} else {
 			rResult = super.getToken(sToken);
 		}
 
 		return rResult;
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * A token subclass that allows to access relations. The relation type is
 	 * stored in the token instance.
 	 *
 	 * @author eso
 	 */
-	public static class RelationToken extends Token<Relatable>
-	{
-		//~ Instance fields ----------------------------------------------------
+	public static class RelationToken extends Token<Relatable> {
 
 		private final RelationType<?> rRelationType;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance for a certain relation type.
 		 *
 		 * @param rParent The parent relation token format
 		 * @param rType   The relation type for this instance
 		 */
-		protected RelationToken(
-			RelationTokenFormat rParent,
-			RelationType<?>		rType)
-		{
+		protected RelationToken(RelationTokenFormat rParent,
+			RelationType<?> rType) {
 			super(rParent, rType.getName(), null);
 
 			rRelationType = rType;
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Returns the value of the relation with this token's relation type.
 		 *
 		 * @see de.esoco.lib.expression.function.TokenStringFormat.Token#extractValue(Object)
 		 */
 		@Override
-		protected Object extractValue(Relatable rInput)
-		{
+		protected Object extractValue(Relatable rInput) {
 			return rInput.get(rRelationType);
 		}
 	}

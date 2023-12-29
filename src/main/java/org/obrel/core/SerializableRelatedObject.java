@@ -21,8 +21,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-
-/********************************************************************
+/**
  * A related object subclass that implements the {@link Serializable} interface
  * so that it can be serialized to a stream. Applications that need serializable
  * related objects should use or extend this class.
@@ -43,53 +42,38 @@ import java.io.Serializable;
  * @author eso
  */
 public class SerializableRelatedObject extends RelatedObject
-	implements Serializable
-{
-	//~ Static fields/initializers ---------------------------------------------
+	implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see RelatedObject#RelatedObject()
 	 */
-	public SerializableRelatedObject()
-	{
+	public SerializableRelatedObject() {
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Deserializes this instance by reading it's state from the given input
 	 * stream.
 	 *
-	 * @param  rIn The source input stream
-	 *
+	 * @param rIn The source input stream
 	 * @throws IOException            If reading data fails
 	 * @throws ClassNotFoundException If the class couldn't be found
 	 */
-	private void readObject(ObjectInputStream rIn) throws IOException,
-														  ClassNotFoundException
-	{
+	private void readObject(ObjectInputStream rIn)
+		throws IOException, ClassNotFoundException {
 		rIn.defaultReadObject();
 		readRelations(rIn);
 	}
 
-	/***************************************
+	/**
 	 * Serializes this instance by writing it's fields to the given output
 	 * stream.
 	 *
-	 * @param      rOut The target output stream
-	 *
-	 * @throws     IOException If writing data fails
-	 *
-	 * @serialData First writes the name of the object space and then all
-	 *             relations in the order in which they have been added to this
-	 *             instance
+	 * @param rOut The target output stream
+	 * @throws IOException If writing data fails
 	 */
-	private void writeObject(ObjectOutputStream rOut) throws IOException
-	{
+	private void writeObject(ObjectOutputStream rOut) throws IOException {
 		rOut.defaultWriteObject();
 		writeRelations(rOut);
 	}

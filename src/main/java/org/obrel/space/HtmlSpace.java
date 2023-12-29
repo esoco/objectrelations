@@ -28,23 +28,24 @@ import java.util.Date;
 import static org.obrel.core.RelationTypes.newInitialValueType;
 import static org.obrel.type.StandardTypes.NAME;
 
-/********************************************************************
+/**
  * An object space implementation that converts values from another object space
  * into HTML.
  *
  * @author eso
  */
 public class HtmlSpace extends RelationSpace<String> {
-	//~ Static fields/initializers ---------------------------------------------
 
 	/**
 	 * Template for a rendered HTML page. The template will be formatted with
-	 * two string values: the first provides the page title, the second the body
+	 * two string values: the first provides the page title, the second the
+	 * body
 	 * content.
 	 */
 	public static final RelationType<String> PAGE_TEMPLATE =
-		newInitialValueType(
-			"<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" + "<title>%s</title>\n" + "</head>\n" + "<body>\n" + "%s</body>\n" + "</html>");
+		newInitialValueType("<!DOCTYPE html>\n" + "<html>\n" + "<head>\n" +
+			"<title>%s</title>\n" + "</head>\n" + "<body>\n" + "%s</body>\n" +
+			"</html>");
 
 	/**
 	 * Template for a space-internal link on a rendered HTML page. The template
@@ -64,29 +65,24 @@ public class HtmlSpace extends RelationSpace<String> {
 		RelationTypes.init(HtmlSpace.class);
 	}
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final ObjectSpace<?> rDataSpace;
 
 	private final String sBaseUrl;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rDataSpace The object space that provides the data to be rendered
 	 *                   as HTML
-	 * @param sBaseUrl   The base URL to be prepended to all space-relative URLs
+	 * @param sBaseUrl   The base URL to be prepended to all space-relative
+	 *                   URLs
 	 */
 	public HtmlSpace(ObjectSpace<?> rDataSpace, String sBaseUrl) {
 		this.rDataSpace = rDataSpace;
 		this.sBaseUrl = checkUrl(sBaseUrl);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -100,14 +96,14 @@ public class HtmlSpace extends RelationSpace<String> {
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void put(String sUrl, String sValue) {
 	}
 
-	/***************************************
+	/**
 	 * Overridden to return the HTML representation of this space.
 	 *
 	 * @return The HTML for this space
@@ -117,13 +113,12 @@ public class HtmlSpace extends RelationSpace<String> {
 		return renderAsHtml("", rDataSpace);
 	}
 
-	/***************************************
+	/**
 	 * A builder-style method to set a certain relation and then return this
 	 * instance for concatenation.
 	 *
-	 * @param  rType  The type of the relation to set
-	 * @param  rValue The relation value
-	 *
+	 * @param rType  The type of the relation to set
+	 * @param rValue The relation value
 	 * @return This instance for method concatenation
 	 */
 	public <T> HtmlSpace with(RelationType<T> rType, T rValue) {
@@ -132,11 +127,10 @@ public class HtmlSpace extends RelationSpace<String> {
 		return this;
 	}
 
-	/***************************************
+	/**
 	 * Checks a URL for correct termination with a forward slash '/'.
 	 *
-	 * @param  sUrl The URL to check
-	 *
+	 * @param sUrl The URL to check
 	 * @return The URL, modified if necessary
 	 */
 	protected String checkUrl(String sUrl) {
@@ -147,11 +141,10 @@ public class HtmlSpace extends RelationSpace<String> {
 		return sUrl;
 	}
 
-	/***************************************
+	/**
 	 * Returns the title for a certain page.
 	 *
-	 * @param  rPageObject The relatable object from which the page is rendered
-	 *
+	 * @param rPageObject The relatable object from which the page is rendered
 	 * @return The page title
 	 */
 	protected String getPageTitle(Relatable rPageObject) {
@@ -164,12 +157,11 @@ public class HtmlSpace extends RelationSpace<String> {
 		return sTitle;
 	}
 
-	/***************************************
+	/**
 	 * Renders a value with an HTML representation.
 	 *
-	 * @param  sUrl    The URL the value has been read from
-	 * @param  rObject The value to map
-	 *
+	 * @param sUrl    The URL the value has been read from
+	 * @param rObject The value to map
 	 * @return The HTML to display for the value
 	 */
 	protected String renderAsHtml(String sUrl, Object rObject) {
@@ -186,7 +178,8 @@ public class HtmlSpace extends RelationSpace<String> {
 
 				sTitle =
 					getPageTitle(rObject == rDataSpace ? this : rPageObject);
-				sBody = renderRelations(sBaseUrl + checkUrl(sUrl), rPageObject);
+				sBody = renderRelations(sBaseUrl + checkUrl(sUrl),
+					rPageObject);
 			} else {
 				sTitle = sUrl.substring(sUrl.lastIndexOf('/') + 1);
 				sBody = renderDisplayValue(rObject);
@@ -198,12 +191,11 @@ public class HtmlSpace extends RelationSpace<String> {
 		return sHtml;
 	}
 
-	/***************************************
+	/**
 	 * Renders a single relation as HTML.
 	 *
-	 * @param  sUrl      The parent URL of the relation
-	 * @param  rRelation The relation to render
-	 *
+	 * @param sUrl      The parent URL of the relation
+	 * @param rRelation The relation to render
 	 * @return The HTML representing the relation
 	 */
 	protected String renderRelation(String sUrl, Relation<?> rRelation) {
@@ -228,18 +220,18 @@ public class HtmlSpace extends RelationSpace<String> {
 		return sHtml;
 	}
 
-	/***************************************
+	/**
 	 * Renders the relations of an object as HTML.
 	 *
-	 * @param  sUrl       The parent URL of the relations
-	 * @param  rRelatable The object to render the relations of
-	 *
+	 * @param sUrl       The parent URL of the relations
+	 * @param rRelatable The object to render the relations of
 	 * @return An HTML string
 	 */
 	protected String renderRelations(String sUrl, Relatable rRelatable) {
 		StringBuilder aHtml = new StringBuilder();
 
-		rRelatable.getRelations(null)
+		rRelatable
+			.getRelations(null)
 			.stream()
 			.filter(r -> r.getType() != NAME)
 			.forEach(rRelation -> {
@@ -253,11 +245,10 @@ public class HtmlSpace extends RelationSpace<String> {
 		return aHtml.toString();
 	}
 
-	/***************************************
+	/**
 	 * Renders a value into a HTML representation.
 	 *
-	 * @param  rValue The value to render
-	 *
+	 * @param rValue The value to render
 	 * @return The resulting HTML string
 	 */
 	private String renderDisplayValue(Object rValue) {

@@ -18,11 +18,9 @@ package org.obrel.core;
 
 import de.esoco.lib.event.ElementEvent;
 import de.esoco.lib.event.EventHandler;
-
 import org.obrel.type.ListenerTypes;
 
-
-/********************************************************************
+/**
  * An element event subclass that contains information related to relation
  * modifications. The invocation of listeners for such events will occur just
  * before an operation is actually performed on the affected relation. If an
@@ -52,15 +50,11 @@ import org.obrel.type.ListenerTypes;
  *
  * @author eso
  */
-public class RelationEvent<T> extends ElementEvent<Relatable, Relation<T>, T>
-{
-	//~ Instance fields --------------------------------------------------------
+public class RelationEvent<T> extends ElementEvent<Relatable, Relation<T>, T> {
 
 	private final Relatable rEventScope;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rType        The event type
@@ -70,30 +64,24 @@ public class RelationEvent<T> extends ElementEvent<Relatable, Relation<T>, T>
 	 * @param rUpdateValue The update value in the case of update events
 	 * @param rEventScope  The relatable object that defines the event scope
 	 */
-	public RelationEvent(EventType   rType,
-						 Relatable   rSource,
-						 Relation<T> rRelation,
-						 T			 rUpdateValue,
-						 Relatable   rEventScope)
-	{
+	public RelationEvent(EventType rType, Relatable rSource,
+		Relation<T> rRelation, T rUpdateValue, Relatable rEventScope) {
 		super(rType, rSource, rRelation, rUpdateValue);
 
 		this.rEventScope = rEventScope;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the relatable that defines the event scope. Depending on the
 	 * affected event listener this is either the same as the source or in the
-	 * case of {@link ListenerTypes#RELATION_UPDATE_LISTENERS} the corresponding
+	 * case of {@link ListenerTypes#RELATION_UPDATE_LISTENERS} the
+	 * corresponding
 	 * relation or for {@link ListenerTypes#RELATION_TYPE_LISTENERS} the
 	 * relation type.
 	 *
 	 * @return The eventScope value
 	 */
-	public final Relatable getEventScope()
-	{
+	public final Relatable getEventScope() {
 		return rEventScope;
 	}
 }

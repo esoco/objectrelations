@@ -22,133 +22,109 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-
-/********************************************************************
+/**
  * A functional interface that produces instances of {@link ValidationResult}
  * upon the validation of input values.
  *
  * @author eso
  */
 @FunctionalInterface
-public interface Validation<T> extends Function<T, ValidationResult>
-{
-	//~ Static methods ---------------------------------------------------------
+public interface Validation<T> extends Function<T, ValidationResult> {
 
-	/***************************************
-	 * Returns a new validation that checks a value with the given predicate and
+	/**
+	 * Returns a new validation that checks a value with the given predicate
+	 * and
 	 * returns the corresponding {@link ValidationResult}.
 	 *
-	 * @param  pIsValid        The predicate that checks a value for validity
-	 * @param  sInvalidMessage The message to be displayed if the validation
-	 *                         fails
-	 *
+	 * @param pIsValid        The predicate that checks a value for validity
+	 * @param sInvalidMessage The message to be displayed if the validation
+	 *                        fails
 	 * @return A new validation instance
 	 */
-	static <T> Validation<T> ensure(
-		Predicate<T> pIsValid,
-		String		 sInvalidMessage)
-	{
-		return v ->
-			   pIsValid.test(v) ? ValidationResult.valid()
-								: ValidationResult.invalid(sInvalidMessage);
+	static <T> Validation<T> ensure(Predicate<T> pIsValid,
+		String sInvalidMessage) {
+		return v -> pIsValid.test(v) ?
+		            ValidationResult.valid() :
+		            ValidationResult.invalid(sInvalidMessage);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Default implementation that invokes {@link #validate(Object)}.
 	 *
 	 * @see Function#apply(Object)
 	 */
 	@Override
-	default ValidationResult apply(T rValue)
-	{
+	default ValidationResult apply(T rValue) {
 		return validate(rValue);
 	}
 
-	/***************************************
+	/**
 	 * Validates the input value and returns a corresponding {@link
 	 * ValidationResult}.
 	 *
-	 * @param  rValue The value to validate
-	 *
+	 * @param rValue The value to validate
 	 * @return The validation result
 	 */
 	ValidationResult validate(T rValue);
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * A class that represents the result of some validation. If the validation
-	 * has failed the method {@link #isValid()} will return FALSE and the method
+	 * has failed the method {@link #isValid()} will return FALSE and the
+	 * method
 	 * {@link #getMessage()} will return the corresponding error message.
 	 *
 	 * @author eso
 	 */
-	class ValidationResult
-	{
-		//~ Instance fields ----------------------------------------------------
+	class ValidationResult {
 
 		private final String sMessage;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param sMessage The error message
 		 */
-		protected ValidationResult(String sMessage)
-		{
+		protected ValidationResult(String sMessage) {
 			this.sMessage = sMessage;
 		}
 
-		//~ Static methods -----------------------------------------------------
-
-		/***************************************
+		/**
 		 * Returns a valid result with a certain error message.
 		 *
-		 * @param  sMessage The error message
-		 *
+		 * @param sMessage The error message
 		 * @return A validation result that is invalid
 		 */
-		public static ValidationResult invalid(String sMessage)
-		{
+		public static ValidationResult invalid(String sMessage) {
 			Objects.requireNonNull(sMessage);
 
 			return new ValidationResult(sMessage);
 		}
 
-		/***************************************
+		/**
 		 * Returns a valid result.
 		 *
 		 * @return A validation result that is valid
 		 */
-		public static ValidationResult valid()
-		{
+		public static ValidationResult valid() {
 			return new ValidationResult(null);
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Returns the message is the result is invalid (see {@link
 		 * #isValid()}).
 		 *
 		 * @return The message or NULL if the validation was successful
 		 */
-		public String getMessage()
-		{
+		public String getMessage() {
 			return sMessage;
 		}
 
-		/***************************************
+		/**
 		 * Returns the validation result.
 		 *
 		 * @return TRUE if the validation was successful, FALSE if it failed
 		 */
-		public boolean isValid()
-		{
+		public boolean isValid() {
 			return sMessage == null;
 		}
 	}

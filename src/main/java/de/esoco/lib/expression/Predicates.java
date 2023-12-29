@@ -46,13 +46,19 @@ import org.obrel.core.RelationType;
  */
 @SuppressWarnings("boxing")
 public class Predicates {
-	/** Always returns true */
+	/**
+	 * Always returns true
+	 */
 	private static final Predicate<?> TRUE = v -> true;
 
-	/** Always returns false */
+	/**
+	 * Always returns false
+	 */
 	private static final Predicate<?> FALSE = v -> false;
 
-	/** Tests if a value is null */
+	/**
+	 * Tests if a value is null
+	 */
 	private static final Predicate<?> IS_NULL = new EqualTo<Object>(null) {
 		@Override
 		public final Boolean evaluate(Object rValue, Object rNull) {
@@ -60,7 +66,9 @@ public class Predicates {
 		}
 	};
 
-	/** Tests if a value is not null */
+	/**
+	 * Tests if a value is not null
+	 */
 	private static final Predicate<?> NOT_NULL = not(IS_NULL);
 
 	/**
@@ -90,7 +98,8 @@ public class Predicates {
 	}
 
 	/**
-	 * Creates a new predicate that combines two other predicates with a logical
+	 * Creates a new predicate that combines two other predicates with a
+	 * logical
 	 * and expression. The second predicate will only be evaluated if the first
 	 * one evaluates as TRUE. Either of the two predicates can be NULL in which
 	 * case the other predicate will be returned. This can be used to
@@ -99,13 +108,11 @@ public class Predicates {
 	 *
 	 * @param rFirst  The first predicate
 	 * @param rSecond The second predicate
-	 *
 	 * @return A new predicate combining the arguments with a logical and
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Predicate<T> and(
-			Predicate<? super T> rFirst,
-			Predicate<? super T> rSecond) {
+	public static <T> Predicate<T> and(Predicate<? super T> rFirst,
+		Predicate<? super T> rSecond) {
 		if (rSecond == null) {
 			return (Predicate<T>) rFirst;
 		} else if (rFirst == null) {
@@ -116,23 +123,23 @@ public class Predicates {
 	}
 
 	/**
-	 * A specialized variant of {@link Functions#chain(Function, Function)} that
+	 * A specialized variant of {@link Functions#chain(Function, Function)}
+	 * that
 	 * creates a new predicate instead of a function. This allows to use the
 	 * result of chaining a predicate with a function as a predicate again.
 	 *
 	 * @param rOuter The predicate that evaluates the inner function results
 	 * @param rInner The function that produces the predicate input values
-	 *
 	 * @return A new instance of {@link PredicateChain}
 	 */
-	public static <T, I> Predicate<T> chain(
-			final Predicate<I> rOuter,
-			final Function<T, ? extends I> rInner) {
+	public static <T, I> Predicate<T> chain(final Predicate<I> rOuter,
+		final Function<T, ? extends I> rInner) {
 		return new PredicateChain<T, I>(rOuter, rInner);
 	}
 
 	/**
-	 * A specialized variant of {@link Functions#chain(BinaryFunction, Function,
+	 * A specialized variant of
+	 * {@link Functions#chain(BinaryFunction, Function,
 	 * Function)} that creates a new binary predicate instead of a function.
 	 * This allows to use the result of chaining a binary predicate with two
 	 * functions as a predicate again.
@@ -141,13 +148,12 @@ public class Predicates {
 	 *               right functions
 	 * @param rLeft  The function that produces the left predicate input
 	 * @param rRight The function that produces the right predicate input
-	 *
 	 * @return A new instance of {@link BinaryPredicateChain}
 	 */
 	public static <L, R, V, W> BinaryPredicate<L, R> chain(
-			final BinaryPredicate<V, W> rOuter,
-			final Function<L, ? extends V> rLeft,
-			final Function<R, ? extends W> rRight) {
+		final BinaryPredicate<V, W> rOuter,
+		final Function<L, ? extends V> rLeft,
+		final Function<R, ? extends W> rRight) {
 		return new BinaryPredicateChain<L, R, V, W>(rOuter, rLeft, rRight);
 	}
 
@@ -158,7 +164,6 @@ public class Predicates {
 	 * values for both objects are allowed.
 	 *
 	 * @param rValue The value to compare the predicate targets with
-	 *
 	 * @return A new instance of the {@link EqualTo} predicate
 	 */
 	public static <T> Comparison<T, Object> equalTo(Object rValue) {
@@ -168,16 +173,17 @@ public class Predicates {
 	/**
 	 * A helper method that returns the first predicate that is not an instance
 	 * of {@link PredicateJoin}. It is found by recursively traversing the tree
-	 * of predicates by means of the method {@link PredicateJoin#getLeft()}. The
+	 * of predicates by means of the method {@link PredicateJoin#getLeft()}.
+	 * The
 	 * first predicate that is not a join will be returned.
 	 *
 	 * @param rPredicate The predicate to start traversing the tree at
-	 *
 	 * @return The first non-join predicate
 	 */
 	public static Predicate<?> firstInChain(Predicate<?> rPredicate) {
 		if (rPredicate instanceof PredicateJoin<?>) {
-			rPredicate = firstInChain(((PredicateJoin<?>) rPredicate).getLeft());
+			rPredicate =
+				firstInChain(((PredicateJoin<?>) rPredicate).getLeft());
 		}
 
 		return rPredicate;
@@ -189,11 +195,10 @@ public class Predicates {
 	 * other object.
 	 *
 	 * @param rValue The value to compare the predicate's argument with
-	 *
 	 * @return A new instance of the {@link GreaterOrEqual} predicate
 	 */
 	public static <T extends Comparable<T>> Comparison<T, T> greaterOrEqual(
-			T rValue) {
+		T rValue) {
 		return new GreaterOrEqual<T>(rValue);
 	}
 
@@ -202,11 +207,10 @@ public class Predicates {
 	 * and yields TRUE if the tested object is greater than the other object.
 	 *
 	 * @param rValue The value to compare the predicate's argument with
-	 *
 	 * @return A new instance of the {@link GreaterThan} predicate
 	 */
 	public static <T extends Comparable<T>> Comparison<T, T> greaterThan(
-			T rValue) {
+		T rValue) {
 		return new GreaterThan<T>(rValue);
 	}
 
@@ -217,22 +221,21 @@ public class Predicates {
 	 *
 	 * <p>
 	 * <b>Attention:</b> if the generic value type (V) that is defined by the
-	 * predicate is not of type Object the field value will be cast to that type
-	 * at runtime. If the types do not match a ClassCastException will be thrown
+	 * predicate is not of type Object the field value will be cast to that
+	 * type
+	 * at runtime. If the types do not match a ClassCastException will be
+	 * thrown
 	 * when evaluating the predicate.
 	 * </p>
 	 *
 	 * @param sField     The name of the field to evaluate the value of
 	 * @param rPredicate The predicate to evaluate the field value with
-	 *
 	 * @return A new instance of {@link ElementPredicate} for field access
 	 */
-	public static <T, V> ElementPredicate<T, V> ifField(
-			String sField,
-			Predicate<V> rPredicate) {
-		return new ElementPredicate<T, V>(
-				new ReadField<T, V>(sField),
-				rPredicate);
+	public static <T, V> ElementPredicate<T, V> ifField(String sField,
+		Predicate<V> rPredicate) {
+		return new ElementPredicate<T, V>(new ReadField<T, V>(sField),
+			rPredicate);
 	}
 
 	/**
@@ -249,15 +252,12 @@ public class Predicates {
 	 *
 	 * @param sProperty  The name of the property to evaluate the value of
 	 * @param rPredicate The predicate to evaluate the field value with
-	 *
 	 * @return A new instance of {@link ElementPredicate} for field access
 	 */
-	public static <T, V> ElementPredicate<T, V> ifProperty(
-			String sProperty,
-			Predicate<V> rPredicate) {
-		return new ElementPredicate<T, V>(
-				new GetField<T, V>(sProperty),
-				rPredicate);
+	public static <T, V> ElementPredicate<T, V> ifProperty(String sProperty,
+		Predicate<V> rPredicate) {
+		return new ElementPredicate<T, V>(new GetField<T, V>(sProperty),
+			rPredicate);
 	}
 
 	/**
@@ -268,8 +268,7 @@ public class Predicates {
 	 * @see #ifRelation(RelationType, Predicate)
 	 */
 	public static <T extends Relatable, V> Predicate<T> ifProperty(
-			RelationType<V> rType,
-			Predicate<? super V> rPredicate) {
+		RelationType<V> rType, Predicate<? super V> rPredicate) {
 		return ifRelation(rType, rPredicate);
 	}
 
@@ -279,12 +278,10 @@ public class Predicates {
 	 *
 	 * @param rType      The relation type to evaluate the target value of
 	 * @param rPredicate The predicate to evaluate the field value with
-	 *
 	 * @return A new instance of {@link ElementPredicate} for relation access
 	 */
 	public static <T extends Relatable, V> ElementPredicate<T, V> ifRelation(
-			RelationType<V> rType,
-			Predicate<? super V> rPredicate) {
+		RelationType<V> rType, Predicate<? super V> rPredicate) {
 		return new ElementPredicate<T, V>(rType, rPredicate);
 	}
 
@@ -292,7 +289,7 @@ public class Predicates {
 	 * Returns a predicate that tests if the target object is NULL.
 	 *
 	 * @return A constant predicate that yields TRUE if the target object is
-	 *         NULL
+	 * NULL
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Predicate<T> isNull() {
@@ -305,11 +302,10 @@ public class Predicates {
 	 * object.
 	 *
 	 * @param rValue The value to compare the predicate's argument with
-	 *
 	 * @return A new instance of the {@link LessOrEqual} predicate
 	 */
 	public static <T extends Comparable<T>> Comparison<T, T> lessOrEqual(
-			T rValue) {
+		T rValue) {
 		return new LessOrEqual<T>(rValue);
 	}
 
@@ -318,19 +314,19 @@ public class Predicates {
 	 * and yields TRUE if the tested object is less than the other object.
 	 *
 	 * @param rValue The value to compare the predicate's argument with
-	 *
 	 * @return A new instance of the {@link LessThan} predicate
 	 */
-	public static <T extends Comparable<T>> Comparison<T, T> lessThan(T rValue) {
+	public static <T extends Comparable<T>> Comparison<T, T> lessThan(
+		T rValue) {
 		return new LessThan<T>(rValue);
 	}
 
 	/**
-	 * Shortcut method to create a predicate that matches input values against a
+	 * Shortcut method to create a predicate that matches input values
+	 * against a
 	 * regular expression pattern.
 	 *
 	 * @param sRegularExpression The regular expression pattern string
-	 *
 	 * @return A new instance of the {@link Matching} predicate
 	 */
 	public static <T> Predicate<T> matching(String sRegularExpression) {
@@ -338,11 +334,11 @@ public class Predicates {
 	}
 
 	/**
-	 * Shortcut method to create a predicate that matches input values against a
+	 * Shortcut method to create a predicate that matches input values
+	 * against a
 	 * regular expression pattern.
 	 *
 	 * @param rPattern The regular expression pattern
-	 *
 	 * @return A new instance of the {@link Matching} predicate
 	 */
 	public static <T> Predicate<T> matching(Pattern rPattern) {
@@ -353,7 +349,6 @@ public class Predicates {
 	 * Returns the logical negation of a particular predicate.
 	 *
 	 * @param rPredicate The predicate to negate
-	 *
 	 * @return A new predicate with a logical NOT expression
 	 */
 	public static <T> Predicate<T> not(Predicate<T> rPredicate) {
@@ -364,7 +359,7 @@ public class Predicates {
 	 * Returns a predicate that tests if the target object is not null.
 	 *
 	 * @return A predicate constant that returns TRUE if the target object is
-	 *         not NULL
+	 * not NULL
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Predicate<T> notNull() {
@@ -372,22 +367,22 @@ public class Predicates {
 	}
 
 	/**
-	 * Creates a new predicate that combines two other predicates with a logical
+	 * Creates a new predicate that combines two other predicates with a
+	 * logical
 	 * or expression. The second predicate will only be evaluated if the first
-	 * one evaluates as FALSE. Either of the two predicates can be NULL in which
+	 * one evaluates as FALSE. Either of the two predicates can be NULL in
+	 * which
 	 * case the other predicate will be returned. This can be used to
 	 * dynamically chain predicates without the need to check for NULL values.
 	 * If both predicates are null NULL will be returned.
 	 *
 	 * @param rFirst  The first predicate
 	 * @param rSecond The second predicate
-	 *
 	 * @return A new predicate combining the arguments with a logical or
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Predicate<T> or(
-			Predicate<? super T> rFirst,
-			Predicate<? super T> rSecond) {
+	public static <T> Predicate<T> or(Predicate<? super T> rFirst,
+		Predicate<? super T> rSecond) {
 		if (rSecond == null) {
 			return (Predicate<T>) rFirst;
 		} else if (rFirst == null) {
@@ -404,7 +399,6 @@ public class Predicates {
 	 * objects are allowed.
 	 *
 	 * @param rValue The value to compare the predicate targets with
-	 *
 	 * @return A new instance of the {@link SameAs} predicate
 	 */
 	public static <T> Comparison<T, Object> sameAs(Object rValue) {
@@ -417,7 +411,6 @@ public class Predicates {
 	 * intended to be used with lambdas that throw exceptions.
 	 *
 	 * @param pChecked The checked predicate to wrap as unchecked
-	 *
 	 * @return The unchecked predicate
 	 */
 	public static <T> Predicate<T> unchecked(ThrowingPredicate<T> pChecked) {
@@ -430,21 +423,20 @@ public class Predicates {
 	 * method is mainly intended to be used with lambdas that throw exceptions.
 	 *
 	 * @param pChecked The checked predicate to wrap as unchecked
-	 *
 	 * @return The unchecked predicate
 	 */
 	public static <L, R> BinaryPredicate<L, R> unchecked(
-			ThrowingBinaryPredicate<L, R> pChecked) {
+		ThrowingBinaryPredicate<L, R> pChecked) {
 		return pChecked;
 	}
 
 	/**
-	 * Returns a new predicate instance that counts down from a certain value to
+	 * Returns a new predicate instance that counts down from a certain
+	 * value to
 	 * zero and returns TRUE while the value is still greater than zero and
 	 * FALSE as soon as it has reached zero.
 	 *
 	 * @param nValue The value to count to zero from
-	 *
 	 * @return A new predicate instance
 	 */
 	public static <T> Predicate<T> untilCountDown(int nValue) {
@@ -464,24 +456,24 @@ public class Predicates {
 	 *
 	 * @param rFunction  The function to apply to input values
 	 * @param rPredicate The predicate to evaluate the function result with
-	 *
 	 * @return A new predicate
 	 */
 	public static <I, O, T extends I> Predicate<T> when(
-			Function<I, O> rFunction,
-			Predicate<? super O> rPredicate) {
+		Function<I, O> rFunction, Predicate<? super O> rPredicate) {
 		return new FunctionPredicate<T, O>(rFunction, rPredicate);
 	}
 
-	// ~ Inner Classes ----------------------------------------------------------
+	// ~ Inner Classes
+	// ----------------------------------------------------------
 
-	/*******************************
+	/**
 	 * Inner class for a logical AND between two predicates.
 	 *
 	 * @author eso
 	 */
 	public static class And<T> extends PredicateJoin<T> {
-		// ~ Constructors -------------------------------------------------------
+		// ~ Constructors
+		// -------------------------------------------------------
 
 		/**
 		 * @see PredicateJoin#PredicateJoin(Predicate, Predicate, String)
@@ -490,7 +482,8 @@ public class Predicates {
 			super(rLeft, rRight, "&&");
 		}
 
-		// ~ Methods ------------------------------------------------------------
+		// ~ Methods
+		// ------------------------------------------------------------
 
 		/**
 		 * Evaluates the predicates of this instance with a logical AND
@@ -501,21 +494,22 @@ public class Predicates {
 		 */
 		@Override
 		protected Boolean evaluate(Predicate<? super T> rLeft,
-				Predicate<? super T> rRight,
-				T rValue) {
+			Predicate<? super T> rRight, T rValue) {
 			return rLeft.evaluate(rValue) && rRight.evaluate(rValue);
 		}
 	}
 
-	/*******************************
+	/**
 	 * A predicate that inverts the result another predicate.
 	 */
 	public static class Not<T> implements Predicate<T> {
-		// ~ Instance fields ----------------------------------------------------
+		// ~ Instance fields
+		// ----------------------------------------------------
 
 		private final Predicate<T> rPredicate;
 
-		// ~ Constructors -------------------------------------------------------
+		// ~ Constructors
+		// -------------------------------------------------------
 
 		/**
 		 * Creates a new instance.
@@ -526,14 +520,14 @@ public class Predicates {
 			this.rPredicate = rPredicate;
 		}
 
-		// ~ Methods ------------------------------------------------------------
+		// ~ Methods
+		// ------------------------------------------------------------
 
 		/**
 		 * Returns the logical inversion of the result of the evaluate() method
 		 * of the underlying predicate.
 		 *
 		 * @param rTarget The target value to be evaluated by the predicate
-		 *
 		 * @return The inverted result of the evaluation
 		 */
 		@Override
@@ -559,11 +553,12 @@ public class Predicates {
 		}
 	}
 
-	/*******************************
+	/**
 	 * Implementation of a logical OR between two predicates.
 	 */
 	public static class Or<T> extends PredicateJoin<T> {
-		// ~ Constructors -------------------------------------------------------
+		// ~ Constructors
+		// -------------------------------------------------------
 
 		/**
 		 * @see PredicateJoin#PredicateJoin(Predicate, Predicate, String)
@@ -572,7 +567,8 @@ public class Predicates {
 			super(rLeft, rRight, "||");
 		}
 
-		// ~ Methods ------------------------------------------------------------
+		// ~ Methods
+		// ------------------------------------------------------------
 
 		/**
 		 * Evaluates the predicates of this instance with a logical OR
@@ -583,8 +579,7 @@ public class Predicates {
 		 */
 		@Override
 		protected Boolean evaluate(Predicate<? super T> rLeft,
-				Predicate<? super T> rRight,
-				T rValue) {
+			Predicate<? super T> rRight, T rValue) {
 			return rLeft.evaluate(rValue) || rRight.evaluate(rValue);
 		}
 	}

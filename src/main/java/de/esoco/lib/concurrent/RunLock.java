@@ -19,8 +19,7 @@ package de.esoco.lib.concurrent;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
-
-/********************************************************************
+/**
  * A subclass of {@link ReentrantLock} that allows to execute instances of
  * functions like {@link Runnable} or {@link Supplier} inside the typical
  * lock-try-finally-unlock block needed for handling a lock. This is done by
@@ -29,69 +28,52 @@ import java.util.function.Supplier;
  *
  * @author eso
  */
-public class RunLock extends ReentrantLock
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class RunLock extends ReentrantLock {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see ReentrantLock#ReentrantLock()
 	 */
-	public RunLock()
-	{
+	public RunLock() {
 	}
 
-	/***************************************
+	/**
 	 * @see ReentrantLock#ReentrantLock(boolean)
 	 */
-	public RunLock(boolean bFair)
-	{
+	public RunLock(boolean bFair) {
 		super(bFair);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Runs the given function inside a lock-try-finally-unlock block with the
 	 * lock acquired on this instance.
 	 *
 	 * @param fCode The code function to execute
 	 */
-	public void runLocked(Runnable fCode)
-	{
+	public void runLocked(Runnable fCode) {
 		lock();
 
-		try
-		{
+		try {
 			fCode.run();
-		}
-		finally
-		{
+		} finally {
 			unlock();
 		}
 	}
 
-	/***************************************
+	/**
 	 * Returns a value that has been supplied by the given function inside a
 	 * lock-try-finally-unlock block with the lock acquired on this instance.
 	 *
-	 * @param  fCode The code function to execute
-	 *
+	 * @param fCode The code function to execute
 	 * @return The supplied value
 	 */
-	public <T> T supplyLocked(Supplier<T> fCode)
-	{
+	public <T> T supplyLocked(Supplier<T> fCode) {
 		lock();
 
-		try
-		{
+		try {
 			return fCode.get();
-		}
-		finally
-		{
+		} finally {
 			unlock();
 		}
 	}

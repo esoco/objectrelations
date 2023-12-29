@@ -76,8 +76,8 @@ import static de.esoco.lib.datatype.Pair.t;
 public class Range<T extends Comparable<T>> implements Iterable<T> {
 	private static final long END_EXCLUSIVE = Long.MIN_VALUE + 1;
 
-	private static final Map<Class<?>, Comparable<?>> DEFAULT_STEPS = CollectionUtil.fixedMapOf(
-			t(Long.class, Long.valueOf(1)),
+	private static final Map<Class<?>, Comparable<?>> DEFAULT_STEPS =
+		CollectionUtil.fixedMapOf(t(Long.class, Long.valueOf(1)),
 			t(Integer.class, Integer.valueOf(1)),
 			t(Short.class, Short.valueOf((short) 1)),
 			t(Byte.class, Byte.valueOf((byte) 1)),
@@ -87,8 +87,8 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 			t(Float.class, Float.valueOf(1)),
 			t(Character.class, Character.valueOf('\u0001')));
 
-	private static final Map<Class<?>, Comparable<?>> ZERO_VALUES = CollectionUtil.fixedMapOf(
-			t(Long.class, Long.valueOf(0)),
+	private static final Map<Class<?>, Comparable<?>> ZERO_VALUES =
+		CollectionUtil.fixedMapOf(t(Long.class, Long.valueOf(0)),
 			t(Integer.class, Integer.valueOf(0)),
 			t(Short.class, Short.valueOf((short) 0)),
 			t(Byte.class, Byte.valueOf((byte) 0)),
@@ -99,11 +99,15 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 			t(Character.class, Character.valueOf('\u0000')));
 
 	private final T aStart;
+
 	private final Function<RangeIterator, T> fGetNextValue;
 
 	private T aEnd = null;
+
 	private T aStep = null;
+
 	private long nSize = Long.MIN_VALUE;
+
 	private boolean bAscending;
 
 	/**
@@ -121,98 +125,79 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 		this.fGetNextValue = fGetNextValue;
 	}
 
-	// ~ Static methods ---------------------------------------------------------
+	// ~ Static methods
+	// ---------------------------------------------------------
 
 	/**
 	 * Creates a new range with a long datatype.
 	 *
 	 * @param nStart The start of the range
-	 *
 	 * @return The new range
 	 */
 	public static Range<Long> from(long nStart) {
-		return new Range<>(
-				nStart,
-				i -> Long.valueOf(
-						i.aNext.longValue() + i.range().aStep.longValue()));
+		return new Range<>(nStart, i -> Long.valueOf(
+			i.aNext.longValue() + i.range().aStep.longValue()));
 	}
 
 	/**
 	 * Creates a new range with an integer datatype.
 	 *
 	 * @param nStart The start of the range
-	 *
 	 * @return The new range
 	 */
 	public static Range<Integer> from(int nStart) {
-		return new Range<>(
-				nStart,
-				i -> Integer.valueOf(
-						i.aNext.intValue() + i.range().aStep.intValue()));
+		return new Range<>(nStart, i -> Integer.valueOf(
+			i.aNext.intValue() + i.range().aStep.intValue()));
 	}
 
 	/**
 	 * Creates a new range with a float datatype.
 	 *
 	 * @param fStart The start of the range
-	 *
 	 * @return The new range
 	 */
 	public static Range<Float> from(float fStart) {
-		return new Range<>(
-				fStart,
-				i -> Float.valueOf(
-						i.aNext.floatValue() + i.range().aStep.floatValue()));
+		return new Range<>(fStart, i -> Float.valueOf(
+			i.aNext.floatValue() + i.range().aStep.floatValue()));
 	}
 
 	/**
 	 * Creates a new range with a double datatype.
 	 *
 	 * @param fStart The start of the range
-	 *
 	 * @return The new range
 	 */
 	public static Range<Double> from(double fStart) {
-		return new Range<>(
-				fStart,
-				i -> Double.valueOf(
-						i.aNext.doubleValue() + i.range().aStep.doubleValue()));
+		return new Range<>(fStart, i -> Double.valueOf(
+			i.aNext.doubleValue() + i.range().aStep.doubleValue()));
 	}
 
 	/**
 	 * Creates a new range with a short datatype.
 	 *
 	 * @param nStart The start of the range
-	 *
 	 * @return The new range
 	 */
 	public static Range<Short> from(short nStart) {
-		return new Range<>(
-				nStart,
-				i -> Short.valueOf(
-						(short) (i.aNext.shortValue() +
-								i.range().aStep.shortValue())));
+		return new Range<>(nStart, i -> Short.valueOf(
+			(short) (i.aNext.shortValue() + i.range().aStep.shortValue())));
 	}
 
 	/**
 	 * Creates a new range with a byte datatype.
 	 *
 	 * @param nStart The start of the range
-	 *
 	 * @return The new range
 	 */
 	public static Range<Byte> from(byte nStart) {
-		return new Range<>(
-				nStart,
-				i -> Byte.valueOf(
-						(byte) (i.aNext.byteValue() + i.range().aStep.byteValue())));
+		return new Range<>(nStart, i -> Byte.valueOf(
+			(byte) (i.aNext.byteValue() + i.range().aStep.byteValue())));
 	}
 
 	/**
 	 * Creates a new range with a {@link BigInteger} datatype.
 	 *
 	 * @param rStart The start of the range
-	 *
 	 * @return The new range
 	 */
 	public static Range<BigInteger> from(BigInteger rStart) {
@@ -223,7 +208,6 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 	 * Creates a new range with a {@link BigDecimal} datatype.
 	 *
 	 * @param dStart The start of the range
-	 *
 	 * @return The new range
 	 */
 	public static Range<BigDecimal> from(BigDecimal dStart) {
@@ -234,33 +218,30 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 	 * Creates a new range with a character datatype.
 	 *
 	 * @param cStart The start of the range
-	 *
 	 * @return The new range
 	 */
 	public static Range<Character> from(char cStart) {
-		return new Range<>(
-				cStart,
-				i -> Character.valueOf(
-						(char) (i.aNext.charValue() +
-								(i.range().bAscending ? i.range().aStep.charValue()
-										: -i.range().aStep.charValue()))));
+		return new Range<>(cStart, i -> Character.valueOf(
+			(char) (i.aNext.charValue() + (i.range().bAscending ?
+			                               i.range().aStep.charValue() :
+			                               -i.range().aStep.charValue()))));
 	}
 
-	// ~ Methods ----------------------------------------------------------------
+	// ~ Methods
+	// ----------------------------------------------------------------
 
 	/**
 	 * Checks whether a certain value is contained in this range.
 	 *
 	 * @param rValue The value to check
-	 *
 	 * @return TRUE if the value is contained in this range
 	 */
 	public boolean contains(T rValue) {
 		checkInitialized();
 
-		return bAscending
-				? rValue.compareTo(aStart) >= 0 && rValue.compareTo(aEnd) <= 0
-				: rValue.compareTo(aEnd) >= 0 && rValue.compareTo(aStart) <= 0;
+		return bAscending ?
+		       rValue.compareTo(aStart) >= 0 && rValue.compareTo(aEnd) <= 0 :
+		       rValue.compareTo(aEnd) >= 0 && rValue.compareTo(aStart) <= 0;
 	}
 
 	/**
@@ -283,8 +264,8 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 		rOther.checkInitialized();
 
 		return aStart.equals(rOther.aStart) &&
-				Objects.equals(aEnd, rOther.aEnd) &&
-				Objects.equals(aStep, rOther.aStep);
+			Objects.equals(aEnd, rOther.aEnd) &&
+			Objects.equals(aStep, rOther.aStep);
 	}
 
 	/**
@@ -343,7 +324,7 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 	 * Checks the range direction.
 	 *
 	 * @return TRUE if the range values are ordered ascending, FALSE if ordered
-	 *         descending
+	 * descending
 	 */
 	public boolean isAscending() {
 		return bAscending;
@@ -375,16 +356,15 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 	 */
 	@Override
 	public Spliterator<T> spliterator() {
-		return Spliterators.spliterator(
-				iterator(),
-				size(),
-				Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL |
-						Spliterator.ORDERED | Spliterator.SORTED | Spliterator.SIZED |
-						Spliterator.SUBSIZED);
+		return Spliterators.spliterator(iterator(), size(),
+			Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL |
+				Spliterator.ORDERED | Spliterator.SORTED | Spliterator.SIZED |
+				Spliterator.SUBSIZED);
 	}
 
 	/**
-	 * Sets the step size for iteration through this range. The step must always
+	 * Sets the step size for iteration through this range. The step must
+	 * always
 	 * be a positive value. If the range end is lower than the start the step
 	 * will be automatically applied by subtraction.
 	 *
@@ -395,9 +375,7 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 	 * </p>
 	 *
 	 * @param rStep The step size
-	 *
 	 * @return This instance for fluent invocations
-	 *
 	 * @throws IllegalArgumentException If the step value is invalid or has
 	 *                                  already been set
 	 */
@@ -407,13 +385,12 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 
 		if (this.aStep != null) {
 			throw new IllegalArgumentException(
-					"Range step already set to " +
-							this.aStep);
+				"Range step already set to " + this.aStep);
 		}
 
 		if (rStep.compareTo((T) ZERO_VALUES.get(aStart.getClass())) <= 0) {
 			throw new IllegalArgumentException(
-					"Step must be a positive number");
+				"Step must be a positive number");
 		}
 
 		this.aStep = rStep;
@@ -435,9 +412,7 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 	 * invoked once and afterwards this range is effectively immutable.
 	 *
 	 * @param rEnd The end value (inclusive)
-	 *
 	 * @return This instance for fluent invocations
-	 *
 	 * @throws IllegalArgumentException If the end value has already been set
 	 */
 	public Range<T> to(T rEnd) {
@@ -445,8 +420,7 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 
 		if (this.aEnd != null) {
 			throw new IllegalArgumentException(
-					"Range end already set to " +
-							this.aEnd);
+				"Range end already set to " + this.aEnd);
 		}
 
 		this.aEnd = rEnd;
@@ -464,9 +438,7 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 	 * direction.
 	 *
 	 * @param rBefore The end value (exclusive)
-	 *
 	 * @return This instance for fluent invocations
-	 *
 	 * @throws IllegalArgumentException If the end value has already been set
 	 */
 	public Range<T> toBefore(T rBefore) {
@@ -528,27 +500,28 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 			Class<T> rRangeType = (Class<T>) aEnd.getClass();
 
 			if (rRangeType == BigDecimal.class) {
-				nSize = ((BigDecimal) aEnd).subtract((BigDecimal) aStart)
-						.add((BigDecimal) aStep)
-						.divide((BigDecimal) aStep)
-						.longValue();
+				nSize = ((BigDecimal) aEnd)
+					.subtract((BigDecimal) aStart)
+					.add((BigDecimal) aStep)
+					.divide((BigDecimal) aStep)
+					.longValue();
 			} else if (rRangeType == BigInteger.class) {
-				nSize = ((BigInteger) aEnd).subtract((BigInteger) aStart)
-						.add((BigInteger) aStep)
-						.divide((BigInteger) aStep)
-						.longValue();
+				nSize = ((BigInteger) aEnd)
+					.subtract((BigInteger) aStart)
+					.add((BigInteger) aStep)
+					.divide((BigInteger) aStep)
+					.longValue();
 			} else if (Number.class.isAssignableFrom(rRangeType)) {
 				if (rRangeType == Double.class || rRangeType == Float.class) {
 					double fStep = ((Number) aStep).doubleValue();
 
 					nSize = (long) ((((Number) aEnd).doubleValue() -
-							((Number) aStart).doubleValue() + fStep) /
-							fStep);
+						((Number) aStart).doubleValue() + fStep) / fStep);
 				} else {
 					long nStep = ((Number) aStep).longValue();
 
 					nSize = (((Number) aEnd).longValue() -
-							((Number) aStart).longValue() + nStep) / nStep;
+						((Number) aStart).longValue() + nStep) / nStep;
 				}
 			} else if (rRangeType == Character.class) {
 				int nStep = ((Character) aStep).charValue();
@@ -558,13 +531,14 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 				}
 
 				nSize = (((Character) aEnd).charValue() -
-						((Character) aStart).charValue() + nStep) / nStep;
+					((Character) aStart).charValue() + nStep) / nStep;
 			}
 		}
 	}
 
 	/**
-	 * Checks whether this instance has been fully initialized or else throws an
+	 * Checks whether this instance has been fully initialized or else
+	 * throws an
 	 * {@link IllegalStateException}.
 	 */
 	@SuppressWarnings("unchecked")
@@ -578,8 +552,7 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 
 			if (aStep == null) {
 				throw new IllegalArgumentException(
-						"No range mapping for type " +
-								aStart.getClass());
+					"No range mapping for type " + aStart.getClass());
 			}
 		}
 
@@ -590,7 +563,6 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 	 * Returns the negated value of the argument.
 	 *
 	 * @param rValue The value to negate
-	 *
 	 * @return The negated value
 	 */
 	@SuppressWarnings("unchecked")
@@ -621,19 +593,22 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 		return rValue;
 	}
 
-	// ~ Inner Classes ----------------------------------------------------------
+	// ~ Inner Classes
+	// ----------------------------------------------------------
 
-	/*******************************
+	/**
 	 * The iterator implementation for ranges.
 	 *
 	 * @author eso
 	 */
 	class RangeIterator implements Iterator<T> {
-		// ~ Instance fields ----------------------------------------------------
+		// ~ Instance fields
+		// ----------------------------------------------------
 
 		private T aNext;
 
-		// ~ Constructors -------------------------------------------------------
+		// ~ Constructors
+		// -------------------------------------------------------
 
 		/**
 		 * Creates a new instance.
@@ -644,7 +619,8 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 			aNext = rStartValue;
 		}
 
-		// ~ Methods ------------------------------------------------------------
+		// ~ Methods
+		// ------------------------------------------------------------
 
 		/**
 		 * {@inheritDoc}
@@ -666,7 +642,7 @@ public class Range<T extends Comparable<T>> implements Iterable<T> {
 			int nNextCompared = aNext.compareTo(aEnd);
 
 			if (bAscending && nNextCompared > 0 ||
-					!bAscending && nNextCompared < 0) {
+				!bAscending && nNextCompared < 0) {
 				aNext = null;
 			}
 

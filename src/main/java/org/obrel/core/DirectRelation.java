@@ -20,115 +20,93 @@ import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 
-
-/********************************************************************
+/**
  * A standard relation implementation which stores the target object directly.
  *
  * @author eso
  */
-public class DirectRelation<T> extends Relation<T>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class DirectRelation<T> extends Relation<T> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
-	/** @serial The target value */
+	/**
+	 *
+	 */
 	private T rTarget;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see Relation#Relation(RelationType)
 	 */
-	public DirectRelation(RelationType<T> rType, T rTarget)
-	{
+	public DirectRelation(RelationType<T> rType, T rTarget) {
 		super(rType);
 
 		this.rTarget = rTarget;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public T getTarget()
-	{
+	public T getTarget() {
 		return rTarget;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	Relation<T> copyTo(Relatable rTarget)
-	{
+	Relation<T> copyTo(Relatable rTarget) {
 		return rTarget.set(getType(), getTarget());
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	boolean dataEqual(Relation<?> rOther)
-	{
+	boolean dataEqual(Relation<?> rOther) {
 		DirectRelation<?> rOtherRelation = (DirectRelation<?>) rOther;
 
-		if (rTarget == null)
-		{
+		if (rTarget == null) {
 			return rOtherRelation.rTarget == null;
-		}
-		else
-		{
+		} else {
 			return rTarget.equals(rOtherRelation.rTarget);
 		}
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	int dataHashCode()
-	{
+	int dataHashCode() {
 		return 17 + (rTarget != null ? rTarget.hashCode() : 0);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	void setTarget(T rNewTarget)
-	{
+	void setTarget(T rNewTarget) {
 		rTarget = rNewTarget;
 	}
 
-	/***************************************
-	 * Restores this relation by reading it's state from the given input stream.
-	 * Uses the default reading of {@link ObjectInputStream} but adds safeguards
+	/**
+	 * Restores this relation by reading it's state from the given input
+	 * stream.
+	 * Uses the default reading of {@link ObjectInputStream} but adds
+	 * safeguards
 	 * to ensure relation consistency.
 	 *
-	 * @param      rIn The input stream
-	 *
-	 * @throws     IOException            If reading data fails
-	 * @throws     ClassNotFoundException If the class couldn't be found
-	 *
-	 * @serialData This class reads uses the default serialized form and only
-	 *             implements readObject() to perform a validation of the values
-	 *             read by the default serialization handler
+	 * @param rIn The input stream
+	 * @throws IOException            If reading data fails
+	 * @throws ClassNotFoundException If the class couldn't be found
 	 */
-	private void readObject(ObjectInputStream rIn) throws IOException,
-														  ClassNotFoundException
-	{
+	private void readObject(ObjectInputStream rIn)
+		throws IOException, ClassNotFoundException {
 		rIn.defaultReadObject();
 
-		if (!getType().isValidTarget(rTarget))
-		{
+		if (!getType().isValidTarget(rTarget)) {
 			throw new InvalidObjectException(
-				"Target value invalid for type: " +
-				rTarget + "/" + getType());
+				"Target value invalid for type: " + rTarget + "/" + getType());
 		}
 	}
 }

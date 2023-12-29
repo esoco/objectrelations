@@ -21,8 +21,7 @@ import de.esoco.lib.expression.function.FunctionChain;
 
 import java.util.function.Consumer;
 
-
-/********************************************************************
+/**
  * A function sub-interface for the implementation of actions that have no
  * result. Implementations must implement the {@link #execute(Object)} instead
  * of {@link #evaluate(Object)}.
@@ -30,74 +29,63 @@ import java.util.function.Consumer;
  * @author eso
  */
 @FunctionalInterface
-public interface Action<T> extends Function<T, Void>, Consumer<T>
-{
-	//~ Static methods ---------------------------------------------------------
+public interface Action<T> extends Function<T, Void>, Consumer<T> {
 
-	/***************************************
-	 * Takes an action that throws an exception and returns it as an action that
+	/**
+	 * Takes an action that throws an exception and returns it as an action
+	 * that
 	 * can be executed without a checked exception. This method is mainly
 	 * intended to be used with lambdas that throw exceptions.
 	 *
-	 * @param  fChecked The checked action to wrap as unchecked
-	 *
+	 * @param fChecked The checked action to wrap as unchecked
 	 * @return The unchecked action
 	 */
 	static <T, E extends Exception> Action<T> unchecked(
-		ThrowingAction<T, E> fChecked)
-	{
+		ThrowingAction<T, E> fChecked) {
 		return fChecked;
 	}
 
-	//~ Methods ----------------------------------------------------------------
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	default void accept(T rValue) {
+		evaluate(rValue);
+	}
 
-	/***************************************
+	/**
+	 * @see AbstractFunction#evaluate(Object)
+	 */
+	@Override
+	default Void evaluate(T rValue) {
+		execute(rValue);
+
+		return null;
+	}
+
+	/**
 	 * this method must be implemented with the action functionality.
 	 *
 	 * @param rValue The value to execute the action upon
 	 */
 	void execute(T rValue);
 
-	/***************************************
-	 * {@inheritDoc}
-	 */
-	@Override
-	default void accept(T rValue)
-	{
-		evaluate(rValue);
-	}
-
-	/***************************************
-	 * @see AbstractFunction#evaluate(Object)
-	 */
-	@Override
-	default Void evaluate(T rValue)
-	{
-		execute(rValue);
-
-		return null;
-	}
-
-	/***************************************
+	/**
 	 * Returns a new function object that evaluates the result received from
 	 * another function with this function. Implementations should typically
 	 * subclass {@link AbstractFunction} which already contains an
 	 * implementation of this method.
 	 *
-	 * @param  fPrevious The function to produce this function's input values
-	 *                   with
-	 *
+	 * @param fPrevious The function to produce this function's input values
+	 *                  with
 	 * @return A new instance of {@link FunctionChain}
 	 */
 	@Override
-	default <O> Action<O> from(Function<O, ? extends T> fPrevious)
-	{
+	default <O> Action<O> from(Function<O, ? extends T> fPrevious) {
 		return Functions.asAction(Functions.chain(this, fPrevious));
 	}
 
-	//~ Inner Interfaces -------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * A sub-interface that allows implementations to throw checked exceptions.
 	 * If an exception occurs it will be converted into a runtime exception of
 	 * the type {@link FunctionException}.
@@ -105,22 +93,18 @@ public interface Action<T> extends Function<T, Void>, Consumer<T>
 	 * @author eso
 	 */
 	@FunctionalInterface
-	interface ThrowingAction<T, E extends Exception>
-		extends Action<T>
-	{
-		//~ Methods ------------------------------------------------------------
+	interface ThrowingAction<T, E extends Exception> extends Action<T> {
 
-		/***************************************
+		/**
 		 * Replaces {@link #evaluate(Object)} and allows implementations to
 		 * throw an exception.
 		 *
-		 * @param  rValue The input value
-		 *
+		 * @param rValue The input value
 		 * @throws E An exception in the case of errors
 		 */
 		void evaluateWithException(T rValue) throws E;
 
-		/***************************************
+		/**
 		 * Overridden to forward the invocation to the actual function
 		 * implementation in {@link #evaluateWithException(Object)} and to
 		 * convert occurring exceptions into {@link FunctionException}.
@@ -128,16 +112,13 @@ public interface Action<T> extends Function<T, Void>, Consumer<T>
 		 * @see Action#execute(Object)
 		 */
 		@Override
-		default void execute(T rValue)
-		{
-			try
-			{
+		default void execute(T rValue) {
+			try {
 				evaluateWithException(rValue);
-			}
-			catch (Exception e)
-			{
-				throw (e instanceof RuntimeException)
-					  ? (RuntimeException) e : new FunctionException(this, e);
+			} catch (Exception e) {
+				throw (e instanceof RuntimeException) ?
+				      (RuntimeException) e :
+				      new FunctionException(this, e);
 			}
 		}
 	}

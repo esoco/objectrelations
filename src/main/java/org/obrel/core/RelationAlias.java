@@ -18,22 +18,17 @@ package org.obrel.core;
 
 import de.esoco.lib.expression.InvertibleFunction;
 
-
-/********************************************************************
+/**
  * A relation wrapper implementation that wraps another relation with a
  * different relation type with the same generic types. That allows to write to
  * the wrapper like to the original relation.
  */
 public class RelationAlias<T, A>
-	extends RelationWrapper<T, A, InvertibleFunction<A, T>>
-{
-	//~ Static fields/initializers ---------------------------------------------
+	extends RelationWrapper<T, A, InvertibleFunction<A, T>> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rParent          The parent of this alias
@@ -43,41 +38,33 @@ public class RelationAlias<T, A>
 	 *                         value of the alias and can be inverted for the
 	 *                         setting of new targets
 	 */
-	RelationAlias(Relatable				   rParent,
-				  RelationType<T>		   rAliasType,
-				  Relation<A>			   rAliasedRelation,
-				  InvertibleFunction<A, T> fAliasConversion)
-	{
+	RelationAlias(Relatable rParent, RelationType<T> rAliasType,
+		Relation<A> rAliasedRelation,
+		InvertibleFunction<A, T> fAliasConversion) {
 		super(rParent, rAliasType, rAliasedRelation, fAliasConversion);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Copies this alias to another object. The copy will still refer to the
 	 * original wrapped relation.
 	 *
 	 * @see RelationWrapper#copyTo(Relatable)
 	 */
 	@Override
-	Relation<T> copyTo(Relatable rTarget)
-	{
-		return getWrappedRelation().aliasAs(
-			getType(),
-			rTarget,
+	Relation<T> copyTo(Relatable rTarget) {
+		return getWrappedRelation().aliasAs(getType(), rTarget,
 			getConversion());
 	}
 
-	/***************************************
+	/**
 	 * Updates the target object on the aliased relation .
 	 *
 	 * @see Relation#updateTarget(Object)
 	 */
 	@Override
-	void setTarget(T rNewTarget)
-	{
+	void setTarget(T rNewTarget) {
 		Relation<A> rWrapped = getWrappedRelation();
-		A		    rTarget  = getConversion().invert(rNewTarget);
+		A rTarget = getConversion().invert(rNewTarget);
 
 		// check state of target type too to prevent illegal modifications
 		rWrapped.getType().checkUpdateAllowed();

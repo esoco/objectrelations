@@ -19,7 +19,7 @@ package de.esoco.lib.expression.predicate;
 import de.esoco.lib.expression.BinaryPredicate;
 import de.esoco.lib.expression.FunctionException;
 
-/********************************************************************
+/**
  * A sub-interface that allows implementations to throw checked exceptions. If
  * an exception occurs it will be converted into a runtime exception of the type
  * {@link FunctionException}.
@@ -28,16 +28,14 @@ import de.esoco.lib.expression.FunctionException;
  */
 @FunctionalInterface
 public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R> {
-	//~ Static methods ---------------------------------------------------------
 
-	/***************************************
+	/**
 	 * Factory method that allows to declare a throwing predicate from a lambda
 	 * expression that is mapped to a regular predicate. Otherwise an anonymous
 	 * inner class expression would be needed because of the similar signatures
 	 * of throwing and non-throwing predicate.
 	 *
-	 * @param  fThrowing The throwing predicate expression
-	 *
+	 * @param fThrowing The throwing predicate expression
 	 * @return The resulting predicate
 	 */
 	static <L, R> BinaryPredicate<L, R> of(
@@ -45,11 +43,10 @@ public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R> {
 		return fThrowing;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Overridden to forward the invocation to the actual implementation in
-	 * {@link #tryTest(Object, Object)} and to convert occurring exceptions into
+	 * {@link #tryTest(Object, Object)} and to convert occurring exceptions
+	 * into
 	 * {@link FunctionException}.
 	 *
 	 * @see BinaryPredicate#evaluate(Object, Object)
@@ -60,20 +57,19 @@ public interface ThrowingBinaryPredicate<L, R> extends BinaryPredicate<L, R> {
 			return tryTest(rLeft, rRight);
 		} catch (Throwable e) {
 			throw (e instanceof RuntimeException) ?
-				(RuntimeException) e :
-				new FunctionException(this, e);
+			      (RuntimeException) e :
+			      new FunctionException(this, e);
 		}
 	}
 
-	/***************************************
-	 * Replaces {@link #evaluate(Object)} and allows implementations to throw an
+	/**
+	 * Replaces {@link #evaluate(Object)} and allows implementations to
+	 * throw an
 	 * exception.
 	 *
-	 * @param  rLeft  The first argument
-	 * @param  rRight The second argument
-	 *
+	 * @param rLeft  The first argument
+	 * @param rRight The second argument
 	 * @return The function result
-	 *
 	 * @throws Throwable On errors
 	 */
 	Boolean tryTest(L rLeft, R rRight) throws Throwable;

@@ -19,11 +19,9 @@ package de.esoco.lib.expression.predicate;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.function.AbstractFunction;
-
 import org.obrel.core.RelatedObject;
 
-
-/********************************************************************
+/**
  * A predicate that evaluates the result of applying a function to input objects
  * with another predicate. The generic parameters designate the types of the
  * target objects and the return value that is evaluated by the predicate,
@@ -32,121 +30,103 @@ import org.obrel.core.RelatedObject;
  * @author eso
  */
 public class FunctionPredicate<T, V> extends RelatedObject
-	implements Predicate<T>
-{
-	//~ Instance fields --------------------------------------------------------
+	implements Predicate<T> {
 
 	private final Function<? super T, V> rFunction;
-	private final Predicate<? super V>   rPredicate;
 
-	//~ Constructors -----------------------------------------------------------
+	private final Predicate<? super V> rPredicate;
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
-	 * @param  rFunction  The function to apply to input values
-	 * @param  rPredicate The predicate to evaluate the result of the function
-	 *                    with
-	 *
+	 * @param rFunction  The function to apply to input values
+	 * @param rPredicate The predicate to evaluate the result of the function
+	 *                   with
 	 * @throws IllegalArgumentException If either argument is NULL
 	 */
-	public FunctionPredicate(
-		Function<? super T, V> rFunction,
-		Predicate<? super V>   rPredicate)
-	{
-		if (rFunction == null)
-		{
+	public FunctionPredicate(Function<? super T, V> rFunction,
+		Predicate<? super V> rPredicate) {
+		if (rFunction == null) {
 			throw new IllegalArgumentException("Function must not be NULL");
 		}
 
-		if (rPredicate == null)
-		{
+		if (rPredicate == null) {
 			throw new IllegalArgumentException("Predicate must not be NULL");
 		}
 
-		this.rFunction  = rFunction;
+		this.rFunction = rFunction;
 		this.rPredicate = rPredicate;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean equals(Object rObj)
-	{
-		if (rObj == this)
-		{
+	public boolean equals(Object rObj) {
+		if (rObj == this) {
 			return true;
 		}
 
-		if (rObj == null || rObj.getClass() != getClass())
-		{
+		if (rObj == null || rObj.getClass() != getClass()) {
 			return false;
 		}
 
 		FunctionPredicate<?, ?> rOther = (FunctionPredicate<?, ?>) rObj;
 
 		return rPredicate.equals(rOther.rPredicate) &&
-			   rFunction.equals(rOther.rFunction);
+			rFunction.equals(rOther.rFunction);
 	}
 
-	/***************************************
+	/**
 	 * Retrieves the field value from the target object and returns the result
 	 * of the field predicate's evaluate method after invoking it on the field
 	 * value.
 	 *
-	 * @param  rObject The target object to retrieve the field value from1
-	 *
+	 * @param rObject The target object to retrieve the field value from1
 	 * @return The result of the field predicate evaluation
 	 */
 	@Override
-	public Boolean evaluate(T rObject)
-	{
+	public Boolean evaluate(T rObject) {
 		return rPredicate.evaluate(rFunction.evaluate(rObject));
 	}
 
-	/***************************************
+	/**
 	 * Returns the function that is evaluated by this instance.
 	 *
 	 * @return The function of this instance
 	 */
-	public final Function<? super T, V> getFunction()
-	{
+	public final Function<? super T, V> getFunction() {
 		return rFunction;
 	}
 
-	/***************************************
+	/**
 	 * Returns the predicate that is used by to evaluate the result of the
 	 * function.
 	 *
 	 * @return The value predicate
 	 */
-	public final Predicate<? super V> getPredicate()
-	{
+	public final Predicate<? super V> getPredicate() {
 		return rPredicate;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return 31 * (rPredicate.hashCode() + 31 * rFunction.hashCode());
 	}
 
-	/***************************************
+	/**
 	 * Creates a combined string representation from the function and predicate
 	 * of this instance.
 	 *
 	 * @see AbstractFunction#toString()
 	 */
 	@Override
-	public String toString()
-	{
-		return rPredicate.toString()
-						 .replace(INPUT_PLACEHOLDER, rFunction.toString());
+	public String toString() {
+		return rPredicate
+			.toString()
+			.replace(INPUT_PLACEHOLDER, rFunction.toString());
 	}
 }

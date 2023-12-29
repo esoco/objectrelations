@@ -16,18 +16,16 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.json;
 
-/********************************************************************
+/**
  * An interface for objects that can be serialized to and from the JSON data
  * format. It is recommended that implementations provide a no-argument
  * constructor to allow automatic de-serialization by {@link JsonParser}.
  *
  * @author eso
  */
-public interface JsonSerializable<J extends JsonSerializable<J>>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface JsonSerializable<J extends JsonSerializable<J>> {
 
-	/***************************************
+	/**
 	 * Appends this instance to a JSON builder. This method needs to be
 	 * implemented to allow the serialization of hierarchical structures. To
 	 * simply serialize a (root-level) object use the default method {@link
@@ -37,7 +35,7 @@ public interface JsonSerializable<J extends JsonSerializable<J>>
 	 */
 	void appendTo(JsonBuilder rBuilder);
 
-	/***************************************
+	/**
 	 * Parses data from a JSON string and returns the resulting instance.
 	 * Invocations should always work with the returned instance as immutable
 	 * implementations will return a new instance.
@@ -47,25 +45,23 @@ public interface JsonSerializable<J extends JsonSerializable<J>>
 	 * immutable types that will only be created to invoke this method, which
 	 * will then create and fill a new instance.</p>
 	 *
-	 * @param  sJson The JSON string to parse
-	 *
+	 * @param sJson The JSON string to parse
 	 * @return This instance so that it can be directly used after
-	 *         de-serialization
+	 * de-serialization
 	 */
 	J fromJson(String sJson);
 
-	/***************************************
+	/**
 	 * Converts this instance into a compact JSON representation that can be
 	 * de-serialized by invoking {@link #fromJson(String)}.
 	 *
 	 * @return The resulting JSON string
 	 */
-	default String toCompactJson()
-	{
+	default String toCompactJson() {
 		return new JsonBuilder().compact().append(this).toString();
 	}
 
-	/***************************************
+	/**
 	 * Converts this instance into a JSON representation that can be
 	 * de-serialized by invoking {@link #fromJson(String)}. This default
 	 * implementation creates a human-readable, multi-line JSON string where
@@ -80,8 +76,7 @@ public interface JsonSerializable<J extends JsonSerializable<J>>
 	 *
 	 * @return The resulting JSON string
 	 */
-	default String toJson()
-	{
+	default String toJson() {
 		return new JsonBuilder().indent("\t").append(this).toString();
 	}
 }

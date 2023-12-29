@@ -23,64 +23,48 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 
-
-/********************************************************************
+/**
  * A relation type that returns the milliseconds since the creation of a
  * relation with this type.
  *
  * @author eso
  */
-public class TimerType extends RelationType<Long>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class TimerType extends RelationType<Long> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sName      The relation type name
 	 * @param rModifiers The optional modifiers
 	 */
 	@SuppressWarnings("boxing")
-	public TimerType(String sName, RelationTypeModifier... rModifiers)
-	{
+	public TimerType(String sName, RelationTypeModifier... rModifiers) {
 		super(sName, Long.class, o -> System.currentTimeMillis(), rModifiers);
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new partially initialized timer type for use in conjunction
 	 * with {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param  rModifiers The optional modifiers
-	 *
+	 * @param rModifiers The optional modifiers
 	 * @return The new timer type
 	 */
-	public static TimerType newTimer(RelationTypeModifier... rModifiers)
-	{
+	public static TimerType newTimer(RelationTypeModifier... rModifiers) {
 		return new TimerType(null, rModifiers);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see RelationType#addRelation(Relatable, Relation)
 	 */
 	@Override
 	@SuppressWarnings({ "boxing", "serial" })
-	protected Relation<Long> addRelation(
-		Relatable	   rParent,
-		Relation<Long> rRelation)
-	{
-		return new DirectRelation<Long>(this, rRelation.getTarget())
-		{
+	protected Relation<Long> addRelation(Relatable rParent,
+		Relation<Long> rRelation) {
+		return new DirectRelation<Long>(this, rRelation.getTarget()) {
 			@Override
-			public Long getTarget()
-			{
+			public Long getTarget() {
 				return System.currentTimeMillis() - super.getTarget();
 			}
 		};

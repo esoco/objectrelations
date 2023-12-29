@@ -19,157 +19,127 @@ package de.esoco.lib.expression;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 import de.esoco.lib.expression.function.AbstractFunction;
 
-
-/********************************************************************
+/**
  * Contains factory methods for mathematical functions.
  *
  * @author eso
  */
-public class MathFunctions
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class MathFunctions {
 
 	private static final Function<String, Integer> PARSE_INTEGER =
-		new AbstractFunction<String, Integer>("ParseInteger")
-		{
+		new AbstractFunction<String, Integer>("ParseInteger") {
 			@Override
-			public Integer evaluate(String sValue)
-			{
+			public Integer evaluate(String sValue) {
 				return Integer.valueOf(sValue);
 			}
 		};
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Private, only static use.
 	 */
-	private MathFunctions()
-	{
+	private MathFunctions() {
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns a binary function that will add an integer value to the input
 	 * value.
 	 *
-	 * @param  nRightValue The integer value to add
-	 *
+	 * @param nRightValue The integer value to add
 	 * @return A new binary function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static BinaryFunction<Integer, Integer, Integer> add(
-		final int nRightValue)
-	{
-		return new AbstractBinaryFunction<Integer, Integer, Integer>(nRightValue,
-																	 "Add")
-		{
+		final int nRightValue) {
+		return new AbstractBinaryFunction<Integer, Integer, Integer>(
+			nRightValue, "Add") {
 			@Override
-			public Integer evaluate(Integer rLeftValue, Integer rRightValue)
-			{
+			public Integer evaluate(Integer rLeftValue, Integer rRightValue) {
 				return rLeftValue.intValue() + rRightValue.intValue();
 			}
 		};
 	}
 
-	/***************************************
+	/**
 	 * Returns a binary function that will divide the input value by an integer
 	 * value.
 	 *
-	 * @param  nRightValue The integer value to divide by
-	 *
+	 * @param nRightValue The integer value to divide by
 	 * @return A new binary function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static BinaryFunction<Integer, Integer, Integer> divide(
-		final int nRightValue)
-	{
-		return new AbstractBinaryFunction<Integer, Integer, Integer>(nRightValue,
-																	 "Divide")
-		{
+		final int nRightValue) {
+		return new AbstractBinaryFunction<Integer, Integer, Integer>(
+			nRightValue, "Divide") {
 			@Override
-			public Integer evaluate(Integer rLeftValue, Integer rRightValue)
-			{
+			public Integer evaluate(Integer rLeftValue, Integer rRightValue) {
 				return rLeftValue.intValue() / rRightValue.intValue();
 			}
 		};
 	}
 
-	/***************************************
+	/**
 	 * Returns a binary function that returns the remainder of dividing the
 	 * input value by an integer value.
 	 *
-	 * @param  nRightValue The integer value to divide by
-	 *
+	 * @param nRightValue The integer value to divide by
 	 * @return A new binary function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static BinaryFunction<Integer, Integer, Integer> modulo(
-		final int nRightValue)
-	{
-		return new AbstractBinaryFunction<Integer, Integer, Integer>(nRightValue,
-																	 "Modulo")
-		{
+		final int nRightValue) {
+		return new AbstractBinaryFunction<Integer, Integer, Integer>(
+			nRightValue, "Modulo") {
 			@Override
-			public Integer evaluate(Integer rLeftValue, Integer rRightValue)
-			{
+			public Integer evaluate(Integer rLeftValue, Integer rRightValue) {
 				return rLeftValue.intValue() % rRightValue.intValue();
 			}
 		};
 	}
 
-	/***************************************
+	/**
 	 * Returns a binary function that will multiply the input value with an
 	 * integer value.
 	 *
-	 * @param  nRightValue The integer value to multiply with
-	 *
+	 * @param nRightValue The integer value to multiply with
 	 * @return A new binary function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static BinaryFunction<Integer, Integer, Integer> multiply(
-		final int nRightValue)
-	{
-		return new AbstractBinaryFunction<Integer, Integer, Integer>(nRightValue,
-																	 "Multiply")
-		{
+		final int nRightValue) {
+		return new AbstractBinaryFunction<Integer, Integer, Integer>(
+			nRightValue, "Multiply") {
 			@Override
-			public Integer evaluate(Integer rLeftValue, Integer rRightValue)
-			{
+			public Integer evaluate(Integer rLeftValue, Integer rRightValue) {
 				return rLeftValue.intValue() * rRightValue.intValue();
 			}
 		};
 	}
 
-	/***************************************
-	 * Returns a function constant that invokes {@link Integer#valueOf(String)}.
+	/**
+	 * Returns a function constant that invokes
+	 * {@link Integer#valueOf(String)}.
 	 *
 	 * @return The function constant
 	 */
-	public static Function<String, Integer> parseInteger()
-	{
+	public static Function<String, Integer> parseInteger() {
 		return PARSE_INTEGER;
 	}
 
-	/***************************************
+	/**
 	 * Returns a binary function that will subtract an integer value from the
 	 * input value.
 	 *
-	 * @param  nRightValue The integer value to subtract
-	 *
+	 * @param nRightValue The integer value to subtract
 	 * @return A new binary function instance
 	 */
 	@SuppressWarnings("boxing")
 	public static BinaryFunction<Integer, Integer, Integer> subtract(
-		final int nRightValue)
-	{
-		return new AbstractBinaryFunction<Integer, Integer, Integer>(nRightValue,
-																	 "Subtract")
-		{
+		final int nRightValue) {
+		return new AbstractBinaryFunction<Integer, Integer, Integer>(
+			nRightValue, "Subtract") {
 			@Override
-			public Integer evaluate(Integer rLeftValue, Integer rRightValue)
-			{
+			public Integer evaluate(Integer rLeftValue, Integer rRightValue) {
 				return rLeftValue.intValue() - rRightValue.intValue();
 			}
 		};

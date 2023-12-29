@@ -25,8 +25,7 @@ import java.io.Serializable;
 import static org.obrel.core.RelationTypeModifier.PRIVATE;
 import static org.obrel.core.RelationTypes.newType;
 
-
-/********************************************************************
+/**
  * A relation class that stores the target value in an intermediate format. When
  * the target value is queried it will be created by applying a conversion
  * function to the intermediate value. The converted value is then stored in the
@@ -51,25 +50,20 @@ import static org.obrel.core.RelationTypes.newType;
  * @author eso
  */
 @SuppressWarnings("unchecked")
-public class IntermediateRelation<T, I> extends DirectRelation<T>
-{
-	//~ Static fields/initializers ---------------------------------------------
-
-	private static final long serialVersionUID = 1L;
+public class IntermediateRelation<T, I> extends DirectRelation<T> {
 
 	static final RelationType<Function<?, ?>> TARGET_CONVERSION =
 		newType(PRIVATE);
 
 	static final RelationType<Object> INTERMEDIATE_TARGET = newType(PRIVATE);
 
-	static
-	{
+	private static final long serialVersionUID = 1L;
+
+	static {
 		RelationTypes.init(IntermediateRelation.class);
 	}
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rType               The type of this relation
@@ -79,9 +73,7 @@ public class IntermediateRelation<T, I> extends DirectRelation<T>
 	 *                            NULL)
 	 */
 	public IntermediateRelation(RelationType<T> rType,
-								Function<I, T>  fTargetConversion,
-								I				rIntermediateTarget)
-	{
+		Function<I, T> fTargetConversion, I rIntermediateTarget) {
 		super(rType, null);
 
 		assert fTargetConversion != null;
@@ -91,19 +83,16 @@ public class IntermediateRelation<T, I> extends DirectRelation<T>
 		set(INTERMEDIATE_TARGET, rIntermediateTarget);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the intermediate target value of this relation.
 	 *
 	 * @return The intermediate target
 	 */
-	public final I getIntermediateTarget()
-	{
+	public final I getIntermediateTarget() {
 		return (I) get(INTERMEDIATE_TARGET);
 	}
 
-	/***************************************
+	/**
 	 * If invoked for the first time this method transforms the intermediate
 	 * target value and stores it in the base class before invoking the
 	 * superclass method.
@@ -111,13 +100,11 @@ public class IntermediateRelation<T, I> extends DirectRelation<T>
 	 * @see DirectRelation#getTarget()
 	 */
 	@Override
-	public T getTarget()
-	{
-		T			   rTarget     = super.getTarget();
+	public T getTarget() {
+		T rTarget = super.getTarget();
 		Function<I, T> fConversion = (Function<I, T>) get(TARGET_CONVERSION);
 
-		if (fConversion != null && rTarget == null)
-		{
+		if (fConversion != null && rTarget == null) {
 			rTarget = fConversion.evaluate((I) get(INTERMEDIATE_TARGET));
 			setTarget(rTarget);
 		}
@@ -125,58 +112,52 @@ public class IntermediateRelation<T, I> extends DirectRelation<T>
 		return rTarget;
 	}
 
-	/***************************************
+	/**
 	 * @see Relation#dataEqual(Relation)
 	 */
 	@Override
-	boolean dataEqual(Relation<?> rOther)
-	{
+	boolean dataEqual(Relation<?> rOther) {
 		// the intermediate target must be resolved to prevent inconsistencies
 		getTarget();
 
 		return super.dataEqual(rOther);
 	}
 
-	/***************************************
+	/**
 	 * @see Relation#dataHashCode()
 	 */
 	@Override
-	int dataHashCode()
-	{
+	int dataHashCode() {
 		// the intermediate target must be resolved to prevent inconsistencies
 		getTarget();
 
 		return super.dataHashCode();
 	}
 
-	/***************************************
+	/**
 	 * Overridden to clear the intermediate value and target conversion.
 	 *
 	 * @see DirectRelation#setTarget(Object)
 	 */
 	@Override
-	void setTarget(T rNewTarget)
-	{
+	void setTarget(T rNewTarget) {
 		deleteRelation(TARGET_CONVERSION);
 		deleteRelation(INTERMEDIATE_TARGET);
 
 		super.setTarget(rNewTarget);
 	}
 
-	/***************************************
+	/**
 	 * Converts the intermediate target object to it's final format before
 	 * writing this instance to the stream if either the conversion function or
 	 * the intermediate target are not serializable.
 	 *
-	 * @param  rOut The output stream
-	 *
+	 * @param rOut The output stream
 	 * @throws IOException If the serialization fails
 	 */
-	private void writeObject(ObjectOutputStream rOut) throws IOException
-	{
+	private void writeObject(ObjectOutputStream rOut) throws IOException {
 		if (!(get(TARGET_CONVERSION) instanceof Serializable &&
-			  get(INTERMEDIATE_TARGET) instanceof Serializable))
-		{
+			get(INTERMEDIATE_TARGET) instanceof Serializable)) {
 			// if the intermediate data is not serializable convert it to
 			// the final target format which deletes the intermediate values
 			getTarget();

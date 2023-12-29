@@ -22,8 +22,7 @@ import de.esoco.lib.expression.Predicate;
 
 import java.util.List;
 
-
-/********************************************************************
+/**
  * A {@link Relatable} sub-interface that can be used to provide relation
  * support for existing classes that cannot inherit from {@link RelatedObject}.
  * All methods have default implementations, so it is sufficient to simply
@@ -37,38 +36,33 @@ import java.util.List;
  *
  * @author eso
  */
-public interface RelatableMixin extends Relatable
-{
-	//~ Methods ----------------------------------------------------------------
+public interface RelatableMixin extends Relatable {
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default void deleteRelation(Relation<?> rRelation)
-	{
+	default void deleteRelation(Relation<?> rRelation) {
 		getRelationContainer().deleteRelation(rRelation);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default <T> T get(RelationType<T> rType)
-	{
+	default <T> T get(RelationType<T> rType) {
 		return getRelationContainer().get(rType);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default <T> Relation<T> getRelation(RelationType<T> rType)
-	{
+	default <T> Relation<T> getRelation(RelationType<T> rType) {
 		return getRelationContainer().getRelation(rType);
 	}
 
-	/***************************************
+	/**
 	 * Returns the relation container of this instance. By default it returns
 	 * {@link ObjectRelations#getRelationContainer(Object, boolean)} for this
 	 * instance but implementations may override this to return a different
@@ -76,51 +70,43 @@ public interface RelatableMixin extends Relatable
 	 *
 	 * @return The relation container
 	 */
-	default Relatable getRelationContainer()
-	{
+	default Relatable getRelationContainer() {
 		return ObjectRelations.getRelatable(this);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	default List<Relation<?>> getRelations(
-		Predicate<? super Relation<?>> rFilter)
-	{
+		Predicate<? super Relation<?>> rFilter) {
 		return getRelationContainer().getRelations(rFilter);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default <T> Relation<T> set(RelationType<T> rType, T rTarget)
-	{
+	default <T> Relation<T> set(RelationType<T> rType, T rTarget) {
 		return getRelationContainer().set(rType, rTarget);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	default <T, I> Relation<T> set(RelationType<T> rType,
-								   Function<I, T>  fTargetResolver,
-								   I			   rIntermediateTarget)
-	{
-		return getRelationContainer().set(rType,
-										  fTargetResolver,
-										  rIntermediateTarget);
+		Function<I, T> fTargetResolver, I rIntermediateTarget) {
+		return getRelationContainer().set(rType, fTargetResolver,
+			rIntermediateTarget);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	default <T, D> TransformedRelation<T, D> transform(
-		RelationType<T>			 rType,
-		InvertibleFunction<T, D> fTransformation)
-	{
+	default <T, D> TransformedRelation<T, D> transform(RelationType<T> rType,
+		InvertibleFunction<T, D> fTransformation) {
 		return getRelationContainer().transform(rType, fTransformation);
 	}
 }

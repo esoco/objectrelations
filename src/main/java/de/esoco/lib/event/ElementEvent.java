@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.event;
 
-/********************************************************************
+/**
  * An event object that contains information related to the modification of an
  * element of a source object. The source object will typically be some kind of
  * container. The type of the event is identified by the {@link EventType}
@@ -64,24 +64,20 @@ package de.esoco.lib.event;
  *
  * @author eso
  */
-public class ElementEvent<S, E, U> extends GenericEvent<S>
-{
-	//~ Enums ------------------------------------------------------------------
+public class ElementEvent<S, E, U> extends GenericEvent<S> {
 
-	/********************************************************************
+	/**
 	 * Enumeration of the possible relation event types
 	 */
-	public enum EventType { ADD, REMOVE, REMOVE_ALL, UPDATE }
-
-	//~ Instance fields --------------------------------------------------------
+	public enum EventType {ADD, REMOVE, REMOVE_ALL, UPDATE}
 
 	private final EventType rType;
-	private final E		  rElement;
-	private final U		  rUpdateValue;
 
-	//~ Constructors -----------------------------------------------------------
+	private final E rElement;
 
-	/***************************************
+	private final U rUpdateValue;
+
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param rType        The event type
@@ -90,17 +86,15 @@ public class ElementEvent<S, E, U> extends GenericEvent<S>
 	 * @param rUpdateValue The update value in the case of update events (NULL
 	 *                     for none)
 	 */
-	public ElementEvent(EventType rType, S rSource, E rElement, U rUpdateValue)
-	{
+	public ElementEvent(EventType rType, S rSource, E rElement,
+		U rUpdateValue) {
 		super(rSource);
-		this.rType		  = rType;
-		this.rElement     = rElement;
+		this.rType = rType;
+		this.rElement = rElement;
 		this.rUpdateValue = rUpdateValue;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Returns the element that is affected by this event. What exactly this is
 	 * depends on the actual event subclass. In some cases it may be the
 	 * affected element itself, in others it may be a reference that describes
@@ -108,41 +102,34 @@ public class ElementEvent<S, E, U> extends GenericEvent<S>
 	 *
 	 * @return The element
 	 */
-	public final E getElement()
-	{
+	public final E getElement() {
 		return rElement;
 	}
 
-	/***************************************
+	/**
 	 * Returns the type of this event.
 	 *
 	 * @return The event type
 	 */
-	public final EventType getType()
-	{
+	public final EventType getType() {
 		return rType;
 	}
 
-	/***************************************
+	/**
 	 * Returns the new element value in the case of an update event.
 	 *
 	 * @return The element update value
 	 */
-	public final U getUpdateValue()
-	{
+	public final U getUpdateValue() {
 		return rUpdateValue;
 	}
 
-	/***************************************
+	/**
 	 * @see GenericEvent#toString()
 	 */
 	@Override
-	protected String paramString()
-	{
-		return String.format("%s,%s,%s,%s",
-							 super.paramString(),
-							 rType,
-							 rElement,
-							 rUpdateValue);
+	protected String paramString() {
+		return String.format("%s,%s,%s,%s", super.paramString(), rType,
+			rElement, rUpdateValue);
 	}
 }

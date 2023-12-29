@@ -20,13 +20,6 @@ import de.esoco.lib.collection.CollectionUtil;
 import de.esoco.lib.collection.ImmutableCollection;
 import de.esoco.lib.event.ElementEvent.EventType;
 import de.esoco.lib.expression.BinaryFunction;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.obrel.core.Relatable;
 import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
@@ -34,10 +27,15 @@ import org.obrel.core.RelationType;
 import org.obrel.core.RelationTypeModifier;
 import org.obrel.core.RelationTypes;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import static org.obrel.type.StandardTypes.MAXIMUM;
 
-
-/********************************************************************
+/**
  * An automatic relation type that collects values from other relations of the
  * object it is set on. This type registers itself as a relation listener on
  * it's parent object. The values to be collected are determined by evaluating
@@ -79,20 +77,15 @@ import static org.obrel.type.StandardTypes.MAXIMUM;
  *
  * @author eso
  */
-public class CollectorType<T> extends AutomaticType<Collection<T>>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class CollectorType<T> extends AutomaticType<Collection<T>> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final BinaryFunction<Relation<?>, Object, T> fCollector;
-	private final boolean								 bDistinctValues;
 
-	//~ Constructors -----------------------------------------------------------
+	private final boolean bDistinctValues;
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sName           The name of this type
@@ -105,77 +98,58 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 	 * @param rModifiers      The relation type modifiers
 	 */
 	@SuppressWarnings("unchecked")
-	public CollectorType(String									sName,
-						 Class<? super T>						rCollectedType,
-						 BinaryFunction<Relation<?>, Object, T> fCollector,
-						 boolean								bDistinctValues,
-						 RelationTypeModifier... 				rModifiers)
-	{
-		super(
-			sName,
+	public CollectorType(String sName, Class<? super T> rCollectedType,
+		BinaryFunction<Relation<?>, Object, T> fCollector,
+		boolean bDistinctValues, RelationTypeModifier... rModifiers) {
+		super(sName,
 			(Class<Collection<T>>) (bDistinctValues ? Set.class : List.class),
 			o -> bDistinctValues ? new LinkedHashSet<>() : new ArrayList<>(),
 			rModifiers);
 
-		this.fCollector		 = fCollector;
+		this.fCollector = fCollector;
 		this.bDistinctValues = bDistinctValues;
 
 		set(MetaTypes.ELEMENT_DATATYPE, rCollectedType);
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
-	 * Factory method for an instance that collects all values of the given type
+	/**
+	 * Factory method for an instance that collects all values of the given
+	 * type
 	 * and is initialized by {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param  rCollectedType The datatype of the collected values
-	 * @param  fCollector     The function that determines the values to be
-	 *                        collected from relation types and target values
-	 * @param  rModifiers     The relation type modifiers
-	 *
+	 * @param rCollectedType The datatype of the collected values
+	 * @param fCollector     The function that determines the values to be
+	 *                       collected from relation types and target values
+	 * @param rModifiers     The relation type modifiers
 	 * @return The new instance
 	 */
 	public static <T> CollectorType<T> newCollector(
-		Class<? super T>					   rCollectedType,
+		Class<? super T> rCollectedType,
 		BinaryFunction<Relation<?>, Object, T> fCollector,
-		RelationTypeModifier... 			   rModifiers)
-	{
-		return new CollectorType<>(
-			null,
-			rCollectedType,
-			fCollector,
-			false,
+		RelationTypeModifier... rModifiers) {
+		return new CollectorType<>(null, rCollectedType, fCollector, false,
 			rModifiers);
 	}
 
-	/***************************************
+	/**
 	 * Factory method for an instance that collects only distinct values of the
 	 * given type and is initialized by {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param  rCollectedType The datatype of the collected values
-	 * @param  fCollector     The function that determines the values to be
-	 *                        collected from relation types and target values
-	 * @param  rModifiers     The relation type modifiers
-	 *
+	 * @param rCollectedType The datatype of the collected values
+	 * @param fCollector     The function that determines the values to be
+	 *                       collected from relation types and target values
+	 * @param rModifiers     The relation type modifiers
 	 * @return The new instance
 	 */
 	public static <T> CollectorType<T> newDistinctCollector(
-		Class<? super T>					   rCollectedType,
+		Class<? super T> rCollectedType,
 		BinaryFunction<Relation<?>, Object, T> fCollector,
-		RelationTypeModifier... 			   rModifiers)
-	{
-		return new CollectorType<>(
-			null,
-			rCollectedType,
-			fCollector,
-			true,
+		RelationTypeModifier... rModifiers) {
+		return new CollectorType<>(null, rCollectedType, fCollector, true,
 			rModifiers);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Evaluates the event relation and collects the value if the collector
 	 * function returns a non-NULL value.
 	 *
@@ -183,97 +157,76 @@ public class CollectorType<T> extends AutomaticType<Collection<T>>
 	 */
 	@Override
 	@SuppressWarnings("boxing")
-	protected void processEvent(RelationEvent<?> rEvent)
-	{
-		Relation<?> rRelation  = rEvent.getElement();
-		EventType   eEventType = rEvent.getType();
+	protected void processEvent(RelationEvent<?> rEvent) {
+		Relation<?> rRelation = rEvent.getElement();
+		EventType eEventType = rEvent.getType();
 
-		Object rValue =
-			eEventType == EventType.UPDATE ? rEvent.getUpdateValue()
-										   : rRelation.getTarget();
+		Object rValue = eEventType == EventType.UPDATE ?
+		                rEvent.getUpdateValue() :
+		                rRelation.getTarget();
 
 		T rCollectValue = fCollector.evaluate(rRelation, rValue);
 
-		if (rCollectValue != null)
-		{
+		if (rCollectValue != null) {
 			Relation<Collection<T>> rCollectRelation =
 				rEvent.getEventScope().getRelation(this);
 
 			Collection<T> rValues = rCollectRelation.getTarget();
 
-			if (rValues instanceof CollectionWrapper)
-			{
+			if (rValues instanceof CollectionWrapper) {
 				rValues = ((CollectionWrapper<T>) rValues).rCollection;
 			}
 
-			if (eEventType == EventType.ADD || eEventType == EventType.UPDATE)
-			{
+			if (eEventType == EventType.ADD || eEventType == EventType.UPDATE) {
 				rValues.add(rCollectValue);
 
-				if (rCollectRelation.hasRelation(MAXIMUM))
-				{
+				if (rCollectRelation.hasRelation(MAXIMUM)) {
 					int nMaxSize = rCollectRelation.getAnnotation(MAXIMUM);
 
-					while (rValues.size() > nMaxSize)
-					{
-						if (rValues instanceof List)
-						{
+					while (rValues.size() > nMaxSize) {
+						if (rValues instanceof List) {
 							((List<?>) rValues).remove(0);
-						}
-						else
-						{
+						} else {
 							rValues.remove(
 								CollectionUtil.firstElementOf(rValues));
 						}
 					}
 				}
-			}
-			else if (bDistinctValues && eEventType == EventType.REMOVE)
-			{
+			} else if (bDistinctValues && eEventType == EventType.REMOVE) {
 				rValues.remove(rCollectValue);
 			}
 		}
 	}
 
-	/***************************************
+	/**
 	 * Overridden to protect the target collection.
 	 *
 	 * @see RelationType#addRelation(Relatable, Relation)
 	 */
 	@Override
-	protected void protectTarget(
-		Relatable				rParent,
-		Relation<Collection<T>> rRelation)
-	{
-		setRelationTarget(
-			rRelation,
+	protected void protectTarget(Relatable rParent,
+		Relation<Collection<T>> rRelation) {
+		setRelationTarget(rRelation,
 			new CollectionWrapper<>(rRelation.getTarget()));
 	}
 
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * An internal wrapper for the collection of final or readonly connections
 	 * that provides access to the wrapped collection to allow it's internal
 	 * modification by {@link CollectorType}.
 	 *
 	 * @author eso
 	 */
-	private static class CollectionWrapper<E> extends ImmutableCollection<E>
-	{
-		//~ Instance fields ----------------------------------------------------
+	private static class CollectionWrapper<E> extends ImmutableCollection<E> {
 
 		private final Collection<E> rCollection;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param rWrappedCollection The wrapped collection
 		 */
-		public CollectionWrapper(Collection<E> rWrappedCollection)
-		{
+		public CollectionWrapper(Collection<E> rWrappedCollection) {
 			super(rWrappedCollection);
 
 			rCollection = rWrappedCollection;

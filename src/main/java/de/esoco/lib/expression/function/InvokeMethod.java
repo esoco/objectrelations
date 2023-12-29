@@ -20,80 +20,68 @@ import de.esoco.lib.reflect.ReflectUtil;
 
 import java.lang.reflect.Method;
 
-
-/********************************************************************
+/**
  * Invokes a certain method on the target object (T) through reflection and
  * returns the result (R) of the method call.
  *
  * @author eso
  */
-public class InvokeMethod<T, R> extends AbstractBinaryFunction<T, Object[], R>
-{
-	//~ Instance fields --------------------------------------------------------
+public class InvokeMethod<T, R> extends AbstractBinaryFunction<T, Object[], R> {
 
 	private final Method rMethod;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance that will invoke a particular method without
 	 * arguments on the target object.
 	 *
 	 * @param rMethod The method to invoke
 	 */
-	public InvokeMethod(Method rMethod)
-	{
+	public InvokeMethod(Method rMethod) {
 		this(rMethod, (Object[]) ReflectUtil.NO_ARGS);
 	}
 
-	/***************************************
-	 * Creates a new instance that will invoke a particular method on the target
+	/**
+	 * Creates a new instance that will invoke a particular method on the
+	 * target
 	 * object.
 	 *
 	 * @param rMethod The method to invoke
 	 * @param rArgs   The arguments of the method call
 	 */
-	public InvokeMethod(Method rMethod, Object... rArgs)
-	{
+	public InvokeMethod(Method rMethod, Object... rArgs) {
 		super(rArgs,
-			  rMethod.getDeclaringClass().getName() + "." + rMethod.getName());
+			rMethod.getDeclaringClass().getName() + "." + rMethod.getName());
 
 		this.rMethod = rMethod;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Invokes this instance's method on the target object.
 	 *
-	 * @param  rTarget The target object to invoke the method on
-	 * @param  rArgs   The arguments for the method call
-	 *
+	 * @param rTarget The target object to invoke the method on
+	 * @param rArgs   The arguments for the method call
 	 * @return The result of the method call
 	 */
 	@Override
 	@SuppressWarnings("unchecked")
-	public R evaluate(T rTarget, Object[] rArgs)
-	{
+	public R evaluate(T rTarget, Object[] rArgs) {
 		return (R) ReflectUtil.invoke(rTarget, rMethod, rArgs);
 	}
 
-	/***************************************
+	/**
 	 * @see AbstractBinaryFunction#paramsEqual(AbstractFunction)
 	 */
 	@Override
-	protected boolean paramsEqual(AbstractFunction<?, ?> rOther)
-	{
+	protected boolean paramsEqual(AbstractFunction<?, ?> rOther) {
 		return super.paramsEqual(rOther) &&
-			   rMethod.equals(((InvokeMethod<?, ?>) rOther).rMethod);
+			rMethod.equals(((InvokeMethod<?, ?>) rOther).rMethod);
 	}
 
-	/***************************************
+	/**
 	 * @see AbstractBinaryFunction#paramsHashCode()
 	 */
 	@Override
-	protected int paramsHashCode()
-	{
+	protected int paramsHashCode() {
 		return 31 * rMethod.hashCode() + super.paramsHashCode();
 	}
 }

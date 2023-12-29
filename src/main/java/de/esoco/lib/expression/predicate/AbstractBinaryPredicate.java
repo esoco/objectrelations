@@ -22,8 +22,7 @@ import de.esoco.lib.expression.Predicate;
 import de.esoco.lib.expression.Predicates;
 import de.esoco.lib.expression.function.AbstractBinaryFunction;
 
-
-/********************************************************************
+/**
  * An abstract predicate implementation for binary predicates. See the base
  * class {@link AbstractBinaryFunction} for details.
  *
@@ -31,55 +30,46 @@ import de.esoco.lib.expression.function.AbstractBinaryFunction;
  */
 public abstract class AbstractBinaryPredicate<L, R>
 	extends AbstractBinaryFunction<L, R, Boolean>
-	implements BinaryPredicate<L, R>
-{
-	//~ Constructors -----------------------------------------------------------
+	implements BinaryPredicate<L, R> {
 
-	/***************************************
+	/**
 	 * @see AbstractBinaryFunction#AbstractBinaryFunction(Object, String)
 	 */
-	public AbstractBinaryPredicate(R rRightValue, String sToken)
-	{
+	public AbstractBinaryPredicate(R rRightValue, String sToken) {
 		super(rRightValue, sToken);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see Predicate#and(Predicate)
 	 */
 	@Override
-	public <O extends L> Predicate<O> and(Predicate<? super L> rOther)
-	{
+	public <O extends L> Predicate<O> and(Predicate<? super L> rOther) {
 		return Predicates.and(this, rOther);
 	}
 
-	/***************************************
+	/**
 	 * @see Predicate#from(Function)
 	 */
 	@Override
-	public <I> Predicate<I> from(Function<I, ? extends L> rFunction)
-	{
+	public <I> Predicate<I> from(Function<I, ? extends L> rFunction) {
 		return Predicates.chain(this, rFunction);
 	}
 
-	/***************************************
+	/**
 	 * @see Predicate#or(Predicate)
 	 */
 	@Override
-	public <O extends L> Predicate<O> or(Predicate<? super L> rOther)
-	{
+	public <O extends L> Predicate<O> or(Predicate<? super L> rOther) {
 		return Predicates.or(this, rOther);
 	}
 
-	/***************************************
+	/**
 	 * Overridden to implement a predicate-specific formatting.
 	 *
 	 * @see AbstractBinaryFunction#toString()
 	 */
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return INPUT_PLACEHOLDER + " " + getToken() + " " + getRightValue();
 	}
 }

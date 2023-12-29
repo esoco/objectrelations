@@ -16,54 +16,46 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
-/********************************************************************
+/**
  * Runtime exception that signals an unresolvable relation.
  *
  * @author eso
  */
-public class UnresolvableRelationException extends RuntimeException
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class UnresolvableRelationException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Default constructor.
 	 */
-	public UnresolvableRelationException()
-	{
+	public UnresolvableRelationException() {
 	}
 
-	/***************************************
+	/**
 	 * Creates an instance with an error message.
 	 *
 	 * @param rMessage The error message
 	 */
-	public UnresolvableRelationException(String rMessage)
-	{
+	public UnresolvableRelationException(String rMessage) {
 		super(rMessage);
 	}
 
-	/***************************************
+	/**
 	 * Creates an instance with a causing exception.
 	 *
 	 * @param rCause The causing exception
 	 */
-	public UnresolvableRelationException(Throwable rCause)
-	{
+	public UnresolvableRelationException(Throwable rCause) {
 		super(rCause);
 	}
 
-	/***************************************
+	/**
 	 * Creates an instance with an error message and a causing exception.
 	 *
 	 * @param rMessage The error message
 	 * @param rCause   The causing exception
 	 */
-	public UnresolvableRelationException(String rMessage, Throwable rCause)
-	{
+	public UnresolvableRelationException(String rMessage, Throwable rCause) {
 		super(rMessage, rCause);
 	}
 }

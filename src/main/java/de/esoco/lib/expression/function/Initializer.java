@@ -16,20 +16,17 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression.function;
 
-/********************************************************************
+/**
  * An interface for the initialization of objects.
  *
  * @author eso
  */
-public interface Initializer<T>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface Initializer<T> {
 
-	/***************************************
+	/**
 	 * Initializes the given object.
 	 *
-	 * @param  rInitObject The object to initialize
-	 *
+	 * @param rInitObject The object to initialize
 	 * @throws Exception If the initialization fails
 	 */
 	void init(T rInitObject) throws Exception;

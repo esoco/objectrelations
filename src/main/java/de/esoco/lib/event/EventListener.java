@@ -16,12 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.event;
 
-/********************************************************************
+/**
  * General interface for event listeners that do not contain specific event
  * handling methods.
  *
  * @author eso
  */
-public interface EventListener
-{
+public interface EventListener {
 }

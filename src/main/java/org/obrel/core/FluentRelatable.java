@@ -18,7 +18,7 @@ package org.obrel.core;
 
 import de.esoco.lib.property.Fluent;
 
-/********************************************************************
+/**
  * An interface that can be implemented by relatable objects that provide a
  * fluent interface. The default method {@link #with(RelationType, Object)} sets
  * a relation type and then returns the current instance so that the next method
@@ -28,20 +28,18 @@ import de.esoco.lib.property.Fluent;
  */
 public interface FluentRelatable<T extends FluentRelatable<T>>
 	extends Relatable, Fluent<T> {
-	//~ Methods ----------------------------------------------------------------
 
-	/***************************************
+	/**
 	 * Sets a flag relation type and returns this instance.
 	 *
-	 * @param  rType The relation type
-	 *
+	 * @param rType The relation type
 	 * @return This instance for fluent invocation
 	 */
 	default T with(RelationType<Boolean> rType) {
 		return _with(() -> set(rType));
 	}
 
-	/***************************************
+	/**
 	 * Sets an integer relation type from an int value and returns this
 	 * instance.
 	 *
@@ -51,15 +49,14 @@ public interface FluentRelatable<T extends FluentRelatable<T>>
 		return _with(() -> set(rType, Integer.valueOf(nValue)));
 	}
 
-	/***************************************
+	/**
 	 * Sets a relation type and returns this instance for fluent invocation of
 	 * additional methods. Although this method can be invoked directly it is
 	 * recommended that implementing classes call this method from methods with
 	 * names that provide a more concise fluent syntax.
 	 *
-	 * @param  rType  The relation type
-	 * @param  rValue The value
-	 *
+	 * @param rType  The relation type
+	 * @param rValue The value
 	 * @return This instance for fluent invocation
 	 */
 	default <V> T with(RelationType<V> rType, V rValue) {

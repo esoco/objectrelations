@@ -16,7 +16,7 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.core;
 
-/********************************************************************
+/**
  * A subclass of related object that is intended to hold relation-based
  * parameters. It implements the relation builder interface so that relations
  * can easily be added to an instance. It also provides the factory method
@@ -28,60 +28,51 @@ package org.obrel.core;
  *
  * @author eso
  */
-public class Params extends RelatedObject implements RelationBuilder<Params>,
-													 ProvidesConfiguration
-{
-	//~ Static methods ---------------------------------------------------------
+public class Params extends RelatedObject
+	implements RelationBuilder<Params>, ProvidesConfiguration {
 
-	/***************************************
-	 * Factory method to create a new instance of this class that is initialized
+	/**
+	 * Factory method to create a new instance of this class that is
+	 * initialized
 	 * with the given relations.
 	 *
-	 * @param  rRelations The initial relations of this instance
-	 *
+	 * @param rRelations The initial relations of this instance
 	 * @return The new instance
 	 */
-	public static Params params(RelationData<?>... rRelations)
-	{
+	public static Params params(RelationData<?>... rRelations) {
 		return new Params().with(rRelations);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Copies the relations of this instance to another relatable.
 	 *
 	 * @param rTarget          The target relatable
 	 * @param bReplaceExisting TRUE to overwrite existing relations in the
 	 *                         target, FALSE to keep them
 	 */
-	public void applyTo(Relatable rTarget, boolean bReplaceExisting)
-	{
+	public void applyTo(Relatable rTarget, boolean bReplaceExisting) {
 		ObjectRelations.copyRelations(this, rTarget, bReplaceExisting);
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> T getConfigValue(RelationType<T> rType, T rDefaultValue)
-	{
+	public <T> T getConfigValue(RelationType<T> rType, T rDefaultValue) {
 		T rValue = rDefaultValue;
 
-		if (hasRelation(rType))
-		{
+		if (hasRelation(rType)) {
 			rValue = get(rType);
 		}
 
 		return rValue;
 	}
 
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <T> void setConfigValue(RelationType<T> rType, T rValue)
-	{
+	public <T> void setConfigValue(RelationType<T> rType, T rValue) {
 		set(rType, rValue);
 	}
 }

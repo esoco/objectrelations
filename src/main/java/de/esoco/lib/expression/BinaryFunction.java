@@ -20,8 +20,7 @@ import de.esoco.lib.expression.function.DualFunctionChain;
 
 import java.util.function.BiFunction;
 
-
-/********************************************************************
+/**
  * Interface for binary functions that derived their result from two input
  * values. The generic parameters define the types of the left and right input
  * values (L, R) and the resulting output value (O).
@@ -37,89 +36,75 @@ import java.util.function.BiFunction;
  * @author eso
  */
 @FunctionalInterface
-public interface BinaryFunction<L, R, O> extends Function<L, O>
-{
-	//~ Static methods ---------------------------------------------------------
+public interface BinaryFunction<L, R, O> extends Function<L, O> {
 
-	/***************************************
+	/**
 	 * Takes a binary function that throws an exception and returns it as a
 	 * function that can be executed without checked exception. This method is
 	 * mainly intended to be used with lambdas that throw exceptions.
 	 *
-	 * @param  fChecked The checked binary function to wrap as unchecked
-	 *
+	 * @param fChecked The checked binary function to wrap as unchecked
 	 * @return The unchecked binary function
 	 */
 	static <L, R, O> BiFunction<L, R, O> unchecked(
-		ThrowingBinaryFunction<L, R, O> fChecked)
-	{
+		ThrowingBinaryFunction<L, R, O> fChecked) {
 		return fChecked;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Default implementation that invokes {@link #evaluate(Object, Object)}
 	 * with the return value of {@link #getRightValue()} as the right argument.
 	 *
 	 * @see Function#evaluate(Object)
 	 */
 	@Override
-	default O evaluate(L rLeftValue)
-	{
+	default O evaluate(L rLeftValue) {
 		return evaluate(rLeftValue, getRightValue());
 	}
 
-	/***************************************
+	/**
 	 * Evaluates the binary function on the left and right input values and
 	 * returns the resulting value.
 	 *
-	 * @param  rLeftValue  The left value to evaluate
-	 * @param  rRightValue The right value to evaluate
-	 *
+	 * @param rLeftValue  The left value to evaluate
+	 * @param rRightValue The right value to evaluate
 	 * @return The result of the evaluation
 	 */
 	O evaluate(L rLeftValue, R rRightValue);
 
-	/***************************************
+	/**
 	 * Returns a new function object that evaluates the output values received
 	 * from two other function with this binary function.
 	 *
-	 * @param  fLeft  The function to product the left input values with
-	 * @param  fRight The function to produce the right input values with
-	 *
+	 * @param fLeft  The function to product the left input values with
+	 * @param fRight The function to produce the right input values with
 	 * @return A new instance of {@link DualFunctionChain}
 	 */
-	default <A, B> BinaryFunction<A, B, O> from(
-		Function<A, ? extends L> fLeft,
-		Function<B, ? extends R> fRight)
-	{
+	default <A, B> BinaryFunction<A, B, O> from(Function<A, ? extends L> fLeft,
+		Function<B, ? extends R> fRight) {
 		return Functions.chain(this, fLeft, fRight);
 	}
 
-	/***************************************
+	/**
 	 * Returns the right value of this binary function. The default
 	 * implementation always returns NULL.
 	 *
 	 * @return The right value
 	 */
-	default R getRightValue()
-	{
+	default R getRightValue() {
 		return null;
 	}
 
-	/***************************************
+	/**
 	 * Returns a new function object that evaluates this function with the
 	 * original input value and a right value from the output value received
 	 * from another function.
 	 *
-	 * @param  fRight The function to produce the right input values with
-	 *
+	 * @param fRight The function to produce the right input values with
 	 * @return A new instance of {@link DualFunctionChain}
 	 */
 	default <T> BinaryFunction<L, T, O> withRight(
-		Function<T, ? extends R> fRight)
-	{
+		Function<T, ? extends R> fRight) {
 		return from(Functions.identity(), fRight);
 	}
 }

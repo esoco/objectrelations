@@ -18,8 +18,7 @@ package de.esoco.lib.datatype;
 
 import java.io.Serializable;
 
-
-/********************************************************************
+/**
  * A generic representation of a unique object identifier. How exactly an object
  * ID is defined and in which context it is unique depends on the concrete
  * subclasses. This base class defines the general properties of object IDs:
@@ -73,65 +72,80 @@ import java.io.Serializable;
  *
  * @author eso
  */
-public abstract class ObjectId<T> implements Serializable
-{
-	//~ Static fields/initializers ---------------------------------------------
+public abstract class ObjectId<T> implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 */
-	protected ObjectId()
-	{
+	protected ObjectId() {
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Factory method that returns an object ID for a certain integer value.
 	 *
-	 * @param  nId The integer value
-	 *
+	 * @param nId The integer value
 	 * @return An object ID instance
 	 */
-	public static <T> ObjectId<T> intId(int nId)
-	{
+	public static <T> ObjectId<T> intId(int nId) {
 		return new IntegerId<T>(nId);
 	}
 
-	/***************************************
+	/**
 	 * Factory method that returns an object ID for a certain long value.
 	 *
-	 * @param  nId The long value
-	 *
+	 * @param nId The long value
 	 * @return An object ID instance
 	 */
-	public static <T> ObjectId<T> longId(long nId)
-	{
+	public static <T> ObjectId<T> longId(long nId) {
 		return new LongId<T>(nId);
 	}
 
-	/***************************************
+	/**
 	 * Factory method that returns an object ID for a certain string value.
 	 *
-	 * @param  sId The string value
-	 *
+	 * @param sId The string value
 	 * @return An object ID instance
 	 */
-	public static <T> ObjectId<T> stringId(String sId)
-	{
+	public static <T> ObjectId<T> stringId(String sId) {
 		return new StringId<T>(sId);
 	}
 
-	//~ Methods ----------------------------------------------------------------
+	/**
+	 * Compares this instance for equality with another object. Two object IDs
+	 * are considered equal if their string representations are equal.
+	 *
+	 * @see Object#equals(Object)
+	 */
+	@Override
+	public final boolean equals(Object rOther) {
+		if (this == rOther) {
+			return true;
+		}
 
-	/***************************************
+		if (rOther == null || getClass() != rOther.getClass()) {
+			return false;
+		}
+
+		return toString().equals(rOther.toString());
+	}
+
+	/**
+	 * Returns the hash code of this objects string representation.
+	 *
+	 * @see Object#hashCode()
+	 */
+	@Override
+	public final int hashCode() {
+		return toString().hashCode();
+	}
+
+	/**
 	 * Must be implemented to return the internal value of this instance. This
 	 * method exists mainly to provide access to the internal ID representation
-	 * for frameworks. Implementations should only return immutable objects. For
+	 * for frameworks. Implementations should only return immutable objects.
+	 * For
 	 * primitive types an instance the corresponding wrapper class must be
 	 * returned.
 	 *
@@ -139,7 +153,7 @@ public abstract class ObjectId<T> implements Serializable
 	 */
 	public abstract Object internalValue();
 
-	/***************************************
+	/**
 	 * Must be re-implemented by subclasses to provide a readable string
 	 * representation of this ID instance.
 	 *
@@ -148,187 +162,119 @@ public abstract class ObjectId<T> implements Serializable
 	@Override
 	public abstract String toString();
 
-	/***************************************
-	 * Compares this instance for equality with another object. Two object IDs
-	 * are considered equal if their string representations are equal.
-	 *
-	 * @see Object#equals(Object)
-	 */
-	@Override
-	public final boolean equals(Object rOther)
-	{
-		if (this == rOther)
-		{
-			return true;
-		}
-
-		if (rOther == null || getClass() != rOther.getClass())
-		{
-			return false;
-		}
-
-		return toString().equals(rOther.toString());
-	}
-
-	/***************************************
-	 * Returns the hash code of this objects string representation.
-	 *
-	 * @see Object#hashCode()
-	 */
-	@Override
-	public final int hashCode()
-	{
-		return toString().hashCode();
-	}
-
-	//~ Inner Classes ----------------------------------------------------------
-
-	/********************************************************************
+	/**
 	 * An {@link ObjectId} implementation that is based on integer values.
 	 *
 	 * @author eso
 	 */
-	public static class IntegerId<T> extends ObjectId<T>
-	{
-		//~ Static fields/initializers -----------------------------------------
+	public static class IntegerId<T> extends ObjectId<T> {
 
 		private static final long serialVersionUID = 1L;
 
-		//~ Instance fields ----------------------------------------------------
-
 		private final int nId;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param nId The ID value
 		 */
-		public IntegerId(int nId)
-		{
+		public IntegerId(int nId) {
 			this.nId = nId;
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * @see ObjectId#internalValue()
 		 */
 		@Override
-		public Object internalValue()
-		{
+		public Object internalValue() {
 			return Integer.valueOf(nId);
 		}
 
-		/***************************************
+		/**
 		 * Returns the string representation of the integer value.
 		 *
 		 * @see ObjectId#toString()
 		 */
 		@Override
-		public String toString()
-		{
+		public String toString() {
 			return Integer.toString(nId);
 		}
 	}
 
-	/********************************************************************
+	/**
 	 * An {@link ObjectId} implementation that is based on long integer values.
 	 *
 	 * @author eso
 	 */
-	public static class LongId<T> extends ObjectId<T>
-	{
-		//~ Static fields/initializers -----------------------------------------
+	public static class LongId<T> extends ObjectId<T> {
 
 		private static final long serialVersionUID = 1L;
 
-		//~ Instance fields ----------------------------------------------------
-
 		private final long nId;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param nId The ID value
 		 */
-		public LongId(long nId)
-		{
+		public LongId(long nId) {
 			this.nId = nId;
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * @see ObjectId#internalValue()
 		 */
 		@Override
-		public Object internalValue()
-		{
+		public Object internalValue() {
 			return Long.valueOf(nId);
 		}
 
-		/***************************************
+		/**
 		 * Returns the string representation of the long value.
 		 *
 		 * @see ObjectId#toString()
 		 */
 		@Override
-		public String toString()
-		{
+		public String toString() {
 			return Long.toString(nId);
 		}
 	}
 
-	/********************************************************************
+	/**
 	 * An {@link ObjectId} implementation that is based on string values.
 	 *
 	 * @author eso
 	 */
-	public static class StringId<T> extends ObjectId<T>
-	{
-		//~ Static fields/initializers -----------------------------------------
+	public static class StringId<T> extends ObjectId<T> {
 
 		private static final long serialVersionUID = 1L;
 
-		//~ Instance fields ----------------------------------------------------
-
 		private final String sId;
 
-		//~ Constructors -------------------------------------------------------
-
-		/***************************************
+		/**
 		 * Creates a new instance.
 		 *
 		 * @param sId The ID string
 		 */
-		public StringId(String sId)
-		{
+		public StringId(String sId) {
 			this.sId = sId;
 		}
 
-		//~ Methods ------------------------------------------------------------
-
-		/***************************************
+		/**
 		 * @see ObjectId#internalValue()
 		 */
 		@Override
-		public Object internalValue()
-		{
+		public Object internalValue() {
 			return sId;
 		}
 
-		/***************************************
+		/**
 		 * Returns the ID string.
 		 *
 		 * @see ObjectId#toString()
 		 */
 		@Override
-		public String toString()
-		{
+		public String toString() {
 			return sId;
 		}
 	}

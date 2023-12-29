@@ -16,21 +16,17 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.event;
 
-/********************************************************************
+/**
  * An listener interface for objects that need to be notified of editing events.
  */
-public interface EditListener<T>
-{
-	//~ Enums ------------------------------------------------------------------
+public interface EditListener<T> {
 
-	/********************************************************************
+	/**
 	 * Enumeration of the standard actions for the editing of objects.
 	 */
-	enum EditAction { SAVE, CANCEL }
+	enum EditAction {SAVE, CANCEL}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Will be invoked after the editing of an object has been finished with a
 	 * certain action.
 	 *
@@ -39,7 +35,7 @@ public interface EditListener<T>
 	 */
 	void editFinished(T rObject, EditAction eFinishAction);
 
-	/***************************************
+	/**
 	 * Will be invoked when the editing of a TLD begins.
 	 *
 	 * @param rObject The edited object

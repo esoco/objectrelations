@@ -19,7 +19,6 @@ package org.obrel.type;
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.MathFunctions;
 import de.esoco.lib.expression.Predicate;
-
 import org.obrel.core.Relation;
 import org.obrel.core.RelationEvent;
 import org.obrel.core.RelationTypeModifier;
@@ -27,26 +26,20 @@ import org.obrel.core.RelationTypes;
 
 import static de.esoco.lib.expression.Functions.value;
 
-
-/********************************************************************
+/**
  * An automatic relation type that counts occurrences of other relations.
  *
  * @author eso
  */
-public class CounterType<N extends Number> extends AutomaticType<N>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class CounterType<N extends Number> extends AutomaticType<N> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Instance fields --------------------------------------------------------
-
 	private final Predicate<RelationEvent<?>> pCount;
-	private final Function<N, N>			  fIncrement;
 
-	//~ Constructors -----------------------------------------------------------
+	private final Function<N, N> fIncrement;
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sName         The name of this type
@@ -56,79 +49,54 @@ public class CounterType<N extends Number> extends AutomaticType<N>
 	 * @param rModifiers    The relation type modifiers
 	 */
 	@SuppressWarnings("unchecked")
-	public CounterType(String					   sName,
-					   N						   rInitialValue,
-					   Predicate<RelationEvent<?>> pCount,
-					   Function<N, N>			   fIncrement,
-					   RelationTypeModifier...     rModifiers)
-	{
-		super(
-			sName,
-			(Class<N>) rInitialValue.getClass(),
-			value(rInitialValue),
+	public CounterType(String sName, N rInitialValue,
+		Predicate<RelationEvent<?>> pCount, Function<N, N> fIncrement,
+		RelationTypeModifier... rModifiers) {
+		super(sName, (Class<N>) rInitialValue.getClass(), value(rInitialValue),
 			rModifiers);
 
-		this.pCount     = pCount;
+		this.pCount = pCount;
 		this.fIncrement = fIncrement;
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Factory method for a counter with an arbitrary number type that is
 	 * initialized by {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param  rInitialValue The value to start counting at
-	 * @param  pCount        A predicate that determines what to count
-	 * @param  fIncrement    A function that increments the number value
-	 * @param  rModifiers    The relation type modifiers
-	 *
+	 * @param rInitialValue The value to start counting at
+	 * @param pCount        A predicate that determines what to count
+	 * @param fIncrement    A function that increments the number value
+	 * @param rModifiers    The relation type modifiers
 	 * @return The new instance
 	 */
-	public static <N extends Number> CounterType<N> newCounter(
-		N							rInitialValue,
-		Predicate<RelationEvent<?>> pCount,
-		Function<N, N>				fIncrement,
-		RelationTypeModifier...     rModifiers)
-	{
-		return new CounterType<>(
-			null,
-			rInitialValue,
-			pCount,
-			fIncrement,
+	public static <N extends Number> CounterType<N> newCounter(N rInitialValue,
+		Predicate<RelationEvent<?>> pCount, Function<N, N> fIncrement,
+		RelationTypeModifier... rModifiers) {
+		return new CounterType<>(null, rInitialValue, pCount, fIncrement,
 			rModifiers);
 	}
 
-	/***************************************
+	/**
 	 * Factory method for an integer counter that starts at zero and is
 	 * initialized by {@link RelationTypes#init(Class...)}.
 	 *
-	 * @param  pCount     A predicate that determines what to count
-	 * @param  rModifiers The relation type modifiers
-	 *
+	 * @param pCount     A predicate that determines what to count
+	 * @param rModifiers The relation type modifiers
 	 * @return The new instance
 	 */
 	public static CounterType<Integer> newIntCounter(
 		Predicate<RelationEvent<?>> pCount,
-		RelationTypeModifier...     rModifiers)
-	{
-		return newCounter(
-			Integer.valueOf(0),
-			pCount,
-			MathFunctions.add(1),
+		RelationTypeModifier... rModifiers) {
+		return newCounter(Integer.valueOf(0), pCount, MathFunctions.add(1),
 			rModifiers);
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void processEvent(RelationEvent<?> rEvent)
-	{
-		if (pCount.test(rEvent))
-		{
+	protected void processEvent(RelationEvent<?> rEvent) {
+		if (pCount.test(rEvent)) {
 			Relation<N> rCount = rEvent.getEventScope().getRelation(this);
 
 			setRelationTarget(rCount, fIncrement.apply(rCount.getTarget()));

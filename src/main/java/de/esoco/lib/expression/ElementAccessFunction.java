@@ -16,12 +16,11 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-/********************************************************************
+/**
  * A combined interface for functions that access certain elements in objects.
  *
  * @author eso
  */
-public interface ElementAccessFunction<E, I, O> extends Function<I, O>,
-														ElementAccess<E>
-{
+public interface ElementAccessFunction<E, I, O>
+	extends Function<I, O>, ElementAccess<E> {
 }

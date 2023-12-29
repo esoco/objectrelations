@@ -18,31 +18,25 @@ package org.obrel.type;
 
 import de.esoco.lib.expression.Function;
 import de.esoco.lib.expression.ReflectionFuntions;
+import org.obrel.core.RelationType;
+import org.obrel.core.RelationTypeModifier;
+import org.obrel.core.RelationTypes;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.obrel.core.RelationType;
-import org.obrel.core.RelationTypeModifier;
-import org.obrel.core.RelationTypes;
-
-
-/********************************************************************
+/**
  * A relation type subclass for {@link Set} targets that are automatically
  * initialized to an empty set.
  *
  * @author eso
  */
-public class SetType<T> extends RelationType<Set<T>>
-{
-	//~ Static fields/initializers ---------------------------------------------
+public class SetType<T> extends RelationType<Set<T>> {
 
 	private static final long serialVersionUID = 1L;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance for the use with static initialization. Instances
 	 * created with this constructor MUST be declared as static constants in a
 	 * class that is initialized with {@link RelationTypes#init(Class...)}.
@@ -50,12 +44,11 @@ public class SetType<T> extends RelationType<Set<T>>
 	 * @param bOrdered   TRUE for an ordered map
 	 * @param rModifiers The optional relation type modifiers
 	 */
-	public SetType(boolean bOrdered, RelationTypeModifier... rModifiers)
-	{
+	public SetType(boolean bOrdered, RelationTypeModifier... rModifiers) {
 		this(null, null, bOrdered, rModifiers);
 	}
 
-	/***************************************
+	/**
 	 * Creates a new instance.
 	 *
 	 * @param sName        The relation type name (NULL for automatic
@@ -64,35 +57,27 @@ public class SetType<T> extends RelationType<Set<T>>
 	 * @param bOrdered     TRUE for an ordered map
 	 * @param rModifiers   The optional relation type modifiers
 	 */
-	public SetType(String				   sName,
-				   Class<T>				   rElementType,
-				   boolean				   bOrdered,
-				   RelationTypeModifier... rModifiers)
-	{
+	public SetType(String sName, Class<T> rElementType, boolean bOrdered,
+		RelationTypeModifier... rModifiers) {
 		super(sName, Set.class, initialValueFunction(bOrdered), rModifiers);
 
 		set(MetaTypes.ELEMENT_DATATYPE, rElementType);
 
-		if (bOrdered)
-		{
+		if (bOrdered) {
 			set(MetaTypes.ORDERED);
 		}
 	}
 
-	//~ Static methods ---------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates the initial value function that produces either an ordered or an
 	 * unordered set.
 	 *
-	 * @param  bOrdered TRUE for an ordered set
-	 *
+	 * @param bOrdered TRUE for an ordered set
 	 * @return The initial value function
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> Function<Object, Set<T>> initialValueFunction(
-		boolean bOrdered)
-	{
+		boolean bOrdered) {
 		Class<?> rSetClass = bOrdered ? LinkedHashSet.class : HashSet.class;
 
 		return ReflectionFuntions.newInstanceOf((Class<Set<T>>) rSetClass);

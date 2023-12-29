@@ -16,18 +16,16 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package de.esoco.lib.expression;
 
-/********************************************************************
+/**
  * An interface for objects that implement access to certain elements of other
  * objects. The descriptor of the accessed elements can be queried with the
  * {@link #getElementDescriptor()} method.
  *
  * @author eso
  */
-public interface ElementAccess<E>
-{
-	//~ Methods ----------------------------------------------------------------
+public interface ElementAccess<E> {
 
-	/***************************************
+	/**
 	 * Returns the element descriptor of this instance.
 	 *
 	 * @return The element descriptor

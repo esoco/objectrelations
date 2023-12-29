@@ -16,28 +16,23 @@
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 package org.obrel.filter;
 
-import java.util.Comparator;
-
 import org.obrel.core.Relatable;
 import org.obrel.core.RelationType;
 
+import java.util.Comparator;
 
-/********************************************************************
+/**
  * A {@link Comparator} implementation that compares relation targets. The
  * relation targets must not be NULL or else a {@link NullPointerException} will
  * be thrown.
  *
  * @author eso
  */
-public class RelationComparator<T extends Relatable> implements Comparator<T>
-{
-	//~ Instance fields --------------------------------------------------------
+public class RelationComparator<T extends Relatable> implements Comparator<T> {
 
 	private final RelationType<Comparable<Object>>[] rRelationTypes;
 
-	//~ Constructors -----------------------------------------------------------
-
-	/***************************************
+	/**
 	 * Creates a new instance that compares a certain relation of relatable
 	 * objects.
 	 *
@@ -47,29 +42,23 @@ public class RelationComparator<T extends Relatable> implements Comparator<T>
 	@SafeVarargs
 	@SuppressWarnings("unchecked")
 	public RelationComparator(
-		RelationType<? extends Comparable<?>>... rCompareRelationTypes)
-	{
+		RelationType<? extends Comparable<?>>... rCompareRelationTypes) {
 		// cast is safe because both target values will be of the same type
 		rRelationTypes =
 			(RelationType<Comparable<Object>>[]) rCompareRelationTypes;
 	}
 
-	//~ Methods ----------------------------------------------------------------
-
-	/***************************************
+	/**
 	 * @see Comparator#compare(Object, Object)
 	 */
 	@Override
-	public int compare(T rFirst, T rSecond)
-	{
+	public int compare(T rFirst, T rSecond) {
 		int nComparison = 0;
 
-		for (RelationType<Comparable<Object>> rType : rRelationTypes)
-		{
+		for (RelationType<Comparable<Object>> rType : rRelationTypes) {
 			nComparison = rFirst.get(rType).compareTo(rSecond.get(rType));
 
-			if (nComparison != 0)
-			{
+			if (nComparison != 0) {
 				break;
 			}
 		}
