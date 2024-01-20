@@ -47,9 +47,9 @@ public class ObjectSpaceTest {
 
 	private ObjectSpace<Object> testSpace;
 
-	private ObjectSpace<Object> aSubSpace1;
+	private ObjectSpace<Object> subSpace1;
 
-	private ObjectSpace<Object> aSubSpace2;
+	private ObjectSpace<Object> subSpace2;
 
 	/**
 	 * Creates the test object space.
@@ -57,11 +57,11 @@ public class ObjectSpaceTest {
 	@BeforeEach
 	public void setup() {
 		testSpace = new RelationSpace<>(true);
-		aSubSpace1 = new RelationSpace<>(true);
-		aSubSpace2 = new RelationSpace<>(true);
+		subSpace1 = new RelationSpace<>(true);
+		subSpace2 = new RelationSpace<>(true);
 
-		testSpace.set(SUBSPACE1, aSubSpace1);
-		testSpace.set(SUBSPACE2, aSubSpace2);
+		testSpace.set(SUBSPACE1, subSpace1);
+		testSpace.set(SUBSPACE2, subSpace2);
 
 		testSpace.put("name", "Test");
 		testSpace.put("port", 1234);
@@ -78,8 +78,8 @@ public class ObjectSpaceTest {
 	public void testDelete() {
 		testSpace.delete("subspace1/name");
 		testSpace.delete("subspace1/port");
-		assertFalse(aSubSpace1.hasRelation(NAME));
-		assertFalse(aSubSpace1.hasRelation(PORT));
+		assertFalse(subSpace1.hasRelation(NAME));
+		assertFalse(subSpace1.hasRelation(PORT));
 
 		testSpace.delete("subspace1");
 		assertFalse(testSpace.hasRelation(SUBSPACE1));

@@ -899,17 +899,18 @@ public class CollectionUtil {
 	 * Any
 	 * whitespace characters surrounding the map entries will be removed.
 	 *
-	 * @param entries    The entry string to be parsed
-	 * @param cSeparator The separator character between key value pairs (will
-	 *                   be used in a call to <code>Pattern.split()</code>).
+	 * @param entries   The entry string to be parsed
+	 * @param separator The separator character between key value pairs
+	 *                     (will be
+	 *                  used in a call to <code>Pattern.split()</code>).
 	 * @return A new map containing the parsed entries
 	 * @throws IllegalArgumentException If the parsing of a map entry fails
 	 * @see #parseMap(String...)
 	 * @see Pattern#split(java.lang.CharSequence)
 	 */
 	public static Map<Object, Object> parseMap(String entries,
-		char cSeparator) {
-		return parseMap(entries.split("" + cSeparator));
+		char separator) {
+		return parseMap(entries.split("" + separator));
 	}
 
 	/**

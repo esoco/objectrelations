@@ -99,8 +99,7 @@ public class JsonBuilderTest {
 
 		json.appendRelatable(createTestRelatable(), null, true);
 
-		assertEquals(
-			"{\"NAME\":\"TEST\",\"INFO\":\"JSON\",\"PORT\":12345," +
+		assertEquals("{\"NAME\":\"TEST\",\"INFO\":\"JSON\",\"PORT\":12345," +
 				"\"MODIFIED\":true," +
 				"\"PARENT\":{\"NAME\":\"PARENT\",\"INFO\":\"JSON_OBJECT\"}," +
 				"\"CHILDREN\":[{\"NAME\":\"CHILD1\"},{\"NAME\":\"CHILD2\"}]}",
@@ -128,8 +127,8 @@ public class JsonBuilderTest {
 	}
 
 	/**
-	 * Test of {@link JsonBuilder#append(org.obrel.core.Relation, boolean,
-	 * boolean)}
+	 * Test of
+	 * {@link JsonBuilder#append(org.obrel.core.Relation, boolean, boolean)}
 	 */
 	@Test
 	public void testAppendRelation() {
@@ -233,21 +232,21 @@ public class JsonBuilderTest {
 	protected Relatable createTestRelatable() {
 		RelatedObject testObj = new RelatedObject();
 		RelatedObject parent = new RelatedObject();
-		RelatedObject aChild1 = new RelatedObject();
-		RelatedObject aChild2 = new RelatedObject();
+		RelatedObject child1 = new RelatedObject();
+		RelatedObject child2 = new RelatedObject();
 
 		parent.set(StandardTypes.NAME, "PARENT");
 		parent.set(StandardTypes.INFO, "JSON_OBJECT");
 
-		aChild1.set(StandardTypes.NAME, "CHILD1");
-		aChild2.set(StandardTypes.NAME, "CHILD2");
+		child1.set(StandardTypes.NAME, "CHILD1");
+		child2.set(StandardTypes.NAME, "CHILD2");
 
 		testObj.set(StandardTypes.NAME, "TEST");
 		testObj.set(StandardTypes.INFO, "JSON");
 		testObj.set(StandardTypes.PORT, 12345);
 		testObj.set(MetaTypes.MODIFIED);
 		testObj.set(StandardTypes.PARENT, parent);
-		testObj.set(StandardTypes.CHILDREN, Arrays.asList(aChild1, aChild2));
+		testObj.set(StandardTypes.CHILDREN, Arrays.asList(child1, child2));
 
 		return testObj;
 	}
